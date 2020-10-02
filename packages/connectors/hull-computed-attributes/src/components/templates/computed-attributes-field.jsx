@@ -29,6 +29,17 @@ type State = {
   show: boolean
 };
 
+const TYPE_TO_COLOR = {
+  string: "primary",
+  number: "success",
+  boolean: "light",
+  array: "warning",
+  date: "info",
+  object: "danger"
+};
+
+const typeToColor = type => TYPE_TO_COLOR[type] || "danger";
+
 export default class ComputedAttributesFieldTemplate extends Component<
   Props,
   State
@@ -38,11 +49,19 @@ export default class ComputedAttributesFieldTemplate extends Component<
   };
 
   handleOpenModal = () => {
-    this.setState({ show: true });
+    this.props.formContext.onStartEditing({
+      id: this.props.formData.computed_attribute
+    });
   };
 
   handleCloseModal = () => {
-    this.setState({ show: false });
+    this.props.formContext.onStopEditing({
+      id: this.props.formData.computed_attribute
+    });
+  };
+
+  isEditing = () => {
+    return this.props.formContext.editing === this.props.formData.computed_attribute;
   };
 
   getPreview = (key: string) => {
@@ -71,8 +90,9 @@ export default class ComputedAttributesFieldTemplate extends Component<
 
     const { computed_attribute, type } = formData;
     const modalProps = _.tail(properties);
-    const attribute = _.find(properties, { name: "computed_attribute" });
-    // const type = _.find(properties, { name: "type" });
+    const attribute = _.find(properties, {
+      name: "computed_attribute"
+    });
     return (
       <div id={idSchema.$id} className="field_object_row">
         <Row className="computed_attributes_row">
@@ -88,7 +108,7 @@ export default class ComputedAttributesFieldTemplate extends Component<
               />
               <InputGroup.Append>
                 <InputGroup.Text>
-                  <Badge variant="primary">{type}</Badge>
+                  <Badge variant={typeToColor(type)}>{type}</Badge>
                 </InputGroup.Text>
                 <Button
                   disabled={!computed_attribute}
@@ -105,7 +125,7 @@ export default class ComputedAttributesFieldTemplate extends Component<
           centered
           dialogClassName="computed_attributes_modal"
           size="lg"
-          show={this.state.show}
+          show={this.isEditing()}
           onHide={this.handleCloseModal}
         >
           <Modal.Header closeButton>

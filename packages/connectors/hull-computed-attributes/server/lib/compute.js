@@ -41,14 +41,28 @@ export default async function compute({
     return {};
   }
 
+  console.log(computedAttributes);
   const funcs = getStateChanges(omitInvalid(computedAttributes));
   const traits = getTraits(funcs, payload);
-
+  const schema = _.map(
+    computedAttributes,
+    ({ computed_attribute, type }, _index: number) => ({
+      key: computed_attribute,
+      defined_type: type,
+      type: getType(_.get(traits, computed_attribute))
+    })
+  );
+  const returnedTraits = _.reduce(
+    schema,
+    (t, { key }, _i) => {
+      _.set(t, key, _.get(traits, key));
+      return t;
+    },
+    {}
+  );
+  console.log({ traits, schema, returnedTraits });
   return {
-    traits,
-    schema: _.map(
-      flat(traits || {}, { safe: true, overwrite: true }),
-      (value, key) => ({ key, type: getType(value) })
-    )
+    traits: returnedTraits,
+    schema
   };
 }

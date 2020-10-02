@@ -10,9 +10,11 @@
   },
   "dependencies": {
     "@rjsf/core": "^2.4.0",
+    "d3": "^5.5.0",
     "dag-map": "^2.0.2",
     "flat": "^5.0.2",
     "js-graph-algorithms": "^1.0.18",
+    "react-d3-graph": "^2.5.0",
     "topologica": "^3.2.0"
   },
   "devDependencies": {}

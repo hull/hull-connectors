@@ -22,8 +22,7 @@ type Props = {
 const AttributeField = (props: Props) => {
   const { onChange, formData, formContext, schema } = props;
   const { types } = schema;
-  const { getAttributeSchema, getArraySchema } = formContext;
-  const options = types === "array" ? getArraySchema : getAttributeSchema;
+  const { getAttributeSchema } = formContext;
   const placeholder =
     types === "array" ? "Pick an Array attribute" : "Pick an attribute";
   return (
@@ -41,7 +40,7 @@ const AttributeField = (props: Props) => {
       classNamePrefix="react-select"
       className="react-select"
       placeholder={placeholder}
-      options={options()}
+      options={getAttributeSchema({ types })}
       styles={ReactSelectStyles}
       onChange={({ key }) => onChange(key)}
       closeMenuOnSelect={true}

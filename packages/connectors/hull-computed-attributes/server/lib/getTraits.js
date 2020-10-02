@@ -43,7 +43,5 @@ export default (reactiveFunctions: ReactiveFunctions, payload: Payload) => {
     const { func } = node;
     traits[key] = func({ ...payload, ...traits });
   });
-
-  console.log(traits);
   return traits;
 };

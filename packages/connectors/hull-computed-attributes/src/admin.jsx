@@ -14,9 +14,9 @@ const VALID = `Valid identifiers are:
 - email
 - Hull ID`;
 
+const Component = hot(JsonataUI);
 const renderApp = ({ empty, notFound, title }) => {
   const engine = new Engine();
-  const Component = hot(JsonataUI);
   ReactDOM.render(
     <Component
       engine={engine}

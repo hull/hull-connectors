@@ -6,6 +6,12 @@
       "attribute": {
         "type": "string",
         "title": "Attribute"
+      },
+      "dataType": {
+        "type": "string",
+        "default": "string",
+        "enumNames": ["String", "Number", "Boolean", "Date", "Array", "Object"],
+        "enum": ["string", "number", "boolean", "date", "array", "object"]
       }
     },
     "computedAttributes": {
@@ -153,10 +159,7 @@
       },
       "type": {
         "title": "Data Type",
-        "type": "string",
-        "default": "string",
-        "enumNames": ["String", "Number", "Boolean", "Date"],
-        "enum": ["string", "number", "boolean", "date"]
+        "$ref": "#/definitions/fields/dataType"
       },
       "strategy": {
         "title": "Update Strategy",
