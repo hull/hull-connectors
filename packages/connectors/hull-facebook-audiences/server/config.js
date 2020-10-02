@@ -14,7 +14,9 @@ export default function connectorConfig(): HullConnectorConfig {
     NODE_ENV,
     OVERRIDE_FIREHOSE_URL,
     SHIP_CACHE_TTL,
-    CACHE_REDIS_URL
+    REDIS_URL,
+    REDIS_MAX_CONNECTIONS = 5,
+    REDIS_MIN_CONNECTIONS = 1
   } = process.env;
   const hostSecret = SECRET || "1234";
   return {
@@ -26,11 +28,15 @@ export default function connectorConfig(): HullConnectorConfig {
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET
     }),
-    cacheConfig: {
-      store: "redis",
-      url: CACHE_REDIS_URL,
-      ttl: SHIP_CACHE_TTL || 180
-    },
+    cacheConfig: REDIS_URL
+      ? {
+          store: "redis",
+          url: REDIS_URL,
+          ttl: SHIP_CACHE_TTL || 180,
+          max: REDIS_MAX_CONNECTIONS || 5,
+          min: REDIS_MIN_CONNECTIONS || 1
+        }
+      : undefined,
     logsConfig: {
       logLevel: LOG_LEVEL
     },
