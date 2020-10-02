@@ -63,6 +63,7 @@ COPY packages/connectors/hull-intercom-legacy/package.json /app/packages/connect
 COPY packages/connectors/hull-datanyze/package.json /app/packages/connectors/hull-datanyze/package.json
 COPY packages/connectors/hull-google-sheets/package.json /app/packages/connectors/hull-google-sheets/package.json
 COPY packages/connectors/hull-bigquery/package.json /app/packages/connectors/hull-bigquery/package.json
+COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/connectors/hull-facebook-audiences/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 
