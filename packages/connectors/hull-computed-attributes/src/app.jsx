@@ -77,20 +77,27 @@ export default class ComputedAttributesUI extends JsonataUI {
     ];
   };
 
-  getGraph = computedAttributes => {
+  getGraph = (computedAttributes, data) => {
     const nodes = [];
     const links = [];
     _.map(computedAttributes, ({ computed_attribute, params }) => {
-      const { attribute, attributes = [] } = params;
+      const { attribute, attributes = [], type } = params;
       const dependencies = [attribute, ...attributes];
       dependencies.map(id => {
         links.push({ target: computed_attribute, source: id });
-        nodes.push({ ...NODE_PROPS, id, color: undefined });
+        const value = this.getValue(id);
+        nodes.push({
+          ...NODE_PROPS,
+          id,
+          value,
+          color: undefined
+        });
       });
       nodes.push({
         ...NODE_PROPS,
         id: computed_attribute,
         color: "#2684FF",
+        value: this.getValue(computed_attribute),
         dependencies
       });
     });
@@ -105,6 +112,14 @@ export default class ComputedAttributesUI extends JsonataUI {
       },
       config: graphConfig()
     };
+  };
+
+  getValue = key => {
+    const data = {
+      ...this.state.current?.result.traits,
+      ...this.state.current?.payload
+    };
+    return _.get(data, key);
   };
 
   noop = () => {};

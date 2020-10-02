@@ -2,6 +2,7 @@
 
 import React from "react";
 import ComputedAttributeBubble from "../components/computed-attribute-bubble";
+import Badge from "react-bootstrap/Badge";
 
 const getConfig = () => ({
   // automaticRearrangeAfterDropNode: true,
@@ -36,7 +37,6 @@ const getConfig = () => ({
     highlightFontSize: 16,
     highlightFontWeight: "normal",
     mouseCursor: "pointer",
-    labelProperty: "id",
     labelPosition: "right",
     renderLabel: true,
     opacity: 1,
@@ -45,7 +45,8 @@ const getConfig = () => ({
     //   height: 1000
     // },
     strokeColor: "white",
-    strokeWidth: 2
+    strokeWidth: 2,
+    labelProperty: ({ id, value }) => `${id}: ${JSON.stringify(value)}`
     // viewGenerator: ({ id }) => {
     //   // console.log(argum);
     //   return (
