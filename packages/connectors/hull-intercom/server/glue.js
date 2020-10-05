@@ -412,8 +412,29 @@ const glue = {
       })
     ]),
   getContactTags: returnValue([
-    set("contactId", input("id"))
-  ], intercom("getContactTags")),
+    set("contactTags", utils("emptyArray")),
+    set("hasMore", input("tags.has_more")),
+    set("contactId", input("id")),
+    ifL("${hasMore}", {
+      do: set("forceFetchTags", true),
+      eldo: [
+        ifL(cond("notEmpty", input("tags.data")), [
+
+          set("allTags", jsonata("$ {id: name}",
+            cacheWrap(CACHE_TIMEOUT, intercom("getAllTags")))
+          ),
+
+          iterateL(input("tags.data"), "tag", [
+            ifL(set("tagName", get("${tag.id}", "${allTags}")), {
+              do: ex("${contactTags}", "push", { name: "${tagName}" }),
+              eldo: [set("forceFetchTags", true), loopEndL()]
+            })
+          ])
+        ])
+      ]
+    }),
+    ifL("${forceFetchTags}", set("contactTags", intercom("getContactTags")))
+  ], "${contactTags}"),
   getContactCompanies: returnValue([
     set("contactId", input("id"))
   ], intercom("getContactCompanies")),

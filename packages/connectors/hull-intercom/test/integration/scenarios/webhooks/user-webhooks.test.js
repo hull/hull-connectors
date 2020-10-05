@@ -107,6 +107,14 @@ describe("User Webhooks Tests", () => {
             });
 
           scope
+            .get("/tags")
+            .reply(200, {
+                "type": "list",
+                "data": []
+              }
+            );
+
+          scope
             .get("/contacts/5f297f71bce3e055f3afdf6e/tags")
             .reply(200, {
               "type": "list",
@@ -251,6 +259,18 @@ describe("User Webhooks Tests", () => {
               "responseTime": expect.whatever(),
               "method": "GET",
               "url": "/contacts/5f297f71bce3e055f3afdf6e/segments",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {},
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/tags",
               "status": 200,
               "vars": {}
             }
@@ -476,6 +496,8 @@ describe("User Webhooks Tests", () => {
         ],
         metrics: [
           ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
