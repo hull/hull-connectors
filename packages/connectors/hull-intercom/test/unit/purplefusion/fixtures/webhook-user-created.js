@@ -202,6 +202,17 @@ module.exports = {
     {
       "localContext": expect.anything(),
       "name": "intercom",
+      "op": "getAllTags",
+      "result": {
+        "body": {
+          "type": "list",
+          "data": []
+        }
+      }
+    },
+    {
+      "localContext": expect.anything(),
+      "name": "intercom",
       "op": "getContactTags",
       "result": {
         "body": {
