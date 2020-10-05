@@ -345,7 +345,8 @@ const service = ({ clientID, clientSecret } : {
       {
         truthy: { status: 429 },
         errorType: RateLimitError,
-        message: MESSAGES.TOO_MANY_REQUESTS
+        message: MESSAGES.TOO_MANY_REQUESTS,
+        retryAttempts: 3
       },
       {
         truthy: { status: 500 },
