@@ -13,6 +13,9 @@ module.exports = {
       ],
       "incoming_events": [
         'user.tag.deleted'
+      ],
+      "incoming_user_attributes": [
+        { "service": "tags", "hull": "intercom_user/tags", "overwrite": true }
       ]
     }
   },
@@ -120,6 +123,31 @@ module.exports = {
   "serviceRequests": [
     {
       "localContext": expect.anything(),
+      "name": "intercom",
+      "op": "getAllTags",
+      "result": {
+        "body": {
+          "type": "list",
+          "data": []
+        }
+      }
+    },
+    {
+      "localContext": expect.anything(),
+      "name": "intercom",
+      "op": "getContactTags",
+      "result": {
+        "body": {
+          "type": "list",
+          "data": [
+            { "type": "tag", "id": "4406234", "name": "Tag1" },
+            { "type": "tag", "id": "4406229", "name": "Tag2" }
+          ]
+        }
+      }
+    },
+    {
+      "localContext": expect.anything(),
       "name": "hull",
       "op": "asUser",
       "input": {
@@ -127,22 +155,23 @@ module.exports = {
           "email": "bob.dylan@rei.com",
           "anonymous_id": "intercom-user:user-5ee3d479d1cf3dedbee23d68"
         },
-        "events": [
-          {
-            "context": {
-              "created_at": 1596633880,
-              "event_id": "5ee3d479d1cf3dedbee23d68-user.tag.deleted-1596633880",
-              "event_type": "user_tag",
-              "ip": "123",
-              "source": "intercom",
-            },
-            "eventName": "Removed Tag",
-            "properties": {
-              "tag": "NewCompany",
-              "topic": "user.tag.deleted",
-            }
+        "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Bob Dylan"
+          },
+          "intercom_user/id": {
+            "operation": "set",
+            "value": "5ee3d479d1cf3dedbee23d68"
+          },
+          "intercom_user/tags": {
+            "value": [
+              "Tag1",
+              "Tag2"
+            ],
+            "operation": "set"
           }
-        ]
+        }
       },
       "result": {}
     }
