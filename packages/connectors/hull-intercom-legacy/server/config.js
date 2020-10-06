@@ -4,13 +4,10 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const { Queue } = require("hull/src/infra");
-const KueAdapter = require("hull/src/infra/queue/adapter/kue");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     SECRET = "1234",
-    KUE_PREFIX = "intercom",
+    BULL_PREFIX = "intercom",
     REDIS_URL,
     QUEUE_NAME = "queueApp",
     COMBINED,
@@ -49,11 +46,12 @@ export default function connectorConfig(): HullConnectorConfig {
       start: startWorker,
       queueName: QUEUE_NAME || "queue"
     },
-    queue: new Queue(
-      new KueAdapter({
-        prefix: KUE_PREFIX,
-        redis: REDIS_URL
-      })
-    )
+    queueConfig: REDIS_URL
+    ? {
+      store: "redis",
+      url: REDIS_URL,
+      name: BULL_PREFIX
+    }
+    : { store: "memory" }
   };
 }
