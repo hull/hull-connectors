@@ -51,7 +51,7 @@ const streamRequest = (ctx: HullContext) => async ({
         if (limit && limit >= row) {
           // eslint-disable-next-line no-use-before-define
           request.abort();
-          return;
+          return undefined;
         }
         await onData(data.map(({ value }) => value));
         return data;
@@ -80,7 +80,7 @@ const streamRequest = (ctx: HullContext) => async ({
       if (errors.length) {
         return reject(errors);
       }
-      resolve();
+      return resolve();
     };
 
     pipeline.on("error", handleOnError);
