@@ -33,17 +33,17 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
       };
     }
 
-    const isAuthorized = await shipApp.syncAgent.isAuthorized();
-    if (isAuthorized === false) {
+    const authorizationStatus = await shipApp.syncAgent.getAuthorizationStatus();
+    if (authorizationStatus === 401) {
       status = "error";
-      messages.push("External service credentials aren’t valid.");
+      messages.push("Mailchimp credentials are invalid. ");
     }
 
-    const isListPresent = shipApp.syncAgent.isListPresent();
-    if (isListPresent === false) {
+    const listStatus = await shipApp.syncAgent.getListStatus();
+    if (listStatus === 404) {
       status = "error";
       messages.push(
-        `Selected Mailchimp list: ${mailchimp_list_name} does not exists.`
+        `Selected Mailchimp list: ${mailchimp_list_name} does not exist. `
       );
     }
 

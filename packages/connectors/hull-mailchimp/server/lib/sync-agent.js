@@ -147,31 +147,25 @@ class SyncAgent {
     );
   }
 
-  isAuthorized(): Promise<boolean> {
+  getAuthorizationStatus(): Promise<boolean> {
     return this.mailchimpClient
       .get("/")
       .then(response => {
-        if (response.statusCode === 200) {
-          return true;
-        }
-        return false;
+        return response.statusCode;
       })
-      .catch(() => {
-        return false;
+      .catch(error => {
+        return error.message;
       });
   }
 
-  isListPresent(): Promise<boolean> {
+  getListStatus(): Promise<boolean> {
     return this.mailchimpClient
       .get("/lists/{{listId}}")
       .then(response => {
-        if (response.statusCode === 200) {
-          return true;
-        }
-        return false;
+        return response.statusCode;
       })
-      .catch(() => {
-        return false;
+      .catch(error => {
+        return error.message;
       });
   }
 
