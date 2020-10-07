@@ -7,12 +7,16 @@ async function executeBatchCreation({ syncAgent, operations, importType }) {
         const { id } = responseBody;
         syncAgent.client.logger.info("incoming.job.start", {
           id,
-          jobName: "mailchimp-batch-job",
+          jobName: "create-mailchimp-batch-job",
           type: importType
         });
         return responseBody;
       });
     if (!batchJob) {
+      syncAgent.client.logger.info("incoming.job.error", {
+        jobName: "create-mailchimp-batch-job",
+        type: importType
+      });
       return {
         status: 500,
         data: {
@@ -21,6 +25,11 @@ async function executeBatchCreation({ syncAgent, operations, importType }) {
       };
     }
 
+    syncAgent.client.logger.info("incoming.job.success", {
+      jobName: "create-mailchimp-batch-job",
+      message: "Batch Creation Initiated In Mailchimp",
+      type: importType
+    });
     return {
       status: 200,
       data: {
@@ -31,7 +40,7 @@ async function executeBatchCreation({ syncAgent, operations, importType }) {
   } catch (error) {
     const filteredError = syncAgent.mailchimpClient.handleError(error);
     syncAgent.client.logger.info("incoming.job.error", {
-      jobName: "mailchimp-batch-job",
+      jobName: "create-mailchimp-batch-job",
       errors: filteredError.message
     });
     return Promise.reject(filteredError);

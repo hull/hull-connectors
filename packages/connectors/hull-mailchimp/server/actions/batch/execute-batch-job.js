@@ -16,6 +16,11 @@ export default async function executeBatchJob(
   { jobName, batchId, importType }
 ): Promise<*> {
   if (_.isNil(batchId)) {
+    ctx.client.logger.info("incoming.job.success", {
+      message: "No active batch to import",
+      jobName: "mailchimp-batch-job",
+      type: importType
+    });
     return {
       status: 200,
       data: {
@@ -25,8 +30,10 @@ export default async function executeBatchJob(
   }
 
   ctx.client.logger.info("incoming.job.start", {
+    message: `import ${importType} batch`,
     batchId,
-    message: `Executing ${importType} batch: ${batchId}`
+    jobName: "mailchimp-batch-job",
+    type: importType
   });
 
   const { syncAgent, mailchimpClient } = shipAppFactory(ctx);
@@ -36,6 +43,8 @@ export default async function executeBatchJob(
   } catch (error) {
     ctx.client.logger.info("incoming.job.error", {
       batchId,
+      jobName: "mailchimp-batch-job",
+      type: importType,
       message: "Fetching Batch Job Failed"
     });
     return {
@@ -49,6 +58,8 @@ export default async function executeBatchJob(
   if (status === 404) {
     ctx.client.logger.info("incoming.job.error", {
       batchId,
+      jobName: "mailchimp-batch-job",
+      type: importType,
       message: "Batch Job Not Found"
     });
     await ctx.cache.del(`${importType}_batch_id`);
@@ -64,6 +75,8 @@ export default async function executeBatchJob(
   if (status !== "finished") {
     ctx.client.logger.info("incoming.job.progress", {
       batchId,
+      jobName: "mailchimp-batch-job",
+      type: importType,
       message: "Batch Job Still Processing in Mailchimp"
     });
     return {
@@ -86,11 +99,6 @@ export default async function executeBatchJob(
         } catch (e) {} // eslint-disable-line no-empty
 
         if (_.get(responseObj, `${importType}s`)) {
-          ctx.client.logger.info("incoming.job.progress", {
-            jobName: "mailchimp-batch-job",
-            step: "parsing-batch",
-            importType
-          });
           return _.get(responseObj, `${importType}s`, []).map(r => {
             return this.emit("data", r);
           });
@@ -102,11 +110,6 @@ export default async function executeBatchJob(
     .pipe(
       ps.map(ops => {
         try {
-          ctx.client.logger.info("incoming.job.progress", {
-            jobName: "mailchimp-batch-job",
-            step: "enqueueing-batch",
-            importType
-          });
           return ctx.enqueue(jobName, {
             response: ops
           });
@@ -119,7 +122,9 @@ export default async function executeBatchJob(
     .wait()
     .then(async () => {
       ctx.client.logger.info("incoming.job.success", {
-        jobName: "mailchimp-batch-job"
+        batchId,
+        jobName: "mailchimp-batch-job",
+        type: importType
       });
       if (importType === "email") {
         ctx.helpers.settingsUpdate({
@@ -132,7 +137,9 @@ export default async function executeBatchJob(
 
       return mailchimpClient.deleteBatchJob(batchId).catch(error => {
         return syncAgent.client.logger.info("incoming.job.warning", {
+          batchId,
           jobName: "mailchimp-batch-job",
+          type: importType,
           message: `Unable to delete batch job: ${error.message}`
         });
       });

@@ -7,10 +7,15 @@ async function createEmailBatch(ctx: any) {
   const { syncAgent, mailchimpAgent } = shipAppFactory(ctx);
   const batch_id = await mailchimpAgent.cache.get("email_batch_id");
   if (!_.isNil(batch_id)) {
+    const message = `Track Email Batch {${batch_id}} Already Initiated`;
+    ctx.client.logger.info("incoming.job.warning", {
+      batchId: batch_id,
+      message
+    });
     return {
       status: 200,
       data: {
-        message: `Track Email Batch {${batch_id}} Already Initiated`
+        message
       }
     };
   }

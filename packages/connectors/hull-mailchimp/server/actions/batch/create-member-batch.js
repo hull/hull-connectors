@@ -7,10 +7,15 @@ async function createMemberBatch(ctx: any) {
   const { syncAgent, mailchimpAgent } = shipAppFactory(ctx);
   const batch_id = await mailchimpAgent.cache.get("member_batch_id");
   if (!_.isNil(batch_id)) {
+    const message = `Import Member Batch {${batch_id}} Already Initiated`;
+    ctx.client.logger.info("incoming.job.warning", {
+      batchId: batch_id,
+      message
+    });
     return {
       status: 200,
       data: {
-        message: `Import Member Batch {${batch_id}} Already Initiated`
+        message
       }
     };
   }

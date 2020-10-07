@@ -220,12 +220,8 @@
       "handler": "createEmailBatch"
     },
     {
-      "url": "/force-track",
-      "handler": "track"
-    },
-    {
       "url": "/fetch-list",
-      "handler": "createMemberBatch",
+      "handler": "fetchAllUsers",
       "name": "fetchList",
       "title": "Fetch List",
       "format": "action",
@@ -234,21 +230,6 @@
           "action": "fetch",
           "text": "Fetch all Mailchimp contacts. This will remove all interest groups and static segments (possibly breaking any automation configuration) and may generate significant traffic. Are you sure?",
           "button": "Fetch List",
-          "entity": "users"
-        }
-      }
-    },
-    {
-      "url": "/fetch-recent-users",
-      "handler": "fetchRecentUsers",
-      "name": "fetchRecentUsers",
-      "title": "Fetch Recent Users",
-      "format": "action",
-      "options": {
-        "confirm": {
-          "action": "fetch",
-          "text": "Fetch Mailchimp contacts that have been updated in the last 24 hours. This may generate significant traffic. Are you sure?",
-          "button": "Fetch Recent Users",
           "entity": "users"
         }
       }
@@ -278,8 +259,7 @@
       "title": "Fetch Data from Mailchimp",
       "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
       "properties": [
-        "json.fetchList",
-        "json.fetchRecentUsers"
+        "json.fetchList"
       ]
     },
     {
