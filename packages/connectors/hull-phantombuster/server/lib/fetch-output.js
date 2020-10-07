@@ -96,7 +96,6 @@ export default async function fetchOutput(
           data.push(...chunk);
         }
       });
-      console.log("DONE")
       return data;
     }
     client.logger.error("connector.schedule.error", { result });
