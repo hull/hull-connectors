@@ -8,7 +8,7 @@ export default function connectorConfig(): HullConnectorConfig {
   const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error("CLIENT_ID and/or CLIENT_SECRET missing");
+    throw new Error("Can't find Client ID and/or Client Secret, check env vars");
   }
 
   return {

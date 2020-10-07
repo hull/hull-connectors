@@ -10,10 +10,12 @@ export default function saveRecent(
     EntryModel,
     code,
     result,
+    date,
     payload
   }: {
     result: Result,
     code: string,
+    date?: string,
     payload: Payload,
     EntryModel: Object
   }
@@ -24,7 +26,7 @@ export default function saveRecent(
     result: serialize(result),
     code,
     payload,
-    date: new Date().toString()
+    date: date || new Date().toString()
   };
   return EntryModel.create([entry], {
     checkKeys: false

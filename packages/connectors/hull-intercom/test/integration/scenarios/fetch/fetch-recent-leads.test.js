@@ -43,7 +43,6 @@ describe("Fetch Recent Leads Tests", () => {
               { service: 'last_email_clicked_at', hull: 'intercom_lead/last_email_clicked_at', overwrite: true },
               { service: 'last_email_opened_at', hull: 'intercom_lead/last_email_opened_at', overwrite: true },
               { service: 'last_replied_at', hull: 'intercom_lead/last_replied_at', overwrite: true },
-              { service: 'last_seen_at', hull: 'intercom_lead/last_seen_at', overwrite: true },
               { service: 'location.city', hull: 'intercom_lead/location_city_name', overwrite: true },
               { service: 'location.country', hull: 'intercom_lead/location_country_name', overwrite: true },
               { service: 'location.region', hull: 'intercom_lead/location_region_name', overwrite: true },
@@ -767,10 +766,6 @@ describe("Fetch Recent Leads Tests", () => {
                 "operation": "set",
                 "value": 1571069751
               },
-              "intercom_lead/last_seen_at": {
-                "operation": "set",
-                "value": 1571069751
-              },
               "intercom_lead/last_replied_at": {
                 "operation": "set",
                 "value": 1571672158
@@ -921,10 +916,6 @@ describe("Fetch Recent Leads Tests", () => {
                 "value": []
               },
               "intercom_lead/signed_up_at": {
-                "operation": "set",
-                "value": null
-              },
-              "intercom_lead/last_seen_at": {
                 "operation": "set",
                 "value": null
               },

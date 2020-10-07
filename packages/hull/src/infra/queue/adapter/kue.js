@@ -9,7 +9,12 @@ const ui = require("kue-ui");
 class KueAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = kue.createQueue(options);
+    const { name, url, settings } = options;
+    this.queue = kue.createQueue({
+      ...settings,
+      prefix: name,
+      redis: url
+    });
     this.queue.watchStuckJobs();
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);
@@ -22,8 +27,10 @@ class KueAdapter {
       "completeCount",
       "failedCount",
       "delayedCount"
-    ].forEach(name => {
-      this[name] = Promise.promisify(this.queue[name]).bind(this.queue);
+    ].forEach(queueName => {
+      this[queueName] = Promise.promisify(this.queue[queueName]).bind(
+        this.queue
+      );
     });
   }
 
@@ -38,11 +45,14 @@ class KueAdapter {
     jobPayload = {},
     { ttl = 0, delay = null, priority = null, backoff, attempts = 3 } = {}
   ) {
+    // const { client } = ctx;
+    // const { logger } = client;
     return Promise.fromCallback(callback => {
-      const job = this.queue
-        .create(jobName, jobPayload)
-        .attempts(attempts)
-        .removeOnComplete(true);
+      const job = this.queue.create(jobName, jobPayload).removeOnComplete(true);
+
+      if (attempts !== undefined) {
+        job.attempts(attempts);
+      }
 
       if (ttl !== undefined) {
         job.ttl(ttl);
@@ -60,9 +70,15 @@ class KueAdapter {
         job.backoff(backoff);
       }
 
-      return job.save(err => {
-        callback(err, job.id);
-      });
+      // job.on("start", result => logger.info("job.start", { result }));
+      // job.on("failed", error => logger.info("job.failed", { error }));
+      // job.on("failed attempt", (error, attempt) =>
+      //   logger.info("job.failed_attempt", { attempt, error })
+      // );
+      // job.on("progress", progress => logger.info("job.progress", { progress }));
+      // job.on("complete", result => logger.info("job.complete", { result }));
+
+      return job.save(err => callback(err, job.id));
     });
   }
 
@@ -71,28 +87,22 @@ class KueAdapter {
    * @param {Function} jobCallback
    * @return {Object} this
    */
-  process(jobName, jobCallback) {
-    this.queue.process(jobName, (job, done) => {
-      jobCallback(job)
-        .then(
-          res => {
-            done(null, res);
-          },
-          err => {
-            done(err);
-          }
-        )
-        .catch(err => {
-          done(err);
-        });
+  process(jobName, callback) {
+    this.queue.process(jobName, async (job, done) => {
+      try {
+        const res = await callback(job);
+        done(null, res);
+      } catch (err) {
+        done(err);
+      }
     });
     return this;
   }
 
   exit() {
-    return Promise.fromCallback(callback => {
-      this.queue.shutdown(5000, callback);
-    });
+    return Promise.fromCallback(callback =>
+      this.queue.shutdown(5000, callback)
+    );
   }
 
   setupUiRouter(router) {

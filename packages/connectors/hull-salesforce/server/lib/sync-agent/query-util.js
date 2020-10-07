@@ -85,7 +85,7 @@ class QueryUtil implements IQueryUtil {
   getSoqlFields(
     serviceType: string,
     fields: Array<string>,
-    accountClaims: Array<Object>
+    identityClaims: Array<Object>
   ): Object {
     let selectFields: string[] = [];
 
@@ -99,27 +99,12 @@ class QueryUtil implements IQueryUtil {
           "ConvertedAccountId",
           "ConvertedContactId"
         );
-        requiredFields.push("Email");
         break;
       case "Account":
         selectFields.push("Id", "Website");
-        if (!_.isNil(accountClaims) && accountClaims.length > 0) {
-          selectFields = _.concat(
-            selectFields,
-            _.map(accountClaims, "service")
-          );
-
-          for (let i = 0; i < accountClaims.length; i += 1) {
-            const accountClaim = accountClaims[i];
-            if (accountClaim.required) {
-              requiredFields.push(accountClaim.service);
-            }
-          }
-        }
         break;
       case "Contact":
         selectFields.push("Id", "Email", "AccountId");
-        requiredFields.push("Email");
         break;
       case "Task":
         selectFields.push("Id", "Subject", "WhoId", "Who.Type");
@@ -127,6 +112,18 @@ class QueryUtil implements IQueryUtil {
       default:
         selectFields.push("Id");
         break;
+    }
+
+    const queryClaims = ["Lead", "Contact", "Account"].includes(serviceType);
+    if (queryClaims && !_.isNil(identityClaims) && _.size(identityClaims) > 0) {
+      selectFields = _.concat(selectFields, _.map(identityClaims, "service"));
+
+      for (let i = 0; i < identityClaims.length; i += 1) {
+        const claim = identityClaims[i];
+        if (claim.required) {
+          requiredFields.push(claim.service);
+        }
+      }
     }
 
     selectFields = _.uniq(fields.concat(selectFields));

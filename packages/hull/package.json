@@ -1,6 +1,6 @@
 {
   "name": "hull",
-  "version": "0.1.35-monorepo",
+  "version": "0.1.36-monorepo",
   "description": "A Node.js client for hull.io",
   "main": "src",
   "author": "Romain Dardour <romain@hull.io>",
@@ -26,7 +26,6 @@
     "jsonwebtoken": "^7.4.3",
     "jwt-simple": "^0.5.0",
     "kue-ui": "^0.1.0",
-    "node-rdkafka": "^2.7.4",
     "passport": "^0.3.2",
     "promise-streams": "^1.0.1",
     "promisepipe": "^3.0.0",
@@ -35,9 +34,7 @@
     "request": "^2.72.0",
     "sns-validator": "^0.3.0",
     "sqs-consumer": "^3.6.1",
-    "supply": "0.0.4",
-    "winston": "^3.2.1",
-    "winston-transport": "^4.3.0"
+    "supply": "0.0.4"
   },
   "peerDependencies": {},
   "devDependencies": {

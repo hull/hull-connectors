@@ -247,7 +247,6 @@ export type HullConnectorConfig = {
   serverConfig?: HullServerConfig, //How to start the express server
   workerConfig?: HullWorkerConfig, //How to start workers
   metricsConfig?: HullMetricsConfig, //Metrics reporting configuration
-  cacheConfig?: HullCacheConfig, //Cache configuration
   httpClientConfig?: HullHTTPClientConfig, //HTTP Client util configuration
   logsConfig?: HullLogsConfig, //Logs configuration
   jsonConfig?: HullJsonConfig, //JSON parsing configuration
@@ -260,6 +259,7 @@ export type HullConnectorConfig = {
   disableWebpack?: boolean, // disable webpack building of client side assets. Speeds up process reload when only working on server side code
   trustProxy?: boolean, // Get express to compute proper client ip if the app is behind a proxy. https://expressjs.com/en/guide/behind-proxies.html
   instrumentation?: HullInstrumentation, // set a custom instrumentation instance
+  cacheConfig?: HullCacheConfig, //Cache configuration
   queueConfig?: HullQueueConfig, // set a Custom Queue instance for workers
   handlers: HullConnector => HullHandlersConfiguration, //Handlers methods
   middlewares: Array<Middleware>, //Array of middlewares to run before handlers
@@ -1197,7 +1197,6 @@ It creates the following log entries for you:
 /* @flow */
 import type { HullContext } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
-import resultsUrl from "../lib/get-results-url";
 
 /**
  * SyncIn : import all the list members as hull users

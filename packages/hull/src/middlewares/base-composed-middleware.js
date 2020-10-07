@@ -11,7 +11,7 @@ function baseComposedMiddleware(params: HullBaseMiddlewareParams): Middleware {
   const { Client, queue, cache, connectorConfig, instrumentation } = params;
   return compose(
     json(connectorConfig.jsonConfig),
-    urlencoded({ limit: "10mb", extended: true }),
+    urlencoded({ limit: "20mb", extended: true }),
     instrumentation.startMiddleware(),
     requestDebugLogging(),
     baseContextMiddleware({

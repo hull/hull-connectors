@@ -16,6 +16,8 @@ describe("Fetch All Users Tests", () => {
         handlerUrl: "fetchAllUsers",
         connector: {
           private_settings: {
+            link_users_in_hull: true,
+            link_users_in_service: true,
             webhook_id: "1",
             access_token: "12345",
             fetch_users: true,
@@ -443,9 +445,7 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company1" },
-                { "name": "Company2" },
-                { "name": "Company3" }
+                { "name": "Company1", "id": "company_1" }
               ],
               "pages": {
                 "type": "pages",
@@ -462,9 +462,9 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company4" },
-                { "name": "Company5" },
-                { "name": "Company6" }
+                { "name": "Company4", "id": "company_4", },
+                { "name": "Company5", "id": "company_5" },
+                { "name": "Company6", "id": "company_6" }
               ],
               "pages": {
                 "type": "pages",
@@ -481,9 +481,9 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company7" },
-                { "name": "Company8" },
-                { "name": "Company9" }
+                { "name": "Company7", "id": "company_7", },
+                { "name": "Company8", "id": "company_8" },
+                { "name": "Company9", "id": "company_9" }
               ],
               "pages": {
                 "type": "pages",
@@ -1300,175 +1300,6 @@ describe("Fetch All Users Tests", () => {
             "traits",
             {
               "asUser": {
-                "email": "lizalead@rei.com",
-                "external_id": "user_id_1",
-                "anonymous_id": "intercom-user:user-5f161b7a332231fc10b44e5f"
-              },
-              "subjectType": "user"
-            },
-            {
-              "intercom_user/email": {
-                "operation": "set",
-                "value": "lizalead@rei.com"
-              },
-              "intercom_user/id": {
-                "operation": "set",
-                "value": "5f161b7a332231fc10b44e5f"
-              },
-              "intercom_user/user_id": {
-                "operation": "set",
-                "value": "user_id_1"
-              },
-              "intercom_user/twitter_url": {
-                "operation": "set",
-                "value": "http://twitter.com/th1sland"
-              },
-              "intercom_user/facebook_url": {
-                "operation": "set",
-                "value": "http://facebook.com/th1sland"
-              },
-              "intercom_user/social_profiles": {
-                "operation": "set",
-                "value": [
-                  "http://twitter.com/th1sland",
-                  "http://facebook.com/th1sland"
-                ]
-              },
-              "intercom_user/phone": {
-                "operation": "set",
-                "value": "+1123456789"
-              },
-              "intercom_user/name": {
-                "operation": "set",
-                "value": "Liza"
-              },
-              "intercom_user/avatar": {
-                "operation": "set",
-                "value": "https://example.org/128Wash.jpg"
-              },
-              "intercom_user/owner_id": {
-                "operation": "set",
-                "value": 127
-              },
-              "intercom_user/has_hard_bounced": {
-                "operation": "set",
-                "value": false
-              },
-              "intercom_user/marked_email_as_spam": {
-                "operation": "set",
-                "value": false
-              },
-              "intercom_user/unsubscribed_from_emails": {
-                "operation": "set",
-                "value": false
-              },
-              "intercom_user/created_at": {
-                "operation": "set",
-                "value": 1593169501
-              },
-              "intercom_user/updated_at": {
-                "operation": "set",
-                "value": 1593169501
-              },
-              "intercom_user/segments": {
-                "operation": "set",
-                "value": ["Segment1", "Segment2"]
-              },
-              "intercom_user/signed_up_at": {
-                "operation": "set",
-                "value": 1571069751
-              },
-              "intercom_user/last_seen_at": {
-                "operation": "set",
-                "value": 1571069751
-              },
-              "intercom_user/last_replied_at": {
-                "operation": "set",
-                "value": 1571672158
-              },
-              "intercom_user/last_contacted_at": {
-                "operation": "set",
-                "value": 1571672158
-              },
-              "intercom_user/last_email_opened_at": {
-                "operation": "set",
-                "value": 1571673478
-              },
-              "intercom_user/last_email_clicked_at": {
-                "operation": "set",
-                "value": 1571676789
-              },
-              "intercom_user/language_override": {
-                "operation": "set",
-                "value": null
-              },
-              "intercom_user/browser": {
-                "operation": "set",
-                "value": "chrome"
-              },
-              "intercom_user/browser_version": {
-                "operation": "set",
-                "value": "77.0.3865.90"
-              },
-              "intercom_user/browser_language": {
-                "operation": "set",
-                "value": "en"
-              },
-              "intercom_user/os": {
-                "operation": "set",
-                "value": "OS X 10.14.6"
-              },
-              "intercom_user/location_country_name": {
-                "operation": "set",
-                "value": "United States"
-              },
-              "intercom_user/location_region_name": {
-                "operation": "set",
-                "value": "Georgia"
-              },
-              "intercom_user/location_city_name": {
-                "operation": "set",
-                "value": "Atlanta"
-              },
-              "intercom_user/tags": {
-                "operation": "set",
-                "value": [
-                  "Tag1",
-                  "Tag2",
-                  "Tag3",
-                  "Tag4",
-                  "Tag5",
-                  "Tag6",
-                  "Tag7",
-                  "Tag8",
-                  "Tag9",
-                  "Tag10",
-                  "Tag11",
-                  "Tag12"
-                ]
-              },
-              "intercom_user/companies": {
-                "operation": "set",
-                "value": [
-                  "Company1",
-                  "Company2",
-                  "Company3"
-                ]
-              },
-              "intercom_user/job_title": {
-                "operation": "set",
-                "value": "engineer"
-              },
-              "name": {
-                "operation": "setIfNull",
-                "value": "Liza"
-              }
-            }
-          ],
-          [
-            "traits",
-            {
-              "asUser": {
                 "email": "lizalead3@rei.com",
                 "external_id": "user_id_3",
                 "anonymous_id": "intercom-user:user-3"
@@ -1623,6 +1454,188 @@ describe("Fetch All Users Tests", () => {
                 "value": "Liza"
               }
             }
+          ],
+          [
+            "traits",
+            {
+              "asUser": {
+                "email": "lizalead@rei.com",
+                "external_id": "user_id_1",
+                "anonymous_id": "intercom-user:user-5f161b7a332231fc10b44e5f"
+              },
+              "subjectType": "user"
+            },
+            {
+              "intercom_user/email": {
+                "operation": "set",
+                "value": "lizalead@rei.com"
+              },
+              "intercom_user/id": {
+                "operation": "set",
+                "value": "5f161b7a332231fc10b44e5f"
+              },
+              "intercom_user/user_id": {
+                "operation": "set",
+                "value": "user_id_1"
+              },
+              "intercom_user/twitter_url": {
+                "operation": "set",
+                "value": "http://twitter.com/th1sland"
+              },
+              "intercom_user/facebook_url": {
+                "operation": "set",
+                "value": "http://facebook.com/th1sland"
+              },
+              "intercom_user/social_profiles": {
+                "operation": "set",
+                "value": [
+                  "http://twitter.com/th1sland",
+                  "http://facebook.com/th1sland"
+                ]
+              },
+              "intercom_user/phone": {
+                "operation": "set",
+                "value": "+1123456789"
+              },
+              "intercom_user/name": {
+                "operation": "set",
+                "value": "Liza"
+              },
+              "intercom_user/avatar": {
+                "operation": "set",
+                "value": "https://example.org/128Wash.jpg"
+              },
+              "intercom_user/owner_id": {
+                "operation": "set",
+                "value": 127
+              },
+              "intercom_user/has_hard_bounced": {
+                "operation": "set",
+                "value": false
+              },
+              "intercom_user/marked_email_as_spam": {
+                "operation": "set",
+                "value": false
+              },
+              "intercom_user/unsubscribed_from_emails": {
+                "operation": "set",
+                "value": false
+              },
+              "intercom_user/created_at": {
+                "operation": "set",
+                "value": 1593169501
+              },
+              "intercom_user/updated_at": {
+                "operation": "set",
+                "value": 1593169501
+              },
+              "intercom_user/segments": {
+                "operation": "set",
+                "value": ["Segment1", "Segment2"]
+              },
+              "intercom_user/signed_up_at": {
+                "operation": "set",
+                "value": 1571069751
+              },
+              "intercom_user/last_seen_at": {
+                "operation": "set",
+                "value": 1571069751
+              },
+              "intercom_user/last_replied_at": {
+                "operation": "set",
+                "value": 1571672158
+              },
+              "intercom_user/last_contacted_at": {
+                "operation": "set",
+                "value": 1571672158
+              },
+              "intercom_user/last_email_opened_at": {
+                "operation": "set",
+                "value": 1571673478
+              },
+              "intercom_user/last_email_clicked_at": {
+                "operation": "set",
+                "value": 1571676789
+              },
+              "intercom_user/language_override": {
+                "operation": "set",
+                "value": null
+              },
+              "intercom_user/browser": {
+                "operation": "set",
+                "value": "chrome"
+              },
+              "intercom_user/browser_version": {
+                "operation": "set",
+                "value": "77.0.3865.90"
+              },
+              "intercom_user/browser_language": {
+                "operation": "set",
+                "value": "en"
+              },
+              "intercom_user/os": {
+                "operation": "set",
+                "value": "OS X 10.14.6"
+              },
+              "intercom_user/location_country_name": {
+                "operation": "set",
+                "value": "United States"
+              },
+              "intercom_user/location_region_name": {
+                "operation": "set",
+                "value": "Georgia"
+              },
+              "intercom_user/location_city_name": {
+                "operation": "set",
+                "value": "Atlanta"
+              },
+              "intercom_user/tags": {
+                "operation": "set",
+                "value": [
+                  "Tag1",
+                  "Tag2",
+                  "Tag3",
+                  "Tag4",
+                  "Tag5",
+                  "Tag6",
+                  "Tag7",
+                  "Tag8",
+                  "Tag9",
+                  "Tag10",
+                  "Tag11",
+                  "Tag12"
+                ]
+              },
+              "intercom_user/companies": {
+                "operation": "set",
+                "value": [
+                  "Company1"
+                ]
+              },
+              "intercom_user/job_title": {
+                "operation": "set",
+                "value": "engineer"
+              },
+              "name": {
+                "operation": "setIfNull",
+                "value": "Liza"
+              }
+            }
+          ],
+          [
+            "traits",
+            {
+              "asAccount": {
+                "anonymous_id": "intercom:company_1"
+              },
+              "asUser": {
+                "email": "lizalead@rei.com",
+                "external_id": "user_id_1",
+                "anonymous_id": "intercom-user:user-5f161b7a332231fc10b44e5f"
+              },
+              "subjectType": "account"
+            },
+            {}
           ],
           [
             "traits",

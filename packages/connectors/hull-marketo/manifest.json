@@ -4,7 +4,11 @@
   "source": "marketo",
   "logo": "logo.png",
   "picture": "picture.png",
+<<<<<<< HEAD
   "version": "0.1.35-monorepo",
+=======
+  "version": "0.1.36-monorepo",
+>>>>>>> connector/dropcontact
 
   "tags": [
     "incoming",

@@ -7,7 +7,6 @@ const { isUndefinedOrNull } = require("./utils");
 const _ = require("lodash");
 
 class HullVariableContext {
-
   hullContext: HullContext;
   localContext: Array<Object>;
 
@@ -39,7 +38,6 @@ class HullVariableContext {
     // let foundRootObject = false;
 
     for (let i = this.localContext.length - 1; i >= 0; i -= 1) {
-
       const currentContext = this.localContext[i];
       const value = _.get(currentContext, key);
       if (value !== undefined) {
@@ -62,14 +60,22 @@ class HullVariableContext {
     return hullValue;
   }
 
-  logBadBehavior(context, value, rootKey, fullKey, foundRootObject, index) {
+  logBadBehavior = (
+    context,
+    value,
+    rootKey,
+    fullKey,
+    foundRootObject,
+    index
+  ) => {
     try {
       if (!isUndefinedOrNull(rootKey)) {
         const keys = Object.keys(context);
         if (keys.indexOf(rootKey) >= 0) {
-
           if (foundRootObject) {
-            console.log(`[${index}]Parent Overwriting child behavior present for: ${rootObject} on path: ${fullKey}`);
+            console.log(
+              `[${index}]Parent Overwriting child behavior present for: ${rootObject} on path: ${fullKey}`
+            );
           }
 
           const rootValue = _.get(context, rootKey);
@@ -80,12 +86,9 @@ class HullVariableContext {
           return true;
         }
       }
-    } catch (err) {
-
-    }
+    } catch (err) {}
     return false;
-  }
-
+  };
 
   set(key: string, value: any) {
     if (_.isEmpty(this.localContext)) {
@@ -95,16 +98,16 @@ class HullVariableContext {
     }
   }
 
-  setOnHullContext(key: string, value: any) {
+  setOnHullContext = (key: string, value: any) =>
     _.set(this.hullContext, key, value);
-  }
 
-  reqContext() {
-    return this.hullContext;
-  }
+  reqContext = () => this.hullContext;
 
   createFlattenedContext() {
-    return _.assign({}, this.hullContext, ...this.localContext);
+    return {
+      ...this.hullContext,
+      ...this.localContext
+    };
   }
 
   cloneLocalContext() {
@@ -113,9 +116,7 @@ class HullVariableContext {
 
   shallowCloneContext() {
     const shallowClone = new HullVariableContext(this.hullContext);
-    this.localContext.map(context => {
-      shallowClone.pushNew(context);
-    });
+    this.localContext.map(context => shallowClone.pushNew(context));
     return shallowClone;
   }
 
@@ -130,6 +131,5 @@ class HullVariableContext {
     }
     return doVariableReplacement(this, key);
   }
-
 }
 module.exports = HullVariableContext;

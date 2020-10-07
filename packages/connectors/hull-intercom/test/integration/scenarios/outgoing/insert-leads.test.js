@@ -266,6 +266,20 @@ describe("Insert Lead Tests", () => {
             })
             .reply(202);
 
+          scope
+            .post("/events", {
+              "event_name": "Email Sent",
+              "created_at": "1596228035",
+              "id": "5f22f1b6fcaca714eb055739",
+              "metadata": {
+                "prop1": "Email Sent 1",
+                "prop2": "Email Sent 2",
+                "prop3": "Email Sent 3",
+                "created": "1596228035"
+              }
+            })
+            .reply(202);
+
           return scope;
         },
         messages: [
@@ -362,6 +376,19 @@ describe("Insert Lead Tests", () => {
                   "created": "1596228037"
                 },
                 "event_source": "intercom",
+                "context": {}
+              },
+              {
+                "event": "Email Sent",
+                "event_id": "email_sent_3",
+                "user_id": "123",
+                "properties": {
+                  "prop1": "Email Sent 1",
+                  "prop2": "Email Sent 2",
+                  "prop3": "Email Sent 3",
+                  "created": "1596228035"
+                },
+                "event_source": "hubspot",
                 "context": {}
               }
             ]
@@ -531,6 +558,15 @@ describe("Insert Lead Tests", () => {
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
             {
               "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/events",
+              "status": 202,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
               "method": "GET",
               "url": "/tags",
               "status": 200,
@@ -626,6 +662,8 @@ describe("Insert Lead Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

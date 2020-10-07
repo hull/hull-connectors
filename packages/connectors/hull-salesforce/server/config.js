@@ -21,7 +21,6 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    middlewares: [],
     handlers: handlers({
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET

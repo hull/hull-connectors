@@ -2,6 +2,7 @@
 import type { HullContext, HullCacheConfig } from "hull";
 import redisStore from "cache-manager-redis";
 
+const debug = require("debug")("hull:cache-agent");
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
 const PromiseReuser = require("../../utils/promise-reuser");
@@ -51,27 +52,20 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  keyPrefix: string;
-
-  constructor(options: HullCacheConfig) {
-    const { keyPrefix, store } = options;
+  constructor(config: HullCacheConfig) {
+    debug("New Cache Store", { config });
+    const { store } = config;
     this.cache = cacheManager.caching({
-      ...options,
+      ...config,
       store: store === "redis" ? redisStore : "memory"
     });
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
-    this.keyPrefix = keyPrefix;
   }
 
   getConnectorCache(ctx: HullContext) {
     // eslint-disable-line class-methods-use-this
-    return new ConnectorCache(
-      ctx,
-      this.cache,
-      this.promiseReuser,
-      this.keyPrefix
-    );
+    return new ConnectorCache(ctx, this.cache, this.promiseReuser);
   }
 }
 

@@ -13,9 +13,7 @@ type PhoneNumberUtilType = {
   PhoneNumberFormat: {}
 };
 
-const getPhoneNumberUtil = (): // _ctx: HullContext,
-// _result: Result
-PhoneNumberUtilType => ({
+const getPhoneNumberUtil = (): PhoneNumberUtilType => ({
   PhoneNumberUtil: PhoneNumberUtil.getInstance(),
   CountrySourceCode,
   PhoneNumberType,
