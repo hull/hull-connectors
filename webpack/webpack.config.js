@@ -2,6 +2,7 @@ const glob = require("glob");
 const webpack = require("webpack");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const _ = require("lodash");
 
@@ -31,6 +32,7 @@ const getPlugins = ({ mode, assets, destination }) =>
         //   collections: true,
         //   paths: true
         // }),
+        new ESLintPlugin(),
         new MiniCssExtractPlugin({ filename: "[name].css" }),
         new CopyPlugin([
           {
