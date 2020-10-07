@@ -377,7 +377,7 @@ class FacebookAudience {
           }
         });
       }
-      return { isNew: true, ...audience });
+      return { isNew: true, ...audience };
     });
   }
 
@@ -470,7 +470,7 @@ class FacebookAudience {
         fullpath = `act_${accountId}/${path}`;
       }
 
-      const fullparams = { ...params, access_token: accessToken }
+      const fullparams = { ...params, access_token: accessToken };
       debug("fbgraph %o", { method, fullpath, fullparams });
       return fbgraph[method](fullpath, fullparams, (err, result) => {
         if (err) {
