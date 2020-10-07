@@ -29,63 +29,71 @@ const streamRequest = (ctx: HullContext) => async ({
   onData = noop,
   onEnd = noop
 }: HullStreamOptions): Promise<any> => {
-  const { client } = ctx;
+  return new Promise((resolve, reject) => {
+    const { client } = ctx;
 
-  let chunk = 0;
-  let row = 0;
-  const errors = [];
+    let chunk = 0;
+    let row = 0;
+    const errors = [];
 
-  const pipeline = chain([
-    format === "csv" ? csvParser() : jsonParser(),
-    asObjects(),
-    streamValues(),
-    batchStream({ size: batchSize }),
-    async data => {
-      client.logger.info("incoming.job.progress", {
-        row,
-        chunk
-      });
-      chunk += 1;
-      row += data.length;
-      if (limit && limit >= row) {
-        // eslint-disable-next-line no-use-before-define
-        request.abort();
+    const pipeline = chain([
+      format === "csv" ? csvParser() : jsonParser(),
+      asObjects(),
+      streamValues(),
+      batchStream({ size: batchSize }),
+      async data => {
+        client.logger.info("incoming.job.progress", {
+          row,
+          chunk
+        });
+        chunk += 1;
+        row += data.length;
+        if (limit && limit >= row) {
+          // eslint-disable-next-line no-use-before-define
+          request.abort();
+          return;
+        }
+        await onData(data.map(({ value }) => value));
+        return data;
+      },
+      d => {
+        final(d);
       }
-      await onData(data.map(({ value }) => value));
-      return data;
-    },
-    d => {
-      final(d);
-    }
-  ]);
+    ]);
 
-  const handleOnError = async error => {
-    const errorResponse = await onError(error);
-    client.logger.info("incoming.job.error", {
-      error,
-      errorResponse
+    const handleOnError = async error => {
+      const errorResponse = await onError(error);
+      client.logger.info("incoming.job.error", {
+        error,
+        errorResponse
+      });
+      errors.push(errorResponse);
+    };
+
+    const handleOnEnd = () => {
+      client.logger.info("incoming.job.finished", {
+        chunks: chunk,
+        rows: row,
+        errors
+      });
+      onEnd();
+      if (errors.length) {
+        return reject(errors);
+      }
+      resolve();
+    };
+
+    pipeline.on("error", handleOnError);
+    pipeline.on("finish", handleOnEnd);
+
+    client.logger.info("incoming.job.start", {
+      format,
+      url
     });
-    errors.push(errorResponse);
-  };
 
-  const handleOnEnd = () => {
-    client.logger.info("incoming.job.finished", {
-      chunks: chunk,
-      rows: row,
-      errors
-    });
-    onEnd();
-  };
-
-  pipeline.on("error", handleOnError);
-  pipeline.on("finish", handleOnEnd);
-
-  client.logger.info("incoming.job.start", {
-    format,
-    url
+    const request = superagent.get(url);
+    request.pipe(pipeline);
   });
-
-  const request = superagent.get(url).pipe(pipeline);
 };
 
 module.exports = streamRequest;

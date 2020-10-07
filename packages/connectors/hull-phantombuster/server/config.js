@@ -12,7 +12,7 @@ export default function connectorConfig(): HullConnectorConfig {
     NODE_ENV,
     PORT = 8082,
     COMBINED,
-    SERVER,
+    SERVER = "true",
     WORKER,
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,

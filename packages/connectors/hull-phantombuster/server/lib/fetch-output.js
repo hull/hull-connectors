@@ -4,6 +4,8 @@ import _ from "lodash";
 import type { HullContext } from "hull";
 import checkConfig from "./check-config";
 
+const debug = require("debug")("hull-phantombuster:fetch-output");
+
 type Output = {
   maxLimitReached: boolean,
   containers: Array<{
@@ -64,6 +66,8 @@ export default async function fetchOutput(
       `/containers/fetch-result-object?id=${containerId}`
     );
 
+    debug("Got Result Object", resultObject.body);
+
     // $FlowFixMe
     const result = _.get(resultObject, "body.resultObject");
     if (!result) return [];
@@ -72,21 +76,28 @@ export default async function fetchOutput(
       return parsedResult;
     }
     if (parsedResult.csvURL) {
+      debug("Parsing Result", parsedResult.csvURL);
       const { helpers } = ctx;
       const { streamRequest } = helpers;
-      return new Promise((resolve, reject) =>
-        streamRequest({
-          url: parsedResult.csvURL,
-          format: "csv",
-          batchSize: 100,
-          limit: 100,
-          onError: error => reject(error),
-          onEnd: () => {},
-          onData: async data => {
-            resolve(data);
-          }
-        })
-      );
+      const data = [];
+      await streamRequest({
+        url: parsedResult.csvURL,
+        format: "csv",
+        batchSize: 100,
+        limit: 100,
+        onError: error => {
+          debug("Parsing Error", error);
+        },
+        onEnd: () => {
+          debug("Parsing Complete");
+        },
+        onData: async chunk => {
+          // debug("Received data", datum);
+          data.push(...chunk);
+        }
+      });
+      console.log("DONE")
+      return data;
     }
     client.logger.error("connector.schedule.error", { result });
     throw new Error("Unrecognized Container result format");
