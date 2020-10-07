@@ -130,42 +130,6 @@ describe("Insert Contacts Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.success",
@@ -348,42 +312,6 @@ describe("Insert Contacts Tests", () => {
               "method": "GET",
               "url_length": 191,
               "url": expect.stringMatching(/.*FROM.*Account.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
             }
           ]),
           [
@@ -761,46 +689,6 @@ describe("Insert Contacts Tests", () => {
               "method": "GET",
               "url_length": 237,
               "url": expect.stringMatching(/.*FROM.*Account.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [

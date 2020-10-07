@@ -111,7 +111,7 @@ export interface ISalesforceClientOptions {
 }
 
 export interface IServiceClient {
-  findRecordsById(type: TResourceType, identifiers: string[], fields: string[], accountClaims: Array<Object>, options: Object): Promise<any[]>;
+  findRecordsById(type: TResourceType, identifiers: string[], fields: string[], identityClaims: Array<Object>, options: Object): Promise<any[]>;
   findRecordById(type: TResourceType, id: string): Promise<any[]>;
   insert(records: Array<THullObject>, options: IInsertUpdateOptions): Promise<IApiResultObject[]>;
   update(records: Array<THullObject>, options: TInsertUpdateOptions): Promise<IApiResultObject[]>;
@@ -138,7 +138,7 @@ export interface IAttributesMapper {
 }
 
 export interface IQueryUtil {
-  getSoqlFields(serviceType: string, fields: Array<string>, accountClaims: Array<Object>): Object;
+  getSoqlFields(serviceType: string, fields: Array<string>, identityClaims: Array<Object>): Object;
   composeFindFields(serviceType: string, mappings: Object): Array<string>;
   extractUniqueValues(messages: Array<any>, path: string): Array<any>;
   buildQueryOpts(sfType: string, params: Array<Object>): Object;

@@ -11,7 +11,7 @@ import {
   varEqual,
   varInArray,
   inputIsEqual,
-  resolveIndexOf
+  varSizeEquals
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 import {
@@ -168,7 +168,7 @@ function contactTransformation({ entityType }) {
           ],
           then: [
             {
-              operateOn: { component: "glue", route: "getContactCompanies", name: "contactCompany" },
+              operateOn: { component: "glue", route: "getContactCompanies", name: "contactCompanies" },
               writeTo: { path: "attributes.${mapping.hull}.operation", value: "set" },
               expand: { valueName: "contactCompany" },
               then: [
@@ -177,7 +177,16 @@ function contactTransformation({ entityType }) {
                     path: "attributes.${mapping.hull}.value",
                     appendToArray: "unique",
                     format: "${contactCompany.name}"
-                  }
+                  },
+                  then: [
+                    {
+                      condition: [
+                        "connector.private_settings.link_users_in_hull",
+                        varSizeEquals("contactCompanies", 1)
+                      ],
+                      writeTo: { path: "accountIdent.anonymous_id", format: "intercom:${contactCompany.id}" }
+                    }
+                  ]
                 }
               ]
             }
@@ -281,12 +290,14 @@ function contactTransformation({ entityType }) {
         },
         {
           condition: [inputIsEmpty("companies.data"), varEqual("mapping.service", "companies")],
-          then: [{
-            writeTo: {
-              path: "attributes.${mapping.hull}",
-              format: { operation: "set", value: [] }
+          then: [
+            {
+              writeTo: {
+                path: "attributes.${mapping.hull}",
+                format: { operation: "set", value: [] }
+              }
             }
-          }]
+          ]
         },
         {
           condition: [inputIsEmpty("social_profiles.data"), varEqual("mapping.service", "social_profiles")],

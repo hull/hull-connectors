@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.35-monorepo",
+  "version": "0.1.36-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -607,7 +607,7 @@
   "incoming": [],
   "json": [
     {
-      "url": "/fetchAllLeads",
+      "url": "/fetch-all-leads",
       "handler": "fetchAllLeads",
       "type": "string",
       "format": "action",
@@ -624,7 +624,7 @@
       }
     },
     {
-      "url": "/fetchAllContacts",
+      "url": "/fetch-all-contacts",
       "handler": "fetchAllContacts",
       "type": "string",
       "format": "action",
@@ -641,7 +641,7 @@
       }
     },
     {
-      "url": "/fetchAllAccounts",
+      "url": "/fetch-all-accounts",
       "handler": "fetchAllAccounts",
       "type": "string",
       "format": "action",
@@ -658,7 +658,7 @@
       }
     },
     {
-      "url": "/fetchAllTasks",
+      "url": "/fetch-all-tasks",
       "handler": "fetchAllTasks",
       "type": "string",
       "format": "action",
@@ -717,7 +717,7 @@
   ],
   "schedules": [
     {
-      "url": "/fetchRecentContacts",
+      "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentContacts",
@@ -726,7 +726,7 @@
       }
     },
     {
-      "url": "/fetchRecentLeads",
+      "url": "/fetch-recent-leads",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentLeads",
@@ -735,7 +735,7 @@
       }
     },
     {
-      "url": "/fetchRecentAccounts",
+      "url": "/fetch-recent-accounts",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentAccounts",
@@ -744,7 +744,7 @@
       }
     },
     {
-      "url": "/fetchRecentTasks",
+      "url": "/fetch-recent-tasks",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentTasks",
@@ -753,7 +753,7 @@
       }
     },
     {
-      "url": "/fetchRecentDeletedContacts",
+      "url": "/fetch-recent-deleted-contacts",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentDeletedContacts",
@@ -762,7 +762,7 @@
       }
     },
     {
-      "url": "/fetchRecentDeletedLeads",
+      "url": "/fetch-recent-deleted-leads",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentDeletedLeads",
@@ -771,7 +771,7 @@
       }
     },
     {
-      "url": "/fetchRecentDeletedAccounts",
+      "url": "/fetch-recent-deleted-accounts",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentDeletedAccounts",
@@ -780,7 +780,7 @@
       }
     },
     {
-      "url": "/fetchRecentDeletedTasks",
+      "url": "/fetch-recent-deleted-tasks",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentDeletedTasks",

@@ -472,27 +472,10 @@ describe("Fetch All Companies Tests", () => {
             {},
             { jobName: "Incoming Data", type: "webpayload" }
           ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {},
+          ["info", "incoming.job.success", {},
             {
-              responseTime: expect.whatever(),
-              method: "GET",
-              url: "/companies/scroll",
-              status: 400,
-              vars: {}
-            }
-          ],
-          [
-            "error",
-            "incoming.job.error",
-            {},
-            {
-              jobName: "Incoming Data",
-              error:
-                "Client Error (Intercom Error Details: scroll_exists: scroll already exists for this workspace)",
-              type: "webpayload"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -508,8 +491,7 @@ describe("Fetch All Companies Tests", () => {
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "connector.service_api.error", 1],
-          ["increment", "service.service_api.errors", 1],
-          ["increment", "connector.transient_error", 1]
+          ["increment", "service.service_api.errors", 1]
         ],
         platformApiCalls: [
           ["GET", "/api/v1/app", {}, {}],

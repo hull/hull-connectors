@@ -34,18 +34,18 @@ const private_settings = {
 
 describe("Fetch Tasks Tests", () => {
 
-  /*it("should fetch multiple tasks", () => {
+  it("should fetch multiple tasks", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentTasks",
+        handlerUrl: "fetch-recent-tasks",
         connector: {
           private_settings: {
             ...private_settings,
             salesforce_external_id: "EventExternalId__c",
             "lead_claims": [],
             "user_claims": [
-              { "hull": "email", "service": "Email" }
+              { "hull": "email", "service": "Email", "required": true }
             ],
           }
         },
@@ -64,7 +64,7 @@ describe("Fetch Tasks Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId,CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById,IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority,RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval,RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet,RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00TP0000','00TP0001')"
+              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId,CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById,IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority,RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval,RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet,RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00TP0000','00TP0001') AND Id != null"
             })
             .reply(200, { records: [
                 {
@@ -131,16 +131,7 @@ describe("Fetch Tasks Tests", () => {
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated?")
             }
           ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterval%[...]1')"
-            }
-          ],
+          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
             "info",
             "incoming.event.success",
@@ -298,13 +289,13 @@ describe("Fetch Tasks Tests", () => {
         platformApiCalls: []
       };
     });
-  });*/
+  });
 
   it("should fetch a single task", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentTasks",
+        handlerUrl: "fetch-recent-tasks",
         connector: {
           private_settings
         },
@@ -328,7 +319,7 @@ describe("Fetch Tasks Tests", () => {
                 "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
                 "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
                 "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
-                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,Who.Type FROM Task WHERE Id IN ('00TP0000')";
+                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,Who.Type FROM Task WHERE Id IN ('00TP0000') AND Id != null";
             })
             .reply(200, { records: [
                 {
@@ -375,16 +366,7 @@ describe("Fetch Tasks Tests", () => {
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated")
             }
           ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterval%[...]0')"
-            }
-          ],
+          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
             "info",
             "incoming.event.success",
@@ -482,7 +464,7 @@ describe("Fetch Tasks Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentDeletedTasks",
+        handlerUrl: "fetch-recent-deleted-tasks",
         connector: {
           private_settings: {
             ...private_settings,
@@ -518,7 +500,7 @@ describe("Fetch Tasks Tests", () => {
                 "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
                 "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
                 "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
-                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA')";
+                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA') AND Id != null";
             })
             .reply(200, { records: [
                 { attributes:
@@ -595,16 +577,7 @@ describe("Fetch Tasks Tests", () => {
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/deleted")
             }
           ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/queryAll?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterv[...]A')"
-            }
-          ],
+          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
             "info",
             "incoming.event.success",

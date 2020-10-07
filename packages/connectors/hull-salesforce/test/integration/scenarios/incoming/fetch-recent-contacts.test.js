@@ -42,7 +42,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentDeletedContacts",
+        handlerUrl: "fetch-recent-deleted-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -284,7 +284,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -408,7 +408,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CUserSegments__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CUserSegments__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -564,7 +564,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -768,7 +768,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -915,7 +915,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -953,7 +953,7 @@ describe("Fetch Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,OwnerId,Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG')";
+              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,OwnerId,Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
             })
             .reply(200, { records: [
                 {
@@ -1004,7 +1004,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwnerId%2COwner.Email%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwnerId%2COwner.Email%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -1095,7 +1095,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -1138,7 +1138,7 @@ describe("Fetch Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,Owner.Email,Description FROM Contact WHERE Id IN ('00Q1I000004WHchUAG')";
+              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,Owner.Email,Description FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
             })
             .reply(200, { records: [
                 {
@@ -1189,7 +1189,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwner.Email%2CDescription%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwner.Email%2CDescription%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [

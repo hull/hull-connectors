@@ -483,74 +483,6 @@ describe("Skip Account Via User Update Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl",
-                "uos.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl",
-                "uos.com"
-              ]
-            }
-          ]),
-          [
-            "info",
-            "outgoing.account.skip",
-            {
-              "subject_type": "account",
-              "request_id": expect.whatever(),
-              "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
-              "account_domain": "krakowtraders.pl"
-            },
-            {
-              "reason": "The account in Salesforce is already in sync with Hull."
-            }
-          ],
-          [
-            "info",
-            "outgoing.account.skip",
-            {
-              "subject_type": "account",
-              "request_id": expect.whatever(),
-              "account_id": "1188F000007Cy1CQASafhguplagbaeih",
-              "account_domain": "uos.com"
-            },
-            {
-              "reason": "The account in Salesforce is already in sync with Hull."
-            }
-          ],
           [
             "info",
             "outgoing.user.skip",
@@ -1009,46 +941,6 @@ describe("Skip Account Via User Update Tests", () => {
               "method": "GET",
               "url_length": 219,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20%3D%20'a.com'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "a.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "a.com"
-              ]
             }
           ]),
           [

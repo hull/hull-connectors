@@ -22,7 +22,7 @@ const {
   HullOutgoingDropdownOption,
   HullOutgoingUser,
   HullOutgoingEvent,
-  HullAttributeMapping,
+  HullOutgoingAccount,
   HullUserIdentity
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
@@ -167,6 +167,11 @@ const glue = {
     ],
     transformTo(HullOutgoingDropdownOption, cast(IntercomOutgoingAttributeDefinition, "${contactOutboundFields}"))
   ),
+  companyFieldsOutbound: returnValue([
+      set("companyOutboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyDataAttributes")))
+    ],
+    transformTo(HullOutgoingDropdownOption, cast(IntercomOutgoingAttributeDefinition, "${companyOutboundFields}"))
+  ),
   companyFieldsInbound: returnValue([
       set("companyInboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyDataAttributes")))
     ],
@@ -201,21 +206,32 @@ const glue = {
           ifL(or([
             cond("isEmpty", "${page}"),
             cond("isEmpty", "${page.data}")
-          ]), loopEndL()),
+          ]), {
+            do: loopEndL(),
+            eldo: [
+              set("intercomCompanies", filterL(or([
+                cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
+                cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
+              ]), "company", "${page.data}")),
+              iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
+                hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
+              ),
 
-          set("intercomCompanies", filterL(or([
-            cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
-            cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
-          ]), "company", "${page.data}")),
-          iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
-            hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
-          ),
-
-          set("offset", "${page.scroll_param}"),
-          set("page", [])
+              set("offset", "${page.scroll_param}"),
+              set("page", [])
+            ]
+          })
         ])
       ])
   ]),
+  fetchCompany: [
+    ifL(cond("notEmpty", set("company_id", input("body.company_id"))),[
+      hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompanyByCompanyId")))
+    ]),
+    ifL(cond("notEmpty", set("id", input("body.id"))),[
+      hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompanyById")))
+    ])
+  ],
   fetchAllCompanies: ifL(
     cond("allTrue", [
       route("isConfigured")
@@ -225,30 +241,40 @@ const glue = {
         ifL(or([
           cond("isEmpty", "${page}"),
           cond("isEmpty", "${page.data}")
-        ]), loopEndL()),
-        iterateL("${page.data}", { key: "intercomCompany", async: true},
-          hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
-        ),
-        set("offset", "${page.scroll_param}"),
-        set("page", []),
+        ]), {
+          do: loopEndL(),
+          eldo: [
+            iterateL("${page.data}", { key: "intercomCompany", async: true},
+              hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
+            ),
+            set("offset", "${page.scroll_param}"),
+            set("page", [])
+          ]
+        })
       ])
     ]),
   fetchContacts: [
-    ifL(cond("isEmpty", "${lastFetchAt}"), {
+    set("pageOffset", undefined),
+
+    set("service_type", input("service_type")),
+    set("last_fetch_at", input("last_fetch_at")),
+    set("search_by", input("search_by")),
+    set("transform_to", input("transform_to")),
+    ifL(cond("isEmpty", "${last_fetch_at}"), {
       do: set("fetchFrom", ex(ex(moment(), "subtract", { day: 1 }), "unix")),
       eldo: [
         set("secondsInDay", 86400),
-        set("fetchFrom", ld("subtract", "${lastFetchAt}", "${secondsInDay}"))
+        set("fetchFrom", ld("subtract", "${last_fetch_at}", "${secondsInDay}"))
       ]
     }),
-    ifL(cond("isEqual", "${fetchAll}", true), set("fetchFrom", 0)),
+    ifL(cond("isEqual", "${fetch_all}", true), set("fetchFrom", 0)),
 
     loopL([
       set("page", intercom("getContacts", {
         "query":  {
           "operator": "AND",
           "value": [
-            { "field": "updated_at", "operator": ">", "value": "${fetchFrom}" },
+            { "field": "${search_by}", "operator": ">", "value": "${fetchFrom}" },
             { "field": "role", "operator": "=", "value": "${service_type}" }
           ]
         },
@@ -257,35 +283,68 @@ const glue = {
           "starting_after": "${pageOffset}"
         },
         "sort": {
-          "field": "updated_at",
+          "field": "${search_by}",
           "order": "descending"
         }
       })),
-      set("intercomContacts", filterL(or([
-        cond("greaterThan", "${contact.updated_at}", "${lastFetchAt}"),
-        cond("isEqual", "${contact.updated_at}", "${lastFetchAt}")
-      ]), "contact", "${page.data}")),
+
+      route("filterContacts"),
+
       iterateL("${intercomContacts}", { key: "intercomContact", async: true },
-        hull("asUser", cast("${transformTo}", "${intercomContact}"))
+        hull("asUser", cast("${transform_to}", "${intercomContact}"))
       ),
       ifL(or([
         cond("isEqual", "${page.pages.next}", undefined),
         cond("isEmpty", "${page.pages.next}"),
-        cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
+        cond("lessThan", get("${search_by}", ld("last", "${page.data}")), "${last_fetch_at}")
       ]), loopEndL()),
       set("pageOffset", "${page.pages.next.starting_after}")
     ])
   ],
+  filterContacts: [
+    ifL(cond("isEqual", "${search_by}", "updated_at"), [
+      set("intercomContacts", route("filterByUpdatedAt"))
+    ]),
+    ifL(cond("isEqual", "${search_by}", "last_seen_at"), [
+      set("intercomContacts", route("filterByLastSeenAt"))
+    ])
+  ],
+  filterByUpdatedAt: filterL(or([
+      cond("greaterThan", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}"),
+      cond("isEqual", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}")
+    ]), "fetchItem", "${page.data}"),
+  filterByLastSeenAt: filterL(cond("allTrue",
+    [
+      or([
+        cond("greaterThan", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}"),
+        cond("isEqual", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}")
+      ]),
+      cond("lessThan", ld("get", "${fetchItem}", "updated_at"), "${last_fetch_at}")
+    ]
+  ), "fetchItem", "${page.data}"),
   fetchRecentLeads: ifL(
     cond("allTrue", [
       route("isConfigured"),
       settings("fetch_leads")
     ]), [
       set("service_type", "lead"),
-      set("transformTo", IntercomLeadRead),
-      set("lastFetchAt", settings("leads_last_fetch_timestamp")),
+
+      set("last_fetch_at", settings("leads_last_fetch_timestamp")),
       settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "lead",
+        last_fetch_at: "${last_fetch_at}",
+        transform_to: IntercomLeadRead,
+        search_by: "updated_at"
+      }),
+      ifL(ex(jsonata("$.service", settings("incoming_lead_attributes")), "includes", "last_seen_at"), [
+        route("fetchContacts", {
+          service_type: "lead",
+          last_fetch_at: "${last_fetch_at}",
+          transform_to: IntercomLeadRead,
+          search_by: "last_seen_at"
+        })
+      ])
     ]),
   fetchRecentUsers: ifL(
     cond("allTrue", [
@@ -293,32 +352,50 @@ const glue = {
       settings("fetch_users")
     ]), [
       set("service_type", "user"),
-      set("transformTo", IntercomUserRead),
-      set("lastFetchAt", settings("users_last_fetch_timestamp")),
+      set("last_fetch_at", settings("users_last_fetch_timestamp")),
       settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "user",
+        last_fetch_at: "${last_fetch_at}",
+        transform_to: IntercomUserRead,
+        search_by: "updated_at"
+      }),
+      ifL(ex(jsonata("$.service", settings("incoming_user_attributes")), "includes", "last_seen_at"), [
+        route("fetchContacts", {
+          service_type: "user",
+          last_fetch_at: "${last_fetch_at}",
+          transform_to: IntercomUserRead,
+          search_by: "last_seen_at"
+        })
+      ])
     ]),
   fetchAllLeads: ifL(
     cond("allTrue", [
       route("isConfigured")
     ]), [
       set("service_type", "lead"),
-      set("transformTo", IntercomLeadRead),
-      set("lastFetchAt", 0),
-      set("fetchAll", true),
+      set("fetch_all", true),
       settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "lead",
+        last_fetch_at: 0,
+        transform_to: IntercomLeadRead,
+        search_by: "updated_at"
+      })
     ]),
   fetchAllUsers: ifL(
     cond("allTrue", [
       route("isConfigured")
     ]), [
       set("service_type", "user"),
-      set("transformTo", IntercomUserRead),
-      set("lastFetchAt", 0),
-      set("fetchAll", true),
+      set("fetch_all", true),
       settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "user",
+        last_fetch_at: 0,
+        transform_to: IntercomUserRead,
+        search_by: "updated_at"
+      })
     ]),
   getContactTags: returnValue([
     set("contactId", input("id"))
@@ -341,6 +418,92 @@ const glue = {
     set("service_type", "user"),
     route("contactUpdate")
   ],
+  accountUpdate: [
+    set("service_type", "company"),
+    route("companyUpdate")
+  ],
+  companyUpdate: [
+    ifL([
+        cond("notEmpty", input()),
+        route("isConfigured")
+      ],
+      iterateL(input(), { key: "message", async: true }, [
+        route("companyUpdateStart", cast(HullOutgoingAccount, "${message}"))
+      ])
+    )
+  ],
+  companyUpdateStart: cacheLock(input("account.id"), [
+    set("companyDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
+    set("custom_attributes", ld("map", filter({ "custom": true }, "${companyDataAttributes}"), "name")),
+
+    ifL(or([
+      set("companyId", cacheGet(input("account.id"))),
+      set("companyId", input("account.intercom/id"))
+    ]), {
+      do: [
+        route("upsertCompany")
+      ],
+      eldo: [
+        route("companyLookup"),
+        ifL(not(cond("isEqual", "${skipCompany}", true)), [
+          ifL([
+            cond("isEmpty", "${companyId}")
+          ], {
+            do: route("upsertCompany"),
+            eldo: route("upsertCompany")
+          })
+        ])
+      ]
+    }),
+
+    ifL(cond("notEmpty", "${companyFromIntercom}"),
+      [
+        route("checkTags"),
+        hull("asAccount","${companyFromIntercom}")
+      ]
+    )
+  ]),
+  companyLookup:
+    iterateL(notFilter({ service: "id" }, settings("account_claims")), "claim",
+      ifL([
+          cond("notEmpty", set("value", input("account.${claim.hull}"))),
+          cond("notEmpty", set("property", "${claim.service}")),
+          cond("notEmpty", set("accountId", get("id", intercom("searchCompanies"))))
+        ],
+        [loopEndL()]
+      )
+    ),
+  upsertCompany: [
+    set("companyFromIntercom", intercom("upsertCompany", input()))
+  ],
+  linkCompany:
+    ifL([
+        settings("link_users_in_service"),
+        cond("isEmpty", set("accountId", input("account.intercom/id"))),
+        or([
+          cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
+          cond("allTrue", [
+            not(input("account_segments")),
+            cond("notEmpty", input("account"))
+          ])
+        ])
+      ],
+      [
+        set("service_type", "company"),
+        route("companyUpdateStart", cast(HullOutgoingAccount, ld("cloneDeep", "${message}"))),
+        set("contactId", "${contactFromIntercom.id}"),
+        set("companyId", "${companyFromIntercom.company_id}"),
+        ifL([
+          cond("notEmpty", "${contactId}"),
+          cond("notEmpty", "${companyId}"),
+        ], [
+          intercom("linkContactToCompany", {
+            "company_id": "${companyId}"
+          })
+        ])
+      ]
+    ),
+
   contactUpdate: [
     ifL([
         cond("notEmpty", input()),
@@ -353,7 +516,7 @@ const glue = {
   ],
   contactUpdateStart: cacheLock(input("user.id"), [
     set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
-    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
+    set("custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
 
     ifL(or([
       set("contactId", cacheGet(input("user.id"))),
@@ -380,8 +543,13 @@ const glue = {
         route("sendEvents"),
         route("checkTags"),
         route("convertLeadDefault"),
+        hull("asUser","${contactFromIntercom}"),
 
-        hull("asUser","${contactFromIntercom}")
+        ifL([
+          cond("isEqual", settings("link_users_in_service"), true)
+        ], [
+          route("linkCompany")
+        ])
       ]
     )
   ]),
@@ -466,6 +634,42 @@ const glue = {
       cond("isEqual", "${service_type}", "user")
     ], [
       route("handleContactTags")
+    ]),
+    ifL([
+      cond("isEqual", settings("tag_companies"), true),
+      cond("isEqual", "${service_type}", "company")
+    ], [
+      route("handleCompanyTags")
+    ])
+  ],
+  handleCompanyTags: [
+    set("companyTags", ld("map", "${companyFromIntercom.tags.tags}", "name")),
+    set("tagsOnHullAccount", input("account.intercom/tags")),
+
+    set("segmentsIn", ld("map", input("account_segments"), "name")),
+    set("segmentsLeft", ld("map", input("changes.account_segments.left"), "name")),
+
+    set("missingTags", ld("differenceBy", ld("map", "${segmentsIn}", _.trim), "${tagsOnHullAccount}")),
+    iterateL("${missingTags}", "segmentName", [
+      intercom("tagCompanies", {
+        "name": "${segmentName}",
+        "companies": [
+          {
+            "id" : "${companyFromIntercom.id}"
+          }
+        ]
+      })
+    ]),
+    iterateL("${segmentsLeft}", "segmentName", [
+      intercom("unTagCompanies", {
+        "name": ld("trim", "${segmentName}"),
+        "companies": [
+          {
+            "id" : "${companyFromIntercom.id}",
+            "untag": true
+          }
+        ]
+      })
     ])
   ],
   handleContactTags: [
@@ -515,46 +719,57 @@ const glue = {
       })
     ])
   ],
+  filterEvents: [
+    set("eventNames", ld("map", input("events"), "event")),
+    ifL(not(ex(settings("outgoing_events"), "includes", "all_events")), [
+      set("eventNames", ld("intersection", settings("outgoing_events"), "${eventNames}"))
+    ])
+  ],
   sendEvents: ifL([
     cond("notEmpty", settings("outgoing_events")),
     cond("isEqual", settings("send_events"), true)
   ], [
     set("contactId", "${contactFromIntercom.id}"),
     set("events", input("events")),
-    set("eventNames", ld("intersection", settings("outgoing_events"), ld("map", input("events"), "event"))),
     set("hasNewEvents", cond("lessThan", 0, ld("size", "${events}"))),
 
+    route("filterEvents"),
     ifL("${hasNewEvents}", [
 
       iterateL("${eventNames}", "eventName", [
-        set("event", filter({ event: "${eventName}" }, "${events}")),
-        ifL(not(cond("isEqual", "${event[0].event_source}", "intercom")), [
-          set("hullEvent", cast(HullOutgoingEvent, "${event[0]}")),
-          intercom("submitEvent", "${hullEvent}")
-        ])
+        set("eventsToSend", filter({ event: "${eventName}" }, "${events}")),
+
+        iterateL("${eventsToSend}", "event", [
+          ifL(not(cond("isEqual", "${event.event_source}", "intercom")), [
+            intercom("submitEvent", cast(HullOutgoingEvent, "${event}"))
+          ])
+        ]),
       ])
     ])
+  ]),
+  createDataAttribute: ifL([
+    cond("isEmpty", filter({ name: "${attribute.service}" }, "${dataAttributes}"))
+  ], [
+    set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
+    intercom("createDataAttribute", "${intercomAttribute}")
   ]),
   syncDataAttributes: [
     cacheLock("syncingAttributes",
       [
         set("outgoing_user_attributes", settings("outgoing_user_attributes")),
         set("outgoing_lead_attributes", settings("outgoing_lead_attributes")),
-
-        set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+        set("outgoing_account_attributes", settings("outgoing_account_attributes")),
 
         iterateL(ld("concat", "${outgoing_user_attributes}", "${outgoing_lead_attributes}"), "attribute", [
-          ifL([
-            cond("isEmpty", filter({ name: "${attribute.service}" }, "${contactDataAttributes}"))
-          ], [
-            set("attributeProcessing", cacheGet("${attributeName}")),
-            ifL(cond("isEmpty", "${attributeProcessing}"), [
-              cacheSet({ key: "${attributeName}" }, "attributeProcessing"),
+          set("service_model", "contact"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+          route("createDataAttribute")
+        ]),
 
-              set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
-              intercom("createDataAttribute", "${intercomAttribute}")
-            ])
-          ])
+        iterateL("${outgoing_account_attributes}", "attribute", [
+          set("service_model", "company"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
+          route("createDataAttribute")
         ])
       ]
     )

@@ -38,7 +38,7 @@ describe("Fetch Leads Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentLeads",
+        handlerUrl: "fetch-recent-leads",
         connector: {
           private_settings: {
             ...private_settings,
