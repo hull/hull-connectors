@@ -104,10 +104,7 @@ class HullVariableContext {
   reqContext = () => this.hullContext;
 
   createFlattenedContext() {
-    return {
-      ...this.hullContext,
-      ...this.localContext
-    };
+    return _.assign({}, this.hullContext, ...this.localContext);
   }
 
   cloneLocalContext() {
