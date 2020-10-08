@@ -1,9 +1,9 @@
 /* @flow */
 const _ = require("lodash");
-const createBatch = require("./execute-batch-creation");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 async function createEmailBatch(ctx: any) {
+  const importType = "email";
   const { syncAgent, mailchimpAgent } = shipAppFactory(ctx);
   const batch_id = await mailchimpAgent.cache.get("email_batch_id");
   if (!_.isNil(batch_id)) {
@@ -24,17 +24,30 @@ async function createEmailBatch(ctx: any) {
     .getCampaignsAndAutomationsToTrack()
     .then(async campaigns => {
       const operations = syncAgent.eventsAgent.getEmailActivitiesOps(campaigns);
-      const res = await createBatch({
-        syncAgent,
+      const batchJob = await mailchimpAgent.batchAgent.create({
         operations,
-        importType: "email"
+        importType
       });
-      if (res.status === 200 && res.data.id) {
-        await mailchimpAgent.cache.set("email_batch_id", res.data.id, {
-          ttl: 0
-        });
+      if (!batchJob.id) {
+        return {
+          status: 500,
+          data: {
+            importType,
+            message: "Unable to create batch job"
+          }
+        };
       }
-      return res;
+      await mailchimpAgent.cache.set("email_batch_id", batchJob.id, {
+        ttl: 0
+      });
+
+      return {
+        status: 200,
+        data: {
+          importType,
+          batchId: batchJob.id
+        }
+      };
     });
 }
 

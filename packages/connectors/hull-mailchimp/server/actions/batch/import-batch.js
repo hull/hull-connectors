@@ -1,13 +1,14 @@
 // @flow
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
-import executeBatchJob from "./execute-batch-job";
 
 const _ = require("lodash");
+const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importBatch(
   ctx: HullContext,
   incomingMessage: HullIncomingHandlerMessage
 ) {
+  const { mailchimpAgent } = shipAppFactory(ctx);
   const batchData = _.get(incomingMessage, "body", {});
   const { batch_id, import_type } = batchData;
 
@@ -29,7 +30,8 @@ export default async function importBatch(
     };
   }
 
-  const batchLock = await ctx.cache.get(`${import_type}_batch_lock`);
+  const batchLockKey = `${import_type}_batch_lock`;
+  const batchLock = await ctx.cache.get(batchLockKey);
   if (!_.isNil(batchLock)) {
     return {
       status: 200,
@@ -39,9 +41,9 @@ export default async function importBatch(
     };
   }
 
-  await ctx.cache.set(`${import_type}_batch_lock`, true, { ttl: 43200 });
+  await ctx.cache.set(batchLockKey, true, { ttl: 43200 });
   if (import_type === "email") {
-    return executeBatchJob(ctx, {
+    return mailchimpAgent.batchAgent.handle({
       jobName: "trackEmailActivities",
       batchId: batch_id,
       importType: import_type
@@ -49,7 +51,7 @@ export default async function importBatch(
   }
 
   if (import_type === "member") {
-    return executeBatchJob(ctx, {
+    return mailchimpAgent.batchAgent.handle({
       jobName: "importUsers",
       batchId: batch_id,
       importType: import_type

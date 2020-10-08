@@ -1,10 +1,10 @@
 /* @flow */
 const _ = require("lodash");
-const createBatch = require("./execute-batch-creation");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 async function createMemberBatch(ctx: any) {
-  const { syncAgent, mailchimpAgent } = shipAppFactory(ctx);
+  const importType = "member";
+  const { mailchimpAgent } = shipAppFactory(ctx);
   const batch_id = await mailchimpAgent.cache.get("member_batch_id");
   if (!_.isNil(batch_id)) {
     const message = `Import Member Batch {${batch_id}} Already Initiated`;
@@ -29,18 +29,31 @@ async function createMemberBatch(ctx: any) {
     }
   };
 
-  const res = await createBatch({
-    syncAgent,
-    ctx,
+  const batchJob = await mailchimpAgent.batchAgent.create({
     operations: [operation],
-    importType: "member"
+    importType
   });
-  if (res.status === 200 && res.data.id) {
-    await mailchimpAgent.cache.set("member_batch_id", res.data.id, {
-      ttl: 0
-    });
+  if (!batchJob.id) {
+    return {
+      status: 500,
+      data: {
+        importType,
+        message: "Unable to create batch job"
+      }
+    };
   }
-  return res;
+
+  await mailchimpAgent.cache.set("member_batch_id", batchJob.id, {
+    ttl: 0
+  });
+
+  return {
+    status: 200,
+    data: {
+      importType,
+      batchId: batchJob.id
+    }
+  };
 }
 
 module.exports = createMemberBatch;

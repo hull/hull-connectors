@@ -1,13 +1,16 @@
 // @flow
 import type { HullContext } from "hull";
-import executeBatchJob from "./execute-batch-job";
 
 const _ = require("lodash");
+const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importMemberBatch(ctx: HullContext) {
+  const { mailchimpAgent } = shipAppFactory(ctx);
   const importType = "member";
   const jobName = "importUsers";
-  const batchLock = await ctx.cache.get("member_batch_lock");
+
+  const batchLockKey = `${importType}_batch_lock`;
+  const batchLock = await ctx.cache.get(batchLockKey);
 
   if (!_.isNil(batchLock)) {
     ctx.client.logger.info("incoming.job.warning", {
@@ -38,10 +41,17 @@ export default async function importMemberBatch(ctx: HullContext) {
     };
   }
 
-  await ctx.cache.set("member_batch_lock", true, { ttl: 43200 });
-  return executeBatchJob(ctx, {
+  await ctx.cache.set(batchLockKey, true, { ttl: 43200 });
+  mailchimpAgent.batchAgent.handle({
     jobName,
     batchId,
     importType
   });
+
+  return {
+    status: 200,
+    data: {
+      status: "ok"
+    }
+  };
 }
