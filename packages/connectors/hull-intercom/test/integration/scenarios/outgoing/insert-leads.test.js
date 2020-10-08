@@ -6,7 +6,6 @@ const contactFields = require("../attributes/api-responses/get-contact-fields-re
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("Insert Lead Tests", () => {
 

@@ -5,7 +5,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
+// process.env.COMBINED = true;
 
 describe("Send User Tests", () => {
   it("should insert a user", () => {

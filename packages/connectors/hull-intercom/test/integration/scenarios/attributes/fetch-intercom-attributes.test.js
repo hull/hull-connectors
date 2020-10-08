@@ -7,7 +7,6 @@ const companyFields = require("./api-responses/get-company-fields-response.json"
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("Fetch Intercom Attributes Tests", () => {
 

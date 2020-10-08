@@ -7,7 +7,6 @@ const companyFields = require("../attributes/api-responses/get-company-fields-re
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("Sync Attributes Tests", () => {
 
