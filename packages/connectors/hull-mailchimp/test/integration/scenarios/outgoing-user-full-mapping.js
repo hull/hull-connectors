@@ -189,8 +189,6 @@ it("should send matching user to the mailchimp", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 10,
-          size: 50,
           in_time: 30000
         }
       },

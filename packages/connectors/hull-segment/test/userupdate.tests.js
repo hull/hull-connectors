@@ -107,7 +107,6 @@ const METRIC_INCREMENT_SCREEN = increment_request("screen");
 const NEXT_FLOW_CONTROL = {
   flow_control: {
     type: "next",
-    in: 10,
     in_time: 0,
     size: 100
   }
@@ -115,7 +114,6 @@ const NEXT_FLOW_CONTROL = {
 const RETRY_FLOW_CONTROL = {
   flow_control: {
     type: "retry",
-    in: 10,
     in_time: 0,
     size: 100
   }
