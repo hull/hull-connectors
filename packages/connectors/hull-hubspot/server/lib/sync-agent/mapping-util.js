@@ -66,9 +66,13 @@ class MappingUtil {
 
   incomingAccountClaims: Array<HullIncomingClaimsSetting>;
 
-  contactSchema: HubspotSchema;
+  outgoingContactSchema: HubspotSchema;
 
-  companySchema: HubspotSchema;
+  outgoingCompanySchema: HubspotSchema;
+
+  incomingCompanySchema: HubspotSchema;
+
+  incomingContactSchema: HubspotSchema;
 
   constructor({
     ctx,
@@ -99,14 +103,24 @@ class MappingUtil {
     this.outgoingLinking = link_users_in_service || false;
     this.incomingUserClaims = incoming_user_claims;
 
-    this.contactSchema = this.getServiceSchema(
+    this.outgoingContactSchema = this.getOutgoingServiceSchema(
       hubspotContactProperties,
       outgoing_user_attributes
     );
 
-    this.companySchema = this.getServiceSchema(
+    this.outgoingCompanySchema = this.getOutgoingServiceSchema(
       hubspotCompanyProperties,
       outgoing_account_attributes
+    );
+
+    this.incomingCompanySchema = this.getIncomingServiceSchema(
+      hubspotCompanyProperties,
+      incoming_account_attributes
+    );
+
+    this.incomingConctactSchema = this.getIncomingServiceSchema(
+      hubspotContactProperties,
+      incoming_user_attributes
     );
 
     this.incomingAccountClaims = incoming_account_claims;
@@ -151,19 +165,7 @@ class MappingUtil {
       payload: accountData,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
-      attributeFormatter: value => {
-        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-          return null;
-        }
-        if (_.isNumber(value)) {
-          return value;
-        }
-        // eslint-disable-next-line no-restricted-globals
-        if (!isNaN(value) && !_.startsWith(value, "0")) {
-          return parseFloat(value);
-        }
-        return value;
-      }
+      serviceSchema: this.incomingCompanySchema
     });
 
     hullTraits["hubspot/id"] = accountData.companyId;
@@ -185,20 +187,7 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      attributeFormatter: value => {
-        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-          return null;
-        }
-        if (_.isNumber(value)) {
-          return value;
-        }
-        // TODO fix this
-        // eslint-disable-next-line no-restricted-globals
-        if (!isNaN(value) && !_.startsWith(value, "0")) {
-          return parseFloat(value);
-        }
-        return value;
-      }
+      serviceSchema: this.incomingConctactSchema
     });
 
     hullTraits["hubspot/id"] =
@@ -262,7 +251,7 @@ class MappingUtil {
       name: "domain"
     });
 
-    if (domainProperties.length === 0) {
+    if (!_.isNil(message.account.domain) && domainProperties.length === 0) {
       hubspotWriteCompany.properties.push({
         name: "domain",
         value: message.account.domain
@@ -291,8 +280,7 @@ class MappingUtil {
       payload: message,
       direction: "outgoing",
       mapping: outgoingMapping,
-      serviceSchema: this[`${_.toLower(serviceType)}Schema`],
-      attributeFormatter
+      serviceSchema: this[`outgoing${_.upperFirst(serviceType)}Schema`]
     });
 
     const properties = _.reduce(
@@ -321,7 +309,7 @@ class MappingUtil {
     return properties;
   }
 
-  getServiceSchema(
+  getOutgoingServiceSchema(
     hubspotPropertyGroups: Array<HubspotPropertyGroup>,
     outgoingMapping: Array<HubspotSchema>
   ): Array<> {
@@ -383,6 +371,60 @@ class MappingUtil {
         readOnlyValue,
         formatter: formatter(hubspotPropertyName, type)
       };
+      return schema;
+    }, {});
+  }
+
+  getIncomingServiceSchema(
+    hubspotPropertyGroups: Array<HubspotPropertyGroup>,
+    attributeMapping: Array<HubspotSchema>
+  ): Array<> {
+    const formatter = (property, type) => value => {
+      if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+        return null;
+      }
+      if (_.isNumber(value)) {
+        return value;
+      }
+
+      // eslint-disable-next-line
+      if (type === "number") {
+        return parseFloat(value);
+      }
+      return value;
+    };
+
+    const hubspotProperties = _.flatten(
+      hubspotPropertyGroups.map(group => group.properties)
+    );
+
+    return attributeMapping.reduce((schema, mapping) => {
+      const { hull, service } = mapping;
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return schema;
+      }
+      const cleanedServiceName = service
+        .replace(/.*properties\./, "")
+        .replace(/\.value.*/, "")
+        .replace(/"/g, "")
+        .replace(/`/g, "");
+
+      const hubspotPropertyName = slug(cleanedServiceName, {
+        replacement: "_",
+        lower: true
+      });
+
+      const hubspotProperty = _.find(hubspotProperties, {
+        name: hubspotPropertyName
+      });
+
+      if (hubspotProperty) {
+        const { name, type } = hubspotProperty;
+        schema[hull.replace(/^traits_/, "")] = {
+          type,
+          formatter: formatter(name, type)
+        };
+      }
       return schema;
     }, {});
   }
