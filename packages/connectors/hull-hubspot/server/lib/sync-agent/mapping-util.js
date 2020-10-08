@@ -158,22 +158,6 @@ class MappingUtil {
     return {};
   }
 
-  format(value) {
-    if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-      return null;
-    }
-    if (_.isNumber(value)) {
-      return value;
-    }
-
-    // TODO tmp fix - use castAs
-    // eslint-disable-next-line
-    if (!isNaN(value) && (_.startsWith(value, "0.") || !_.startsWith(value, "0"))) {
-      return parseFloat(value);
-    }
-    return value;
-  }
-
   mapToHullAccount(accountData: HubspotReadCompany): HullAccountAttributes {
     const { helpers } = this.ctx;
     const { mapAttributes } = helpers;
