@@ -111,13 +111,9 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
       audit
     };
   } catch (error) {
-    status = "error";
-    messages.push(
-      `Error when trying to get test payload from Mailchimp API: ${error.message}`
-    );
     return {
-      status,
-      messages
+      status: "error",
+      messages: [error.message]
     };
   }
 }
