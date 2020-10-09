@@ -705,7 +705,10 @@ class SyncAgent {
           _.pullAll(hullFailedEnvelopes, failedEnvelopes);
         }
 
-        if (retry > 0) {
+        if (
+          retry > 0 &&
+          (!_.isEmpty(retryEnvelopes) || !_.isEmpty(hullFailedEnvelopes))
+        ) {
           return this.postEnvelopes({
             envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
             hullEntity,
@@ -946,7 +949,8 @@ class SyncAgent {
         this.hullClient
           .asAccount(erroredEnvelope.message.account)
           .logger.error("outgoing.account.error", {
-            error: erroredEnvelope.error || "outgoing batch rejected",
+            error: `Batch Rejected: ${erroredEnvelope.error || ""}`,
+            warning: "Unable to determine rejected account",
             hubspotWriteCompany: erroredEnvelope.hubspotWriteCompany
           });
       }
@@ -990,12 +994,21 @@ class SyncAgent {
           });
         }
         if (hubspotEntity === "company") {
-          failureMessage = _.find(validationResults, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
-          hullSyncFailureMessage = _.find(segmentSyncFailures, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
+          if (!_.isEmpty(validationResults)) {
+            failureMessage = {
+              propertyValidationResult: {
+                message: _.map(validationResults, "message").join("; ")
+              }
+            };
+          }
+
+          if (!_.isEmpty(segmentSyncFailures)) {
+            hullSyncFailureMessage = {
+              propertyValidationResult: {
+                message: _.map(segmentSyncFailures, "message").join("; ")
+              }
+            };
+          }
         }
 
         if (!_.isNil(hullSyncFailureMessage)) {
