@@ -10489,6 +10489,11 @@ memcache-plus@0.2.20:
     lodash "^4.14.0"
     ramda "^0.24.1"
 
+memjs@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/memjs/-/memjs-1.2.2.tgz#f7c7276c7016ba1b8ad800df09cecc32522a536c"
+  integrity sha512-j6I5cQsjT8izm0FcBZrwga4VmlhTMsBTPKdyKolQenLulHNvKuNcDgDmBhQvScqNLy4tjpCCFwiqFK+5l6J20g==
+
 memoize-one@^5.0.0:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-5.1.1.tgz#047b6e3199b508eaec03504de71229b8eb1d75c0"
