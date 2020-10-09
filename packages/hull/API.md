@@ -238,7 +238,7 @@ ctx.cache.wrap('object_name', () => {
 #### Examples
 
 ```javascript
-const redisStore = require("cache-manager-redis");
+const redisStore = require("cache-manager-redis-store");
 const { Cache } = require("hull/lib/infra");
 
 const cache = new Cache({

@@ -181,7 +181,7 @@ class HullConnector {
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds
-      max: 100, // Items
+      max: 50, // Connections to Redis (??)
       store: "memory",
       ...cacheConfig
     };

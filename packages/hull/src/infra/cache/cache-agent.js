@@ -1,6 +1,6 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
-import redisStore from "cache-manager-redis";
+import redisStore from "cache-manager-redis-store";
 
 const debug = require("debug")("hull:cache-agent");
 
