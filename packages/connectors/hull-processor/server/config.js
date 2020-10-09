@@ -12,6 +12,7 @@ export default function connectorConfig(): HullConnectorConfig {
     PORT = 8082,
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
+    MEMCACHIER_SERVERS,
     SHIP_CACHE_TTL = 60,
     SHIP_CACHE_MAX = 100,
     FLOW_CONTROL_IN,
@@ -21,7 +22,13 @@ export default function connectorConfig(): HullConnectorConfig {
   const hostSecret = SECRET || "1234";
 
   const cacheConfig =
-    REDIS_URL !== undefined
+    // eslint-disable-next-line no-nested-ternary
+    MEMCACHIER_SERVERS
+      ? {
+          store: "memcached",
+          hosts: MEMCACHIER_SERVERS.split(",")
+        }
+      : REDIS_URL !== undefined
       ? { store: "redis", url: REDIS_URL }
       : { store: "memory" };
   return {

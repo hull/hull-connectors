@@ -1,6 +1,7 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
 import redisStore from "cache-manager-redis-store";
+import memcachedStore from "cache-manager-memcached-store";
 
 const debug = require("debug")("hull:cache-agent");
 
@@ -53,13 +54,29 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  constructor(options: HullCacheConfig) {
+  getOptions(options) {
     const { store } = options;
-    debug("Creating new Cache Agent instance", { options });
-    this.cache = cacheManager.caching({
-      ...options,
-      store: store === "redis" ? redisStore : "memory"
-    });
+    if (store === "redis") {
+      return {
+        ...options,
+        store: redisStore
+      };
+    }
+    if (store === "memcached") {
+      return {
+        store: memcachedStore,
+        options
+      };
+    }
+    return {
+      store: "memory",
+      ...options
+    };
+  }
+
+  constructor(options: HullCacheConfig) {
+    console.log("New cache", options);
+    this.cache = cacheManager.caching(this.getOptions(options));
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
   }
