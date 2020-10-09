@@ -26,7 +26,7 @@ const transformsToHull: ServiceTransforms = [
       {
         mapping: { type: "input" },
         arrayStrategy: "append_index",
-        condition: doesNotContain(["email", "external_id"], "service_field_name"),
+        condition: doesNotContain(["email", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "attributes.bigquery/${service_field_name}",
       },
@@ -36,6 +36,14 @@ const transformsToHull: ServiceTransforms = [
         condition: doesContain(["email", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
+      },
+      {
+        mapping: { type: "input" },
+        arrayStrategy: "append_index",
+        condition: doesContain(["anonymous_id"], "service_field_name"),
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${service_field_name}",
+        outputFormat: "bigquery:${value}"
       }
     ]
   },
@@ -48,7 +56,7 @@ const transformsToHull: ServiceTransforms = [
       {
         mapping: { type: "input" },
         arrayStrategy: "append_index",
-        condition: doesNotContain(["domain", "external_id"], "service_field_name"),
+        condition: doesNotContain(["domain", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "attributes.bigquery/${service_field_name}",
       },
@@ -58,6 +66,14 @@ const transformsToHull: ServiceTransforms = [
         condition: doesContain(["domain", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
+      },
+      {
+        mapping: { type: "input" },
+        arrayStrategy: "append_index",
+        condition: doesContain(["anonymous_id"], "service_field_name"),
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${service_field_name}",
+        outputFormat: "bigquery:${value}"
       }
     ]
   },
@@ -70,7 +86,7 @@ const transformsToHull: ServiceTransforms = [
       {
         mapping: { type: "input" },
         arrayStrategy: "append_index",
-        condition: doesNotContain(["domain", "external_id", "created_at", "event_id", "event_name", "email"], "service_field_name"),
+        condition: doesNotContain(["domain", "external_id", "created_at", "event_id", "event_name", "email", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "events[0].properties.${service_field_name}",
       },
@@ -80,6 +96,14 @@ const transformsToHull: ServiceTransforms = [
         condition: doesContain(["email", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
+      },
+      {
+        mapping: { type: "input" },
+        arrayStrategy: "append_index",
+        condition: doesContain(["anonymous_id"], "service_field_name"),
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${service_field_name}",
+        outputFormat: "bigquery:${value}"
       },
       {
         mapping: { type: "input" },
