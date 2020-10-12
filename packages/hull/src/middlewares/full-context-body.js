@@ -84,10 +84,9 @@ function fullContextBodyMiddlewareFactory({
       const { manifest } = req.hull.connectorConfig;
       applyConnectorSettingsDefaults(connector, manifest);
       trimTraitsPrefixFromConnector(connector);
-
       // $FlowFixMe
       req.hull = Object.assign(req.hull, {
-        __contextFetched: true,
+        __contextFetched: !!connector && !!usersSegments && !!accountsSegments,
         // $FlowFixMe
         connector,
         // $FlowFixMe
