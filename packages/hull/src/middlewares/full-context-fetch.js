@@ -56,7 +56,7 @@ async function fetchSegments(ctx, entity = "user", cache) {
   const { id } = ctx.client.configuration();
   const getSegments = () =>
     ctx.client.get(
-      `/${entitySegments}`,
+      entitySegments,
       { shipId: id },
       { timeout: 5000, retry: 1000 }
     );
