@@ -15,7 +15,7 @@ const {
 async function fetchConnector(ctx, cache): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
-    ctx.cache.set("connector", ctx.connector);
+    await ctx.cache.set("connector", ctx.connector);
     return ctx.connector;
   }
   const getConnector = () => ctx.client.get("app", {});
@@ -50,7 +50,7 @@ async function fetchSegments(ctx, entity = "user", cache) {
   const ctxEntity = `${entity}sSegments`;
   const segments = ctx[ctxEntity];
   if (segments) {
-    ctx.cache.set(entitySegments, segments);
+    await ctx.cache.set(entitySegments, segments);
     return segments;
   }
   const { id } = ctx.client.configuration();
