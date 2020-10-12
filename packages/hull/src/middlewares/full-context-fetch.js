@@ -114,7 +114,6 @@ function fullContextFetchMiddlewareFactory({
         )
       );
     }
-
     try {
       const ctx = req.hull;
       if (ctx.client === undefined) {
@@ -125,6 +124,11 @@ function fullContextFetchMiddlewareFactory({
         fetchSegments(ctx, "user", cacheContextFetch),
         fetchSegments(ctx, "account", cacheContextFetch)
       ]);
+
+      if (req.hull.__contextFetched) {
+        return next();
+      }
+
       debug("received responses %o", {
         connector: typeof connector,
         usersSegments: Array.isArray(usersSegments),

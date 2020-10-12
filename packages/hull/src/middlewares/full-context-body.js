@@ -87,6 +87,7 @@ function fullContextBodyMiddlewareFactory({
 
       // $FlowFixMe
       req.hull = Object.assign(req.hull, {
+        __contextFetched: true,
         // $FlowFixMe
         connector,
         // $FlowFixMe
