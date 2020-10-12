@@ -1,7 +1,6 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
 import redisStore from "cache-manager-redis-store";
-import memcachedStore from "./memjs-store";
 
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
@@ -58,12 +57,6 @@ class CacheAgent {
       return {
         ...options,
         store: redisStore
-      };
-    }
-    if (store === "memcached") {
-      return {
-        ...options,
-        store: memcachedStore
       };
     }
     return {

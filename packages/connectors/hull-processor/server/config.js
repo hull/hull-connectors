@@ -12,9 +12,6 @@ export default function connectorConfig(): HullConnectorConfig {
     PORT = 8082,
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
-    MEMCACHEDCLOUD_SERVERS,
-    MEMCACHEDCLOUD_USERNAME,
-    MEMCACHEDCLOUD_PASSWORD,
     SHIP_CACHE_TTL = 60,
     FLOW_CONTROL_IN,
     FLOW_CONTROL_SIZE
@@ -23,15 +20,7 @@ export default function connectorConfig(): HullConnectorConfig {
   const hostSecret = SECRET || "1234";
 
   const cacheConfig =
-    // eslint-disable-next-line no-nested-ternary
-    MEMCACHEDCLOUD_SERVERS && MEMCACHEDCLOUD_PASSWORD && MEMCACHEDCLOUD_USERNAME
-      ? {
-          store: "memcached",
-          hosts: MEMCACHEDCLOUD_SERVERS,
-          username: MEMCACHEDCLOUD_USERNAME,
-          password: MEMCACHEDCLOUD_PASSWORD
-        }
-      : REDIS_URL !== undefined
+    REDIS_URL !== undefined
       ? { store: "redis", url: REDIS_URL }
       : { store: "memory" };
   return {
