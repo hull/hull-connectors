@@ -30,13 +30,13 @@ export default function connectorConfig(): HullConnectorConfig {
     port: PORT || 8082,
     timeout: "25s",
     handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE || 200,
-      flow_in: FLOW_CONTROL_IN || 1
+      flow_size: parseInt(FLOW_CONTROL_SIZE, 10) || 100,
+      flow_in: parseInt(FLOW_CONTROL_IN, 10) || 1
     }),
     middlewares: [],
     cacheConfig: {
       ...cacheConfig,
-      ttl: SHIP_CACHE_TTL || 60
+      ttl: parseInt(SHIP_CACHE_TTL, 10) || 60
     },
     logsConfig: {
       logLevel: LOG_LEVEL
