@@ -84,11 +84,11 @@ class FrameworkUtils {
   }
 
   logError(context: Object, params: any) {
-    context.client.logger.error(params);
+    context.client.logger.error(JSON.stringify(params));
   }
 
   logInfo(context: Object, params: any) {
-    context.client.logger.info(params);
+    context.client.logger.info(JSON.stringify(params));
   }
 
 }
