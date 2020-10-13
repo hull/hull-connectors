@@ -1066,6 +1066,10 @@ class SyncAgent {
         )
       : this.getIncomingProperties(groups);
   }
+
+  async verifyCompany(companyId: string) {
+    return this.hubspotClient.getCompany(companyId);
+  }
 }
 
 module.exports = SyncAgent;

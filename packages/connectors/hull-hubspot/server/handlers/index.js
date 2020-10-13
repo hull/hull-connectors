@@ -17,6 +17,7 @@ import lastFetchedStatus from "../actions/last-fetched-status";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
+import verifyCompany from "../actions/verify-company";
 
 import account_update from "./account-update";
 import user_update from "./user-update";
@@ -70,7 +71,8 @@ const handler = ({
       getOutgoingCompanyProperties: getCompanyProperties("outgoing"),
       getIncomingUserClaims,
       getIncomingAccountClaims,
-      getCompanyProperties
+      getCompanyProperties,
+      verifyCompany
     }
   };
 };

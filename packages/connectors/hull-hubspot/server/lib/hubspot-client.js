@@ -517,6 +517,17 @@ class HubspotClient {
       .send(property)
       .then(res => res.body);
   }
+
+  getCompany(companyId: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/companies/v2/companies/{{companyId}}")
+        .tmplVar({
+          companyId
+        })
+        .then(response => response.body);
+    });
+  }
 }
 
 module.exports = HubspotClient;

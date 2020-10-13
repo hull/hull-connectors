@@ -612,6 +612,11 @@
   ],
   "json": [
     {
+      "url": "/verify-company",
+      "name": "verify_company",
+      "handler": "verifyCompany"
+    },
+    {
       "url": "/fetch-all",
       "name": "fetch_all",
       "handler": "fetchAll"
