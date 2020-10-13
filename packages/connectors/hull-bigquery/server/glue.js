@@ -172,8 +172,8 @@ const glue = {
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
       hull("${operation.hull}", cast("${operation.type}", "${entity}"))
     ]),
-    ifL(cond("notEmpty", "${getJobResults.pageToken}"), [
-      set("pageToken"),
+    ifL(cond("notEmpty", "${queryPageResults.pageToken}"), [
+      set("pageToken", "${queryPageResults.pageToken}"),
       route("importResults")
     ])
   ],
