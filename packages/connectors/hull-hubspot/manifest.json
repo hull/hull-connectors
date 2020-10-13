@@ -448,6 +448,13 @@
       "format": "hidden"
     },
     {
+      "name": "fetch_users",
+      "title": "Fetch Contacts",
+      "description": "Enable fetching Hubspot Contacts to Hull",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "fetch_email_events",
       "title": "Fetch Email Events",
       "description": "Enable fetching Hubspot Marketing Emails to Hull as events",
@@ -748,6 +755,7 @@
       "title": "User - Fetching from Hubspot",
       "description": "<b>Identity</b> is one of the most important concepts in Hull. The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull. <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
+        "private_settings.fetch_users",
         "private_settings.incoming_user_claims",
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
