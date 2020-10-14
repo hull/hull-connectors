@@ -1,8 +1,15 @@
 /* @flow */
 
 import type { ServiceObjectDefinition } from "./types";
-import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
+import type {
+  HullAccountUpdateMessage,
+  HullContext,
+  HullEntityName,
+  HullTriggerSet,
+  HullUserUpdateMessage
+} from "hull";
 import type { HullSegment } from "hull-client/src/types";
+import type { PrivateSettings } from "hull-webhooks/types";
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
@@ -174,6 +181,17 @@ function createAnonymizedObject(object, pathsToAnonymize = {
   }, 2);
 }
 
+function getTriggers(
+  entity: HullEntityName,
+  private_settings: PrivateSettings
+): HullTriggerSet {
+
+  // TODO fill out user/lead/account triggers/filters
+  return {
+    [`${entity}_events`]: private_settings[`outgoing_${entity}_events`] || []
+  };
+}
+
 /**
  * TODO break apart method so can unit test individual pieces...
  * @param  {[type]} context                 [description]
@@ -192,6 +210,12 @@ function toSendMessage(
     sendOnAnySegmentChanges?: boolean
   }
 ): boolean {
+  const privateSettings = _.get(context, "connector.private_settings");
+  const { helpers } = context;
+
+  // TODO expand use of triggers to include all user/lead/account triggers and filters
+  const { hasMatchingTriggers } = helpers;
+  const triggers = getTriggers(targetEntity, privateSettings);
 
   const synchronizedUserSegments = _.get(
     context,
@@ -304,18 +328,6 @@ function toSendMessage(
       }
     }
   }
-
-  // // We probably should introduce a standard event filter
-  // if (targetEntity === "user") {
-  //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
-  //   const userEvents = _.get(message, "events");
-  //   if (Array.isArray(userEvents) && !_.isEmpty(userEvents)) {
-  //     const eventsToSend = _.filter(userEvents, (userEvent) => {
-  //       return
-  //     })
-  //     return true;
-  //   }
-  // }
 
   const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
   const enteredAnySegments = !_.isEmpty(enteredSegments);
@@ -445,6 +457,12 @@ function toSendMessage(
   if (send_all_account_attributes === true && hullType === "account") {
     return true;
   }
+
+  const matchesTriggers = hasMatchingTriggers({ mode: "all", message, triggers });
+  if (matchesTriggers) {
+    return true;
+  }
+
 
   // Is this the right thing?
   // don't have to do anything on segment exited right?

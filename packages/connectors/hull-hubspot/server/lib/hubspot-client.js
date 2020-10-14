@@ -528,6 +528,10 @@ class HubspotClient {
         .then(response => response.body);
     });
   }
+
+  sendEvent(event): Promise<*> {
+    return superagent.get("https://track.hubspot.com/v1/event").query(event);
+  }
 }
 
 module.exports = HubspotClient;

@@ -4,6 +4,53 @@ const _ = require("lodash");
 const { toSendMessage } = require("../../src/purplefusion/utils");
 const { ContextMock } = require("../../src/purplefusiontester/connector-mock");
 
+describe("Outgoing Event Filtering Tests", () => {
+
+  it("should sent outgoing event 'all events'", () => {
+    const context = new ContextMock({
+      private_settings: {
+        outgoing_user_events: ["all_events"],
+        synchronized_user_segments: [ "ALL" ]
+      }
+    });
+    expect(toSendMessage(context,
+      "user", { events: [{ event: "Email Opened" }], user: { email: "someuser@gmail.com" } })).toEqual(true);
+  });
+
+  it("should send outgoing event", () => {
+    const context = new ContextMock({
+      private_settings: {
+        outgoing_user_events: ["Email Opened"],
+        synchronized_user_segments: [ "ALL" ]
+      }
+    });
+    expect(toSendMessage(context,
+      "user", { events: [{ event: "Email Opened" }], user: { email: "someuser@gmail.com" } })).toEqual(true);
+  });
+
+  it("should not send outgoing event that does not match inclusion list", () => {
+    const context = new ContextMock({
+      private_settings: {
+        outgoing_user_events: ["Email Sent"],
+        synchronized_user_segments: [ "ALL" ]
+      }
+    });
+    expect(toSendMessage(context,
+      "user", { events: [{ event: "Email Opened" }], user: { email: "someuser@gmail.com" } })).toEqual(false);
+  });
+
+  it("should not send outgoing event against empty inclusion list", () => {
+    const context = new ContextMock({
+      private_settings: {
+        outgoing_user_events: [],
+        synchronized_user_segments: [ "ALL" ]
+      }
+    });
+    expect(toSendMessage(context,
+      "user", { events: [{ event: "Email Opened" }], user: { email: "someuser@gmail.com" } })).toEqual(false);
+  });
+});
+
 describe("Outgoing User Segment Filtering Tests", () => {
 
   it("outgoing user all segments", () => {

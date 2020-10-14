@@ -19,6 +19,25 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "send_events",
+      "title": "Send Events",
+      "description": "Should Send Events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "outgoing_user_events",
+      "title": "Sends Events to Hubspot",
+      "format": "event",
+      "type": "array",
+      "default": [],
+      "options": {
+        "standard": {
+          "all_events": "All Events"
+        }
+      }
+    },
+    {
       "name": "ignore_deleted_users",
       "title": "Ignore Deleted Contacts",
       "description": "If a contact has been deleted in Hubspot, do not send that user to Hubspot from Hull.",
@@ -789,6 +808,14 @@
         "private_settings.ignore_deleted_accounts",
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_account_attributes"
+      ]
+    },
+    {
+      "title": "Send Events to Hubspot",
+      "description": "Define which events will be sent to Hubspot",
+      "properties": [
+        "private_settings.send_events",
+        "private_settings.outgoing_user_events"
       ]
     },
     {
