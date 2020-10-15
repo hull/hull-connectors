@@ -20,10 +20,7 @@ const TOPLEVEL_ATTRIBUTES = {
     { service: "FirstName", hull: "first_name" },
     { service: "LastName", hull: "last_name" }
   ],
-  Account: [
-    { service: "Name", hull: "name" },
-    { service: "Website", hull: "domain" }
-  ],
+  Account: [{ service: "Name", hull: "name" }],
   Task: []
 };
 
