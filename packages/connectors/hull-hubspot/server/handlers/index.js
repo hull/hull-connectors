@@ -17,7 +17,8 @@ import lastFetchedStatus from "../actions/last-fetched-status";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
-import verifyCompany from "../actions/verify-company";
+import getCompany from "../actions/get-company";
+import getContact from "../actions/get-contact";
 
 import account_update from "./account-update";
 import user_update from "./user-update";
@@ -72,7 +73,8 @@ const handler = ({
       getIncomingUserClaims,
       getIncomingAccountClaims,
       getCompanyProperties,
-      verifyCompany
+      getCompany,
+      getContact
     }
   };
 };

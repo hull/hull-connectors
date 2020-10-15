@@ -638,9 +638,14 @@
   ],
   "json": [
     {
-      "url": "/verify-company",
-      "name": "verify_company",
-      "handler": "verifyCompany"
+      "url": "/get-company",
+      "name": "get_company",
+      "handler": "getCompany"
+    },
+    {
+      "url": "/get-contact",
+      "name": "get_contact",
+      "handler": "getContact"
     },
     {
       "url": "/fetch-all",

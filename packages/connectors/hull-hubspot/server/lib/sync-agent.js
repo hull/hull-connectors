@@ -1136,8 +1136,16 @@ class SyncAgent {
       : this.getIncomingProperties(groups);
   }
 
-  async verifyCompany(companyId: string) {
+  async getCompany(companyId: string) {
     return this.hubspotClient.getCompany(companyId);
+  }
+
+  async getContact(contactId: string) {
+    return this.hubspotClient.getContact(contactId);
+  }
+
+  async getVisitor(utk: string) {
+    return this.hubspotClient.getVisitor(utk);
   }
 }
 

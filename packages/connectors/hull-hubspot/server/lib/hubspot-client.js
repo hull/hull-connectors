@@ -529,6 +529,28 @@ class HubspotClient {
     });
   }
 
+  getContact(contactId: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/vid/{{contactId}}/profile")
+        .tmplVar({
+          contactId
+        })
+        .then(response => response.body);
+    });
+  }
+
+  getVisitor(utk: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/utk/{{utk}}/profile")
+        .tmplVar({
+          utk
+        })
+        .then(response => response.body);
+    });
+  }
+
   sendEvent(event): Promise<*> {
     return superagent.get("https://track.hubspot.com/v1/event").query(event);
   }
