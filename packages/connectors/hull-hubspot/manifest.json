@@ -19,6 +19,26 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "fetch_visitors",
+      "title": "Resolve Contact From UTK",
+      "description": "Given a UTK, fetch the associated contact from Hubspot",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "synchronized_visitor_segments",
+      "title": "Visitor Segment Filter",
+      "description": "Given a UTK, fetch the associated contact from Hubspot when users match these segments",
+      "type": "array",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": []
+    },
+    {
       "name": "send_events",
       "title": "Send Events",
       "description": "Should Send Events",
@@ -542,7 +562,10 @@
       "url": "/smart-notifier",
       "conditions" : {
         "segments": {
-          "user:update": ["private_settings.synchronized_user_segments"],
+          "user:update": [
+            "private_settings.synchronized_user_segments",
+            "private_settings.synchronized_visitor_segments"
+          ],
           "account:update": ["private_settings.synchronized_account_segments"]
         }
       },
@@ -784,6 +807,14 @@
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
         "json.fetch_all_contacts"
+      ]
+    },
+    {
+      "title": "Visitor Tracking",
+      "description": "Define which site visitors will be queried for and returned as Contacts from Hubspot. This requires that the utk on the Hull User has been set.",
+      "properties": [
+        "private_settings.fetch_visitors",
+        "private_settings.synchronized_visitor_segments"
       ]
     },
     {

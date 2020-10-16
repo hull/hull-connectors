@@ -66,6 +66,8 @@ class SyncAgent {
 
   fetchAccounts: boolean;
 
+  shouldFetchVisitors: boolean;
+
   shouldSendEvents: boolean;
 
   portal_id: string;
@@ -96,6 +98,7 @@ class SyncAgent {
     this.filterUtil = new FilterUtil(ctx);
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
     this.shouldSendEvents = ctx.connector.private_settings.send_events;
+    this.shouldFetchVisitors = ctx.connector.private_settings.fetch_visitors;
     this.portalId = ctx.connector.private_settings.portal_id;
     this.ctx = ctx;
   }
@@ -441,12 +444,6 @@ class SyncAgent {
   async sendUserUpdateMessages(
     messages: Array<HullUserUpdateMessage>
   ): Promise<*> {
-    if (!this.isConfigured()) {
-      this.hullClient.logger.error("connector.configuration.error", {
-        errors: "connector is not configured"
-      });
-      return Promise.resolve();
-    }
     await this.initialize();
 
     const envelopes = messages.map(message =>
@@ -1146,6 +1143,49 @@ class SyncAgent {
 
   async getVisitor(utk: string) {
     return this.hubspotClient.getVisitor(utk);
+  }
+
+  async fetchVisitors(messages: Array<HullUserUpdateMessage>): Promise<*> {
+    if (!this.shouldFetchVisitors) {
+      return Promise.resolve();
+    }
+    const visitorMessages = this.filterUtil.filterVisitorMessages(messages);
+
+    if (_.isEmpty(visitorMessages)) {
+      return Promise.resolve();
+    }
+
+    return Promise.map(visitorMessages, async message => {
+      const { user } = message;
+      const utkAnonIds = _.filter(_.get(user, "anonymous_ids", []), aid =>
+        aid.startsWith("hubspot-utk:")
+      );
+
+      return Promise.map(utkAnonIds, async utkAnonId => {
+        try {
+          const utk = _.replace(utkAnonId, "hubspot-utk:", "");
+          const contact = await this.getVisitor(utk);
+          const { vid } = contact;
+          if (vid) {
+            return this.hullClient
+              .asUser(user)
+              .alias({ anonymous_id: `hubspot:${vid}` });
+          }
+          return this.hullClient
+            .asUser(user)
+            .logger.error("incoming.user.error", {
+              message: "Contact with utk not found",
+              utk
+            });
+        } catch (error) {
+          return this.hullClient
+            .asUser(user)
+            .logger.error("incoming.user.error", {
+              message: "Unable to retrieve visitor"
+            });
+        }
+      });
+    });
   }
 }
 
