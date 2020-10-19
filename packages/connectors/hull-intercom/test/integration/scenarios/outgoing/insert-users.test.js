@@ -394,7 +394,7 @@ describe("Insert User Tests", () => {
 
           scope
             .post("/contacts/5f22f1b6fcaca714eb055739/companies", {
-              "company_id": "account_external_id_1"
+              "id": "5f4e82462bc3732be3cdf6b0"
             }).reply(200, {
             "type": "company",
             "company_id": "account_external_id_1",

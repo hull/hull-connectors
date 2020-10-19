@@ -511,10 +511,17 @@ const glue = {
   upsertCompany: [
     set("companyFromIntercom", intercom("upsertCompany", input()))
   ],
+  // TODO write unit tests for linkCompany:
   linkCompany:
     ifL([
         settings("link_users_in_service"),
-        cond("isEmpty", set("accountId", input("account.intercom/id"))),
+        or([
+          cond("isEmpty", set("accountId", input("account.intercom/id"))),
+          cond("allTrue", [
+            cond("notEmpty", set("accountId", input("account.intercom/id"))),
+            cond("isEmpty", input("user.intercom_${service_type}/companies"))
+          ])
+        ]),
         or([
           cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
           cond("allTrue", [
@@ -527,13 +534,13 @@ const glue = {
         set("service_type", "company"),
         route("companyUpdateStart", cast(HullOutgoingAccount, ld("cloneDeep", "${message}"))),
         set("contactId", "${contactFromIntercom.id}"),
-        set("companyId", "${companyFromIntercom.company_id}"),
+        set("companyId", "${companyFromIntercom.id}"),
         ifL([
           cond("notEmpty", "${contactId}"),
           cond("notEmpty", "${companyId}"),
         ], [
           intercom("linkContactToCompany", {
-            "company_id": "${companyId}"
+            "id": "${companyId}"
           })
         ])
       ]
