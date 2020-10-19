@@ -529,7 +529,18 @@ class HubspotClient {
     });
   }
 
-  getContact(contactId: string): Promise<*> {
+  getContactByEmail(email: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/email/{{email}}/profile")
+        .tmplVar({
+          email
+        })
+        .then(response => response.body);
+    });
+  }
+
+  getContactById(contactId: string): Promise<*> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v1/contact/vid/{{contactId}}/profile")

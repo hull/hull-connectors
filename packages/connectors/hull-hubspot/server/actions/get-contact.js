@@ -12,21 +12,21 @@ const getContact = async (
   _incomingMessage: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { body } = _incomingMessage;
-  const { contact_id, utk } = body;
+  const { email, contact_id, utk } = body;
 
-  if (!contact_id && !utk) {
+  if (!email && !contact_id && !utk) {
     return {
       status: 422,
       data: {
-        message: "Missing Required Parameter: 'contact_id' or 'utk'"
+        message: "Missing Required Parameter: 'email', 'contact_id' or 'utk'"
       }
     };
   }
-  const id = contact_id || utk;
   const syncAgent = new SyncAgent(ctx);
-  const contact = contact_id
-    ? await syncAgent.getContact(id)
-    : await syncAgent.getVisitor(utk);
+  const contact =
+    contact_id || email
+      ? await syncAgent.getContact({ id: contact_id, email })
+      : await syncAgent.getVisitor({ utk });
   return {
     status: 200,
     data: contact

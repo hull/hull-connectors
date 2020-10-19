@@ -1137,11 +1137,13 @@ class SyncAgent {
     return this.hubspotClient.getCompany(companyId);
   }
 
-  async getContact(contactId: string) {
-    return this.hubspotClient.getContact(contactId);
+  async getContact({ id, email }) {
+    return !_.isNil(id)
+      ? this.hubspotClient.getContactById(id)
+      : this.hubspotClient.getContactByEmail(email);
   }
 
-  async getVisitor(utk: string) {
+  async getVisitor({ utk }) {
     return this.hubspotClient.getVisitor(utk);
   }
 
@@ -1164,7 +1166,7 @@ class SyncAgent {
       return Promise.map(utkAnonIds, async utkAnonId => {
         try {
           const utk = _.replace(utkAnonId, "hubspot-utk:", "");
-          const contact = await this.getVisitor(utk);
+          const contact = await this.getVisitor({ utk });
           const { vid } = contact;
           if (vid) {
             return this.hullClient
