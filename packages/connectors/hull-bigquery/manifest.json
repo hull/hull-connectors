@@ -1,6 +1,6 @@
 {
   "name": "Bigquery",
-  "description": "Import your Bigquery results to Hull",
+  "description": "Import data from any BigQuery query",
   "source": "bigquery",
   "logo": "logo.png",
   "picture": "picture.png",
