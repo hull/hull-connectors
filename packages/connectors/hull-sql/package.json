@@ -17,7 +17,6 @@
     "json-loader": "^0.5.7",
     "pg-query-stream": "^3.0.4",
     "s3-upload-stream": "^1.0.7",
-    "snowflake-sdk": "^1.5.0",
     "sweetalert2": "^9.15.2",
     "tedious": "^8.2.0"
   },

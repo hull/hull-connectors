@@ -175,8 +175,9 @@ const emitToParent = query =>
           confirmButtonText: "Let's Go",
           closeOnConfirm: false
         })
-        .then(isConfirm => {
-          if (isConfirm === true) {
+        .then(userRes => {
+          const { isConfirmed } = userRes;
+          if (isConfirmed === true) {
             button_import.prop("disabled", true);
             button_import.text("Importing...");
             empty();
