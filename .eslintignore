@@ -14,6 +14,7 @@ packages/hull/*
 !packages/hull/src
 
 packages/connectors/hull-sql
+packages/connectors/hull-snowflake-importer
 packages/connectors/hull-outreach
 packages/connectors/hull-warehouse
 packages/connectors/hull-marketo
