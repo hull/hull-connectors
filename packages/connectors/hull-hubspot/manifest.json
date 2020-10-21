@@ -20,15 +20,15 @@
   "private_settings": [
     {
       "name": "fetch_visitors",
-      "title": "Resolve Contact From UTK",
-      "description": "Given a UTK, fetch the associated contact from Hubspot",
+      "title": "Resolve Contact ID from Visitor UTK",
+      "description": "Given a UTK, resolve the associated Contact ID from Hubspot",
       "type": "boolean",
       "default": false
     },
     {
       "name": "synchronized_visitor_segments",
       "title": "Visitor Segment Filter",
-      "description": "Given a UTK, fetch the associated contact from Hubspot when users match these segments",
+      "description": "Given a UTK, resolve the associated contact ID from Hubspot when users match these segments",
       "type": "array",
       "format": "segment",
       "options": {
@@ -810,14 +810,6 @@
       ]
     },
     {
-      "title": "Visitor Tracking",
-      "description": "Define which site visitors will be queried for and returned as Contacts from Hubspot. This requires that the utk on the Hull User has been set.",
-      "properties": [
-        "private_settings.fetch_visitors",
-        "private_settings.synchronized_visitor_segments"
-      ]
-    },
-    {
       "title": "User - Sending to Hubspot",
       "description": "Configuring this section will result in automated data flows which will insert/update your prospects in Hubspot. That's why we provide fine grain control over the updates that you send to Hubspot. Because of the limitations of the Hubspot api, <b>outgoing users will only be synchronized based on email</b>. Users without email will be rejected. <br /><br />  First configure a \"Segment\" as a user filter to control which users get sent to Hubspot. Then configure the attributes you want synchronized. You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually. <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
@@ -863,6 +855,14 @@
         "private_settings.email_events_user_claims",
         "json.fetch_all_email_events",
         "json.fetch_hot_off_the_press_events"
+      ]
+    },
+    {
+      "title": "Visitor Tracking",
+      "description": "Define which anonymous site visitors with Hubspot UTK ID will be mapped to corresponding Hubspot Contact ID. This requires enabling aliasing in website connector or custom frontend script. See documentation for more details.",
+      "properties": [
+        "private_settings.fetch_visitors",
+        "private_settings.synchronized_visitor_segments"
       ]
     }
   ]
