@@ -185,6 +185,9 @@ class HubspotPropertyUtil {
           options = [],
           description
         } = mapping;
+        if (!type && /_(at|date)$/.test(name)) {
+          type = "date";
+        }
         let propType = type ? TYPES_MAPPING[type] : TYPES_MAPPING.string;
 
         if (propertyName === "hull_segments") {
@@ -203,7 +206,6 @@ class HubspotPropertyUtil {
         }
 
         props.push({
-          ...propType,
           name,
           label,
           description,
@@ -212,7 +214,8 @@ class HubspotPropertyUtil {
           displayOrder,
           formField: false,
           calculated: false,
-          groupName: "hull"
+          groupName: "hull",
+          ...propType
         });
         return props;
       },
