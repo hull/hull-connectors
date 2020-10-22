@@ -55,3 +55,4 @@ This section outlines the steps in order to send accounts from Hull to Outreach 
 - Because this connector is hosted in Heroku, we are unable to provide a static ip address which the connection will be coming from
 - Hull currently does not have the capability to backfill historical events.  Only newly created events will go to the datawarehouse
 - Merging is only available for users and user-events. Accounts and accounts-events merging is not available, since account events are not supported in Hull.
+- Array format for `anonymous_ids` will only be available if you don't map `anonymous_ids` hull field to another field name in this connector. If you enabled the "send all attributes" functionality, this limitation doesn't apply.

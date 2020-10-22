@@ -323,6 +323,8 @@ class SequalizeSdk {
         sequalizeDataType = Sequelize.BOOLEAN;
       } else if (this.use_native_json && type === "json") {
         sequalizeDataType = Sequelize.JSON;
+      } else if (attribute.key === "anonymous_ids") {
+        sequalizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(Sequelize.STRING);
       }
 
       sequalizeSchema[normalizedAttributeKey] = sequalizeDataType;
@@ -374,6 +376,9 @@ class SequalizeSdk {
       let valueToUpsert = value;
       if (Array.isArray(value)) {
         if (value.length > 0) {
+          if (normalizedName === "anonymous_ids") {
+            objectToUpsert["anonymous_ids_array"] = value;
+          }
           valueToUpsert = JSON.stringify(value);
         } else {
           valueToUpsert = null;
