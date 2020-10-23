@@ -5,7 +5,7 @@ import config from "./config";
 
 new Connector(config).start();
 
-process.on("uncaughtExceptionMonitor", function(err, origin) {
+process.on("uncaughtExceptionMonitor", function onError(err, origin) {
   console.error("-------------------------");
   console.error("uncaughtException :", err);
   console.error("Exception origin :", origin);

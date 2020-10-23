@@ -10,7 +10,7 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Which users are sent through the processor",
+      "description": "Which users are sent to SAMPLE",
       "type": "array",
       "format": "segment",
       "options": { "standard": { "ALL": "All Users" } },

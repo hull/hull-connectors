@@ -10,7 +10,7 @@ const debug = require("debug")("hull-error");
 //   status: number,
 //   message?: string
 // };
-export default function(Hull) {
+export default function error(Hull) {
   return function errorHandler(
     err: Error,
     req: HullRequest,
