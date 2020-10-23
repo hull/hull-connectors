@@ -1,10 +1,10 @@
 import _ from "lodash";
 import { Connector } from "../index";
 
-const pwd = process.env.PWD;
 const { connector } = require("minimist")(process.argv.slice(2));
 
 const noop = () => {};
+const pwd = process.env.PWD;
 
 const customizer = (objValue, srcValue /* , key, object, source, stack */) =>
   _.isArray(objValue) ? objValue.concat(srcValue) : undefined;

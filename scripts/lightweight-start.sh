@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # this scripts starts the connector in dev
 
-if [ -f packages/connectors/$1/.env ]; then
-  source packages/connectors/$1/.env
-  cat packages/connectors/$1/.env
+PATH_TO_CONNECTOR="packages/connectors/$1"
+
+if [ -f "$PATH_TO_CONNECTOR/.env" ]; then
+  source "$PATH_TO_CONNECTOR/.env"
+  cat "$PATH_TO_CONNECTOR/.env"
 fi
 
 exec concurrently \
@@ -15,4 +17,4 @@ exec concurrently \
         --exec babel-node \
           -- packages/hull/src/lightweight \
             --inspect \
-            --connector=packages/connectors/$1"
+            --connector=$PATH_TO_CONNECTOR"
