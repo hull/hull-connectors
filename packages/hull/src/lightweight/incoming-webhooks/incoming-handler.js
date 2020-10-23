@@ -17,8 +17,8 @@ const update = (handler: HandlerFunc) => async (
   const { connector, client } = ctx;
   const { private_settings } = connector;
   await handler({
-    hull: client,
     ...pickValuesFromRequest(message),
+    hull: client,
     private_settings
   });
   return {
