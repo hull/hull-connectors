@@ -9,7 +9,6 @@ const minimist = require("minimist");
 const argv = minimist(process.argv);
 const { env } = process;
 const { PORT = 8082 } = env;
-const { source } = argv;
 
 function devMode({ source, destination }) {
   const config = require("./webpack.config")({
@@ -65,6 +64,6 @@ function devMode({ source, destination }) {
 }
 
 module.exports = devMode({
-  source: `${source}/src`,
-  destination: `${source}/dist`
+  source: `${argv.source}/src`,
+  destination: `${argv.source}/dist`
 });
