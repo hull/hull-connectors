@@ -33,10 +33,7 @@ const buildConfigurationFromEnvironment = env => {
     CACHE_REDIS_URL,
     SECRET,
     SHIP_CACHE_TTL,
-    SHIP_CACHE_MAX,
-    SHIP_CACHE_KEY_PREFIX,
-    REDIS_MAX_CONNECTIONS = 50,
-    REDIS_MIN_CONNECTIONS = 1
+    SHIP_CACHE_KEY_PREFIX
   } = env;
 
   const metricsConfig = {};
@@ -124,8 +121,7 @@ const buildConfigurationFromEnvironment = env => {
     (REDIS_URL !== undefined || CACHE_REDIS_URL !== undefined)
       ? {
           store: "redis",
-          url: REDIS_URL || CACHE_REDIS_URL,
-          min: REDIS_MIN_CONNECTIONS
+          url: REDIS_URL || CACHE_REDIS_URL
         }
       : { store: "memory" };
 
