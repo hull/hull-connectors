@@ -6,7 +6,7 @@ import Worker from "./worker";
 import type { HullConnectorConfig } from "../types/connector";
 
 export default HullClient => {
-  return (connectorConfig: HullConnectorConfig) =>
+  return (connectorConfig: { ...HullConnectorConfig }) =>
     new Connector(
       {
         Worker,

@@ -284,9 +284,6 @@ export default class HullConnector {
   }
 
   async getHandlers() {
-    if (this._handlers) {
-      return this._handlers;
-    }
     this._handlers =
       typeof this.handlers === "function"
         ? await this.handlers(this)
