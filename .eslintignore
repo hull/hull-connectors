@@ -1,6 +1,8 @@
 /dist
 /node_modules
 /scripts
+/webpack
+/flow-typed
 
 */node_modules
 **/node_modules
