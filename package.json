@@ -32,6 +32,7 @@
     "build": "sh scripts/build-connectors.sh",
     "repl": "NODE_ENV=development sh scripts/repl.sh",
     "clean": "sh scripts/clean-connectors.sh",
+    "start": "SERVER=true bash scripts/bash-entrypoint.sh",
     "combined": "sh scripts/combined-start.sh",
     "lightweight": "sh scripts/lightweight-start.sh",
     "build:client": "sh scripts/build-webpack-project.sh",
