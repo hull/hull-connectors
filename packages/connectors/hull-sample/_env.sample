@@ -1,2 +1,1 @@
 SECRET=1234
-CONNECTOR_TYPE=incoming-webhooks
