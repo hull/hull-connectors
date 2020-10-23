@@ -1,46 +1,36 @@
+import _ from "lodash";
 import { Connector } from "../index";
 
-const argv = require("minimist")(process.argv.slice(2));
+const pwd = process.env.PWD;
+const { connector } = require("minimist")(process.argv.slice(2));
 
 const noop = () => {};
+
+const customizer = (objValue, srcValue /* , key, object, source, stack */) =>
+  _.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+
 (async () => {
-  const { type, connector } = argv;
-  const pwd = process.env.PWD;
   const manifestPath = `${pwd}/${connector}/manifest.json`;
-  const handlerPath = `${pwd}/${connector}/server/index.js`;
-  const connectorTypePath = `./${type}/`;
-  const [
-    { default: manifest },
-    { default: handler },
-    {
-      /* userUpdate,  */ credentialsHandler,
-      incomingHandler,
-      middlewares = [],
-      manifest: typeManifest
-    }
-  ] = await Promise.all([
+  const handlerPath = `${pwd}/${connector}/server`;
+
+  const [manifest, { default: handler }] = await Promise.all([
     import(manifestPath),
-    import(handlerPath),
-    import(connectorTypePath)
+    import(handlerPath)
   ]);
-  const { private_settings = [], settings_sections = [] } = manifest;
-  const mergedManifest = {
-    ...typeManifest(),
-    ...manifest,
-    private_settings,
-    settings_sections: [
-      ...settings_sections,
-      {
-        title: "Webhook URL",
-        step: "credentials",
-        description:
-          "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
-        properties: ["json.credentials"]
-      }
-    ]
-  };
+
+  const { type } = manifest;
+  console.log(`Loading lightweight connector of type ${type}`);
+
+  const {
+    /* userUpdate,  */ credentialsHandler,
+    incomingHandler,
+    middlewares = [],
+    manifest: manifestFactory
+  } = await import(`./${type}/`);
+  const typeManifest = manifestFactory();
+
   return new Connector({
-    manifest: mergedManifest,
+    manifest: _.mergeWith({}, typeManifest, manifest, customizer),
     middlewares,
     handlers: {
       subscriptions: {

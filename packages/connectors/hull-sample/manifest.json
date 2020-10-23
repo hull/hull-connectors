@@ -1,6 +1,7 @@
 {
   "name": "SAMPLE",
   "description": "SAMPLE",
+  "type": "incoming-webhooks",
   "private_settings": [
     {
       "name": "synchronized_user_segments",

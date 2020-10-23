@@ -13,6 +13,15 @@ const manifest = () => ({
       }
     }
   ],
+  settings_sections: [
+    {
+      title: "Webhook URL",
+      step: "credentials",
+      description:
+        "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
+      properties: ["json.credentials"]
+    }
+  ],
   json: [
     {
       url: "/url",
