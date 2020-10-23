@@ -82,6 +82,15 @@
       ]
     }
   ],
+  "tabs": [
+    {
+      "title": "Query Editor",
+      "url": "/admin.html",
+      "handler": "admin",
+      "size": "large",
+      "editable": true
+    }
+  ],
   "settings": [],
   "resources": [],
   "readme": "readme.md",

@@ -74,8 +74,10 @@ const glue = {
     set("service_name", "bigquery")
   ],
   isConfigured: cond("allTrue", [
-    cond("notEmpty", settings("access_token")),
-    cond("notEmpty", settings("refresh_token")),
+    cond("notEmpty", settings("query")),
+    cond("notEmpty", settings("import_type")),
+    cond("notEmpty", settings("import_interval")),
+    cond("notEmpty", settings("project_id")),
   ]),
   isAuthenticated: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
@@ -105,7 +107,7 @@ const glue = {
   }),
   checkJob: [
     ifL([
-      route("isConfigured"),
+      route("isAuthenticated"),
       or([
         cond("notEmpty", settings("job_id")),
         cond("notEmpty", "${jobId}")
@@ -142,7 +144,7 @@ const glue = {
   ],
   startImport: [
     ifL(cond("isEmpty", "${jobId}"), {
-      do: ifL(route("isConfigured"), [
+      do: ifL(route("isAuthenticated"), [
         set("nowTime", ex(moment(), "unix")),
         set("jobId", "hull_import_${connector.id}_${nowTime}"),
         ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
@@ -191,7 +193,27 @@ const glue = {
     utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
     settingsUpdate({ job_id: null }),
     set("jobId", null)
-  ]
+  ],
+  admin: returnValue([
+    ifL(cond("allTrue", [
+      route("isConfigured"), route("isAuthenticated")
+    ]), {
+      do: [
+        set("pageLocation", "connected.html"),
+        set("retData", "${connector.private_settings}"),
+        set("retData.query", settings("query")),
+        set("retData.preview_timeout", settings("preview_timeout")),
+        set("retData.last_sync_at", null),
+        set("retData.import_type", settings("import_type"))
+      ],
+      eldo: [
+        set("pageLocation", "home.html")
+      ]
+    })
+  ], {
+    pageLocation: "${pageLocation}",
+    data: "${retData}"
+  })
 };
 
 module.exports = glue;
