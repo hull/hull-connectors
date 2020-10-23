@@ -29,6 +29,7 @@ module.exports = api => {
       ]
     ],
     plugins: [
+      "dynamic-import-node-babel-7",
       "@babel/plugin-proposal-optional-chaining",
       "@babel/plugin-syntax-export-default-from",
       "@babel/plugin-transform-runtime",

@@ -10,7 +10,7 @@ const debug = require("debug")("hull-error");
 //   status: number,
 //   message?: string
 // };
-export default function error(Hull) {
+export default function error(Client) {
   return function errorHandler(
     err: Error,
     req: HullRequest,
@@ -28,7 +28,7 @@ export default function error(Hull) {
         url,
         params
       };
-      Hull.Client.logger.error("connector.error", {
+      Client.logger.error("connector.error", {
         message,
         status,
         data,
