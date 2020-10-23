@@ -1133,8 +1133,15 @@ class SyncAgent {
       : this.getIncomingProperties(groups);
   }
 
-  async getCompany(companyId: string) {
-    return this.hubspotClient.getCompany(companyId);
+  async getCompany({ id, domain }) {
+    if (!_.isNil(id)) {
+      return this.hubspotClient.getCompanyById(id);
+    }
+    const companies = await this.hubspotClient.getCompanyByDomain(domain);
+    if (_.isEmpty(companies.results)) {
+      return {};
+    }
+    return companies.results[0];
   }
 
   async getContact({ id, email }) {

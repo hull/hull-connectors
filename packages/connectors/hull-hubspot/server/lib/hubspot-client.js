@@ -518,7 +518,7 @@ class HubspotClient {
       .then(res => res.body);
   }
 
-  getCompany(companyId: string): Promise<*> {
+  getCompanyById(companyId: string): Promise<*> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/companies/v2/companies/{{companyId}}")
@@ -527,6 +527,10 @@ class HubspotClient {
         })
         .then(response => response.body);
     });
+  }
+
+  getCompanyByDomain(domain: string): Promise<*> {
+    return this.postCompanyDomainSearch(domain).then(response => response.body);
   }
 
   getContactByEmail(email: string): Promise<*> {

@@ -12,18 +12,18 @@ const getCompany = async (
   _incomingMessage: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { body } = _incomingMessage;
-  const { company_id } = body;
+  const { company_id, domain } = body;
 
-  if (!company_id) {
+  if (!company_id && !domain) {
     return {
       status: 422,
       data: {
-        message: "Missing Required Parameters: 'company_id'"
+        message: "Missing Required Parameters: 'company_id' or 'domain'"
       }
     };
   }
   const syncAgent = new SyncAgent(ctx);
-  const company = await syncAgent.getCompany(company_id);
+  const company = await syncAgent.getCompany({ id: company_id, domain });
   return {
     status: 200,
     data: company
