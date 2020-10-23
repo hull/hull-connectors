@@ -75,7 +75,9 @@ export type HullMetric =
 
 export type HullMetricsConfig = {
   captureMetrics?: Array<HullMetric>,
-  exitOnError?: boolean
+  exitOnError?: boolean,
+  statsd_host: string,
+  statsd_port: string | number
 };
 export type HullLogsConfig = {
   logLevel?: ?string
@@ -141,6 +143,8 @@ export type HullConnectorConfig = {
   skipSignatureValidation?: boolean,
   timeout?: number | string,
   disableOnExit?: boolean,
+  trustProxy?: boolean,
+  disableWebpack?: boolean,
   devMode?: boolean,
   instrumentation?: HullInstrumentation,
   handlers:

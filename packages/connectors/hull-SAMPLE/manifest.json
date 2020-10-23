@@ -1,0 +1,45 @@
+{
+  "name": "SAMPLE",
+  "description": "SAMPLE",
+  "version": "0.1.36-monorepo",
+  "tags": [ "batch", "smart-notifier", "kraken-exports" ],
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "readme": "readme.md",
+  "private_settings": [
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Which users are sent through the processor",
+      "type": "array",
+      "format": "segment",
+      "options": { "standard": { "ALL": "All Users" } },
+      "default": []
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Configuration",
+      "description": "Configure the way SAMPLE runs",
+      "properties": [ "private_settings.synchronized_user_segments" ]
+    }
+  ],
+  "json": [],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": { "only": [ "user:update" ] },
+        "segments": { "user:update": [ "private_settings.synchronized_user_segments" ] }
+      },
+      "channels": [ { "channel": "user:update", "handler": "userUpdate" } ]
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  }
+}
