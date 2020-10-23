@@ -720,26 +720,14 @@ class SyncAgent {
   }
 
   async linkIncomingAccount(asEntity: any, sfObject): Promise<*> {
-    this.hullClient.logger.debug("incoming.account.link", {
-      user: this.attributesMapper.mapToHullIdentityObject(
-        "Contact",
-        sfObject,
-        this.userClaims
-      ),
-      account: this.attributesMapper.mapToHullIdentityObject(
-        "Account",
-        sfObject.Account,
-        this.accountClaims
-      )
-    });
-    const accountIdentity = this.attributesMapper.mapToHullIdentityObject(
-      "Account",
-      sfObject.Account,
-      this.accountClaims
-    );
+    const accountIdentity = {
+      anonymous_id: `salesforce:${sfObject.AccountId}`
+    };
     return asEntity
       .account(accountIdentity)
-      .traits({})
+      .traits({
+        "salesforce/id": sfObject.AccountId
+      })
       .then(() => {
         asEntity.logger.info("incoming.account.link.success");
       })
@@ -1032,12 +1020,10 @@ class SyncAgent {
       );
 
       if (
-        sfType === "Contact" &&
-        sfObject.Account &&
         this.linkAccounts &&
         this.fetchAccounts &&
-        this.accountClaims.length > 0 &&
-        !_.isNil(_.get(sfObject.Account, this.accountClaims[0].service))
+        sfType === "Contact" &&
+        sfObject.AccountId
       ) {
         promises.push(this.linkIncomingAccount(asEntity, sfObject));
       }
