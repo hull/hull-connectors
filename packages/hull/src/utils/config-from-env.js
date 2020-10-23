@@ -125,7 +125,6 @@ const buildConfigurationFromEnvironment = env => {
       ? {
           store: "redis",
           url: REDIS_URL || CACHE_REDIS_URL,
-          max: REDIS_MAX_CONNECTIONS,
           min: REDIS_MIN_CONNECTIONS
         }
       : { store: "memory" };
@@ -155,7 +154,6 @@ const buildConfigurationFromEnvironment = env => {
     cacheConfig: {
       ...cacheAdapter,
       ttl: SHIP_CACHE_TTL || 60,
-      max: SHIP_CACHE_MAX || 100,
       keyPrefix: SHIP_CACHE_KEY_PREFIX
     },
     queueConfig,
