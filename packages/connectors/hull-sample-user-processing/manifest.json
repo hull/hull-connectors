@@ -1,5 +1,5 @@
 {
   "name": "SAMPLE",
   "description": "SAMPLE",
-  "type": "source-webhook"
+  "type": "user-processor"
 }
