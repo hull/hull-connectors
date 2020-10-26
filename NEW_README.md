@@ -1298,6 +1298,10 @@ A few details:
 - default entries in manifest can be ommitted (include only what you wish to override)
 - If you define items in Arrays, or objects in the manifest, they will be deeply merged with defaults. I.E. settings, subscriptions etc...will be added
 - handler must be in `/server/index.js`
-- handler must export a method using `export default` and this method shall have the appropriate signature for the right lightweight connector type. Currently only `incoming-webhooks` exists
+- handler must export a method using `export default` and this method shall have the appropriate signature for the right lightweight connector type. Currently we have the following types:
+  - `source-webhooks`
+  - `destination`
+  - `user-processor`
+
 - environment variables (or .env) MUST contain a `SECRET`
 - You can create new lightweight packages by looking at `packages/hull/src/lightweight` subfolders. For now, only `incoming-webhooks` exist
