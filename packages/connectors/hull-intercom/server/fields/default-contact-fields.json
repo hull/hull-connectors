@@ -12,12 +12,6 @@
     "api_writable": false
   },
   {
-    "label": "Segments",
-    "name": "segments",
-    "full_name": "segments",
-    "api_writable": false
-  },
-  {
     "label": "Social Profiles",
     "name": "social_profiles",
     "full_name": "social_profiles",

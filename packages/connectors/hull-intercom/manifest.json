@@ -155,7 +155,6 @@
         { "service": "os", "hull": "intercom_lead/os", "overwrite": true },
         { "service": "owner_id", "hull": "intercom_lead/owner_id", "overwrite": true },
         { "service": "phone", "hull": "intercom_lead/phone", "overwrite": true },
-        { "service": "segments", "hull": "intercom_lead/segments", "overwrite": true },
         { "service": "signed_up_at", "hull": "intercom_lead/signed_up_at", "overwrite": true },
         { "service": "social_profiles", "hull": "intercom_lead/social_profiles", "overwrite": true },
         { "service": "tags", "hull": "intercom_lead/tags", "overwrite": true },
@@ -217,7 +216,6 @@
         { "service": "os", "hull": "intercom_user/os", "overwrite": true },
         { "service": "owner_id", "hull": "intercom_user/owner_id", "overwrite": true },
         { "service": "phone", "hull": "intercom_user/phone", "overwrite": true },
-        { "service": "segments", "hull": "intercom_user/segments", "overwrite": true },
         { "service": "signed_up_at", "hull": "intercom_user/signed_up_at", "overwrite": true },
         { "service": "social_profiles", "hull": "intercom_user/social_profiles", "overwrite": true },
         { "service": "tags", "hull": "intercom_user/tags", "overwrite": true },
@@ -490,8 +488,7 @@
         { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
         { "service": "company_id", "hull": "intercom/company_id", "readOnly": true, "overwrite": true },
         { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
-        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true },
-        { "service": "segments", "hull": "intercom/segments", "readOnly": true, "overwrite": true }
+        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true }
       ]
     }
   ],
@@ -618,8 +615,16 @@
       "handler": "convertLead"
     },
     {
+      "url": "/tag-contact",
+      "handler": "manualTagContact"
+    },
+    {
       "url": "/fetch-company",
       "handler": "fetchCompany"
+    },
+    {
+      "url": "/fetch-contact",
+      "handler": "fetchContact"
     }
   ],
   "schedules": [

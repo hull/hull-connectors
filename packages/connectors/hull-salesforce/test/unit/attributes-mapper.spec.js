@@ -311,7 +311,6 @@ describe("AttributesMapper", () => {
 
     const expectedHullObject = {
       name: { value: sObject.Name, operation: "setIfNull" },
-      domain: { value: sObject.Website, operation: "setIfNull" },
       "salesforce/id": { value: sObject.Id, operation: "setIfNull" },
       "salesforce/name": { operation: "set", value: sObject.Name },
       "salesforce/website": { operation: "set", value: sObject.Website },

@@ -51,7 +51,7 @@ describe("Update User Tests", () => {
               "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
-                "c_description": "a description",
+                "c_description": "[\"a\",\"description\",\"list\"]",
                 "job_title": "sales"
               },
               "role": "user"
@@ -105,7 +105,7 @@ describe("Update User Tests", () => {
               "ios_sdk_version": null,
               "ios_last_seen_at": null,
               "custom_attributes": {
-                "c_description": "a description",
+                "c_description": "[\"a\",\"description\",\"list\"]",
                 "job_title": "sales"
               },
               "tags": {
@@ -149,7 +149,7 @@ describe("Update User Tests", () => {
               "name": "Bob",
               "intercom_user/id": "5f22f1b6fcaca714eb055739",
               "intercom_user/name": "Bob",
-              "intercom_user/description": "a description",
+              "intercom_user/description": ["a", "description", "list"],
               "intercom_user/job_title": "sales"
             },
             segments: [{ id: "user_segment_1", name: "User Segment 1" }],
@@ -172,6 +172,19 @@ describe("Update User Tests", () => {
           ["info", "outgoing.job.start",
             { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
+          ],
+          [
+            "debug",
+            "outgoing.user.skip",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "123",
+              "user_email": "bob@rei.com"
+            },
+            {
+              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
+            }
           ],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
             "responseTime": expect.whatever(),
@@ -204,7 +217,7 @@ describe("Update User Tests", () => {
               "data": {
                 "name": "Bob",
                 "custom_attributes": {
-                  "c_description": "a description",
+                  "c_description": "[\"a\",\"description\",\"list\"]",
                   "job_title": "sales"
                 },
                 "role": "user",
@@ -274,7 +287,7 @@ describe("Update User Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
-                  "c_description": "a description",
+                  "c_description": "[\"a\",\"description\",\"list\"]",
                   "job_title": "sales",
                 },
                 "tags": {
@@ -439,6 +452,19 @@ describe("Update User Tests", () => {
             },
             {
               "reason": "User has been deleted"
+            }
+          ],
+          [
+            "debug",
+            "outgoing.user.skip",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "123",
+              "user_email": "bob@rei.com"
+            },
+            {
+              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() },

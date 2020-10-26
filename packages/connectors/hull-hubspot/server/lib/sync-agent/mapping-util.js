@@ -131,7 +131,7 @@ class MappingUtil {
   }
 
   mapToHubspotEntity(
-    hullObject: HubspotReadContact | HubspotReadCompany,
+    hullObject: HullUserUpdateMessage | HullAccountUpdateMessage,
     serviceType: ServiceType
   ) {
     switch (serviceType) {

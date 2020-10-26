@@ -58,10 +58,16 @@ const service = ({ clientID, clientSecret } : {
       input: IntercomCompanyWrite,
       output: IntercomCompanyRead
     },
+    fetchContactByContactId: {
+      url: "/contacts/${contact_id}",
+      operation: "get",
+      returnObj: "body"
+    },
     fetchCompanyByCompanyId: {
       url: "/companies",
       operation: "get",
       output: IntercomCompanyRead,
+      returnObj: "body",
       query: {
         "company_id": "${company_id}"
       }
@@ -339,7 +345,8 @@ const service = ({ clientID, clientSecret } : {
       {
         truthy: { status: 429 },
         errorType: RateLimitError,
-        message: MESSAGES.TOO_MANY_REQUESTS
+        message: MESSAGES.TOO_MANY_REQUESTS,
+        retryAttempts: 3
       },
       {
         truthy: { status: 500 },

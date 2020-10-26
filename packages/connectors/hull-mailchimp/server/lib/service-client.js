@@ -99,6 +99,22 @@ class ServiceClient {
     return member.body;
   }
 
+  async createBatchJob({ operations }) {
+    const batchJob = await this.post("/batches").send({ operations });
+    return batchJob.body;
+  }
+
+  async getBatchJob(batchId: string) {
+    const url = `/batches/${batchId}`;
+    const member = await this.get(url);
+    return member.body;
+  }
+
+  async deleteBatchJob(batchId: string) {
+    const url = `/batches/${batchId}`;
+    return this.delete(url);
+  }
+
   /**
    * Method to handle Mailchimp batch response as a JSON stream
    * @return {Stream}

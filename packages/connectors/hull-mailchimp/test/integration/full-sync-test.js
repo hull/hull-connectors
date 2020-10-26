@@ -32,7 +32,7 @@ const usersSegments = [
 ];
 
 it("Performing sync", () => {
-  const email = "";
+  /*const email = "";
   return testScenario(
     {
       connectorConfig: () => ({
@@ -403,5 +403,5 @@ it("Performing sync", () => {
         ]
       };
     }
-  );
+  );*/
 });

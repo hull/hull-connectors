@@ -4,8 +4,8 @@
 import snowflake from "snowflake-sdk";
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
-import validateResultColumns from "./validate-result-columns";
 import _ from "lodash";
+import validateResultColumns from "./validate-result-columns";
 
 /**
  * SnowFlake adapter.
@@ -34,14 +34,15 @@ export function openConnection(settings) {
   // call openConnection from the constructor... before we validate the input
   // so there are cases where it blows up early... not what a constructor should be doing
   if (
-    _.isEmpty(conf.account)
-    || _.isEmpty(conf.region)
-    || _.isEmpty(conf.username)
-    || _.isEmpty(conf.password)
-    || _.isEmpty(conf.database)
+    _.isEmpty(conf.account) ||
+    _.isEmpty(conf.region) ||
+    _.isEmpty(conf.username) ||
+    _.isEmpty(conf.password) ||
+    _.isEmpty(conf.database)
   ) {
     return null;
   }
+  // _.set(conf, "schema", "TPCDS_SF100TCL");
   return snowflake.createConnection(conf);
 }
 
@@ -52,19 +53,6 @@ export function getRequiredParameters() {
 export function isValidConfiguration(settings) {
   const val = settings.db_account;
   if (val && typeof val === "string" && val.length > 0) {
-    // Need to validate that all account names consist of only letters/digits
-    // js1234.us-east-1 is how some people enter the account name
-    // and it really blows stuff up on the connector:
-    // TypeError: Cannot read property 'getPeerCertificate' of null
-    const accountNameRegEx = /^\w+$/g;
-    const result = val.match(accountNameRegEx);
-    if (
-      !Array.isArray(result) ||
-      result.length !== 1 ||
-      result[0].length !== val.length
-    ) {
-      return false;
-    }
   }
   return true;
 }
@@ -76,9 +64,11 @@ export function closeConnection(client) {
   if (!client.isUp()) {
     return Promise.resolve();
   }
-  return new Promise((resolve, reject) => client.destroy((err, conn) => {
-    return err ? reject(err) : resolve(conn);
-  }));
+  return new Promise((resolve, reject) =>
+    client.destroy((err, conn) => {
+      return err ? reject(err) : resolve(conn);
+    })
+  );
 }
 
 /**
@@ -125,7 +115,7 @@ export function wrapQuery(sql, replacements) {
 export function runQuery(client, query, options = {}) {
   return new Promise((resolve, reject) => {
     // Connect the connection.
-    client.connect((connectionError) => {
+    client.connect(connectionError => {
       if (connectionError) {
         connectionError.status = 401;
         return reject(connectionError);
@@ -140,7 +130,8 @@ export function runQuery(client, query, options = {}) {
             return reject(queryError);
           }
           return resolve({ rows });
-        } });
+        }
+      });
     });
   });
 }
@@ -156,7 +147,7 @@ export function runQuery(client, query, options = {}) {
 export function streamQuery(client, query) {
   return new Promise((resolve, reject) => {
     // Connect the connection.
-    client.connect((connectionError) => {
+    client.connect(connectionError => {
       if (connectionError) {
         connectionError.status = 401;
         return reject(connectionError);
@@ -171,7 +162,16 @@ export function streamQuery(client, query) {
             return reject(queryError);
           }
           return resolve(stmt.streamRows());
-        } });
+        }
+      });
     });
   });
+}
+
+export function transformRecord(record) {
+  const transformedRecord = {};
+  _.forEach(record, (value, key) => {
+    transformedRecord[_.toLower(key)] = record[key];
+  });
+  return transformedRecord;
 }

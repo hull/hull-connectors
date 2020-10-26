@@ -390,65 +390,67 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     onRecord: Function
   ): Promise<*> {
     const { fields = [], identityClaims = [] } = options;
-
     const query = this.getSoqlQuery(type, fields, identityClaims);
-
-    let totalSize;
-    let progress = 0;
-    let done = false;
-    let nextRecordsUrl = null;
-    while (!done) {
-      // eslint-disable-next-line no-await-in-loop
-      const result = await this.queryAllRecords(query, nextRecordsUrl);
-
-      const records = result.records;
-      done = result.done;
-      nextRecordsUrl = result.nextRecordsUrl;
-
-      if (!totalSize) {
-        totalSize = result.totalSize;
-      }
-
-      progress += _.size(records);
-      this.logger.info("incoming.job.progress", {
-        jobName: `fetch-all-${_.toLower(type)}s`,
-        progress: `${progress} / ${totalSize}`
-      });
-
-      // eslint-disable-next-line no-await-in-loop
-      await this.saveRecords(records, onRecord);
-    }
-
-    /* const incomingStream = this.getIncomingStream(query);
-
-    try {
-      let progress = 0;
-      await pipeStreamToPromise(incomingStream, records => {
-        progress += records.length;
-        this.logger.info("incoming.job.progress", {
-          jobName: `fetch-all-${_.toLower(type)}`,
-          progress
-        });
-        return this.saveRecords(records, onRecord);
-      });
-      return {
-        status: "ok"
-      };
-    } catch (error) {
-      this.logger.info("incoming.job.error", {
-        jobName: `fetch-all-${_.toLower(type)}`,
-        error: error.message
-      });
-      return {
-        error: error.message
-      };
-    }*/
+    return this.fetchRecords({ query }, type, onRecord);
   }
 
-  queryAllRecords(query: string, nextRecordsUrl: ?string = null): Promise<*> {
-    return _.isNil(nextRecordsUrl)
-      ? this.connection.query(query)
-      : this.connection.queryMore(nextRecordsUrl);
+  async fetchRecords(
+    queryOptions: Object,
+    type: string,
+    onRecord: Function,
+    fetchProgress: Object = {}
+  ) {
+    let { progress = 0, totalSize } = fetchProgress;
+    const retries = 3;
+    const result = await this.queryAllRecords(queryOptions, retries);
+
+    if (_.isNil(result) || _.isEmpty(result)) {
+      return Promise.reject(new Error("Salesforce Result Set Not Found"));
+    }
+
+    const records = result.records;
+    const done = result.done;
+    const nextRecordsUrl = result.nextRecordsUrl;
+
+    if (!totalSize) {
+      totalSize = result.totalSize;
+    }
+
+    progress += _.size(records);
+    this.logger.info("incoming.job.progress", {
+      jobName: `fetch-all-${_.toLower(type)}s`,
+      progress: `${progress} / ${totalSize}`
+    });
+
+    await this.saveRecords(records, onRecord);
+
+    if (!done && nextRecordsUrl) {
+      return this.fetchRecords({ nextRecordsUrl }, type, onRecord, {
+        progress,
+        totalSize
+      });
+    }
+
+    return Promise.resolve("done");
+  }
+
+  queryAllRecords(queryOptions: Object, retries: number): Promise<*> {
+    const { query, nextRecordsUrl } = queryOptions;
+    try {
+      return _.isNil(nextRecordsUrl)
+        ? this.connection.query(query)
+        : this.connection.queryMore(nextRecordsUrl);
+    } catch (error) {
+      if (retries > 0) {
+        this.logger.info("incoming.job.progress", {
+          retries,
+          retry: _.isNil(nextRecordsUrl) ? query : nextRecordsUrl
+        });
+        retries -= 1;
+        return this.queryAllRecords(queryOptions, retries);
+      }
+      return Promise.reject(error);
+    }
   }
 
   getIncomingStream(query: string, page: ?string = null) {
@@ -457,7 +459,6 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     function getAllEntitiesPage(push, soqlQuery, nextPage) {
       return getAllEntities(query, nextPage).then(response => {
         const { records, done, nextRecordsUrl } = response;
-
         push(records);
         if (!done && nextRecordsUrl) {
           return getAllEntitiesPage(push, soqlQuery, nextRecordsUrl);
