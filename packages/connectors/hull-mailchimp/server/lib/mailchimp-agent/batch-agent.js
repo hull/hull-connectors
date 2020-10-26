@@ -170,15 +170,22 @@ class MailchimpBatchAgent {
         await this.ctx.cache.del(`${importType}_batch_id`);
         await this.ctx.cache.del(`${importType}_batch_lock`);
 
-        return this.mailchimpClient.deleteBatchJob(batchId).catch(error => {
-          return this.client.logger.info("incoming.job.warning", {
-            batchId,
-            jobName: "mailchimp-batch-job",
-            type: importType,
-            message: `Unable to delete batch job: ${error.message}`
-          });
-        });
+        return this.delete(batchId);
       });
+  }
+
+  delete(batchId, retry = 1) {
+    return this.mailchimpClient.deleteBatchJob(batchId).catch(error => {
+      if (retry > 0) {
+        retry -= 1;
+        return this.delete(batchId, retry);
+      }
+      return this.client.logger.info("incoming.job.warning", {
+        batchId,
+        jobName: "mailchimp-batch-job",
+        message: `Unable to delete batch job: ${error.message}`
+      });
+    });
   }
 }
 
