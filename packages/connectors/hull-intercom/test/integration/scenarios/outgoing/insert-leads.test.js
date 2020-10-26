@@ -691,7 +691,7 @@ describe("Insert Lead Tests", () => {
       };
     });
   });
-/*
+
   it("should insert a lead after lookup returns empty", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
@@ -1155,5 +1155,5 @@ describe("Insert Lead Tests", () => {
         platformApiCalls: []
       };
     });
-  });*/
+  });
 });
