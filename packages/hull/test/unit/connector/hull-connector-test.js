@@ -2,7 +2,7 @@
 const { expect } = require("chai");
 const sinon = require("sinon");
 
-const HullConnector = require("../../../src/connector/hull-connector");
+import HullConnector from "../../../src/connector/hull-connector";
 const getConfig = require("../../support/connector-config");
 
 describe("HullConnector", () => {

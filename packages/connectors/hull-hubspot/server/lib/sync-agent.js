@@ -324,8 +324,12 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
-      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
+      await this.contactPropertyUtil.sync(
+        this.mappingUtil.outgoingContactSchema
+      );
+      await this.companyPropertyUtil.sync(
+        this.mappingUtil.outgoingCompanySchema
+      );
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message
@@ -522,9 +526,17 @@ class SyncAgent {
     });
 
     filterResults.toSkip.forEach(envelope => {
-      this.hullClient
-        .asAccount(envelope.message.account)
-        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
+      // TODO - tmp quick fix
+      const asAccount = this.hullClient.asAccount(envelope.message.account);
+      if (envelope.skipReasonLog) {
+        asAccount.logger.info("outgoing.account.skip", {
+          reason: envelope.skipReasonLog
+        });
+      } else {
+        asAccount.logger.debug("outgoing.account.skip", {
+          reason: envelope.skipReason
+        });
+      }
     });
 
     try {
@@ -1035,12 +1047,11 @@ class SyncAgent {
   }
 
   async getHubspotEntityProperties({ groups, direction }) {
-    if (direction === "outgoing") {
-      return this.getOutgoingProperties(
-        _.concat(groups, defaultOutgoingGroupMapping)
-      );
-    }
-    return this.getIncomingProperties(groups);
+    return direction === "outgoing"
+      ? this.getOutgoingProperties(
+          _.concat(groups, defaultOutgoingGroupMapping)
+        )
+      : this.getIncomingProperties(groups);
   }
 }
 

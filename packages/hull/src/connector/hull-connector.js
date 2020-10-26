@@ -32,6 +32,9 @@ import {
 import AppMetricsMonitor from "./appmetrics-monitor";
 import errorHandler from "./error";
 
+import buildConfigurationFromEnvironment from "../utils/config-from-env";
+import mergeConfig from "../utils/merge-config";
+
 const { compose } = require("compose-middleware");
 
 const path = require("path");
@@ -97,7 +100,7 @@ const getCallbacks = (handlers, category: string, handler: string) => {
  * @param {Array}         [options.logsConfig] an object of type HullLogsConfig that describes the logger configuration
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
-class HullConnector {
+export default class HullConnector {
   middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
 
   handlers: $PropertyType<HullConnectorConfig, "handlers">;
@@ -121,8 +124,6 @@ class HullConnector {
   logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
 
   cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
-
-  resolvedConfig: HullConnectorConfig;
 
   connectorConfig: HullConnectorConfig;
 
@@ -149,12 +150,13 @@ class HullConnector {
       Worker: Class<Worker>,
       Client: Class<HullClient>
     },
-    connectorConfig: HullConnectorConfig | (() => HullConnectorConfig)
+    config: HullConnectorConfig
   ) {
-    const resolvedConfig =
-      typeof connectorConfig === "function"
-        ? connectorConfig()
-        : connectorConfig;
+    const connectorConfig = mergeConfig(
+      config,
+      buildConfigurationFromEnvironment(process.env)
+    );
+
     const {
       manifest,
       instrumentation,
@@ -171,9 +173,8 @@ class HullConnector {
       middlewares = [],
       handlers,
       disableOnExit = false
-    } = resolvedConfig;
+    } = connectorConfig;
 
-    this.resolvedConfig = resolvedConfig;
     this.logsConfig = logsConfig || {};
     this.clientConfig = {
       ...clientConfig,
@@ -203,7 +204,7 @@ class HullConnector {
 
     // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {
-      ...resolvedConfig,
+      ...connectorConfig,
       clientConfig: this.clientConfig,
       workerConfig: this.workerConfig,
       httpClientConfig: this.httpClientConfig,
@@ -283,9 +284,6 @@ class HullConnector {
   }
 
   async getHandlers() {
-    if (this._handlers) {
-      return this._handlers;
-    }
     this._handlers =
       typeof this.handlers === "function"
         ? await this.handlers(this)
@@ -341,7 +339,6 @@ class HullConnector {
             `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
           );
         }
-        // $FlowFixMe
         if (!app[method || defaultMethod]) {
           throw new Error(
             `Trying to setup an unauthorized method: app.${method}`
@@ -503,7 +500,7 @@ class HullConnector {
     /**
      * Unhandled error middleware
      */
-    app.use(errorHandler);
+    app.use(errorHandler(this.Client));
 
     return app;
   }
@@ -548,5 +545,3 @@ class HullConnector {
     return this._worker;
   }
 }
-
-module.exports = HullConnector;
