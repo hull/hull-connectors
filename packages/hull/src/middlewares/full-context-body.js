@@ -23,7 +23,7 @@ function fullContextBodyMiddlewareFactory({
     res: HullResponse,
     next: NextFunction
   ) {
-    bodyParser.json({ limit: "20mb" })(req, res, err => {
+    bodyParser.json({ limit: "50mb" })(req, res, err => {
       if (err !== undefined) {
         return next(err);
       }

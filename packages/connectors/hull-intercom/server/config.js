@@ -37,23 +37,5 @@ export default function connectorConfig(): HullConnectorConfig {
       ),
       ensureHook: "ensure"
     }).createHandler
-    /*
-    Intercom API V2 webhooks support:
-    clientConfig: {
-      cachedCredentials: {
-        cacheCredentials: true,
-        appendCredentials: true,
-        credentialsKeyPath: "profile._json.app.id_code",
-        serviceKey: "app_id",
-        handler: intercomWebhookHandler
-      }
-    },
-    rawCustomRoutes: [
-      {
-        url: "/webhooks",
-        handler: webhookHandler,
-        method: "post"
-      }
-    ]*/
   };
 }

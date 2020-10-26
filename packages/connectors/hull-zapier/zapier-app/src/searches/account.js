@@ -2,18 +2,19 @@ const _ = require("lodash");
 const sample = require("../../samples/account.json");
 const { schemaUrl, searchUrl } = require("../config");
 const { post } = require("../lib/request");
-const { isValidClaim } = require("../lib/utils");
+const { isValidClaims } = require("../lib/utils");
 const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
   const { anonymous_id, domain, external_id } = inputData;
   const claims = { anonymous_id, domain, external_id };
 
-  if (!isValidClaim({ external_id, domain })) {
+  if (!isValidClaims({ external_id, domain, anonymous_id })) {
     const errorMessage = {
-      "message": _.isNil(external_id) && _.isNil(domain) ? "Missing Identity Claims": "Invalid Identity Claims",
+      "message": !_.every({ external_id, domain, anonymous_id }, v => !!v) ? "Missing Identity Claims": "Invalid Identity Claims",
       external_id,
-      domain
+      domain,
+      anonymous_id
     };
     throw new z.errors.HaltedError(JSON.stringify(errorMessage));
   }
@@ -57,7 +58,7 @@ const account = {
       },
       {
         label: 'Anonymous Id',
-        helpText: 'Anonymous Id of the Hull User',
+        helpText: 'Anonymous Id of the Hull Account',
         key: 'anonymous_id',
         type: 'string'
       }

@@ -18,6 +18,7 @@ import type {
 } from "../types";
 
 const _ = require("lodash");
+const Promise = require("bluebird");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
@@ -65,6 +66,12 @@ class SyncAgent {
 
   fetchAccounts: boolean;
 
+  shouldFetchVisitors: boolean;
+
+  shouldSendEvents: boolean;
+
+  portal_id: string;
+
   ctx: HullContext;
 
   constructor(ctx: HullContext) {
@@ -90,6 +97,9 @@ class SyncAgent {
     this.progressUtil = new ProgressUtil(ctx);
     this.filterUtil = new FilterUtil(ctx);
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
+    this.shouldSendEvents = ctx.connector.private_settings.send_events;
+    this.shouldFetchVisitors = ctx.connector.private_settings.fetch_visitors;
+    this.portalId = ctx.connector.private_settings.portal_id;
     this.ctx = ctx;
   }
 
@@ -434,12 +444,6 @@ class SyncAgent {
   async sendUserUpdateMessages(
     messages: Array<HullUserUpdateMessage>
   ): Promise<*> {
-    if (!this.isConfigured()) {
-      this.hullClient.logger.error("connector.configuration.error", {
-        errors: "connector is not configured"
-      });
-      return Promise.resolve();
-    }
     await this.initialize();
 
     const envelopes = messages.map(message =>
@@ -492,6 +496,7 @@ class SyncAgent {
         hubspotEntity: "contact",
         retry: 1
       });
+      await this.sendEvents(messages);
     } catch (err) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: err.message
@@ -500,6 +505,67 @@ class SyncAgent {
     }
 
     return Promise.resolve([]);
+  }
+
+  async sendEvents(messages: Array<HullUserUpdateMessage>): Promise<*> {
+    if (!this.shouldSendEvents || _.isNil(this.portalId)) {
+      return Promise.resolve([]);
+    }
+
+    const synchronized_events = this.ctx.connector.private_settings
+      .outgoing_user_events;
+    const hubspotEvents = _.reduce(
+      messages,
+      (eventsToSend, message) => {
+        const userEmail =
+          _.get(message, "user.hubspot/email") || _.get(message, "user.email");
+        if (!userEmail) {
+          return eventsToSend;
+        }
+        const filteredEvents = _.filter(message.events, event => {
+          return (
+            _.includes(synchronized_events, "all_events") ||
+            _.includes(synchronized_events, event.event)
+          );
+        });
+        if (_.isEmpty(filteredEvents)) {
+          return eventsToSend;
+        }
+
+        _.forEach(filteredEvents, event =>
+          eventsToSend.push({
+            _a: this.portalId,
+            _n: event.event,
+            email: userEmail
+          })
+        );
+        return eventsToSend;
+      },
+      []
+    );
+
+    if (_.isEmpty(hubspotEvents)) {
+      return Promise.resolve([]);
+    }
+
+    return Promise.map(
+      hubspotEvents,
+      async event => {
+        return this.hubspotClient
+          .sendEvent(event)
+          .then(() => {
+            this.hullClient.logger.info("outgoing.event.success", {
+              event
+            });
+          })
+          .catch(error => {
+            this.hullClient.logger.info("outgoing.event.error", {
+              message: error.message
+            });
+          });
+      },
+      { concurrency: 10 }
+    );
   }
 
   async sendAccountUpdateMessages(
@@ -705,7 +771,10 @@ class SyncAgent {
           _.pullAll(hullFailedEnvelopes, failedEnvelopes);
         }
 
-        if (retry > 0) {
+        if (
+          retry > 0 &&
+          (!_.isEmpty(retryEnvelopes) || !_.isEmpty(hullFailedEnvelopes))
+        ) {
           return this.postEnvelopes({
             envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
             hullEntity,
@@ -946,7 +1015,8 @@ class SyncAgent {
         this.hullClient
           .asAccount(erroredEnvelope.message.account)
           .logger.error("outgoing.account.error", {
-            error: erroredEnvelope.error || "outgoing batch rejected",
+            error: `Batch Rejected: ${erroredEnvelope.error || ""}`,
+            warning: "Unable to determine rejected account",
             hubspotWriteCompany: erroredEnvelope.hubspotWriteCompany
           });
       }
@@ -990,12 +1060,21 @@ class SyncAgent {
           });
         }
         if (hubspotEntity === "company") {
-          failureMessage = _.find(validationResults, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
-          hullSyncFailureMessage = _.find(segmentSyncFailures, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
+          if (!_.isEmpty(validationResults)) {
+            failureMessage = {
+              propertyValidationResult: {
+                message: _.map(validationResults, "message").join("; ")
+              }
+            };
+          }
+
+          if (!_.isEmpty(segmentSyncFailures)) {
+            hullSyncFailureMessage = {
+              propertyValidationResult: {
+                message: _.map(segmentSyncFailures, "message").join("; ")
+              }
+            };
+          }
         }
 
         if (!_.isNil(hullSyncFailureMessage)) {
@@ -1052,6 +1131,70 @@ class SyncAgent {
           _.concat(groups, defaultOutgoingGroupMapping)
         )
       : this.getIncomingProperties(groups);
+  }
+
+  async getCompany({ id, domain }) {
+    if (!_.isNil(id)) {
+      return this.hubspotClient.getCompanyById(id);
+    }
+    const companies = await this.hubspotClient.getCompanyByDomain(domain);
+    if (_.isEmpty(companies.results)) {
+      return {};
+    }
+    return companies.results[0];
+  }
+
+  async getContact({ id, email }) {
+    return !_.isNil(id)
+      ? this.hubspotClient.getContactById(id)
+      : this.hubspotClient.getContactByEmail(email);
+  }
+
+  async getVisitor({ utk }) {
+    return this.hubspotClient.getVisitor(utk);
+  }
+
+  async fetchVisitors(messages: Array<HullUserUpdateMessage>): Promise<*> {
+    if (!this.shouldFetchVisitors) {
+      return Promise.resolve();
+    }
+    const visitorMessages = this.filterUtil.filterVisitorMessages(messages);
+
+    if (_.isEmpty(visitorMessages)) {
+      return Promise.resolve();
+    }
+
+    return Promise.map(visitorMessages, async message => {
+      const { user } = message;
+      const utkAnonIds = _.filter(_.get(user, "anonymous_ids", []), aid =>
+        aid.startsWith("hubspot-utk:")
+      );
+
+      return Promise.map(utkAnonIds, async utkAnonId => {
+        try {
+          const utk = _.replace(utkAnonId, "hubspot-utk:", "");
+          const contact = await this.getVisitor({ utk });
+          const { vid } = contact;
+          if (vid) {
+            return this.hullClient
+              .asUser(user)
+              .alias({ anonymous_id: `hubspot:${vid}` });
+          }
+          return this.hullClient
+            .asUser(user)
+            .logger.error("incoming.user.error", {
+              message: "Contact with utk not found",
+              utk
+            });
+        } catch (error) {
+          return this.hullClient
+            .asUser(user)
+            .logger.error("incoming.user.error", {
+              message: "Unable to retrieve visitor"
+            });
+        }
+      });
+    });
   }
 }
 

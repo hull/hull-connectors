@@ -51,7 +51,7 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot update validation error and retry", () => {
+it("should attempt to update hubspot company after validation error and retry", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -126,30 +126,20 @@ it("should send out a new hull account to hubspot update validation error and re
               "validationResults": [
                 {
                   "isValid": false,
-                  "message": "Property \"non-existing-property\" does not exist",
-                  "error": "PROPERTY_DOESNT_EXIST",
-                  "id": "hubspot-company-2",
-                  "name": "non-existing-property"
-                },
-                {
-                  "isValid": false,
                   "message": "Unsynced Segment 1 was not one of the allowed options: ...",
                   "error": "INVALID_OPTION",
-                  "id": "hubspot-company-2",
                   "name": "hull_segments"
                 },
                 {
                   "isValid": false,
                   "message": "Unsynced Segment 1 was not one of the allowed options: ...",
                   "error": "INVALID_OPTION",
-                  "id": "hubspot-company-3",
                   "name": "hull_segments"
                 },
                 {
                   "isValid": false,
                   "message": "Unsynced Segment 2 was not one of the allowed options: ...",
                   "error": "INVALID_OPTION",
-                  "id": "hubspot-company-3",
                   "name": "hull_segments"
                 }
               ],
@@ -219,6 +209,23 @@ it("should send out a new hull account to hubspot update validation error and re
                 }
               ],
               objectId: "hubspot-company-1"
+            },
+            {
+              properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  name: "hull_segments",
+                  value: "testSegment;Unsynced Segment 1"
+                },
+                {
+                  name: "domain",
+                  value: "non-existing.com"
+                }
+              ],
+              objectId: "hubspot-company-2"
             },
             {
               properties: [
@@ -336,23 +343,6 @@ it("should send out a new hull account to hubspot update validation error and re
         expect.arrayContaining([
           expect.objectContaining({ method: "POST", status: 400, url: "/companies/v1/batch-async/update" })
         ]),
-        ["error", "outgoing.account.error",
-          expect.objectContaining({
-            account_domain: "non-existing.com",
-            subject_type: "account"
-          }),
-          {
-            error: 'Property "non-existing-property" does not exist',
-            hubspotWriteCompany: {
-              properties: [
-                { name: "name", value: "New Name" },
-                { name: "hull_segments", value: "testSegment;Unsynced Segment 1", },
-                { name: "domain", value: "non-existing.com" }
-              ],
-              objectId: "hubspot-company-2"
-            }
-          }
-        ],
         expect.arrayContaining(["ContactProperty.ensureCustomProperties"]),
         expect.arrayContaining([
           expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/groups", "status": 202, })
@@ -368,37 +358,93 @@ it("should send out a new hull account to hubspot update validation error and re
             url: "/companies/v1/batch-async/update"
           })
         ],
-        ["error", "outgoing.account.error",
-          expect.objectContaining({
-            account_domain: "hull.io",
-            subject_type: "account"
-          }),
+        [
+          "error",
+          "outgoing.account.error",
           {
-            error: 'some random error',
-            hubspotWriteCompany: {
-              properties: [
-                { name: "name", value: "New Name" },
-                { name: "hull_segments", value: "testSegment" },
-                { name: "domain", value: "hull.io" }
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "hull.io"
+          },
+          {
+            "error": "Batch Rejected: some random error",
+            "warning": "Unable to determine rejected account",
+            "hubspotWriteCompany": {
+              "properties": [
+                {
+                  "name": "name",
+                  "value": "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment"
+                },
+                {
+                  "name": "domain",
+                  "value": "hull.io"
+                }
               ],
-              objectId: "hubspot-company-1"
+              "objectId": "hubspot-company-1"
             }
           }
         ],
-        ["error", "outgoing.account.error",
-          expect.objectContaining({
-            account_domain: "apple.com",
-            subject_type: "account"
-          }),
+        [
+          "error",
+          "outgoing.account.error",
           {
-            error: 'outgoing batch rejected',
-            hubspotWriteCompany: {
-              properties: [
-                { name: "name", value: "New Name" },
-                { name: "hull_segments", value: "testSegment;Unsynced Segment 1;Unsynced Segment 2" },
-                { name: "domain", value: "apple.com" }
+            "subject_type": "account",
+            "request_id":expect.whatever(),
+            "account_domain": "non-existing.com"
+          },
+          {
+            "error": "Batch Rejected: some random error",
+            "warning": "Unable to determine rejected account",
+            "hubspotWriteCompany": {
+              "properties": [
+                {
+                  "name": "name",
+                  "value": "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment;Unsynced Segment 1"
+                },
+                {
+                  "name": "domain",
+                  "value": "non-existing.com"
+                }
               ],
-              objectId: "hubspot-company-3"
+              "objectId": "hubspot-company-2"
+            }
+          }
+        ],
+        [
+          "error",
+          "outgoing.account.error",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "apple.com"
+          },
+          {
+            "error": "Batch Rejected: some random error",
+            "warning": "Unable to determine rejected account",
+            "hubspotWriteCompany": {
+              "properties": [
+                {
+                  "name": "name",
+                  "value": "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment;Unsynced Segment 1;Unsynced Segment 2"
+                },
+                {
+                  "name": "domain",
+                  "value": "apple.com"
+                }
+              ],
+              "objectId": "hubspot-company-3"
             }
           }
         ]

@@ -105,14 +105,15 @@ describe("Lead Webhooks Tests", () => {
             });
 
           scope
-            .get("/contacts/5f297f71bce3e055f3afdf6e/tags")
+            .get("/tags")
             .reply(200, {
-              "type": "list",
-              "data": [
-                { "type": "tag", "id": "4406234", "name": "Tag1" },
-                { "type": "tag", "id": "4406229", "name": "Tag2" }
-              ]
-            });
+                "type": "list",
+                "data": [
+                  { "type": "tag", "id": "4406234", "name": "Tag1" },
+                  { "type": "tag", "id": "4406229", "name": "Tag2" }
+                ]
+              }
+            );
 
           return scope;
         },
@@ -200,11 +201,11 @@ describe("Lead Webhooks Tests", () => {
                       "tags": [
                         {
                           "type": "tag",
-                          "id": "4406230"
+                          "id": "4406234"
                         },
                         {
                           "type": "tag",
-                          "id": "4406236"
+                          "id": "4406229"
                         }
                       ]
                     },
@@ -260,7 +261,7 @@ describe("Lead Webhooks Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/contacts/5f297f71bce3e055f3afdf6e/tags",
+              "url": "/tags",
               "status": 200,
               "vars": {}
             }
@@ -335,11 +336,11 @@ describe("Lead Webhooks Tests", () => {
                   "data": [
                     {
                       "type": "tag",
-                      "id": "4406230"
+                      "id": "4406234"
                     },
                     {
                       "type": "tag",
-                      "id": "4406236"
+                      "id": "4406229"
                     }
                   ]
                 }

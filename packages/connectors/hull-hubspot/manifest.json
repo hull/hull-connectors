@@ -19,6 +19,45 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "fetch_visitors",
+      "title": "Resolve Contact ID from Visitor UTK",
+      "description": "Given a UTK, resolve the associated Contact ID from Hubspot",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "synchronized_visitor_segments",
+      "title": "Visitor Segment Filter",
+      "description": "Given a UTK, resolve the associated contact ID from Hubspot when users match these segments",
+      "type": "array",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": []
+    },
+    {
+      "name": "send_events",
+      "title": "Send Events",
+      "description": "Should Send Events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "outgoing_user_events",
+      "title": "Sends Events to Hubspot",
+      "format": "event",
+      "type": "array",
+      "default": [],
+      "options": {
+        "standard": {
+          "all_events": "All Events"
+        }
+      }
+    },
+    {
       "name": "ignore_deleted_users",
       "title": "Ignore Deleted Contacts",
       "description": "If a contact has been deleted in Hubspot, do not send that user to Hubspot from Hull.",
@@ -448,6 +487,13 @@
       "format": "hidden"
     },
     {
+      "name": "fetch_users",
+      "title": "Fetch Contacts",
+      "description": "Enable fetching Hubspot Contacts to Hull",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "fetch_email_events",
       "title": "Fetch Email Events",
       "description": "Enable fetching Hubspot Marketing Emails to Hull as events",
@@ -516,7 +562,10 @@
       "url": "/smart-notifier",
       "conditions" : {
         "segments": {
-          "user:update": ["private_settings.synchronized_user_segments"],
+          "user:update": [
+            "private_settings.synchronized_user_segments",
+            "private_settings.synchronized_visitor_segments"
+          ],
           "account:update": ["private_settings.synchronized_account_segments"]
         }
       },
@@ -611,6 +660,16 @@
     }
   ],
   "json": [
+    {
+      "url": "/get-company",
+      "name": "get_company",
+      "handler": "getCompany"
+    },
+    {
+      "url": "/get-contact",
+      "name": "get_contact",
+      "handler": "getContact"
+    },
     {
       "url": "/fetch-all",
       "name": "fetch_all",
@@ -743,6 +802,7 @@
       "title": "User - Fetching from Hubspot",
       "description": "<b>Identity</b> is one of the most important concepts in Hull. The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull. <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
+        "private_settings.fetch_users",
         "private_settings.incoming_user_claims",
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
@@ -779,6 +839,14 @@
       ]
     },
     {
+      "title": "Send Events to Hubspot",
+      "description": "Define which events will be sent to Hubspot",
+      "properties": [
+        "private_settings.send_events",
+        "private_settings.outgoing_user_events"
+      ]
+    },
+    {
       "title": "Email Events - Fetching from Hubspot",
       "description": "Fetch Email Events from Hubspot",
       "properties": [
@@ -787,6 +855,14 @@
         "private_settings.email_events_user_claims",
         "json.fetch_all_email_events",
         "json.fetch_hot_off_the_press_events"
+      ]
+    },
+    {
+      "title": "Visitor Tracking",
+      "description": "Define which anonymous site visitors with Hubspot UTK ID will be mapped to corresponding Hubspot Contact ID. This requires enabling aliasing in website connector or custom frontend script. See documentation for more details.",
+      "properties": [
+        "private_settings.fetch_visitors",
+        "private_settings.synchronized_visitor_segments"
       ]
     }
   ]

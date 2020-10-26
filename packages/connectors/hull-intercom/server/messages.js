@@ -80,7 +80,7 @@ const MESSAGES = {
   CONFLICT: () => {
     return {
       id: "Conflict",
-      message: "Conflict - Multiple existing users match this email address - must be more specific using user_id",
+      message: "Conflict",
       level: "Information"
     }
   },

@@ -1,4 +1,6 @@
 const _ = require("lodash");
+const hasMatchingTriggers = require("hull/src/helpers/has-matching-triggers");
+
 const { ClientMock } = require("./client-mock");
 
 class ConnectorMock {
@@ -25,6 +27,7 @@ class ContextMock {
     this.clientCredentialsEncryptedToken = clientCredentialsEncryptedToken;
 
     this.helpers = {
+      hasMatchingTriggers: hasMatchingTriggers({ isBatch: false }),
       settingsUpdate: this.client.utils.settings.update
     }
 

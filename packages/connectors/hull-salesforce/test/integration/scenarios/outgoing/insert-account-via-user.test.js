@@ -550,10 +550,6 @@ describe("Insert Accounts Via User Update Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"

@@ -772,21 +772,6 @@ describe("Fetch Contacts Tests", () => {
             }
           ],
           [
-            "debug",
-            "incoming.account.link",
-            {},
-            {
-              "user": {
-                "email": "becci.blankenshield@adventure-works.com",
-                "anonymous_id": "salesforce-contact:00Q1I000004WHbtUAG"
-              },
-              "account": {
-                "anonymous_id": "salesforce:0011I000007Cy18QAC",
-                "domain": "krakowtraders.pl"
-              }
-            }
-          ],
-          [
             "info",
             "incoming.user.success",
             {
@@ -888,12 +873,13 @@ describe("Fetch Contacts Tests", () => {
                 "anonymous_id": "salesforce-contact:00Q1I000004WHbtUAG"
               },
               "asAccount": {
-                "domain": "krakowtraders.pl",
                 "anonymous_id": "salesforce:0011I000007Cy18QAC"
               },
               "subjectType": "account"
             },
-            {}
+            {
+              "salesforce/id": "0011I000007Cy18QAC"
+            }
           ]
         ],
         metrics: [

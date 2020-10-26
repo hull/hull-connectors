@@ -392,15 +392,8 @@ describe("Insert User Tests", () => {
             });
 
           scope
-            .get("/companies/5f4e82462bc3732be3cdf6b0/segments")
-            .reply(200, {
-              "type": "list",
-              "data": []
-            });
-
-          scope
             .post("/contacts/5f22f1b6fcaca714eb055739/companies", {
-              "company_id": "account_external_id_1"
+              "id": "5f4e82462bc3732be3cdf6b0"
             }).reply(200, {
             "type": "company",
             "company_id": "account_external_id_1",
@@ -735,20 +728,6 @@ describe("Insert User Tests", () => {
           ],
           [
             "debug",
-            "connector.service_api.call",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "responseTime": expect.whatever(),
-              "method": "GET",
-              "url": "/companies/5f4e82462bc3732be3cdf6b0/segments",
-              "status": 200,
-              "vars": {}
-            }
-          ],
-          [
-            "debug",
             "incoming.account.success",
             {
               "subject_type": "account",
@@ -857,10 +836,6 @@ describe("Insert User Tests", () => {
                 "operation": "set",
                 "value": "5f4e82462bc3732be3cdf6b0"
               },
-              "intercom/segments": {
-                "operation": "set",
-                "value": []
-              },
               "intercom/tags": {
                 "operation": "set",
                 "value": []
@@ -870,8 +845,6 @@ describe("Insert User Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

@@ -4,11 +4,10 @@
   "picture": "picture.png",
   "source": "snowflake",
   "logo": "logo.png",
-  "version": "0.3.19",
+  "version": "0.1.36-monorepo",
   "tags": [
     "incoming",
     "oneColumn",
-    "beta-release",
     "sql-accounts"
   ],
   "private_settings": [
@@ -145,26 +144,82 @@
   ],
   "resources": [],
   "readme": "readme.md",
+  "settings_sections": [
+    {
+      "title": "Database connection",
+      "description": "***Security Recommendation***<br>We recommend to grant the user below read-only access to dedicated tables to keep your information safe. Please refer to the manual of your database server for additional security recommendations.",
+      "properties": [
+        "private_settings.db_account",
+        "private_settings.db_region",
+        "private_settings.db_name",
+        "private_settings.db_login_hero",
+        "private_settings.db_user",
+        "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "Connector Configuration",
+      "description": "To write your query, go to the **Overview** tab and click the **Query Editor** button **AFTER** saving these settings",
+      "properties": [
+        "private_settings.import_type",
+        "private_settings.enabled",
+        "private_settings.sync_interval",
+        "private_settings.overwrite",
+        "private_settings.import_days"
+      ]
+    }
+  ],
   "tabs": [
     {
       "title": "Query Editor",
-      "url": "admin.html",
+      "url": "/admin.html",
+      "handler": "admin",
       "size": "large",
       "editable": true
     }
   ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
+  },
   "ui": false,
   "schedules": [
     {
       "url": "/sync",
       "type": "interval",
+      "handler": "sync",
       "value_from": "private_settings.sync_interval",
       "default": "180"
+    }
+  ],
+  "json": [
+    {
+      "url": "/run",
+      "handler": "run",
+      "options": {}
     },
     {
-      "url": "/status",
-      "type": "cron",
-      "value": "30 * * * *"
+      "url": "/import",
+      "handler": "importResults",
+      "options": {}
+    },
+    {
+      "url": "/storedquery",
+      "handler": "storedquery",
+      "options": {}
     }
   ]
 }

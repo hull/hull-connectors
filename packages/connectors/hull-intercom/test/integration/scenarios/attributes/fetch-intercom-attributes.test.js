@@ -151,10 +151,6 @@ describe("Fetch Intercom Attributes Tests", () => {
             "value": "tags"
           },
           {
-            "label": "Segments",
-            "value": "segments"
-          },
-          {
             "label": "Social Profiles",
             "value": "social_profiles"
           },
@@ -357,10 +353,6 @@ describe("Fetch Intercom Attributes Tests", () => {
             {
               "label": "Tags",
               "value": "tags"
-            },
-            {
-              "label": "Segments",
-              "value": "segments"
             },
             {
               "label": "Company name",
