@@ -4,7 +4,6 @@ function executeFallbackStrategy(dataObject, attributeName, strategy) {
   _.forEach(strategy, s => {
     if (!_.isNil(_.get(s.dataObject, s.attribute, null))) {
       _.set(dataObject, attributeName, _.get(s.dataObject, s.attribute));
-      return false;
     }
   });
 }
@@ -272,11 +271,11 @@ export default async function handle({
     _.get(user, "unified_data.linkedin_profile", null) === null &&
     _.get(user, "clearbit.linkedin_handle", null) !== null
   ) {
-    const handle = _.get(user, "clearbit.linkedin_handle");
+    const userHandle = _.get(user, "clearbit.linkedin_handle");
     _.set(
       userTraits,
       "unified_data/linkedin_profile",
-      `https://www.linkedin.com/${handle}`
+      `https://www.linkedin.com/${userHandle}`
     );
   }
 

@@ -12,4 +12,3 @@ export const getHandlers = handler => ({
     incomingHandler: incomingHandler(handler)
   }
 });
-

@@ -1,12 +1,10 @@
 {
-  "name": "hull-SAMPLE",
+  "name": "hull-sample-user-processing",
   "description": "SAMPLE",
   "version": "0.1.36-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
-    "test": "yarn test:unit && yarn test:integration",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+    "test": "exit 0; echo 'tests are run by global jest'"
   },
   "dependencies": {},
   "devDependencies": {}
