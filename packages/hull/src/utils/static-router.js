@@ -1,7 +1,4 @@
 // @flow
-
-const path = require("path");
-
 const express = require("express");
 
 function readmeRoute(req, res) {
@@ -12,9 +9,8 @@ function readmeRoute(req, res) {
 
 function staticRouter({ manifest }) {
   const { readme = "readme.md" } = manifest;
-  const applicationDirectory = path.dirname(
-    path.join(require.main.filename, "..")
-  );
+
+  const applicationDirectory = process.cwd();
   const router = express.Router();
 
   router.use(express.static(`${applicationDirectory}/dist`));
