@@ -10,6 +10,26 @@ export default async function importEmailBatch(ctx: HullContext) {
   const importType = "email";
   const jobName = "trackEmailActivities";
 
+  const track_events = _.get(
+    mailchimpAgent.ship.private_settings,
+    "track_events",
+    true
+  );
+
+  if (!track_events) {
+    this.ctx.helpers.settingsUpdate({
+      last_track_at: moment.utc().format()
+    });
+    await this.ctx.cache.del(`${importType}_batch_id`);
+    await this.ctx.cache.del(`${importType}_batch_lock`);
+    return {
+      status: 200,
+      data: {
+        message: "Event Tracking Off"
+      }
+    };
+  }
+
   const batchLockKey = `${importType}_batch_lock`;
   const batchLock = await ctx.cache.get(batchLockKey);
 

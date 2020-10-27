@@ -5,6 +5,22 @@ const shipAppFactory = require("../../lib/ship-app-factory");
 async function createEmailBatch(ctx: any) {
   const importType = "email";
   const { syncAgent, mailchimpAgent } = shipAppFactory(ctx);
+
+  const track_events = _.get(
+    syncAgent.ship.private_settings,
+    "track_events",
+    true
+  );
+
+  if (!track_events) {
+    return {
+      status: 200,
+      data: {
+        message: "Event Tracking Off"
+      }
+    };
+  }
+
   const batch_id = await mailchimpAgent.cache.get("email_batch_id");
   if (!_.isNil(batch_id)) {
     const message = `Track Email Batch {${batch_id}} Already Initiated`;
