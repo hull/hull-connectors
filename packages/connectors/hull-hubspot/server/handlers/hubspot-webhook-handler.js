@@ -52,7 +52,7 @@ async function middleware(request, res) {
     fullContextBodyMiddleware({ requestName })(request, res, () => {});
     await fullContextFetchMiddleware({ requestName })(request, res, () => {});
     const { connector } = request.hull;
-    if (!connector) {
+    if (!connector || connector.accept_incoming_webhooks === false) {
       // TODO remove connector config from cache
       return false;
     }
