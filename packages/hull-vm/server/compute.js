@@ -20,7 +20,7 @@ export default async function compute(
     logs: [],
     logsForLogger: [],
     errors: [],
-    data: {},
+    data: {} | [],
     success: false,
     isAsync: false,
     userTraits: Map({}),
