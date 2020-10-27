@@ -5,7 +5,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import { asyncComputeAndIngest, varsFromSettings, serialize } from "hull-vm";
+import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
 
 export default async function handler(
   ctx: HullContext,
@@ -32,7 +32,7 @@ export default async function handler(
       data: {
         code,
         result: {
-          ...serialize(result),
+          ...result,
           logs: [...result.logs, ["Call successful"]]
         }
       }

@@ -69,6 +69,7 @@ export type HullAttributeMapping = {
 export type HullJob = {
   client: any,
   created_at?: string,
+  progress: any => void,
   data: {
     context: amu,
     name: string,

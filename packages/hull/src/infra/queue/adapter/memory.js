@@ -35,6 +35,7 @@ class MemoryAdapter {
   enqueue(jobName, jobPayload) {
     this.queue[jobName] = this.queue[jobName] || [];
     this.queue[jobName].push({
+      progress: () => {},
       id: this.queue[jobName].length,
       data: _.merge(
         {

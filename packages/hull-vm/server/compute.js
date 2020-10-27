@@ -6,6 +6,7 @@ import { Map } from "immutable";
 import errors from "request-promise/errors";
 import type { Result, ResultBase, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
+import serialize from "./serialize";
 import javascript from "./backends/javascript";
 import { jsonata, JsonataError } from "./backends/jsonata";
 
@@ -20,7 +21,7 @@ export default async function compute(
     logs: [],
     logsForLogger: [],
     errors: [],
-    data: {} | [],
+    data: {},
     success: false,
     isAsync: false,
     userTraits: Map({}),
@@ -73,5 +74,5 @@ export default async function compute(
       result.errors.push(err.stack.split("at new Script")[0]);
     }
   }
-  return result;
+  return serialize(result);
 }

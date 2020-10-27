@@ -1,6 +1,8 @@
 const _ = require("lodash");
 const Configuration = require("./configuration");
 
+const debug = require("debug")("hull:firehose");
+
 const BATCHERS = {};
 
 global.setImmediate = global.setImmediate || process.nextTick.bind(process);
@@ -36,7 +38,7 @@ class FirehoseBatcher {
       const callback = (err, res) => {
         return err ? reject(err) : resolve(res);
       };
-
+      debug("Firehose Message Queued", message);
       this.queue.push({ message, callback });
 
       if (FirehoseBatcher.exiting === true) return this.flush();
