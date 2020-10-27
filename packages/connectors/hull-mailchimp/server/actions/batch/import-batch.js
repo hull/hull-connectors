@@ -2,6 +2,7 @@
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
 
 const _ = require("lodash");
+const moment = require("moment");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importBatch(
@@ -41,7 +42,8 @@ export default async function importBatch(
     };
   }
 
-  await ctx.cache.set(batchLockKey, true, { ttl: 43200 });
+  const importInitiated = moment().unix();
+  await ctx.cache.set(batchLockKey, importInitiated, { ttl: 43200 });
   if (import_type === "email") {
     return mailchimpAgent.batchAgent.handle({
       jobName: "trackEmailActivities",
