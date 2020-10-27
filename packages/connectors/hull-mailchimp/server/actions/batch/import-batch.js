@@ -43,7 +43,15 @@ export default async function importBatch(
   }
 
   const importInitiated = moment().unix();
-  await ctx.cache.set(batchLockKey, importInitiated, { ttl: 43200 });
+  await ctx.cache.set(
+    batchLockKey,
+    {
+      connector: mailchimpAgent.ship.id,
+      importType: import_type,
+      importInitiated
+    },
+    { ttl: 43200 }
+  );
   if (import_type === "email") {
     return mailchimpAgent.batchAgent.handle({
       jobName: "trackEmailActivities",

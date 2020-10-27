@@ -63,7 +63,15 @@ export default async function importEmailBatch(ctx: HullContext) {
   }
 
   const importInitiated = moment().unix();
-  await ctx.cache.set(batchLockKey, importInitiated, { ttl: 43200 });
+  await ctx.cache.set(
+    batchLockKey,
+    {
+      connector: mailchimpAgent.ship.id,
+      importType,
+      importInitiated
+    },
+    { ttl: 43200 }
+  );
   mailchimpAgent.batchAgent.handle({
     jobName,
     batchId,
