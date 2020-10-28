@@ -48,11 +48,11 @@ class SalesforceSDK {
     return this.syncAgent.sendAccountMessages(messages);
   }
 
-  async getAllRecords({ sfType, fields }) {
+  async getAllRecords({ sfType, fields, fetchDaysBack }) {
     const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
     return this.syncAgent.sf.getAllRecords(
       sfType,
-      { identityClaims, fields },
+      { identityClaims, fields, fetchDaysBack },
       record => this.saveRecord({ sfType, record })
     );
   }

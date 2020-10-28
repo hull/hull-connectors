@@ -1,14 +1,21 @@
 // @flow
 
-import type { HullContext, HullExternalResponse } from "hull";
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage
+} from "hull";
 import type { TResourceType } from "../lib/types";
 
 const _ = require("lodash");
 const PurpleFusionRouter = require("../lib/purple-fusion-router");
 
 const fetchAll = (sfEntity: TResourceType) => async (
-  ctx: HullContext
+  ctx: HullContext,
+  incomingMessage: HullIncomingHandlerMessage
 ): HullExternalResponse => {
+  const fetchParameters = _.get(incomingMessage, "body");
+
   const privateSettings = ctx.connector.private_settings;
 
   if (
@@ -31,7 +38,7 @@ const fetchAll = (sfEntity: TResourceType) => async (
   const route = `fetchAll${sfEntity}s`;
 
   const router = new PurpleFusionRouter(route);
-  await router.invokeRoute(ctx);
+  await router.invokeRoute(ctx, fetchParameters);
 
   return {
     status: 200,

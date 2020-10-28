@@ -131,12 +131,13 @@ const glue = {
   ]),
 
   fetchAll: [
+    set("fetchDaysBack", input("fetch_days_back")),
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
     set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
     set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
 
     set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
-    salesforceSyncAgent("getAllRecords", { sfType: "${fetchType}", fields: "${fetchFields}" })
+    salesforceSyncAgent("getAllRecords", { sfType: "${fetchType}", fields: "${fetchFields}", fetchDaysBack: "${fetchDaysBack}" })
   ],
   fetchAllContacts: [
     set("fetchType", "Contact"),
