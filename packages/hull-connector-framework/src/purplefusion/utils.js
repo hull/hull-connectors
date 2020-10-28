@@ -188,7 +188,7 @@ function getTriggers(
 
   // TODO fill out user/lead/account triggers/filters
   return {
-    [`${entity}_events`]: private_settings[`outgoing_${entity}_events`] || []
+    "user_events": private_settings[`outgoing_${entity}_events`] || private_settings["outgoing_events"] || []
   };
 }
 

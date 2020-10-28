@@ -124,7 +124,7 @@ class InstrumentationAgent {
 
   startTransaction(jobName: string, callback: () => {}) {
     if (this.nr) {
-      return this.nr.startBackgroundTransaction(jobName, callback)();
+      return this.nr.startBackgroundTransaction(jobName, callback);
     }
     return callback();
   }

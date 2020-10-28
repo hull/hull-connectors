@@ -121,7 +121,7 @@ class SyncAgent {
       metrics: this.metric
     };
     this.sf = new SalesforceClient(clntOpts);
-    this.patchUtil = new PatchUtil(private_settings);
+    this.patchUtil = new PatchUtil(private_settings, this.isBatch);
     this.attributesMapper = new AttributesMapper(private_settings);
     this.filterUtil = new FilterUtil(private_settings);
     this.queryUtil = new QueryUtil();
@@ -363,7 +363,7 @@ class SyncAgent {
 
     _.forEach(toUpdate, envelope => {
       const { message } = envelope;
-      const { user, account } = message;
+      const { user, account, changes } = message;
       const hullEntity = resourceType === "Account" ? account : user;
       const userSegments = _.get(message, "segments", []);
       const accountSegments = _.get(message, "account_segments", []);
@@ -374,11 +374,13 @@ class SyncAgent {
         userSegments,
         accountSegments
       );
+
       const patch = this.patchUtil.createPatchObject(
         resourceType,
         sfObject,
         _.get(envelope, `matches.${_.toLower(resourceType)}[0]`),
-        schema
+        schema,
+        changes
       );
 
       if (patch.hasChanges) {

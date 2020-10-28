@@ -2,6 +2,7 @@
 import type { HullContext } from "hull";
 
 const _ = require("lodash");
+const moment = require("moment");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importMemberBatch(ctx: HullContext) {
@@ -41,7 +42,16 @@ export default async function importMemberBatch(ctx: HullContext) {
     };
   }
 
-  await ctx.cache.set(batchLockKey, true, { ttl: 43200 });
+  const importInitiated = moment().unix();
+  await ctx.cache.set(
+    batchLockKey,
+    {
+      connector: mailchimpAgent.ship.id,
+      importType,
+      importInitiated
+    },
+    { ttl: 43200 }
+  );
   mailchimpAgent.batchAgent.handle({
     jobName,
     batchId,
