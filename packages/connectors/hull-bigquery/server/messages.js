@@ -18,6 +18,14 @@ const MESSAGES = {
       category: "Unknown"
     };
   },
+  INVALID_QUERY: () => {
+    return {
+      id: "GoogleQueryInvalid",
+      message: "Query invalid, please verify your query syntax",
+      level: "Error",
+      channel: "Operation"
+    }
+  }
 };
 
 module.exports = MESSAGES;

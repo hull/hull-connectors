@@ -115,6 +115,21 @@
     {
       "url" : "/get-projects",
       "handler": "getProjects"
+    },
+    {
+      "url": "/run",
+      "handler": "run",
+      "options": {}
+    },
+    {
+      "url": "/import",
+      "handler": "importResults",
+      "options": {}
+    },
+    {
+      "url": "/storedquery",
+      "handler": "storedquery",
+      "options": {}
     }
   ],
   "schedules": [
@@ -134,7 +149,8 @@
       "type": "interval",
       "value": "5",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],

@@ -46,6 +46,10 @@ const service = ({clientID, clientSecret}: {
     getJobResults: {
       url: "/projects/${projectId}/queries/${jobId}?maxResults=1000&pageToken=${pageToken}",
       operation: "get"
+    },
+    testQuery: {
+      url: "/projects/${projectId}/queries",
+      operation: "post"
     }
   },
   authentication: {
@@ -78,6 +82,14 @@ const service = ({clientID, clientSecret}: {
         truthy: { status: 404 },
         errorType: SkippableError,
         message: MESSAGES.GOOGLE_ENTITY_NOT_FOUND
+      },
+      {
+        truthy: { status: 400 },
+        condition: notNull("connector.private_settings.access_token"),
+        errorType: SkippableError,
+        message: MESSAGES.INVALID_QUERY,
+        recoveryroute: "displayQueryError",
+        generateNewRecovery: true
       }
     ]
   }

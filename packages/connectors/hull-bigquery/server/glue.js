@@ -17,7 +17,8 @@ const {
   iterateL,
   ld,
   hull,
-  Svc
+  Svc,
+  input
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const { BigqueryUserRead, BigqueryAccountRead, BigqueryEventRead } = require("./service-objects");
@@ -122,7 +123,7 @@ const glue = {
           ], {
             // all good, ready for import
             do: [
-              route("importResults"),
+              route("paginateResults"),
               utils("logInfo", "incoming.job.finished")
             ],
             // job is finished but has some errors
@@ -160,7 +161,7 @@ const glue = {
   ],
   import: route("startImport"),
   manualImport: route("startImport"),
-  importResults: [
+  paginateResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("[$.rows.(\n" +
       "    $merge(\n" +
@@ -176,7 +177,7 @@ const glue = {
     ]),
     ifL(cond("notEmpty", "${queryPageResults.pageToken}"), [
       set("pageToken", "${queryPageResults.pageToken}"),
-      route("importResults")
+      route("paginateResults")
     ])
   ],
   refreshToken:
@@ -213,6 +214,54 @@ const glue = {
   ], {
     pageLocation: "${pageLocation}",
     data: "${retData}"
+  }),
+  storedquery: returnValue([
+    set("trimmedQuery", ld("trimEnd", settings("query"), ";"))
+  ], {
+    data: "${trimmedQuery}"
+  }),
+  run:
+    returnValue([
+      set("rawPreview", bigquery("testQuery", {
+        maxResults: 100,
+        timeoutMs: 30000,
+        query: input("body.query"),
+        useLegacySql: false
+      })),
+      utils("print", "${errorReport}"),
+      ifL(cond("isEmpty", "${errorReport}"), {
+        do: [
+          utils("print", "${rawPreview}"),
+          set("retData.entries", jsonata("[$.rows.(\n" +
+            "    $merge(\n" +
+            "        $map($.f, function($v, $i) {\n" +
+            "            {\n" +
+            "                $$.schema.fields[$i].name: $v.v\n" +
+            "            }\n" +
+            "        })\n" +
+            "    )\n" +
+            ")]\n", "${rawPreview}")),
+          set("retStatus", 200)
+        ],
+        eldo: [
+          utils("print", "${errorReport}"),
+          set("retStatus", "${errorReport.status}"),
+          set("retData.message", "${errorReport.response.text}")
+        ]
+      })
+    ], {
+      status: "${retStatus}",
+      data: "${retData}"
+    }),
+  importResults: [],
+  displayQueryError: returnValue([
+    utils("print", input("response.text")),
+    set("errorReport", input())
+  ], {
+    status: 500,
+    data: {
+      message: input()
+    }
   })
 };
 
