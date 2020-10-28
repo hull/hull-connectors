@@ -48,7 +48,8 @@ export default async function importMemberBatch(ctx: HullContext) {
     {
       connector: mailchimpAgent.ship.id,
       importType,
-      importInitiated
+      importInitiated,
+      batchId
     },
     { ttl: 43200 }
   );

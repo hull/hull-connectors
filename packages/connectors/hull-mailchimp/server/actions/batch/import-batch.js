@@ -48,7 +48,8 @@ export default async function importBatch(
     {
       connector: mailchimpAgent.ship.id,
       importType: import_type,
-      importInitiated
+      importInitiated,
+      batchId: batch_id
     },
     { ttl: 43200 }
   );
