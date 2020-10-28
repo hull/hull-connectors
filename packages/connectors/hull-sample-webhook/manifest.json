@@ -1,5 +1,5 @@
 {
-  "name": "hull-sample",
+  "name": "hull-sample-webhook",
   "description": "SAMPLE",
   "type": "source-webhook"
 }
