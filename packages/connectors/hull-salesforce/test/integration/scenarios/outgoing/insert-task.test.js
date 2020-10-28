@@ -177,7 +177,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const contactResponse = createSoapEnvelope("createResponse", { result: [{ id: "contact_id_1", success: "true" }] });
@@ -567,7 +566,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }, { id: "asdfasdf", success: "true" }] });

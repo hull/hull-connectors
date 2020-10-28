@@ -161,7 +161,6 @@ describe("Update Lead Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "LEAD_SEGMENTS__c",
@@ -859,7 +858,6 @@ describe("Update Lead Tests", () => {
 
           nock("https://na98.salesforce.com")
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           return scope;

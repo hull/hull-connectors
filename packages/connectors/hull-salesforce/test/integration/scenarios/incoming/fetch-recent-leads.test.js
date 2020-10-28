@@ -192,7 +192,6 @@ describe("Fetch Leads Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "UserSegments__c",

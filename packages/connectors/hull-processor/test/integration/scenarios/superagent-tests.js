@@ -71,7 +71,7 @@ describe("Superagent library", () => {
       externalApiMock: () => {
         nock("http://foobar.com")
           .post("/email")
-          .reply(function(uri, requestBody) {
+          .reply(200, function(uri, requestBody) {
             return { result: requestBody.foo };
           });
       },

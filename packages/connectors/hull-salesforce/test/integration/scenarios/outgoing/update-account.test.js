@@ -951,7 +951,6 @@ describe("Update Accounts Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Account/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "ACCOUNT_SEGMENTS__c",

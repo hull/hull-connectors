@@ -367,7 +367,6 @@ describe("Fetch Contacts Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Contact/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "UserSegments__c",
