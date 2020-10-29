@@ -15,7 +15,7 @@ const {
 async function fetchConnector(ctx, cache): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
-    await ctx.cache.set("connector", ctx.connector);
+    ctx.cache.set("connector", ctx.connector);
     return ctx.connector;
   }
   const getConnector = () => ctx.client.get("app", {});
@@ -50,13 +50,13 @@ async function fetchSegments(ctx, entity = "user", cache) {
   const ctxEntity = `${entity}sSegments`;
   const segments = ctx[ctxEntity];
   if (segments) {
-    await ctx.cache.set(entitySegments, segments);
+    ctx.cache.set(entitySegments, segments);
     return segments;
   }
   const { id } = ctx.client.configuration();
   const getSegments = () =>
     ctx.client.get(
-      `/${entitySegments}`,
+      entitySegments,
       { shipId: id },
       { timeout: 5000, retry: 1000 }
     );
@@ -114,7 +114,6 @@ function fullContextFetchMiddlewareFactory({
         )
       );
     }
-
     try {
       const ctx = req.hull;
       if (ctx.client === undefined) {
@@ -125,6 +124,11 @@ function fullContextFetchMiddlewareFactory({
         fetchSegments(ctx, "user", cacheContextFetch),
         fetchSegments(ctx, "account", cacheContextFetch)
       ]);
+
+      if (req.hull.__contextFetched) {
+        return next();
+      }
+
       debug("received responses %o", {
         connector: typeof connector,
         usersSegments: Array.isArray(usersSegments),

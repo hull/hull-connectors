@@ -13,7 +13,6 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
     SHIP_CACHE_TTL = 60,
-    SHIP_CACHE_MAX = 100,
     FLOW_CONTROL_IN,
     FLOW_CONTROL_SIZE
   } = process.env;
@@ -37,8 +36,7 @@ export default function connectorConfig(): HullConnectorConfig {
     middlewares: [],
     cacheConfig: {
       ...cacheConfig,
-      ttl: SHIP_CACHE_TTL || 60,
-      max: SHIP_CACHE_MAX || 100
+      ttl: parseInt(SHIP_CACHE_TTL, 10) || 60
     },
     logsConfig: {
       logLevel: LOG_LEVEL
