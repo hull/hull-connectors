@@ -37,6 +37,7 @@ const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
+const os = require("os");
 
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
@@ -67,6 +68,12 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   }
   return callback;
 };
+
+const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 1 } = process.env;
+
+const getMaxConnections = () =>
+  parseInt(SERVER_MAX_CONNECTIONS, 10) || os.cpus().length || 10;
+const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 1;
 
 // const { TransientError } = require("../errors");
 
@@ -508,7 +515,18 @@ class HullConnector {
    */
   startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
-    return app.listen(port, () => debug("connector.server.listen", { port }));
+    const maxConnections = getMaxConnections();
+    const backlog = getBacklogSize();
+    const server = app.listen(
+      {
+        port,
+        backlog,
+        exclusive: true
+      },
+      () => debug("connector.server.listen", { port, maxConnections })
+    );
+    server.maxConnections = maxConnections;
+    return server;
   }
 
   use(middleware: Middleware) {
