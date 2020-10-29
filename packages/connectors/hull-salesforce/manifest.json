@@ -561,7 +561,7 @@
       "type": "array",
       "format": "table",
       "default": [],
-      "required": true,
+      "required": false,
       "items": {
         "type": "object",
         "properties": {

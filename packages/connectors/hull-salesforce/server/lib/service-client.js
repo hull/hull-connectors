@@ -23,6 +23,7 @@ const { pipeStreamToPromise } = require("hull/src/utils");
 const _ = require("lodash");
 const events = require("events");
 const Promise = require("bluebird");
+const moment = require("moment");
 
 const Connection = require("./service-client/connection");
 const {
@@ -95,30 +96,37 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     this.queryUtil = new QueryUtil();
   }
 
-  // eslint-disable-next-line no-unused-vars
-  getSoqlQuery(
+  getSoqlQuery({
+    type,
+    fields,
+    identityClaims,
+    fetchToDate
+  }): {
     type: TResourceType,
     fields: Array<string>,
-    identityClaims: Array<Object>
-  ): string {
+    identityClaims: Array<Object>,
+    fetchToDate: string
+  } {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
       type,
       fields,
       identityClaims
     );
 
-    let query = `SELECT ${selectFields} FROM ${type}`;
+    let query = `SELECT ${selectFields} FROM ${type} WHERE Id != NULL`;
+
+    if (!_.isNil(fetchToDate)) {
+      query += ` AND LastModifiedDate >= ${fetchToDate}`;
+    }
 
     if (!_.isNil(requiredFields) && requiredFields.length > 0) {
-      query += ` WHERE ${requiredFields[0]} != null`;
-
-      for (let i = 1; i < requiredFields.length; i += 1) {
+      for (let i = 0; i < requiredFields.length; i += 1) {
         const requiredField = requiredFields[i];
         query += ` AND ${requiredField} != null`;
       }
     }
 
-    query += " ORDER BY CreatedDate ASC";
+    query += " ORDER BY LastModifiedDate DESC";
 
     return query;
   }
@@ -389,8 +397,19 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const { fields = [], identityClaims = [] } = options;
-    const query = this.getSoqlQuery(type, fields, identityClaims);
+    const { fields = [], identityClaims = [], fetchDaysBack } = options;
+    let fetchToDate;
+    if (fetchDaysBack) {
+      fetchToDate = moment()
+        .subtract({ days: fetchDaysBack })
+        .toISOString();
+    }
+    const query = this.getSoqlQuery({
+      type,
+      fields,
+      identityClaims,
+      fetchToDate
+    });
     return this.fetchRecords({ query }, type, onRecord);
   }
 

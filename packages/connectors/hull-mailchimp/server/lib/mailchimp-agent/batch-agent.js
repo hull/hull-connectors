@@ -114,6 +114,7 @@ class MailchimpBatchAgent {
         type: importType,
         message: "Batch Job Still Processing in Mailchimp"
       });
+      await this.ctx.cache.del(`${importType}_batch_lock`);
       return Promise.resolve([]);
     }
 
