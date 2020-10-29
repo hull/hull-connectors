@@ -17,11 +17,11 @@ export default async function importEmailBatch(ctx: HullContext) {
   );
 
   if (!track_events) {
-    this.ctx.helpers.settingsUpdate({
+    ctx.helpers.settingsUpdate({
       last_track_at: moment.utc().format()
     });
-    await this.ctx.cache.del(`${importType}_batch_id`);
-    await this.ctx.cache.del(`${importType}_batch_lock`);
+    await ctx.cache.del(`${importType}_batch_id`);
+    await ctx.cache.del(`${importType}_batch_lock`);
     return {
       status: 200,
       data: {
