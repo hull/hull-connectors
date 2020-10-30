@@ -54,8 +54,7 @@ const {
   baseComposedMiddleware
 } = require("../middlewares");
 
-const getAbsolutePath = p =>
-  `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
+const getAbsolutePath = p => `${process.cwd()}/${p}`;
 
 const getCallbacks = (handlers, category: string, handler: string) => {
   const cat = handlers[category];
@@ -491,7 +490,10 @@ export default class HullConnector {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
-    app.use("/", staticRouter({ manifest: this.manifest }));
+    app.use(
+      "/",
+      staticRouter({ path: process.cwd(), manifest: this.manifest })
+    );
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);

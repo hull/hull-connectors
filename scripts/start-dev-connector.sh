@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # this scripts starts the connector in dev
 
-if [ -f packages/connectors/$1/.env ]; then
-  source packages/connectors/$1/.env
-  cat packages/connectors/$1/.env
+CONNECTOR=${CONNECTOR:=$1}
+PATH_TO_CONNECTOR="packages/connectors/$1"
+
+if [ -f $PATH_TO_CONNECTOR/.env ]; then
+  source $PATH_TO_CONNECTOR/.env
+  cat $PATH_TO_CONNECTOR/.env
 fi
 
-# exec nodemon packages/connectors/$1/server --ignore node_modules --inspect --exec babel-node -- packages/connectors/$1/server
-# exec pm2 --watch="../" --ignore-watch="node_modules" --interpreter=babel-node start ./packages/connectors/$1/server
-# exec pm2 --watch="../" --ignore-watch="node_modules" --interpreter=babel-node start ./pm2-start.js -- --connector=$1
-pm2 -f -i max start --watch="../packages" --ignore-watch="node_modules" ./pm2-start.js -- --connector=hull-processor 
-# exec nodemon packages/connectors/$1/server --ignore node_modules --ignore packages/connectors/$1/src --inspect --exec babel-node -- packages/connectors/$1/server
+# We use a cluster mode here to be closest to production setup. We don't want the max number for perf reasons though
+# We use pm2-start.js because you need to require Babel manually in cluster mode. `interpreter=babel-node` doesn't work.
+exec pm2 --watch="packages" -i 2 --ignore-watch="node_modules" --interpreter=babel-node start ./pm2-start.js -- --connector=$PATH_TO_CONNECTOR

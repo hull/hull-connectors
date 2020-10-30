@@ -3,14 +3,16 @@ import { Connector } from "../index";
 
 const { connector } = require("minimist")(process.argv.slice(2));
 
-const pwd = process.env.PWD;
+process.chdir(`${connector}/server`);
+
+const cwd = process.cwd();
 
 const customizer = (objValue, srcValue /* , key, object, source, stack */) =>
   _.isArray(objValue) ? objValue.concat(srcValue) : undefined;
 
 (async () => {
-  const manifestPath = `${pwd}/${connector}/manifest.json`;
-  const handlerPath = `${pwd}/${connector}/server`;
+  const manifestPath = `${cwd}/../manifest.json`;
+  const handlerPath = cwd;
   const manifest = await import(manifestPath);
   const { type } = manifest;
   console.log(`Loading lightweight connector of type ${type}`);

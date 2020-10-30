@@ -1,11 +1,13 @@
-const minimist = require("minimist");
-
 require("@babel/register")({
-  // cwd: __dirname,
   cache: false
 });
+
+const minimist = require("minimist");
+const path = require("path");
+
 const argv = minimist(process.argv);
 const connector = argv.connector;
-const dir = process.cwd() + "/packages/connectors/" + connector + "/server";
-process.chdir(dir);
-require(dir);
+const connectorFolder = path.join(process.cwd(), connector);
+const serverFolder = path.join(connectorFolder, "server");
+process.chdir(connectorFolder);
+require(serverFolder);
