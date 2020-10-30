@@ -2,7 +2,6 @@
 
 import type { HullConnectorConfig } from "hull";
 
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -15,8 +14,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: handlers({
+        handlers: handlers({
       clientID: MAILCHIMP_CLIENT_ID,
       clientSecret: MAILCHIMP_CLIENT_SECRET
     })

@@ -2,7 +2,6 @@
 
 import type { HullConnectorConfig } from "hull";
 import _ from "lodash";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -24,8 +23,7 @@ export default function connectorConfig(): HullConnectorConfig {
     "options.strategy.scope"
   );
   return {
-    manifest,
-    handlers: handlers({
+        handlers: handlers({
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
       signingSecret: SIGNING_SECRET,

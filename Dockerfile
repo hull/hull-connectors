@@ -77,4 +77,4 @@ COPY ./ /app/
 RUN yarn build
 
 # This is preferred over ENTRYPOINT as it allows to override the default command in docker run -it
-CMD [ "sh", "scripts/bash-entrypoint.sh" ]
+CMD [ "sh", "scripts/start-connector.sh" ]

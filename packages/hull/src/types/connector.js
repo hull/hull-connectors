@@ -152,7 +152,7 @@ export type HullConnectorConfig = {
     | (HullConnector => HullHandlersConfiguration),
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
-  manifest: HullManifest
+  manifest?: HullManifest
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
 };
 

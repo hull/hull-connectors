@@ -1,1 +1,3 @@
-exec pm2 delete all && killall -KILL ngrok
+exec pm2 flush all
+exec pm2 delete all 
+exec killall -KILL ngrok

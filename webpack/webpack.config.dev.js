@@ -3,22 +3,18 @@ const _ = require("lodash");
 const path = require("path");
 const webpack = require("webpack");
 const ProgressBarPlugin = require("progress-bar-webpack-plugin");
-
-const minimist = require("minimist");
-
-const argv = minimist(process.argv);
 const { env } = process;
-const { PORT = 8082 } = env;
+const { CONNECTOR, PORT = 8082 } = env;
 
 function devMode({ source, destination }) {
   const config = require("./webpack.config")({
     source: path.resolve(source),
     destination: path.resolve(destination),
     mode: "development"
-  });
-
+  }) || { entry: undefined, output: {}, plugins: [] };
   return {
     ...config,
+    // devtool: "eval-cheap-module-source-map",
     devServer: {
       hot: true,
       hotOnly: true,
@@ -34,7 +30,7 @@ function devMode({ source, destination }) {
       headers: { "Access-Control-Allow-Origin": "http://0.0.0.0" },
       contentBase: destination,
       watchOptions: {
-        ignored: [/node_modules/]
+        ignored: ["node_modules"]
       },
       historyApiFallback: {
         disableDotRule: true
@@ -45,18 +41,22 @@ function devMode({ source, destination }) {
         }
       }
     },
-    entry: _.reduce(
-      config.entry,
-      (m, v, k) => {
-        m[k] = ["webpack-dev-server/client?http://0.0.0.0", v];
-        return m;
-      },
-      {}
-    ),
+    optimization: {
+      moduleIds: "named"
+    },
+    entry: config.entry
+      ? _.reduce(
+          config.entry,
+          (m, v, k) => {
+            m[k] = ["webpack-dev-server/client?http://0.0.0.0", v];
+            return m;
+          },
+          {}
+        )
+      : {},
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
       ...config.plugins,
-      new webpack.NamedModulesPlugin(),
       new ProgressBarPlugin({ clear: false }),
       new webpack.NoEmitOnErrorsPlugin()
     ]
@@ -64,6 +64,7 @@ function devMode({ source, destination }) {
 }
 
 module.exports = devMode({
-  source: `${argv.source}/src`,
-  destination: `${argv.source}/dist`
+  source: `${CONNECTOR}/src`,
+  destination: `${CONNECTOR}/dist`
 });
+

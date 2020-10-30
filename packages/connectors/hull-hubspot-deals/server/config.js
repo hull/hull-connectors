@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 
 const _ = require("lodash");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
@@ -16,8 +15,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: new HullRouter({
+        handlers: new HullRouter({
       glue: require("./glue"),
       services: {
         hubspot: require("./service")({

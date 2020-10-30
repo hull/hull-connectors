@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 import hubspotWebhookHandler from "./handlers/hubspot-webhook-handler";
 
@@ -13,8 +12,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: handlers({
+        handlers: handlers({
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET
     }),

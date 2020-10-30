@@ -14,8 +14,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: new HullRouter({
+        handlers: new HullRouter({
       serviceName: "bigquery",
       glue: require("./glue"),
       services: {

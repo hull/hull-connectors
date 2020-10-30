@@ -2,11 +2,13 @@ module.exports = api => {
   api.cache(false);
   return {
     only: [
+      "packages/start.js",
       "root-babel-register.js",
       "packages/connectors/*/server",
       "packages/connectors/*/test",
       "packages/connectors/*/src",
       "packages/minihull/src",
+      "packages/hull/server",
       "packages/hull/src",
       "packages/hull/test",
       "packages/hull-vm/server",

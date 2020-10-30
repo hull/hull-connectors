@@ -3,7 +3,6 @@
 import type { HullConnectorConfig } from "hull";
 import Aws from "aws-sdk";
 import express from "express";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 const path = require("path");
@@ -52,8 +51,7 @@ export default function connectorConfig(): HullConnectorConfig {
       : { store: "memory" };
 
   return {
-    manifest,
-    cacheConfig: { store: "memory", ttl: 1 },
+        cacheConfig: { store: "memory", ttl: 1 },
     handlers: handlers(),
     middlewares: [
       // bodyParser.urlencoded({ extended: true }),

@@ -537,16 +537,12 @@ export default class HullConnector {
         backlog
         // exclusive: true
       },
-      () => debug("connector.server.listen", { port, backlog, maxConnections })
+      () => {
+        debug("connector.server.listen", { port, backlog, maxConnections });
+        console.log("Started connector", { port, backlog, maxConnections });
+      }
     );
     server.maxConnections = maxConnections;
-    app.use((req, res, next) => {
-      debug({
-        maxConnections: server.maxConnections,
-        _connections: server._connections
-      });
-      next();
-    });
     return server;
   }
 

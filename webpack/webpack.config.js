@@ -32,21 +32,18 @@ const getPlugins = ({ mode, assets, destination }) =>
         //   collections: true,
         //   paths: true
         // }),
-        new ESLintPlugin(),
+        // new ESLintPlugin(),
         new MiniCssExtractPlugin({ filename: "[name].css" }),
-        new CopyPlugin([
-          {
-            from: assets,
-            to: path.resolve(destination)
-          }
-        ])
+        new CopyPlugin({
+          patterns: [{ from: assets, to: path.resolve(destination) }]
+        })
       ]
     : [new MiniCssExtractPlugin({ filename: "[name].css" })];
 
 const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
-  devtool: mode === "production" ? "source-map" : "eval-source-map",
+  devtool: false,
   output: {
     path: path.resolve(destination),
     filename: "[name].js",
@@ -103,8 +100,14 @@ const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
         loader: "file-loader"
       },
       {
-        test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+        test: /\.s[ac]ss$/i,
+        use: [
+          MiniCssExtractPlugin.loader,
+          // Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader"
+        ]
       }
     ]
   },

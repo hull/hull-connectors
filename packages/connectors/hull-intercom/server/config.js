@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 
 /*
 const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
@@ -21,8 +20,7 @@ export default function connectorConfig(): HullConnectorConfig {
 
 
   return {
-    manifest,
-    handlers: new HullRouter({
+        handlers: new HullRouter({
       serviceName: "intercom",
       glue: require("./glue"),
       services: {

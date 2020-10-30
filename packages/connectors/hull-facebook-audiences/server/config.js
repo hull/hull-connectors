@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -20,8 +19,7 @@ export default function connectorConfig(): HullConnectorConfig {
   } = process.env;
   const hostSecret = SECRET || "1234";
   return {
-    manifest,
-    hostSecret,
+        hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: handlers({
