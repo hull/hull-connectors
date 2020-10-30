@@ -28,6 +28,7 @@ import type {
 const _ = require("lodash");
 const moment = require("moment");
 const slug = require("slug");
+const HubspotClient = require("../hubspot-client");
 
 const attributeFormatter = value => {
   if (Array.isArray(value)) {
@@ -45,6 +46,8 @@ class MappingUtil {
   connector: HullConnector;
 
   hullClient: Object;
+
+  hubspotClient: HubspotClient;
 
   logger: Object;
 
@@ -78,6 +81,7 @@ class MappingUtil {
     ctx,
     connector,
     hullClient,
+    hubspotClient,
     usersSegments,
     accountsSegments,
     hubspotContactProperties,
@@ -86,6 +90,7 @@ class MappingUtil {
     this.ctx = ctx;
     this.connector = connector;
     this.hullClient = hullClient;
+    this.hubspotClient = hubspotClient;
     this.logger = hullClient.logger;
     this.usersSegments = usersSegments;
     this.accountsSegments = accountsSegments;
@@ -130,7 +135,7 @@ class MappingUtil {
     this.companyIncomingMapping = incoming_account_attributes;
   }
 
-  mapToHubspotEntity(
+  async mapToHubspotEntity(
     hullObject: HullUserUpdateMessage | HullAccountUpdateMessage,
     serviceType: ServiceType
   ) {
@@ -209,8 +214,10 @@ class MappingUtil {
     return hullTraits;
   }
 
-  mapToHubspotContact(message: HullUserUpdateMessage): HubspotWriteContact {
-    const hubspotWriteProperties = this.mapToHubspotEntityProperties({
+  async mapToHubspotContact(
+    message: HullUserUpdateMessage
+  ): HubspotWriteContact {
+    const hubspotWriteProperties = await this.mapToHubspotEntityProperties({
       message,
       hullType: "user",
       serviceType: "contact",
@@ -231,8 +238,10 @@ class MappingUtil {
     return hubspotWriteContact;
   }
 
-  mapToHubspotCompany(message: HullAccountUpdateMessage): HubspotWriteCompany {
-    const hubspotWriteProperties = this.mapToHubspotEntityProperties({
+  async mapToHubspotCompany(
+    message: HullAccountUpdateMessage
+  ): HubspotWriteCompany {
+    const hubspotWriteProperties = await this.mapToHubspotEntityProperties({
       message,
       hullType: "account",
       serviceType: "company",
@@ -261,7 +270,7 @@ class MappingUtil {
     return hubspotWriteCompany;
   }
 
-  mapToHubspotEntityProperties({
+  async mapToHubspotEntityProperties({
     message,
     hullType,
     serviceType,
@@ -295,16 +304,31 @@ class MappingUtil {
     );
 
     // link to company
-    if (
-      serviceType === "contact" &&
-      this.outgoingLinking &&
-      message.account &&
-      message.account["hubspot/id"]
-    ) {
-      properties.push({
-        property: "associatedcompanyid",
-        value: message.account["hubspot/id"]
-      });
+    if (serviceType === "contact" && this.outgoingLinking && message.account) {
+      let companyId = message.account["hubspot/id"];
+      if (!companyId && message.account.domain) {
+        const domain = message.account.domain;
+        try {
+          const companyRes = await this.hubspotClient.postCompanyDomainSearch(
+            domain
+          );
+          const companies = _.get(companyRes, "body.results", []);
+          if (_.size(companies) === 1) {
+            companyId = companies[0].companyId;
+          }
+        } catch (error) {
+          this.logger.info("outgoing.user.error", {
+            message: "Unable search for linked company"
+          });
+        }
+      }
+
+      if (companyId) {
+        properties.push({
+          property: "associatedcompanyid",
+          value: companyId
+        });
+      }
     }
     return properties;
   }
