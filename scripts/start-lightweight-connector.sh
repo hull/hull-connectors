@@ -15,6 +15,6 @@ exec concurrently \
       "yarn ngrok $1" \
       "nodemon \
         --exec babel-node \
-          -- packages/hull/src/lightweight \
+          -- packages/hull-lightweight/server \
             --inspect \
             --connector=$PATH_TO_CONNECTOR"

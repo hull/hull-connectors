@@ -33,7 +33,7 @@ fi
 
 if [ "${CONNECTOR_TYPE:-}" == "lightweight" ]; then
   echo "Starting Lightweight connector $PATH_TO_CONNECTOR on PORT $PORT"
-  exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start dist/hull/src/lightweight --connector=$PATH_TO_CONNECTOR
+  exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start dist/hull-lightweight --connector=$PATH_TO_CONNECTOR
 else
   echo "Starting $PATH_TO_CONNECTOR on PORT $PORT";
   exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start "$PATH_TO_CONNECTOR/server"

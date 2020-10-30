@@ -30,6 +30,7 @@ COPY packages/hull-client/package.json /app/packages/hull-client/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
 COPY packages/hull-vm/package.json /app/packages/hull-vm/
 COPY packages/hull-webhooks/package.json /app/packages/hull-webhooks/
+# COPY packages/hull-lightweight/package.json /app/packages/hull-lightweight/
 COPY packages/hullrepl/package.json /app/packages/hullrepl/
 
 # CONNECTORS:

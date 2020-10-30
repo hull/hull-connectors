@@ -9,6 +9,7 @@
       "packages/hullrepl",
       "packages/hull-vm",
       "packages/hull-webhooks",
+      "packages/hull-lightweight",
       "packages/hull",
       "packages/hull-client",
       "packages/minihull"
@@ -35,7 +36,7 @@
     "start": "PORT=8080 bash scripts/bash-entrypoint.sh",
     "start:lightweight": "PORT=8080 CONNECTOR_TYPE=lightweight bash scripts/bash-entrypoint.sh",
     "combined": "sh scripts/combined-start.sh",
-    "combined:lightweight": "sh scripts/lightweight-start.sh",
+    "combined:lightweight": "PORT=8080 sh scripts/start-lightweight-connector.sh",
     "stop": "sh scripts/stop-dev-connector.sh",
     "build:client": "sh scripts/build-webpack-project.sh",
     "ngrok": "sh scripts/ngrok.sh",

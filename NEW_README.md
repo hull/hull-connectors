@@ -1278,7 +1278,7 @@ LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
 
 
 ## Lightweight Connectors
-- checkout the `packages/hull/src/lightweight folder for details on how it works.
+- checkout the `packages/hull-lightweight folder for details on how it works.
 
 - Start in Dev with:
 ```
@@ -1304,4 +1304,4 @@ A few details:
   - `user-processor`
 
 - environment variables (or .env) MUST contain a `SECRET`
-- You can create new lightweight packages by looking at `packages/hull/src/lightweight` subfolders. For now, only `incoming-webhooks` exist
+- You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `incoming-webhooks` exist
