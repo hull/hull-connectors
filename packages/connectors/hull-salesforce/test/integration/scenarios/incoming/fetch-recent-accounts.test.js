@@ -38,7 +38,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -128,11 +128,6 @@ describe("Fetch Accounts Tests", () => {
             ],
             "account_claims": [
               {
-                "hull": "domain",
-                "service": "Website",
-                "required": false
-              },
-              {
                 "hull": "external_id",
                 "service": "CustomIdentifierField",
                 "required": false
@@ -164,6 +159,7 @@ describe("Fetch Accounts Tests", () => {
                     "type": "Account",
                     "url": "/services/data/v39.0/sobjects/Account/0011I000007Cy18QAC"
                   },
+                  "CustomIdentifierField": "1234",
                   "Id": "0011I000007Cy18QAC",
                   "Website": "krakowtraders.pl",
                   "Name": "Krakow Trades",
@@ -209,15 +205,11 @@ describe("Fetch Accounts Tests", () => {
             "incoming.account.success",
             {
               "subject_type": "account",
-              "account_domain": "krakowtraders.pl",
+              "account_external_id": "1234",
               "account_anonymous_id": "salesforce:0011I000007Cy18QAC"
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -244,16 +236,12 @@ describe("Fetch Accounts Tests", () => {
             "traits",
             {
               "asAccount": {
-                "domain": "krakowtraders.pl",
+                "external_id": "1234",
                 "anonymous_id": "salesforce:0011I000007Cy18QAC"
               },
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -284,7 +272,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -461,10 +449,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -498,10 +482,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -532,7 +512,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -726,10 +706,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -751,10 +727,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -776,10 +748,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -812,10 +780,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -836,10 +800,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -860,10 +820,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"

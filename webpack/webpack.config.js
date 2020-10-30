@@ -2,6 +2,7 @@ const glob = require("glob");
 const webpack = require("webpack");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const _ = require("lodash");
 
@@ -31,6 +32,7 @@ const getPlugins = ({ mode, assets, destination }) =>
         //   collections: true,
         //   paths: true
         // }),
+        new ESLintPlugin(),
         new MiniCssExtractPlugin({ filename: "[name].css" }),
         new CopyPlugin([
           {
@@ -44,7 +46,7 @@ const getPlugins = ({ mode, assets, destination }) =>
 const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
-  devtool: mode === "production" ? "source-map" : "inline-source-map",
+  devtool: mode === "production" ? "source-map" : "eval-source-map",
   output: {
     path: path.resolve(destination),
     filename: "[name].js",
@@ -66,10 +68,27 @@ const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: "babel-loader?cacheDirectory",
           options: {
             presets: [
-              ["@babel/preset-env", { modules: false }],
+              [
+                "@babel/preset-env",
+                {
+                  modules: false,
+                  useBuiltIns: "usage",
+                  corejs: 3,
+                  targets: {
+                    browsers: [
+                      "last 2 versions",
+                      "Firefox ESR",
+                      "> 1%",
+                      "ie >= 10",
+                      "iOS >= 8",
+                      "Android >= 4"
+                    ]
+                  }
+                }
+              ],
               "@babel/preset-react"
             ],
             plugins: ["lodash", "react-hot-loader/babel"]
@@ -98,6 +117,5 @@ module.exports = ({ assets, source, destination, mode }) => {
     return undefined;
   }
 
-  console.log(`${process.cwd()}/packages`);
   return buildConfig({ assets, files, destination, mode });
 };

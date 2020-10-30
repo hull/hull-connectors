@@ -1,5 +1,10 @@
 // @flow
-import type { HullConnector, HullContext } from "hull";
+import type { HullConnector, HullContext, HullUserUpdateMessage } from "hull";
+
+import type {
+  HullAccountSegment,
+  HullUserSegment
+} from "hull-client/src/types";
 import type {
   FilterUtilResults,
   HubspotUserUpdateMessageEnvelope,
@@ -18,6 +23,18 @@ class FilterUtil {
     this.isBatch = ctx.isBatch;
   }
 
+  hullEntityInSegment(
+    entitySegments: Array<HullUserSegment | HullAccountSegment>,
+    segmentInclusionList: Array<string>
+  ): boolean {
+    return (
+      _.intersection(
+        segmentInclusionList,
+        entitySegments.map(s => s.id)
+      ).length > 0
+    );
+  }
+
   isUserWhitelisted(envelope: HubspotUserUpdateMessageEnvelope): boolean {
     const segmentIds =
       (this.connector.private_settings &&
@@ -25,12 +42,7 @@ class FilterUtil {
           this.connector.private_settings.synchronized_segments)) ||
       [];
     if (Array.isArray(envelope.message.segments)) {
-      return (
-        _.intersection(
-          segmentIds,
-          envelope.message.segments.map(s => s.id)
-        ).length > 0
-      );
+      return this.hullEntityInSegment(envelope.message.segments, segmentIds);
     }
     return false;
   }
@@ -41,14 +53,26 @@ class FilterUtil {
         this.connector.private_settings.synchronized_account_segments) ||
       [];
     if (Array.isArray(envelope.message.account_segments)) {
-      return (
-        _.intersection(
-          segmentIds,
-          envelope.message.account_segments.map(s => s.id)
-        ).length > 0
+      return this.hullEntityInSegment(
+        envelope.message.account_segments,
+        segmentIds
       );
     }
     return false;
+  }
+
+  filterVisitorMessages(messages: Array<HullUserUpdateMessage>) {
+    if (this.isBatch) {
+      return messages;
+    }
+    return _.filter(messages, message => {
+      const { segments = [] } = message;
+
+      const segmentsInclusionList = this.connector.private_settings
+        .synchronized_visitor_segments;
+
+      return this.hullEntityInSegment(segments, segmentsInclusionList);
+    });
   }
 
   filterUserUpdateMessageEnvelopes(
@@ -110,11 +134,8 @@ class FilterUtil {
         return filterUtilResults.toUpdate.push(envelope);
       }
 
-      if (
-        typeof envelope.message.account.domain !== "string" ||
-        envelope.message.account.domain.trim() === ""
-      ) {
-        envelope.skipReason = "Account doesn't have value for domain";
+      if (_.isNil(envelope.message.account.domain)) {
+        envelope.skipReasonLog = "Account doesn't have value for domain";
         return filterUtilResults.toSkip.push(envelope);
       }
 

@@ -83,6 +83,14 @@ class FrameworkUtils {
     return console.log(`PRINT: ${JSON.stringify(params)}`);
   }
 
+  logError(context: Object, params: any) {
+    context.client.logger.error(JSON.stringify(params));
+  }
+
+  logInfo(context: Object, params: any) {
+    context.client.logger.info(JSON.stringify(params));
+  }
+
 }
 module.exports = {
   FrameworkUtils

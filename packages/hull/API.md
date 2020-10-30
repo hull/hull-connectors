@@ -1147,6 +1147,8 @@ HullClient instance constructor - creates new instance to perform API calls, iss
     -   `config.prefix` **[string][2]** prefix of Hull REST API, override for testing only (optional, default `/api/v1`)
     -   `config.logs` **[Array][5]?** an optional array to capture all logs entries, you can provide your own array or use `captureLogs` to initiate empty one
     -   `config.firehoseEvents` **[Array][5]?** an optional array to capture all firehose events, you can provide your own array or use `captureFirehoseEvents` to initiate empty one
+    -   `config.trackingOnly` **[boolean][4]?** an optional param to disable all calls to REST API and allow to initialize the client without a secret
+    -   `config.firehoseTransport` **[Object][1]?** an optional param to override the default HTTP transport for Firehose. Only alternative supported transport is KafkaTransport. 
 
 ### Examples
 

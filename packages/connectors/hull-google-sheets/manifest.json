@@ -10,7 +10,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.36-monorepo",
   "json": [
     {
       "name": "credentials",
@@ -54,12 +54,15 @@
     }
   ],
   "html": [],
-  "status": {
-    "url": "/status",
-    "handler": "statusHandler",
-    "type": "cron",
-    "value": "*/30 * * * *"
-  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ],
   "settings_sections": [
     {
       "title": "Credentials",

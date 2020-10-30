@@ -26,7 +26,10 @@ const filterEvents = (
   whitelist: Array<string>
 ) =>
   events.filter(
-    event => whitelist.includes("ALL") || whitelist.includes(event.event)
+    event =>
+      whitelist.includes("all_events") ||
+      whitelist.includes("ALL") ||
+      whitelist.includes(event.event)
   );
 
 const filterNew = (isNew: boolean, whitelist: boolean) => isNew === whitelist;

@@ -64,7 +64,7 @@ it("should skip user who doesn't match the filter", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, in_time: 30000, size: 50, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [

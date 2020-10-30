@@ -1,7 +1,7 @@
 {
   "name": "hull-processor",
   "description": "Run code to update User Properties and generate Events",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.36-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",

@@ -42,9 +42,6 @@ describe("Clearbit Prospector Tests", () => {
     externalApiMock: () => {},
     response: {
       flow_control: {
-        in: 5,
-        in_time: 10,
-        size: 10,
         type: "next"
       }
     },
@@ -68,12 +65,12 @@ describe("Clearbit Prospector Tests", () => {
       externalApiMock: () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["ceo", "head of marketing"]
+            titles: { "": ["ceo", "head of marketing"] }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -189,12 +186,12 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["ceo", "head of marketing"]
+            titles: { "": ["ceo", "head of marketing"] }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -319,12 +316,12 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["vp sales"]
+            titles: { "": "vp sales" }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -453,16 +450,16 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["vp sales"],
-            cities: ["san francisco"],
-            states: ["california"],
-            roles: ["communications"],
-            seniorities: ["director"]
+            titles: { "": "vp sales" },
+            cities: { "": "san francisco" },
+            states: { "": "california" },
+            roles: { "": "communications" },
+            seniorities: { "": "director" }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;

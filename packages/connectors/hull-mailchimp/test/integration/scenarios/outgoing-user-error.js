@@ -86,9 +86,7 @@ it("should log member info when failure in sending user to mailchimp", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 10,
-          in_time: 30000,
-          size: 50
+          in_time: 30000
         }
       },
       logs: [

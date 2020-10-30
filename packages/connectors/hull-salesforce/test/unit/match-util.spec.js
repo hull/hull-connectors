@@ -814,7 +814,9 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
+    const identityClaims = [{ service: "Email", hull: "email" }]
+
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts, identityClaims);
 
     expect(matches).toEqual([]);
   });
@@ -837,7 +839,9 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
+    const identityClaims = [{ service: "Email", hull: "email" }]
+
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts, identityClaims);
 
     expect(matches).toEqual([{
       Id: "0011GA0000BQjT1QHA",

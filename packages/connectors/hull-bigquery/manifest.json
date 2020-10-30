@@ -1,0 +1,176 @@
+{
+  "name": "Bigquery",
+  "description": "Import data from any BigQuery query",
+  "source": "bigquery",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.36-monorepo",
+  "tags": [
+    "incoming",
+    "first-install"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": false,
+        "name": "Bigquery",
+        "strategy": {
+          "skipUserProfile": true,
+          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
+          "tokenURL": "https://oauth2.googleapis.com/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "https://www.googleapis.com/auth/bigquery"
+          ]
+        }
+      }
+    },
+    {
+      "name": "project_id",
+      "title": "Project ID",
+      "description": "Google cloud project id",
+      "type": "string",
+      "url": "/get-projects",
+      "format": "select",
+      "options": {
+        "loadOptions": "/get-projects",
+        "allowCreate": false,
+        "placeholder": "Select Google project to work with"
+      }
+    },
+    {
+      "name": "import_type",
+      "title": "Import type",
+      "description": "What do you want to import to Hull ?",
+      "type": "string",
+      "enum": [
+        "users",
+        "accounts",
+        "events"
+      ],
+      "default": "users",
+      "required": true
+    },
+    {
+      "name": "query",
+      "title": "Query",
+      "type": "string",
+      "required": true,
+      "description": "The query that the connector will execute in Bigquery. Please paste a valid query that you have written and tested in Bigquery's editor."
+    },
+    {
+      "name": "import_interval",
+      "title": "Import interval",
+      "description": "Define here the amount of time (in minutes) between imports.",
+      "type": "string",
+      "default": "180",
+      "enum": [
+        "30",
+        "60",
+        "180",
+        "360",
+        "720",
+        "1440",
+        "43800"
+      ]
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "incoming": [],
+  "json": [
+    {
+      "name": "manual_import",
+      "url": "/manual-import",
+      "format": "action",
+      "handler": "manualImport",
+      "title": "Manual import",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to execute the currently saved query and import its results. Confirm?",
+          "button": "Start import"
+        }
+      }
+    },
+    {
+      "url" : "/get-projects",
+      "handler": "getProjects"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/import",
+      "type": "interval",
+      "handler": "import",
+      "value_from": "private_settings.import_interval",
+      "default": "180",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/check-job",
+      "handler": "checkJob",
+      "type": "interval",
+      "value": "5",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "subscriptions": [],
+  "batches": [],
+  "settings_sections": [
+    {
+      "title": "Authentication",
+      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Select project",
+      "description": "Select the google project you'd like to work on. The connector will create jobs associated to this project.",
+      "properties": [
+        "private_settings.project_id"
+      ]
+    },
+    {
+      "title": "Import Setup",
+      "description": "Basic setup for the Bigquery connector.",
+      "properties": [
+        "private_settings.import_type",
+        "private_settings.import_interval",
+        "private_settings.query",
+        "json.manual_import"
+      ]
+    }
+  ]
+}

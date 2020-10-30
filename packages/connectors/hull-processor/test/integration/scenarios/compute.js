@@ -924,7 +924,7 @@ describe("Request Methods", () => {
         const scope = nock("https://foo.com");
         scope
           .get("/")
-          .socketDelay(35000)
+          .delayConnection(35000)
           .reply(500, { boom: true });
         return scope;
       },

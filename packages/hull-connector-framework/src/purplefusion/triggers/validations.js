@@ -21,12 +21,22 @@ const getSegmentIds = (segments: Array<HullSegment>) => [
   ..._.map(segments, "id")
 ];
 
+const getEventNames = (events: Array<HullEvent>) => [
+  "ALL",
+  "all_events",
+  ..._.map(events, "event")
+];
+
 const intersectionWithSegment = (
   segments: Array<HullSegment>,
   list: Array<string>
 ) => _.intersection(getSegmentIds(segments), list);
 
-// TODO: generate global whitelist from whitelist
+const intersectionWithEvent = (
+  events: Array<HullEvent>,
+  list: Array<string>
+) => _.intersection(getEventNames(events), list);
+
 const validateChanges: HullTriggerValidationFunction = (
   changes: $PropertyType<
     $PropertyType<HullUserUpdateMessage, "changes">,
@@ -35,15 +45,13 @@ const validateChanges: HullTriggerValidationFunction = (
   whitelist: Array<string>
 ): boolean %checks => !_.isEmpty(_.intersection(whitelist, _.keys(changes)));
 
-// TODO: generate global whitelist from whitelist
 const validateEvents: HullTriggerValidationFunction = (
   events: Array<HullEvent>,
   whitelist: Array<string>
 ): boolean %checks =>
-  !_.isEmpty(_.intersection(whitelist, _.map(events, "event")));
+  !_.isEmpty(intersectionWithEvent(events, whitelist));
 
 // TODOANDY -> is this a custom entry? We already use `ALL` as a value everywhere else.
-// TODO: generate global whitelist from whitelist
 const validateSegments: HullTriggerValidationFunction = (
   segments: Array<HullSegment>,
   whitelist: Array<string>
@@ -65,7 +73,7 @@ const isValidSubEntity = (
   whitelist: HullTriggerList
 ): boolean %checks =>
   _.every(rules, rule => {
-    // TODOANY: Whitelisst could be a boolean, yet we assume in every validation function that it's an array of string...
+    // TODO: Whitelist could be a boolean/undefined/..., yet we assume in every validation function that it's an array of string...
     if (typeof rule === "function" && Array.isArray(whitelist)) {
       return rule(entity, whitelist);
     }

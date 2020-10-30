@@ -27,4 +27,3 @@ exports.config = {
     ignore_status_codes: [404, 402]
   }
 };
-

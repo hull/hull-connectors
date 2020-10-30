@@ -1,4 +1,5 @@
 /* @flow */
+import promiseToReadableStream from "hull/src/utils/promise-to-readable-stream";
 import type {
   IServiceClient,
   IApiResultObject,
@@ -17,9 +18,12 @@ import type {
 
 import type { TAssignmentRule } from "./service-client/assignmentrules";
 
+// eslint-disable-next-line no-unused-vars
+const { pipeStreamToPromise } = require("hull/src/utils");
 const _ = require("lodash");
 const events = require("events");
 const Promise = require("bluebird");
+const moment = require("moment");
 
 const Connection = require("./service-client/connection");
 const {
@@ -92,31 +96,38 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     this.queryUtil = new QueryUtil();
   }
 
-  // eslint-disable-next-line no-unused-vars
-  getSoqlQuery(
+  getSoqlQuery({
+    type,
+    fields,
+    identityClaims,
+    fetchToDate
+  }): {
     type: TResourceType,
     fields: Array<string>,
-    accountClaims: Array<Object>
-  ): string {
+    identityClaims: Array<Object>,
+    fetchToDate: string
+  } {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
       type,
       fields,
-      accountClaims
+      identityClaims
     );
 
-    let query = `SELECT ${selectFields} FROM ${type}`;
-    if (
-      type === "Account" &&
-      !_.isNil(requiredFields) &&
-      requiredFields.length > 0
-    ) {
-      query += ` WHERE ${requiredFields[0]} != null`;
+    let query = `SELECT ${selectFields} FROM ${type} WHERE Id != NULL`;
 
-      for (let i = 1; i < requiredFields.length; i += 1) {
+    if (!_.isNil(fetchToDate)) {
+      query += ` AND LastModifiedDate >= ${fetchToDate}`;
+    }
+
+    if (!_.isNil(requiredFields) && requiredFields.length > 0) {
+      for (let i = 0; i < requiredFields.length; i += 1) {
         const requiredField = requiredFields[i];
         query += ` AND ${requiredField} != null`;
       }
     }
+
+    query += " ORDER BY LastModifiedDate DESC";
+
     return query;
   }
 
@@ -126,7 +137,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @param type
    * @param {string[]} identifiers The list of identifiers.
    * @param {string[]} fields The list of fields.
-   * @param accountClaims
+   * @param identityClaims
    * @param options
    * @returns {Promise<any[]>} A list of Salesforce objects.
    * @memberof SalesforceClient
@@ -136,7 +147,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     type: TResourceType,
     identifiers: string[],
     fields: string[],
-    accountClaims: Array<Object>,
+    identityClaims: Array<Object>,
     options: Object = {}
   ): Promise<any[]> {
     const executeQuery = _.get(options, "executeQuery", "query");
@@ -144,15 +155,13 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
       type,
       fields,
-      accountClaims
+      identityClaims
     );
     let query = `SELECT ${selectFields} FROM ${type} WHERE Id IN (${idsList})`;
 
-    if (type === "Account") {
-      _.forEach(requiredFields, requiredField => {
-        query += ` AND ${requiredField} != null`;
-      });
-    }
+    _.forEach(requiredFields, requiredField => {
+      query += ` AND ${requiredField} != null`;
+    });
     return this.exec(executeQuery, query).then(({ records }) => records);
   }
 
@@ -376,40 +385,109 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     });
   }
 
-  getAllRecords(
+  async saveRecords(records, onRecord) {
+    const chunks = _.chunk(records, FETCH_CHUNKSIZE);
+    await Promise.map(chunks, async chunk => {
+      return Promise.all(chunk.map(record => onRecord(record)));
+    });
+  }
+
+  async getAllRecords(
     type: TResourceType,
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const fields = options.fields || [];
-    const accountClaims = options.account_claims || [];
-    const progressFrequency = 0.1; // log progress every 10% of fetch
-    let progressIncrement = null;
-    return new Promise((resolve, reject) => {
-      const soql = this.getSoqlQuery(type, fields, accountClaims);
+    const { fields = [], identityClaims = [], fetchDaysBack } = options;
+    let fetchToDate;
+    if (fetchDaysBack) {
+      fetchToDate = moment()
+        .subtract({ days: fetchDaysBack })
+        .toISOString();
+    }
+    const query = this.getSoqlQuery({
+      type,
+      fields,
+      identityClaims,
+      fetchToDate
+    });
+    return this.fetchRecords({ query }, type, onRecord);
+  }
 
-      const query = this.connection
-        .query(soql)
-        .on("record", (record, numRecord, executingQuery) => {
-          const { totalFetched, totalSize } = executingQuery;
+  async fetchRecords(
+    queryOptions: Object,
+    type: string,
+    onRecord: Function,
+    fetchProgress: Object = {}
+  ) {
+    let { progress = 0, totalSize } = fetchProgress;
+    const retries = 3;
+    const result = await this.queryAllRecords(queryOptions, retries);
 
-          if (_.isNil(progressIncrement)) {
-            progressIncrement = Math.ceil(totalSize * progressFrequency);
-          }
+    if (_.isNil(result) || _.isEmpty(result)) {
+      return Promise.reject(new Error("Salesforce Result Set Not Found"));
+    }
 
-          // eslint-disable-next-line
-          const showProgress = totalFetched % progressIncrement === 0 || totalFetched === totalSize;
-          return showProgress
-            ? onRecord(record, { totalFetched, totalSize })
-            : onRecord(record);
-        })
-        .on("end", () => {
-          resolve({ query, type, fields });
-        })
-        .on("error", err => {
-          reject(err);
-        })
-        .run({ autoFetch: true, maxFetch: 500000 });
+    const records = result.records;
+    const done = result.done;
+    const nextRecordsUrl = result.nextRecordsUrl;
+
+    if (!totalSize) {
+      totalSize = result.totalSize;
+    }
+
+    progress += _.size(records);
+    this.logger.info("incoming.job.progress", {
+      jobName: `fetch-all-${_.toLower(type)}s`,
+      progress: `${progress} / ${totalSize}`
+    });
+
+    await this.saveRecords(records, onRecord);
+
+    if (!done && nextRecordsUrl) {
+      return this.fetchRecords({ nextRecordsUrl }, type, onRecord, {
+        progress,
+        totalSize
+      });
+    }
+
+    return Promise.resolve("done");
+  }
+
+  queryAllRecords(queryOptions: Object, retries: number): Promise<*> {
+    const { query, nextRecordsUrl } = queryOptions;
+    try {
+      return _.isNil(nextRecordsUrl)
+        ? this.connection.query(query)
+        : this.connection.queryMore(nextRecordsUrl);
+    } catch (error) {
+      if (retries > 0) {
+        this.logger.info("incoming.job.progress", {
+          retries,
+          retry: _.isNil(nextRecordsUrl) ? query : nextRecordsUrl
+        });
+        retries -= 1;
+        return this.queryAllRecords(queryOptions, retries);
+      }
+      return Promise.reject(error);
+    }
+  }
+
+  getIncomingStream(query: string, page: ?string = null) {
+    const getAllEntities = this.queryAllRecords.bind(this);
+
+    function getAllEntitiesPage(push, soqlQuery, nextPage) {
+      return getAllEntities(query, nextPage).then(response => {
+        const { records, done, nextRecordsUrl } = response;
+        push(records);
+        if (!done && nextRecordsUrl) {
+          return getAllEntitiesPage(push, soqlQuery, nextRecordsUrl);
+        }
+        return Promise.resolve();
+      });
+    }
+
+    return promiseToReadableStream(push => {
+      return getAllEntitiesPage(push, query, page);
     });
   }
 
@@ -419,8 +497,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const fields = options.fields || [];
-    const accountClaims = options.account_claims || [];
+    const { fields = [], identityClaims = [] } = options;
     const chunks = _.chunk(ids, FETCH_CHUNKSIZE);
 
     return Promise.map(
@@ -430,7 +507,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
           type,
           chunk,
           fields,
-          accountClaims,
+          identityClaims,
           options
         ).then(records => {
           this.metricsClient.increment(

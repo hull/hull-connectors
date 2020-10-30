@@ -25,18 +25,23 @@ it("should update user", () => {
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("http://api.datanyze.com");
-        scope.get("/limits/?token=datanyzeABC&email=datanyzeDEF")
+        scope
+          .get("/limits/?token=datanyzeABC&email=datanyzeDEF")
           .reply(200, {});
 
-        scope.get("/domain_info/?token=datanyzeABC&email=datanyzeDEF&domain=foo.bar&tech_details=true")
+        scope
+          .get(
+            "/domain_info/?token=datanyzeABC&email=datanyzeDEF&domain=foo.bar&tech_details=true"
+          )
           .reply(200, {
             foo: "bar",
             mobile: { crazy: "Stuff" },
             technologies: [
               {
-                name: "scala",
-              }, {
-                name: "react",
+                name: "scala"
+              },
+              {
+                name: "react"
               }
             ]
           });
@@ -56,9 +61,6 @@ it("should update user", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -67,9 +69,9 @@ it("should update user", () => {
           "info",
           "outgoing.user.start",
           {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "foo@bar.com"
+            subject_type: "user",
+            request_id: expect.whatever(),
+            user_email: "foo@bar.com"
           },
           undefined
         ],
@@ -77,45 +79,45 @@ it("should update user", () => {
           "debug",
           "datanyze.request",
           {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "foo@bar.com"
+            subject_type: "user",
+            request_id: expect.whatever(),
+            user_email: "foo@bar.com"
           },
           {
-            "path": "limits"
+            path: "limits"
           }
         ],
         [
           "debug",
           "datanyze.request",
           {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "foo@bar.com"
+            subject_type: "user",
+            request_id: expect.whatever(),
+            user_email: "foo@bar.com"
           },
           {
-            "path": "domain_info",
-            "domain": "foo.bar",
-            "tech_details": true
+            path: "domain_info",
+            domain: "foo.bar",
+            tech_details: true
           }
         ],
         [
           "debug",
           "outgoing.user.fetch.response",
           {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "foo@bar.com"
+            subject_type: "user",
+            request_id: expect.whatever(),
+            user_email: "foo@bar.com"
           },
           {
-            "response": {
-              "foo": "bar",
-              "technologies": [
+            response: {
+              foo: "bar",
+              technologies: [
                 {
-                  "name": "scala"
+                  name: "scala"
                 },
                 {
-                  "name": "react"
+                  name: "react"
                 }
               ]
             }
@@ -125,9 +127,9 @@ it("should update user", () => {
           "info",
           "outgoing.user.success",
           {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "foo@bar.com"
+            subject_type: "user",
+            request_id: expect.whatever(),
+            user_email: "foo@bar.com"
           },
           undefined
         ]
@@ -136,26 +138,23 @@ it("should update user", () => {
         [
           "traits",
           {
-            "asUser": {
-              "email": "foo@bar.com"
+            asUser: {
+              email: "foo@bar.com"
             },
-            "subjectType": "user"
+            subjectType: "user"
           },
           {
             "datanyze/foo": "bar",
-            "datanyze/technologies": [
-              "scala",
-              "react"
-            ],
+            "datanyze/technologies": ["scala", "react"],
             "datanyze/fetched_at": expect.whatever()
           }
         ]
       ],
       metrics: [
-        ["increment","connector.request",1],
-        ["value","ship.service_api.remaining",expect.whatever()],
-        ["increment","ship.service_api.call",1],
-        ["increment","ship.outgoing.users",1]
+        ["increment", "connector.request", 1],
+        ["value", "ship.service_api.remaining", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["increment", "ship.outgoing.users", 1]
       ],
       platformApiCalls: []
     };

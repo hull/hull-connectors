@@ -12,7 +12,7 @@ class MailchimpAgent {
   constructor(mailchimpClient, ctx) {
     this.mailchimpClient = mailchimpClient;
     this.client = ctx.client;
-    this.ship = ctx.ship;
+    this.ship = ctx.connector;
     this.cache = ctx.cache;
     this.listId = _.get(ctx.connector, "private_settings.mailchimp_list_id");
 

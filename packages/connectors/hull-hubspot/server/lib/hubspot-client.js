@@ -517,6 +517,58 @@ class HubspotClient {
       .send(property)
       .then(res => res.body);
   }
+
+  getCompanyById(companyId: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/companies/v2/companies/{{companyId}}")
+        .tmplVar({
+          companyId
+        })
+        .then(response => response.body);
+    });
+  }
+
+  getCompanyByDomain(domain: string): Promise<*> {
+    return this.postCompanyDomainSearch(domain).then(response => response.body);
+  }
+
+  getContactByEmail(email: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/email/{{email}}/profile")
+        .tmplVar({
+          email
+        })
+        .then(response => response.body);
+    });
+  }
+
+  getContactById(contactId: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/vid/{{contactId}}/profile")
+        .tmplVar({
+          contactId
+        })
+        .then(response => response.body);
+    });
+  }
+
+  getVisitor(utk: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/utk/{{utk}}/profile")
+        .tmplVar({
+          utk
+        })
+        .then(response => response.body);
+    });
+  }
+
+  sendEvent(event): Promise<*> {
+    return superagent.get("https://track.hubspot.com/v1/event").query(event);
+  }
 }
 
 module.exports = HubspotClient;

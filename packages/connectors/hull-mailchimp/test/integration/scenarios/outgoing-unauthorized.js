@@ -64,9 +64,7 @@ it("Api token invalid", () => {
       response: {
         flow_control: {
           type: "retry",
-          in: 10,
-          in_time: 30000,
-          size: 50
+          in_time: 30000
         }
       },
       logs: [

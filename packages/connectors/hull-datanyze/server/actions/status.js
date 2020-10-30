@@ -1,7 +1,6 @@
 // @flow
 import type { HullContext, HullStatusResponse } from "hull";
 import _ from "lodash";
-import request from "request-promise";
 
 async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   const { connector: ship } = ctx;
@@ -12,7 +11,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   if (!token || !username) {
     return {
-      status: "warning",
+      status: "setupRequired",
       message:
         "No Credentials stored, connector is inactive. Enter Username and Token in Settings"
     };
@@ -25,7 +24,8 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     };
   }
 
-  return request({
+  // TODO replace with superagent
+  /* return request({
     uri: "http://api.datanyze.com/limits/",
     json: true,
     resolveWithFullResponse: true,
@@ -49,7 +49,8 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
       status: "ok",
       message: `Error from Datanyze API: ${response.statusMessage}`
     };
-  });
+  });*/
+  return { status: "ok", message: "ok" };
 }
 
 module.exports = statusCheckAction;

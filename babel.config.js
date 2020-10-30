@@ -1,7 +1,8 @@
 module.exports = api => {
-  api.cache.never();
+  api.cache(false);
   return {
     only: [
+      "root-babel-register.js",
       "packages/connectors/*/server",
       "packages/connectors/*/test",
       "packages/connectors/*/src",
@@ -29,6 +30,7 @@ module.exports = api => {
       ]
     ],
     plugins: [
+      ["dynamic-import-node", { noInterop: true }],
       "@babel/plugin-proposal-optional-chaining",
       "@babel/plugin-syntax-export-default-from",
       "@babel/plugin-transform-runtime",

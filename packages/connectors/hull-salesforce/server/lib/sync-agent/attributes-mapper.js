@@ -8,6 +8,7 @@ const {
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const _ = require("lodash");
+
 const { SUPPORTED_RESOURCE_TYPES, IAttributesMapper } = require("../types");
 
 const TOPLEVEL_ATTRIBUTES = {
@@ -19,10 +20,7 @@ const TOPLEVEL_ATTRIBUTES = {
     { service: "FirstName", hull: "first_name" },
     { service: "LastName", hull: "last_name" }
   ],
-  Account: [
-    { service: "Name", hull: "name" },
-    { service: "Website", hull: "domain" }
-  ],
+  Account: [{ service: "Name", hull: "name" }],
   Task: []
 };
 
@@ -43,6 +41,17 @@ function createAttributeName(
   return `${salesforceField
     .replace("traits_", "")
     .replace(/_created$/, "_created_at")}`;
+}
+
+function getIdentityClaimsKey(resourceType) {
+  if (resourceType === "Account") {
+    return "account";
+  }
+  if (resourceType === "Lead") {
+    return "lead";
+  }
+
+  return "user";
 }
 
 /**
@@ -75,23 +84,24 @@ class AttributesMapper implements IAttributesMapper {
     this.mappingsOutbound = {};
     this.mappingsInbound = {};
 
-    this.addAccountClaimsToOutgoingAttributes(connectorSettings);
-
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
-      _.set(
-        this.mappingsOutbound,
-        r,
-        _.cloneDeep(
-          _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`)
-        )
+      const attribPrefix =
+        r === "Account" ? "salesforce" : `salesforce_${r.toLowerCase()}`;
+      const claimsKey = getIdentityClaimsKey(r);
+      const outgoingAttributes = _.cloneDeep(
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
       );
-      _.set(
-        this.mappingsInbound,
-        r,
-        _.cloneDeep(
-          _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`)
-        )
+      const incomingAttributes = _.cloneDeep(
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`, [])
       );
+      const claims = _.cloneDeep(
+        _.get(connectorSettings, `${claimsKey}_claims`, [])
+      );
+
+      _.set(this.mappingsOutbound, r, _.concat(claims, outgoingAttributes));
+
+      incomingAttributes.push({ service: "Id", hull: `${attribPrefix}/id` });
+      _.set(this.mappingsInbound, r, incomingAttributes);
     });
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
@@ -138,40 +148,6 @@ class AttributesMapper implements IAttributesMapper {
       }
     }
     return sfdcValue;
-  }
-
-  addAccountClaimsToOutgoingAttributes(connectorSettings: any) {
-    const accountClaimHullFields = _.get(
-      connectorSettings,
-      "account_claims",
-      []
-    );
-    const account_attributes_outbound = _.get(
-      connectorSettings,
-      "account_attributes_outbound",
-      []
-    );
-    const accountOutgoingHullFields = _.map(
-      account_attributes_outbound,
-      "hull"
-    );
-
-    const missingOutgoingAccountClaims = _.filter(
-      accountClaimHullFields,
-      accountClaim => {
-        const hullField = accountClaim.hull;
-        return !_.includes(accountOutgoingHullFields, hullField);
-      }
-    );
-
-    _.forEach(missingOutgoingAccountClaims, accountClaim => {
-      const account_attribute_outbound = {
-        hull: accountClaim.hull,
-        service: accountClaim.service,
-        overwrite: false
-      };
-      account_attributes_outbound.push(account_attribute_outbound);
-    });
   }
 
   /**
@@ -287,10 +263,6 @@ class AttributesMapper implements IAttributesMapper {
         ? "salesforce"
         : `salesforce_${resource.toLowerCase()}`;
 
-    if (!_.includes(mappings, "Id")) {
-      mappings.push({ service: "Id", hull: `${attribPrefix}/id` });
-    }
-
     const topLevelAttributes = TOPLEVEL_ATTRIBUTES[resource];
     const topLevelAttributesSf = _.map(topLevelAttributes, "service");
 
@@ -391,7 +363,11 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
 
         break;
@@ -408,7 +384,11 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
         break;
     }

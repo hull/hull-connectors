@@ -29,7 +29,11 @@ import {
   statusHandler
 } from "../handlers";
 
+import AppMetricsMonitor from "./appmetrics-monitor";
 import errorHandler from "./error";
+
+import buildConfigurationFromEnvironment from "../utils/config-from-env";
+import mergeConfig from "../utils/merge-config";
 
 const { compose } = require("compose-middleware");
 
@@ -100,10 +104,10 @@ const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 1;
  * @param {Object}        [options.cache] override default CacheAgent
  * @param {Object}        [options.queue] override default QueueAgent
  * @param {Array}         [options.captureMetrics] an array to capture metrics
- * @param {Array}         [options.captureLogs] an array to capture logs
+ * @param {Array}         [options.logsConfig] an object of type HullLogsConfig that describes the logger configuration
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
-class HullConnector {
+export default class HullConnector {
   middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
 
   handlers: $PropertyType<HullConnectorConfig, "handlers">;
@@ -127,8 +131,6 @@ class HullConnector {
   logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
 
   cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
-
-  resolvedConfig: HullConnectorConfig;
 
   connectorConfig: HullConnectorConfig;
 
@@ -155,17 +157,18 @@ class HullConnector {
       Worker: Class<Worker>,
       Client: Class<HullClient>
     },
-    connectorConfig: HullConnectorConfig | (() => HullConnectorConfig)
+    config: HullConnectorConfig
   ) {
-    const resolvedConfig =
-      typeof connectorConfig === "function"
-        ? connectorConfig()
-        : connectorConfig;
+    const connectorConfig = mergeConfig(
+      config,
+      buildConfigurationFromEnvironment(process.env)
+    );
+
     const {
       manifest,
       instrumentation,
       cacheConfig,
-      queue,
+      queueConfig = {},
       clientConfig,
       jsonConfig,
       serverConfig,
@@ -177,14 +180,14 @@ class HullConnector {
       middlewares = [],
       handlers,
       disableOnExit = false
-    } = resolvedConfig;
+    } = connectorConfig;
 
-    this.resolvedConfig = resolvedConfig;
+    this.logsConfig = logsConfig || {};
     this.clientConfig = {
       ...clientConfig,
+      logsConfig: this.logsConfig,
       connectorName: clientConfig.connectorName || connectorName
     };
-    this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds
@@ -195,7 +198,7 @@ class HullConnector {
     this.cache = new Cache(this.cacheConfig);
     this.workerConfig = workerConfig || {};
     this.httpClientConfig = httpClientConfig || {};
-    this.jsonConfig = { limit: "20mb", strict: false, ...jsonConfig };
+    this.jsonConfig = { limit: "50mb", strict: false, ...jsonConfig };
     this.serverConfig = serverConfig || { start: true };
     this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;
@@ -204,11 +207,11 @@ class HullConnector {
     this.manifest = manifest;
     this.instrumentation =
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
-    this.queue = queue || new Queue();
+    this.queue = new Queue(queueConfig);
 
-    // Rebuild a sanitized and defaults-enriched Conenctor Config
+    // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {
-      ...resolvedConfig,
+      ...connectorConfig,
       clientConfig: this.clientConfig,
       workerConfig: this.workerConfig,
       httpClientConfig: this.httpClientConfig,
@@ -219,16 +222,25 @@ class HullConnector {
       cacheConfig: this.cacheConfig
     };
 
-    if (this.logsConfig.logLevel) {
-      this.Client.logger.transports.console.level = this.logsConfig.logLevel;
-    }
-
     if (disableOnExit !== true) {
-      onExit(() => Promise.all([Batcher.exit(), this.queue.exit()]));
+      onExit(() => {
+        return Promise.all([
+          Batcher.exit(),
+          this.queue.exit(),
+          dependencies.Client.exit()
+        ]);
+      });
     }
   }
 
   async start() {
+    if (this.metricsConfig.statsd_host) {
+      AppMetricsMonitor.start(this, {
+        host: this.metricsConfig.statsd_host,
+        port: this.metricsConfig.statsd_port
+      });
+    }
+
     if (this.workerConfig.start) {
       this.startWorker(this.workerConfig.queueName);
     } else {
@@ -236,17 +248,17 @@ class HullConnector {
     }
     if (this.serverConfig.start) {
       const app = express();
-      this.app = app;
-      if (this.connectorConfig.devMode) {
-        debug("Starting Server in DevMode");
-        // eslint-disable-next-line global-require
-        const webpackDevMode = require("./dev-mode");
 
-        webpackDevMode(app, {
-          port: this.connectorConfig.port,
-          source: getAbsolutePath("src"),
-          destination: getAbsolutePath("dist")
-        });
+      if (this.connectorConfig.trustProxy) {
+        app.set("trust proxy", this.connectorConfig.trustProxy);
+      }
+
+      this.app = app;
+      if (
+        this.connectorConfig.devMode &&
+        !this.connectorConfig.disableWebpack
+      ) {
+        debug("Starting Server in DevMode");
       } else {
         debug("Starting Server");
       }
@@ -279,9 +291,6 @@ class HullConnector {
   }
 
   async getHandlers() {
-    if (this._handlers) {
-      return this._handlers;
-    }
     this._handlers =
       typeof this.handlers === "function"
         ? await this.handlers(this)
@@ -337,7 +346,6 @@ class HullConnector {
             `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
           );
         }
-        // $FlowFixMe
         if (!app[method || defaultMethod]) {
           throw new Error(
             `Trying to setup an unauthorized method: app.${method}`
@@ -499,7 +507,7 @@ class HullConnector {
     /**
      * Unhandled error middleware
      */
-    app.use(errorHandler);
+    app.use(errorHandler(this.Client));
 
     return app;
   }
@@ -534,7 +542,7 @@ class HullConnector {
     return this;
   }
 
-  async startWorker(queueName?: string = "queueApp"): Promise<Worker> {
+  async startWorker(queueName: string = "queueApp"): Promise<Worker> {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
@@ -555,5 +563,3 @@ class HullConnector {
     return this._worker;
   }
 }
-
-module.exports = HullConnector;

@@ -1,4 +1,6 @@
 /* @flow */
+import { doVariableReplacement } from "./variable-utils";
+
 const _ = require("lodash");
 
 const { isUndefinedOrNull } = require("./utils");
@@ -61,6 +63,14 @@ function varInArray(param: string, listValues) {
   };
 }
 
+function varInResolvedArray(param: string, listValues) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    const varList = doVariableReplacement(context, listValues);
+    return varList.indexOf(contextVariable) > -1;
+  };
+}
+
 function isServiceAttributeInVarList(serviceName: string, varListName: string) {
   return (context) => {
     const list = context.get(`connector.private_settings.${varListName}`);
@@ -81,6 +91,13 @@ function varStartsWithString(param: string, stringStart: string) {
     const contextVariable = context.get(param);
     return contextVariable.startsWith(stringStart);
   }
+}
+
+function varSizeEquals(param: string, value) {
+  return (context, input) => {
+    const contextVariable = context.get(param);
+    return _.size(contextVariable) === value;
+  };
 }
 
 /***************************/
@@ -203,5 +220,7 @@ module.exports = {
   isServiceAttributeInVarList,
   isVarServiceAttributeInVarList,
   or,
-  varStartsWithString
+  varStartsWithString,
+  varInResolvedArray,
+  varSizeEquals
 };

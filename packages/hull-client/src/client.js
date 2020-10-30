@@ -2,11 +2,12 @@
 // @flow
 
 import type {
-  HullClientConfig,
+  HullClientInstanceConfig,
   HullEntityAttributes,
+  HullFirehoseEventContext,
+  HullFirehoseTrackContext,
   HullUserEventName,
   HullUserEventProperties,
-  HullUserEventContext,
   HullAccount,
   HullUser,
   HullAccountClaims,
@@ -15,7 +16,8 @@ import type {
   HullEntityClaims,
   HullClientLogger,
   HullClientUtils,
-  HullClientStaticLogger
+  HullClientStaticLogger,
+  HullFirehoseKafkaTransport
 } from "./types";
 
 const _ = require("lodash");
@@ -26,27 +28,28 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
-
+const FirehoseKafka = require("./lib/firehose-kafka");
 const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
+const KafkaLogger = require("./utils/kafka-logger");
 
-type HullClientCredentials = {
-  id: string,
-  secret: string,
-  organization: string
+const TRANSPORTS = {
+  console: winston.transports.Console,
+  file: winston.transports.File,
+  kafka: KafkaLogger
 };
 
-const logger = new winston.Logger({
-  transports: [
-    new winston.transports.Console({
-      level: "info",
-      json: true,
-      stringify: true
-    })
-  ]
-});
+const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
+  transports.map(({ type, options }) => new TRANSPORTS[type](options));
+
+const createLogger = ({ level, transports }) =>
+  winston.createLogger({
+    level,
+    format: winston.format.json(),
+    transports: transportsFromConfig(transports)
+  });
 
 /**
  * HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
@@ -58,12 +61,10 @@ const logger = new winston.Logger({
  * @param {string}  config.organization Hull organization - required
  * @param {string}  [config.requestId] additional parameter which will be added to logs context, it can be HTTP request unique id when you init HullClient and you want to group log lines by the request (it can be a job id etc.)
  * @param {string}  [config.connectorName] additional parameter which will be added to logs context, it's used to track connector name in logs
- * @param {boolean} [config.captureLogs] an optional param to enable capturing logs, when enabled logs won't be sent to stdout/stderr and `logs` array would be initiated, which you can access via hullClient.configuration().logs
  * @param {boolean} [config.captureFirehoseEvents] an option param to enable capturing firehose events, when enabled firehose events won't be sent to firehose endpoint and `firehoseEvents` array woyld be initiated, which you can access via hullClient.configuration().firehoseEvents
  * @param {string}  [config.firehoseUrl=] The url track/traits calls should be sent, available only for testing purposes
  * @param {string}  [config.protocol=https] protocol which will be appended to organization url, override for testing only
  * @param {string}  [config.prefix=/api/v1] prefix of Hull REST API, override for testing only
- * @param {Array}   [config.logs] an optional array to capture all logs entries, you can provide your own array or use `captureLogs` to initiate empty one
  * @param {Array}   [config.firehoseEvents] an optional array to capture all firehose events, you can provide your own array or use `captureFirehoseEvents` to initiate empty one
  *
  * @example
@@ -82,7 +83,7 @@ const logger = new winston.Logger({
  * @public
  */
 class HullClient {
-  config: HullClientConfig;
+  config: HullClientInstanceConfig;
 
   clientConfig: Configuration;
 
@@ -96,17 +97,32 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  constructor(config: HullClientConfig | HullClientCredentials) {
-    if (config.captureLogs === true) {
-      config.logs = config.logs || [];
+  static async exit() {
+    try {
+      await Promise.all([Firehose.exit(), FirehoseKafka.exit()]);
+    } catch (err) {
+      console.warn("HullClient failed to gracefully exit: ", err.message);
+    }
+  }
+
+  constructor(config: HullClientInstanceConfig) {
+    const { logsConfig = {} } = config;
+    if (logsConfig.capture === true) {
+      logsConfig.logs = logsConfig.logs || [];
     }
     if (config.captureFirehoseEvents === true) {
       config.firehoseEvents = config.firehoseEvents || [];
     }
     this.config = config;
+    this.logsConfig = logsConfig;
     this.clientConfig = new Configuration(config);
-
     const conf = this.configuration() || {};
+
+    const logger = createLogger({
+      level: logsConfig.level,
+      transports: logsConfig.transports || [{ type: "console" }]
+    });
+
     const ctxKeys = _.pick(conf, [
       "organization",
       "id",
@@ -138,20 +154,30 @@ class HullClient {
         return Promise.resolve();
       };
     } else {
-      const clientConfig: HullClientConfig = this.clientConfig.get();
-      this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
-        const {
-          timeout,
-          retry,
-          domain = "",
-          protocol = "",
-          firehoseUrl = `${protocol}://firehose.${domain}`
-        } = clientConfig;
-        return restAPI(this, batcher.config, firehoseUrl, "post", params, {
-          timeout,
-          retry
+      const clientConfig: HullClientInstanceConfig = this.clientConfig.getAll();
+      if (
+        clientConfig.firehoseTransport &&
+        clientConfig.firehoseTransport.type === "kafka"
+      ) {
+        const transport: HullFirehoseKafkaTransport =
+          clientConfig.firehoseTransport;
+        this.batch = FirehoseKafka.getInstance(transport, clientConfig, logger);
+      } else {
+        this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
+          const {
+            timeout,
+            retry,
+            domain = "",
+            protocol = "",
+            firehoseUrl = `${protocol}://firehose.${domain}`
+          } = clientConfig;
+          return restAPI(this, batcher.config, firehoseUrl, "post", params, {
+            timeout,
+            retry,
+            isFirehose: true
+          });
         });
-      });
+      }
     }
 
     /**
@@ -176,11 +202,7 @@ class HullClient {
       data: Object | null | void
     ) => {
       if (this.config.esLogTransform) {
-        const timestamp = new Date().toISOString();
-        const label = "";
-        const summary = "";
-
-        const transformedLog = {
+        logger[level]({
           request_id: ctxe.request_id,
           connector_name: ctxe.connector_name,
           user_id: ctxe.user_id,
@@ -196,14 +218,12 @@ class HullClient {
           subject_type: ctxe.subject_type,
           data,
           message,
-          label,
+          label: "",
           level,
-          summary,
+          summary: "",
           "@version": "1",
-          "@timestamp": timestamp
-        };
-
-        logger[level](transformedLog);
+          "@timestamp": new Date().toISOString()
+        });
       } else {
         logger[level](message, { context: ctxe, data });
       }
@@ -219,61 +239,21 @@ class HullClient {
     };
 
     this.requestId = conf.requestId;
+    const { logs } = this.logsConfig;
 
-    if (this.clientConfig.get("logs")) {
-      const logsArray = this.clientConfig.get("logs");
-      if (!Array.isArray(logsArray)) {
+    if (logs) {
+      if (!Array.isArray(logs)) {
         throw new Error("Configuration `logs` must be an Array");
       }
-      if (logger.transports.console) {
-        logger.remove("console");
-        logger.add(winston.transports.Memory, {
-          level: "debug",
-          json: true,
-          stringify: input => input
-        });
-      }
       logger.removeAllListeners();
-      logger.on("logged", (level, message, payload) => {
-        let transformedLog;
-
-        if (this.config.esLogTransform) {
-          transformedLog = {
-            message: payload.message,
-            level: payload.level,
-            data: payload.data,
-            context: _.pickBy(payload, (v, k) => {
-              return (
-                [
-                  "request_id",
-                  "connector_name",
-                  "connector",
-                  "user_id",
-                  "user_anonymous_id",
-                  "user_external_id",
-                  "user_email",
-                  "account_id",
-                  "account_domain",
-                  "account_external_id",
-                  "account_anonymous_id",
-                  "subject_type",
-                  "organization"
-                ].includes(k) && !_.isNil(v)
-              );
-            }),
-            timestamp: new Date().toISOString()
-          };
-        } else {
-          transformedLog = {
-            message,
-            level,
-            data: payload.data,
-            context: payload.context,
-            timestamp: new Date().toISOString()
-          };
-        }
-
-        logsArray.push(transformedLog);
+      logger.on("data", ({ level, message, context, data }) => {
+        logs.push({
+          message,
+          level,
+          data,
+          context,
+          timestamp: new Date().toISOString()
+        });
       });
     }
   }
@@ -295,7 +275,7 @@ class HullClient {
    *   version: "0.13.10"
    * };
    */
-  configuration = (): HullClientConfig => this.clientConfig.getAll();
+  configuration = (): HullClientInstanceConfig => this.clientConfig.getAll();
 
   /**
    * Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -476,11 +456,12 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  alias = (body: Object) => {
+  alias = (body: Object, context: HullFirehoseEventContext) => {
     return this.batch({
       type: "alias",
       requestId: this.requestId,
-      body
+      body,
+      context
     });
   };
 
@@ -491,11 +472,12 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  unalias = (body: Object) => {
+  unalias = (body: Object, context: HullFirehoseEventContext) => {
     return this.batch({
       type: "unalias",
       requestId: this.requestId,
-      body
+      body,
+      context
     });
   };
 
@@ -508,9 +490,7 @@ class EntityScopedHullClient extends HullClient {
    */
   traits = (
     traits: HullEntityAttributes,
-    context: {
-      source?: string
-    } = {}
+    context: HullFirehoseEventContext
   ): Promise<*> => {
     const body =
       context && context.source
@@ -518,7 +498,12 @@ class EntityScopedHullClient extends HullClient {
         : {
             ...traits
           };
-    return this.batch({ type: "traits", body, requestId: this.requestId });
+    return this.batch({
+      type: "traits",
+      body,
+      context,
+      requestId: this.requestId
+    });
   };
 }
 
@@ -567,7 +552,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
   track = (
     event: HullUserEventName,
     properties: HullUserEventProperties = {},
-    context: HullUserEventContext = {}
+    context: HullFirehoseTrackContext = {}
   ): Promise<*> => {
     _.defaults(context, {
       event_id: uuidV4()
@@ -575,6 +560,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
     return this.batch({
       type: "track",
       requestId: this.requestId,
+      context, // transitional: firehose ingestion needs to adopt this convention
       body: {
         ...{}, // workaround @see https://github.com/facebook/flow/issues/1805#issuecomment-238650551
         ip: null,
@@ -599,7 +585,10 @@ class UserScopedHullClient extends EntityScopedHullClient {
  */
 class AccountScopedHullClient extends EntityScopedHullClient {}
 
-HullClient.logger = logger;
+HullClient.logger = createLogger({
+  level: process.env.LOG_LEVEL,
+  transports: [{ type: "console" }]
+});
 
 export type EntityScopedClient = EntityScopedHullClient;
 export type AccountScopedClient = AccountScopedHullClient;

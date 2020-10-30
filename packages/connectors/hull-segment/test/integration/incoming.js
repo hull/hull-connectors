@@ -1,6 +1,5 @@
 // @flow
 
-import { encrypt } from "hull/src/utils/crypto";
 import connectorConfig from "../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");

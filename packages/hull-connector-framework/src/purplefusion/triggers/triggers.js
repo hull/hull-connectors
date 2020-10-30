@@ -77,7 +77,7 @@ const TRIGGERS = {
       events: [filterEvents]
     },
     validations: {
-      events: [validateEvents]
+      events: [required, validateEvents]
     }
   },
   is_new_user: {

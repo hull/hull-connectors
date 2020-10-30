@@ -13,9 +13,11 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-zapier/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-outgoing-user-webhooks/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-outgoing-account-webhooks/test/**/*.(test|spec).js",
-    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js"
+    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-intercom/test/unit/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
+    "<rootDir>/packages/connectors/hull-intercom/server/**/*.js",
     "<rootDir>/packages/connectors/hull-coppercrm/server/**/*.js",
     "<rootDir>/packages/connectors/hull-customerio/server/**/*.js",
     "<rootDir>/packages/connectors/hull-marketo/server/**/*.js",

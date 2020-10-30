@@ -18,7 +18,13 @@ const private_settings = {
   fetch_tasks: false,
   send_outgoing_tasks: false,
   lead_assignmentrule: "none",
-  lead_assignmentrule_update: "none"
+  lead_assignmentrule_update: "none",
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
+  lead_claims: [
+    { "hull": "email", "service": "Email" }
+  ]
 }
 
 
@@ -73,7 +79,7 @@ describe("Update Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, Department, About, Description, FirstName, LastName, Id, AccountId FROM Contact WHERE Email IN ('adam@apple.com') OR Id IN ('00Q1I000004WHchUAG') ORDER BY CreatedDate ASC LIMIT 10000";
+              return query.q && query.q === "SELECT Email, Department, About, Description, FirstName, LastName, Id, AccountId FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [
                 {
@@ -127,7 +133,7 @@ describe("Update Contacts Tests", () => {
             account_segments: [{ id: "account_segment_2" }]
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -135,7 +141,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -143,7 +149,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 316,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20About%2C%20Description%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20OR%20Id%20IN%20('00Q1I000004WHchUAG')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -151,43 +157,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -289,9 +259,10 @@ describe("Update Contacts Tests", () => {
     });
   });
 
-  it("should update new contact and insert new acount", () => {
+  it("should update new contact by sending only changes and insert new account", () => {
     const connector = {
       private_settings: {
+        send_only_changes: true,
         account_claims: [{ hull: "domain", service: "Website", required: true }],
         lead_synchronized_segments: [],
         contact_synchronized_segments: ["contact_segment_1"],
@@ -299,6 +270,15 @@ describe("Update Contacts Tests", () => {
         lead_attributes_outbound: [],
         contact_attributes_outbound: [
           { hull: "email", service: "Email", overwrite: false },
+          { hull: "intercom_user/name",
+            service: "IntercomName",
+            overwrite: true },
+          { hull: "intercom_user/job_title",
+            service: "JobTitle",
+            overwrite: true },
+          { hull: "intercom_user/phone",
+            service: "Phone",
+            overwrite: true },
           { hull: "salesforce_contact/department",
             service: "Department",
             overwrite: false },
@@ -346,7 +326,7 @@ describe("Update Contacts Tests", () => {
 
           scope.get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Email IN ('adam@apple.com') OR Id IN ('00Q1I000004WHchUAG') ORDER BY CreatedDate ASC LIMIT 10000";
+              return query.q && query.q === "SELECT Email, IntercomName, JobTitle, Phone, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [
                 {
@@ -356,7 +336,10 @@ describe("Update Contacts Tests", () => {
                   },
                   Id: "00Q1I000004WHchUAG",
                   OwnerId: "10Q1I000004WHchOWNER",
-                  Email: "adam@apple.com",
+                  JobTitle: "marketer",
+                  Phone: "123",
+                  IntercomName: "Adam",
+                  Email: "adam_p@apple.com",
                   FirstName: "Adam",
                   LastName: "P",
                   Company: "Apple",
@@ -391,6 +374,9 @@ describe("Update Contacts Tests", () => {
               anonymous_ids: [
                 "salesforce-contact:00Q1I000004WHchUAG"
               ],
+              "intercom_user/name": "Adam P",
+              "intercom_user/job_title": "lead marketer",
+              "intercom_user/phone": "456",
               "salesforce_contact/id": "00Q1I000004WHchUAG",
               email: "adam@apple.com",
               id: "5a43ce781f6d9f471d005d44",
@@ -405,13 +391,13 @@ describe("Update Contacts Tests", () => {
             account_segments: [{ id: "account_segment_2" }],
             events: [],
             changes: {
-              user: {},
+              user: {
+                "intercom_user/job_title": [],
+                "salesforce_contact/department": []
+              },
               segments: {},
               account: {
-                "salesforce/description": [
-                  "old",
-                  "description from account"
-                ]
+                "salesforce/description": []
               },
               account_segments: {},
               is_new: false
@@ -420,9 +406,6 @@ describe("Update Contacts Tests", () => {
         ],
         response: {
           "flow_control": {
-            "in": 5,
-            "in_time": 10,
-            "size": 10,
             "type": "next",
           }
         },
@@ -433,15 +416,15 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 292,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20OwnerId%2C%20Owner.Email%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 322,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20Description%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%2C%20Owner.Email%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20OR%20Id%20IN%20('00Q1I000004WHchUAG')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url_length": 365,
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -449,14 +432,8 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress"
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress"
           ]),
           ["info", "outgoing.account.success",
             {
@@ -489,7 +466,8 @@ describe("Update Contacts Tests", () => {
               "record": {
                 "Description": "description from account",
                 "AccountId": "00Q1I000004WHchUAA",
-                "Id": "00Q1I000004WHchUAG"
+                "Id": "00Q1I000004WHchUAG",
+                "JobTitle": "lead marketer"
               },
               "operation": "update",
               "resource": "Contact"

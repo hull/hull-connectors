@@ -38,11 +38,17 @@ describe("Fetch Leads Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentLeads",
+        handlerUrl: "fetch-recent-leads",
         connector: {
           private_settings: {
             ...private_settings,
             fetch_resource_schema: true,
+            "lead_claims": [
+              { "hull": "email", "service": "EmailCustom__c" }
+            ],
+            "user_claims": [
+              { "hull": "email", "service": "SomeField" }
+            ],
             "lead_synchronized_segments": [
               "5a0c1f07b4d8644425002c65"
             ],
@@ -104,7 +110,7 @@ describe("Fetch Leads Tests", () => {
                 "overwrite": false
               },
               {
-                "service": "Email",
+                "service": "EmailCustom__c",
                 "hull": "traits_salesforce_lead/email",
                 "overwrite": false
               },
@@ -174,7 +180,7 @@ describe("Fetch Leads Tests", () => {
                     "url": "/services/data/v39.0/sobjects/Lead/00Q1I000004WHbtUAG"
                   },
                   "Id": "00Q1I000004WHbtUAG",
-                  "Email": "becci.blankenshield@adventure-works.com",
+                  "EmailCustom__c": "becci.blankenshield@adventure-works.com",
                   "FirstName": "Becci",
                   "LastName": "Blankenshield",
                   "Company": "Adventure Works",
@@ -186,7 +192,6 @@ describe("Fetch Leads Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "UserSegments__c",
@@ -217,16 +222,6 @@ describe("Fetch Leads Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/describe"
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated")
             }
           ],
@@ -237,7 +232,17 @@ describe("Fetch Leads Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CConvertedAccountId%2CConvertedContactId%2CCompany%2CWebsite%2CDepartment%2CUserSegments__c%20FROM%20Lead%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+            }
+          ],
+          [
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/describe"
             }
           ],
           [

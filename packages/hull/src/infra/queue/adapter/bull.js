@@ -6,7 +6,10 @@ const Queue = require("bull");
 class BullAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = new Queue("main", options);
+    const { name, url, settings } = options;
+    this.queue = new Queue(name, url, {
+      settings
+    });
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);
     });
@@ -28,19 +31,20 @@ class BullAdapter {
    * @param {Object} jobPayload
    * @return {Promise}
    */
-  create(
+  async create(
+    ctx,
     jobName,
     jobPayload = {},
-    { ttl = 0, delay = null, priority = null } = {}
+    { ttl = 0, delay = null, priority = null, backoff, attempts = 3 } = {}
   ) {
-    const options = {
+    return this.queue.add(jobName, jobPayload, {
       priority,
       delay,
       timeout: ttl,
-      attempts: 3,
+      backoff,
+      attempts,
       removeOnComplete: true
-    };
-    return this.queue.add(jobName, jobPayload, options);
+    });
   }
 
   /**
@@ -48,9 +52,14 @@ class BullAdapter {
    * @param {Function} jobCallback
    * @return {Object} this
    */
-  process(jobName, jobCallback) {
-    this.queue.process(jobName, job => {
-      return jobCallback(job);
+  process(name, callback) {
+    this.queue.process(name, async (job, done) => {
+      try {
+        const res = await callback(job);
+        done(null, res);
+      } catch (err) {
+        done(err);
+      }
     });
     return this;
   }
