@@ -30,7 +30,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        trustProxy: true,
+    trustProxy: true,
     handlers: handlers({
       redisUri: REDIS_URL,
       HULL_DOMAIN,

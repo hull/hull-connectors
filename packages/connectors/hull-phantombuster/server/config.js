@@ -21,7 +21,7 @@ export default function connectorConfig(): HullConnectorConfig {
   });
 
   return {
-        handlers: handlers({ EntryModel }),
+    handlers: handlers({ EntryModel }),
     timeout: 25000,
     httpClientConfig: {
       prefix: "https://api.phantombuster.com/api/v2"

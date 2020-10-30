@@ -6,7 +6,7 @@ import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   return {
-        handlers: handlers(),
+    handlers: handlers(),
     middlewares: [fetchToken]
   };
 }

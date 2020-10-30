@@ -19,7 +19,7 @@ export default function connectorConfig(): HullConnectorConfig {
   } = process.env;
   const hostSecret = SECRET || "1234";
   return {
-        hostSecret,
+    hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: handlers({

@@ -26,7 +26,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: handlers({
+    handlers: handlers({
       installUrl: INSTALL_URL
     }),
     middlewares: []

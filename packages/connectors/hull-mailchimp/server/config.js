@@ -14,7 +14,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: handlers({
+    handlers: handlers({
       clientID: MAILCHIMP_CLIENT_ID,
       clientSecret: MAILCHIMP_CLIENT_SECRET
     })

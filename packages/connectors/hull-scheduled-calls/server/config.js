@@ -20,6 +20,6 @@ export default function connectorConfig(): HullConnectorConfig {
   });
 
   return {
-        handlers: handlers({ EntryModel })
+    handlers: handlers({ EntryModel })
   };
 }
