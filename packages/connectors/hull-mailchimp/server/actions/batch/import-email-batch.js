@@ -6,7 +6,7 @@ const moment = require("moment");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importEmailBatch(ctx: HullContext) {
-  const { mailchimpAgent } = shipAppFactory(ctx);
+  const { mailchimpAgent, syncAgent } = shipAppFactory(ctx);
   const importType = "email";
   const jobName = "trackEmailActivities";
 
@@ -73,10 +73,14 @@ export default async function importEmailBatch(ctx: HullContext) {
     },
     { ttl: 43200 }
   );
+
+  const campaigns = await syncAgent.eventsAgent.getCampaignsAndAutomationsToTrack();
+  const last_track_at = syncAgent.ship.private_settings.last_track_at;
   mailchimpAgent.batchAgent.handle({
     jobName,
     batchId,
-    importType
+    importType,
+    additionalData: { campaigns, last_track_at }
   });
 
   return {
