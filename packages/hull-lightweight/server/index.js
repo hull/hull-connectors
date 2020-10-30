@@ -3,15 +3,15 @@ import { Connector } from "hull";
 
 const { connector } = require("minimist")(process.argv.slice(2));
 
-process.chdir(`${process.cwd()}/${connector}`);
+process.chdir(`${process.cwd()}/${connector}/server`);
 const cwd = process.cwd();
 
 const customizer = (objValue, srcValue /* , key, object, source, stack */) =>
   _.isArray(objValue) ? objValue.concat(srcValue) : undefined;
 
 (async () => {
-  const manifestPath = `${cwd}/manifest.json`;
-  const handlerPath = `${cwd}/server`;
+  const manifestPath = `${cwd}/../manifest.json`;
+  const handlerPath = `${cwd}`;
   const manifest = await import(manifestPath);
   const { type } = manifest;
   console.log(

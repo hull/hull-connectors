@@ -11,5 +11,5 @@ fi
 
 # We use a cluster mode here to be closest to production setup. We don't want the max number for perf reasons though
 # We use pm2-start.js because you need to require Babel manually in cluster mode. `interpreter=babel-node` doesn't work.
-exec pm2 --watch="packages" -i 2 --ignore-watch="node_modules" start ./pm2-start.js -- --connector=$PATH_TO_CONNECTOR
+exec pm2 --watch="packages" -i 2 --ignore-watch="node_modules" start packages/dev.js -- --connector=$PATH_TO_CONNECTOR
 # exec pm2 --watch="packages" -i 2 --ignore-watch="node_modules" --interpreter=babel-node start ./pm2-start.js -- --connector=$PATH_TO_CONNECTOR

@@ -39,7 +39,6 @@ import mergeConfig from "../utils/merge-config";
 
 const { compose } = require("compose-middleware");
 
-const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
