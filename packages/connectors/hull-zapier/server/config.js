@@ -7,7 +7,7 @@ const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
 export default function connectorConfig(): HullConnectorConfig {
   return {
-        handlers: new HullRouter({
+      handlers: new HullRouter({
       glue: require("./glue"),
       services: {
         zapier: require("./service")()

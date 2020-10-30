@@ -15,7 +15,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: {
+      handlers: {
       subscriptions: {
         userUpdate: (context, data) =>
           canaryNotify("user:update", context, data),

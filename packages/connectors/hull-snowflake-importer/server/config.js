@@ -35,7 +35,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: handlers(),
+      handlers: handlers(),
     serverConfig: {
       start: COMBINED === "true" || SERVER === "true"
     },

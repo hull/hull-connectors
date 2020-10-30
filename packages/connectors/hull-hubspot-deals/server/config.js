@@ -15,7 +15,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: new HullRouter({
+      handlers: new HullRouter({
       glue: require("./glue"),
       services: {
         hubspot: require("./service")({

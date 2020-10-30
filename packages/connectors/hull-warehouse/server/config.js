@@ -13,7 +13,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: new HullRouter({
+      handlers: new HullRouter({
       glue: require("./glue"),
       services: {
         postgres: require("./postgres-sequalize-service")({

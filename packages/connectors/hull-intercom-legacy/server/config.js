@@ -13,7 +13,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: handlers({
+      handlers: handlers({
       hostSecret: SECRET || "1234",
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET

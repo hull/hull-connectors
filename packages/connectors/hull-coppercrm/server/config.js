@@ -18,7 +18,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-        handlers: new HullRouter({
+      handlers: new HullRouter({
       serviceName: "coppercrm",
       glue: require("./glue"),
       services: { coppercrm:  require("./service")({

@@ -23,7 +23,7 @@ export default function connectorConfig(): HullConnectorConfig {
     "options.strategy.scope"
   );
   return {
-        handlers: handlers({
+      handlers: handlers({
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
       signingSecret: SIGNING_SECRET,
