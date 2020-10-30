@@ -73,7 +73,10 @@ const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 1 } = process.env;
 
 const getMaxConnections = () =>
   parseInt(SERVER_MAX_CONNECTIONS, 10) || os.cpus().length || 10;
-const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 1;
+const getBacklogSize = () => {
+  const backlogSize = parseInt(SERVER_BACKLOG, 10);
+  return Number.isNaN(backlogSize) ? 511 : backlogSize;
+};
 
 // const { TransientError } = require("../errors");
 
