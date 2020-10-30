@@ -1,9 +1,11 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import OS from "os";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import https from "http";
 import repl from "hullrepl";
 import minimist from "minimist";
 import type {
@@ -41,7 +43,6 @@ const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
-const os = require("os");
 
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
@@ -75,8 +76,11 @@ const getCallbacks = (handlers, category: string, handler: string) => {
 
 const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 1 } = process.env;
 
+const getCPUCount = () => OS.cpus().length;
+
 const getMaxConnections = () =>
-  parseInt(SERVER_MAX_CONNECTIONS, 10) || os.cpus().length || 10;
+  parseInt(SERVER_MAX_CONNECTIONS, 10) || getCPUCount() || 10;
+
 const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 1;
 
 // const { TransientError } = require("../errors");
@@ -525,15 +529,23 @@ export default class HullConnector {
     const { port } = this.connectorConfig;
     const maxConnections = getMaxConnections();
     const backlog = getBacklogSize();
-    const server = app.listen(
+    const server = https.createServer(app);
+    server.listen(
       {
-        port,
-        backlog,
-        exclusive: true
+        port: parseInt(port, 10),
+        backlog
+        // exclusive: true
       },
-      () => debug("connector.server.listen", { port, maxConnections })
+      () => debug("connector.server.listen", { port, backlog, maxConnections })
     );
     server.maxConnections = maxConnections;
+    app.use((req, res, next) => {
+      debug({
+        maxConnections: server.maxConnections,
+        _connections: server._connections
+      });
+      next();
+    });
     return server;
   }
 

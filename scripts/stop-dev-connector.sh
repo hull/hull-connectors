@@ -1,0 +1,1 @@
+exec pm2 delete all && killall -KILL ngrok

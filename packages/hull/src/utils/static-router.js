@@ -12,9 +12,7 @@ function readmeRoute(req, res) {
 
 function staticRouter({ manifest }) {
   const { readme = "readme.md" } = manifest;
-  const applicationDirectory = path.dirname(
-    path.join(require.main.filename, "..")
-  );
+  const applicationDirectory = path.join(process.cwd(), "..");
   const router = express.Router();
 
   router.use(express.static(`${applicationDirectory}/dist`));
