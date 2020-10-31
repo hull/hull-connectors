@@ -14,7 +14,7 @@ function devMode({ source, destination }) {
   }) || { entry: undefined, output: {}, plugins: [] };
   return {
     ...config,
-    // devtool: "eval-cheap-module-source-map",
+    devtool: "eval-cheap-module-source-map",
     devServer: {
       hot: true,
       hotOnly: true,
@@ -42,6 +42,7 @@ function devMode({ source, destination }) {
       }
     },
     optimization: {
+      minimize: false
       moduleIds: "named"
     },
     entry: config.entry
