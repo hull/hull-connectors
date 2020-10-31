@@ -2,6 +2,7 @@
 
 import { encrypt } from "hull/src/utils/crypto";
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import TESTS from "../userupdate.tests";
@@ -22,7 +23,7 @@ TESTS.map(function performTest({
   firehoseEvents
 }) {
   return it(title, () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...message,
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {

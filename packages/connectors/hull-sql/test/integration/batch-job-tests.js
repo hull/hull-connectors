@@ -2,6 +2,7 @@
 
 import { encrypt } from "hull/src/utils/crypto";
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
@@ -25,7 +26,7 @@ describe("Batch SQL import jobs", () => {
   };
 
   it("Import Query Test", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "import",

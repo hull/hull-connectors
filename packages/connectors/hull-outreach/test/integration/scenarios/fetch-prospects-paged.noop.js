@@ -14,9 +14,10 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("fetch prospects from outreach and page through results from outreach", () => {
-  return testScenario({ connectorConfig, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "prospectFetchAll",

@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 import {
   CONNECTOR,
@@ -20,7 +21,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Superagent library", () => {
   it("should expose superagent and parse JSON when asked", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         const scope = nock("http://foobar.com");
@@ -66,7 +67,7 @@ describe("Superagent library", () => {
   });
 
   it("should allow posting data", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -121,7 +122,7 @@ describe("Superagent library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -252,7 +253,7 @@ describe("Superagent library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -311,7 +312,7 @@ describe("Superagent library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -348,7 +349,7 @@ describe("Superagent library", () => {
 
   it("should return Timeout error when calling 3rd party API that timeouts", () => {
     const error = "Error: Response timeout of 3000ms exceeded";
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")

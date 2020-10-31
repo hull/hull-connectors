@@ -2,6 +2,7 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
@@ -21,7 +22,7 @@ const usersSegments = [{ name: "testSegment", id: "hullSegmentId" }];
 
 it("should refresh token and perform standard operation in case of token expired", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

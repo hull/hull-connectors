@@ -14,8 +14,12 @@ class ContextMock {
     this.connector = new ConnectorMock(id, settings, private_settings);
     this.client = new ClientMock();
     this.metric = {
-      increment: jest.fn((name, value) => console.log(name, value)),
-      value: jest.fn((name, value) => console.log(name, value))
+      increment: jest.fn((name, value) => {
+        // console.log(name, value))
+      },
+      value: jest.fn((name, value) => {
+        // console.log(name, value))
+      }
     };
   }
 }

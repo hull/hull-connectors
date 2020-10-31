@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -32,7 +33,7 @@ const usersSegments = [
 
 it("should log member info when failure in sending user to mailchimp", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect, minihullPort }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect, minihullPort }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

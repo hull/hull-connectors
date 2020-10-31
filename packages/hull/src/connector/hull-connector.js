@@ -539,7 +539,6 @@ export default class HullConnector {
       },
       () => {
         debug("connector.server.listen", { port, backlog, maxConnections });
-        console.log("Started connector", { port, backlog, maxConnections });
       }
     );
     server.maxConnections = maxConnections;
@@ -555,7 +554,7 @@ export default class HullConnector {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
-      throw new Error(
+      console.warn(
         "Worker is started but no jobs hash is declared in Handlers"
       );
     }

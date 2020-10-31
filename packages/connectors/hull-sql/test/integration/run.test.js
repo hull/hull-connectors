@@ -10,6 +10,7 @@ process.env.CLIENT_SECRET = "abc";
 process.env.SERVER = true;
 
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const connector = {
   private_settings: {
@@ -25,7 +26,7 @@ const connector = {
 };
 
 it("Run Query Test", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.jsonHandler,
       handlerUrl: "run",

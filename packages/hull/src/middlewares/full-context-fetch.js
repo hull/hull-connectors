@@ -24,7 +24,7 @@ async function fetchConnector(ctx, cache): Promise<*> {
     .wrap(
       "connector",
       () => {
-        debug("fetchConnector - calling API");
+        debug("fetchConnector - calling API connector");
         return getConnector().catch(err => {
           const { status } = err;
           if (status === 402 || status === 404) {
@@ -54,7 +54,7 @@ async function fetchSegments(ctx, entity = "user", cache) {
     return segments;
   }
   const { id } = ctx.client.configuration();
-  const getSegments = () =>
+  const getSegments = async () =>
     ctx.client.get(
       entitySegments,
       { shipId: id },
@@ -68,7 +68,7 @@ async function fetchSegments(ctx, entity = "user", cache) {
         if (ctx.client === undefined) {
           return Promise.reject(new Error("Missing client"));
         }
-        debug("fetchSegments - calling API");
+        debug(`fetchSegments - calling API ${entitySegments}`);
         return getSegments().catch(err => {
           const { status } = err;
           if (status === 402 || status === 404) {

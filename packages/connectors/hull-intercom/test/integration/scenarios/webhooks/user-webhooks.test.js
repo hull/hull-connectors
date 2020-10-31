@@ -1,5 +1,7 @@
 // @flow
 import connectorConfig from "../../../../server/config";
+import manifest from "../../../../manifest.json";
+
 const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
 const intercomWebhookHandler = require("../../../../server/incoming-webhook")
 
@@ -11,7 +13,7 @@ process.env.CLIENT_SECRET = "123";
 describe("User Webhooks Tests", () => {
 
   it("should receive a user.created webhook", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.incomingRequestHandler,
         /*rawCustomRoutes: [

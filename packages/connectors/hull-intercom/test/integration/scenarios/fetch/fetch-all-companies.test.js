@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -9,7 +9,7 @@ process.env.COMBINED = true;
 
 describe("Fetch All Companies Tests", () => {
   it("should fetch all companies", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "fetchAllCompanies",
@@ -467,7 +467,7 @@ describe("Fetch All Companies Tests", () => {
   });
 
   it("should throw error after fetching all companies when scroll exists", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "fetchAllCompanies",

@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 import {
   CONNECTOR,
@@ -17,7 +18,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Basic Attributes manipulation", () => {
   it("should expose lodash, console, moment, urijs, uuid", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...USER,
@@ -76,7 +77,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should expose uuid", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
@@ -100,7 +101,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should expose uuid with options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
@@ -152,7 +153,7 @@ describe("Basic Attributes manipulation", () => {
       updated_at: "",
       type: "accounts_segment"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         changes: {
           is_new: false,

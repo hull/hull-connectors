@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const contactFields = require("../attributes/api-responses/get-contact-fields-response.json");
 
@@ -10,7 +10,7 @@ process.env.CLIENT_SECRET = "123";
 describe("Update Lead Tests", () => {
 
   it("should not update a lead when lookup returns multiple entities", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -180,7 +180,7 @@ describe("Update Lead Tests", () => {
   });
 
   it("should update a lead by email lookup", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -658,7 +658,7 @@ describe("Update Lead Tests", () => {
   });
 
   it("should update a lead and save user (with no additional api calls to resolve fields) back to Hull", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -1015,7 +1015,7 @@ describe("Update Lead Tests", () => {
   });
 
   it("should skip outgoing lead that was deleted in intercom", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",

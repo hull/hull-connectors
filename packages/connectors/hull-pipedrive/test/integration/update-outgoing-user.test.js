@@ -5,10 +5,11 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 
 it("Update Single User To Pipedrive", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/update-single-user");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,

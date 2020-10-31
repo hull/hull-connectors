@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -39,7 +39,7 @@ const private_settings = {
 describe("Fetch Contacts Tests", () => {
 
   it("should fetch a deleted contact", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-deleted-contacts",
@@ -281,7 +281,7 @@ describe("Fetch Contacts Tests", () => {
   });
 
   it("should fetch a single contact", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -560,7 +560,7 @@ describe("Fetch Contacts Tests", () => {
   });
 
   it("should fetch a contact and link to an account", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -897,7 +897,7 @@ describe("Fetch Contacts Tests", () => {
   });
 
   it("should fetch contact with related entity fields", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -1077,7 +1077,7 @@ describe("Fetch Contacts Tests", () => {
   });
 
   it("should fetch a single contact with broken attribute mapper", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
