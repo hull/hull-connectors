@@ -42,7 +42,7 @@ function devMode({ source, destination }) {
       }
     },
     optimization: {
-      minimize: false
+      minimize: false,
       moduleIds: "named"
     },
     entry: config.entry
