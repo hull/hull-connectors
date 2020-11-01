@@ -13,6 +13,7 @@ import path from "path";
     );
   }
 
+  console.log(`Starting ${connector} from ${connectorPath}`)
   try {
     const { default: manifest } = await import(
       `${connectorPath}/manifest.json`
