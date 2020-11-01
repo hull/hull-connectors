@@ -5,7 +5,15 @@ import path from "path";
 
 (async () => {
   const { connector } = minimist(process.argv);
+  console.log("Start.js, Connector", {
+    connector,
+    cwd: process.cwd(),
+    PWD: process.env.PWD,
+    __dirname
+  });
   const connectorPath = path.join(process.cwd(), connector);
+  console.log("Start.js, ConnectorPath", { connectorPath });
+
   process.chdir(connectorPath);
   if (!connector) {
     throw new Error(
@@ -13,7 +21,6 @@ import path from "path";
     );
   }
 
-  console.log(`Starting ${connector} from ${connectorPath}`)
   try {
     const { default: manifest } = await import(
       `${connectorPath}/manifest.json`
