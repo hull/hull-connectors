@@ -1282,7 +1282,7 @@ LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
 
 - Start in Dev with:
 ```
-  yarn combined:lightweight hull-xxx
+  yarn combined hull-xxx
 ```
 
 - Start in Production with:
@@ -1304,4 +1304,14 @@ A few details:
   - `user-processor`
 
 - environment variables (or .env) MUST contain a `SECRET`
-- You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `incoming-webhooks` exist
+- You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `source-webhooks` exist
+
+## PM2 environment
+
+- The boot environment has been redone to use pm2. check `start-connector.sh` and `start-dev-connector.sh`
+- Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
+- CLUSTER mode supported: Use the `INSTANCES` env var to define how many instances to boot on the PM2 cluster
+
+
+## Webpack
+Now build things sequentially since returning an array is not optimized at all
