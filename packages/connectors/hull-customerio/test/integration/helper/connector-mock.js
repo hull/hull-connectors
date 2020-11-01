@@ -16,10 +16,10 @@ class ContextMock {
     this.metric = {
       increment: jest.fn((name, value) => {
         // console.log(name, value))
-      },
+      }),
       value: jest.fn((name, value) => {
         // console.log(name, value))
-      }
+      })
     };
   }
 }
