@@ -6,6 +6,7 @@ import path from "path";
 (async () => {
   const { connector } = minimist(process.argv);
   console.log("Start.js, Connector", {
+    args: minimist(process.argv),
     connector,
     cwd: process.cwd(),
     PWD: process.env.PWD,
