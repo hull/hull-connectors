@@ -15,4 +15,4 @@ babel packages/hull-connector-framework -d dist/node_modules/hull-connector-fram
 
 rsync -rl packages/ dist/ --ignore-existing
 
-webpack --config webpack
+webpack --progress --config webpack

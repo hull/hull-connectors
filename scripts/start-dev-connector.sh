@@ -13,4 +13,4 @@ fi
 # exec pm2 --watch="packages" -i 2 --ignore-watch="node_modules" --interpreter=babel-node start ./pm2-start.js -- --connector=$PATH_TO_CONNECTOR
 # We use pm2-start.js because you need to require Babel manually in cluster mode. `interpreter=babel-node` doesn't work.
 echo "Starting $PATH_TO_CONNECTOR on PORT $PORT";
-exec pm2 -f --watch="packages" -i 2 --no-daemon --ignore-watch="node_modules" start packages/dev.js -- -r ../root-babel-register --connector=$PATH_TO_CONNECTOR
+exec pm2-dev start packages/dev.js -- -r ../root-babel-register --connector=$PATH_TO_CONNECTOR

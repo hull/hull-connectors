@@ -2,7 +2,6 @@
 const _ = require("lodash");
 const path = require("path");
 const webpack = require("webpack");
-const ProgressBarPlugin = require("progress-bar-webpack-plugin");
 const { env } = process;
 const { CONNECTOR, PORT = 8082 } = env;
 
@@ -58,7 +57,6 @@ function devMode({ source, destination }) {
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
       ...config.plugins,
-      new ProgressBarPlugin({ clear: false }),
       new webpack.NoEmitOnErrorsPlugin()
     ]
   };

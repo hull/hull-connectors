@@ -27,12 +27,14 @@ const getPlugins = ({ mode, destination }) =>
   mode === "production"
     ? [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+        new ProgressBarPlugin({ clear: false }),
         new MiniCssExtractPlugin({
           filename: "[name].css",
           chunkFilename: "[id].css"
-        }),
+        })
       ]
     : [
+        new ProgressBarPlugin({ clear: false }),
         new MiniCssExtractPlugin({
           filename: "[name].css",
           chunkFilename: "[id].css"
