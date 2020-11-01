@@ -1,6 +1,5 @@
 import Lightweight from "hull-lightweight/server";
 import Standard from "hull/server";
-import minimist from "minimist";
 import path from "path";
 
 (async () => {
@@ -12,7 +11,6 @@ import path from "path";
   }
 
   console.log("Start.js, Connector", {
-    args: minimist(process.argv),
     PATH_TO_CONNECTOR,
     cwd: process.cwd(),
     PWD: process.env.PWD,
