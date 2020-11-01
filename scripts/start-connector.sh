@@ -3,6 +3,7 @@ set -eu
 
 CONNECTOR=${CONNECTOR:=$1}
 
+: "${INSTANCES:=1}"
 : "${CONNECTOR:?CONNECTOR environment variable not set or empty. Should be set to the name of a valid connector such in the form \`hull-*\`}"
 
 CONNECTORS=`ls -1 dist/connectors`
@@ -31,5 +32,5 @@ if [ -n "${MARATHON_APP_ID:-}" ]; then
   source .env
 fi
 
-echo "Starting connector $PATH_TO_CONNECTOR on PORT $PORT"
-PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -i max start dist/start.js --no-daemon -- --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start
+echo "Starting connector $PATH_TO_CONNECTOR with ${INSTANCES} instances on PORT $PORT"
+PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -f -i $INSTANCES start dist/start.js --no-daemon -- --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start
