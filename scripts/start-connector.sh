@@ -32,4 +32,4 @@ if [ -n "${MARATHON_APP_ID:-}" ]; then
 fi
 
 echo "Starting connector $PATH_TO_CONNECTOR on PORT $PORT"
-exec pm2 -i max start dist/start.js --no-daemon -- --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start --connector=$PATH_TO_CONNECTOR
+PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -i max start dist/start.js --no-daemon -- --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start
