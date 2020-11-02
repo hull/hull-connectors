@@ -166,6 +166,11 @@ const HullUserEventTrigger: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullUserAccountLinkedTrigger: ServiceObjectDefinition = {
+  service_name: "HullUserAccountLinkedTrigger",
+  name: "User"
+};
+
 const HullAccountAttributeChangedTrigger: ServiceObjectDefinition = {
   service_name: "HullAccountAttributeChangedTrigger",
   name: "Account"
@@ -197,6 +202,7 @@ module.exports = {
   HullAccountSegmentChangedTrigger,
   EntityCreatedTrigger,
   HullUserEventTrigger,
+  HullUserAccountLinkedTrigger,
   HullApiAttributeDefinition,
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,
