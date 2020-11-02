@@ -18,7 +18,8 @@ const {
   ld,
   hull,
   Svc,
-  input
+  input,
+  cacheLock
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const { BigqueryUserRead, BigqueryAccountRead, BigqueryEventRead } = require("./service-objects");
@@ -26,6 +27,10 @@ const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framew
 
 function bigquery(op: string, param?: any): Svc {
   return new Svc({ name: "bigquery", op }, param);
+}
+
+function bigquery_utils(op: string, param?: any): Svc {
+  return new Svc({ name: "bigquery_utils", op }, param);
 }
 
 const refreshTokenDataTemplate = {
@@ -106,7 +111,7 @@ const glue = {
       message: "allgood"
     }
   }),
-  checkJob: [
+  checkJob: cacheLock("checkJob", [
     ifL([
       route("isAuthenticated"),
       or([
@@ -142,7 +147,7 @@ const glue = {
           })
       }),
     ])
-  ],
+  ]),
   startImport: [
     ifL(cond("isEmpty", "${jobId}"), {
       do: ifL(route("isAuthenticated"), [
@@ -160,7 +165,6 @@ const glue = {
     })
   ],
   import: route("startImport"),
-  manualImport: route("startImport"),
   paginateResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("[$.rows.(\n" +
@@ -222,16 +226,17 @@ const glue = {
   }),
   run:
     returnValue([
+      set("rawQuery", input("body.query")),
+      set("formattedQuery", "${rawQuery} LIMIT 100"),
       set("rawPreview", bigquery("testQuery", {
         maxResults: 100,
         timeoutMs: 30000,
-        query: input("body.query"),
+        query: "${formattedQuery}",
         useLegacySql: false
       })),
-      utils("print", "${errorReport}"),
-      ifL(cond("isEmpty", "${errorReport}"), {
+      utils("print", "${rawPreview}"),
+      ifL(cond("isEmpty", "${rawPreview.error}"), {
         do: [
-          utils("print", "${rawPreview}"),
           set("retData.entries", jsonata("[$.rows.(\n" +
             "    $merge(\n" +
             "        $map($.f, function($v, $i) {\n" +
@@ -244,25 +249,15 @@ const glue = {
           set("retStatus", 200)
         ],
         eldo: [
-          utils("print", "${errorReport}"),
-          set("retStatus", "${errorReport.status}"),
-          set("retData.message", "${errorReport.response.text}")
+          set("retStatus", "${rawPreview.error.status}"),
+          set("retData.message", "${rawPreview.error.response.body.error.message}")
         ]
       })
     ], {
       status: "${retStatus}",
       data: "${retData}"
     }),
-  importResults: [],
-  displayQueryError: returnValue([
-    utils("print", input("response.text")),
-    set("errorReport", input())
-  ], {
-    status: 500,
-    data: {
-      message: input()
-    }
-  })
+  importResults: route("startImport")
 };
 
 module.exports = glue;

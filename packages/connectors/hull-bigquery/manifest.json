@@ -98,21 +98,6 @@
   "incoming": [],
   "json": [
     {
-      "name": "manual_import",
-      "url": "/manual-import",
-      "format": "action",
-      "handler": "manualImport",
-      "title": "Manual import",
-      "options": {
-        "fireAndForget": true,
-        "confirm": {
-          "action": "fetch",
-          "text": "You are about to execute the currently saved query and import its results. Confirm?",
-          "button": "Start import"
-        }
-      }
-    },
-    {
       "url" : "/get-projects",
       "handler": "getProjects"
     },
@@ -192,9 +177,7 @@
       "description": "Basic setup for the Bigquery connector.",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval",
-        "private_settings.query",
-        "json.manual_import"
+        "private_settings.import_interval"
       ]
     }
   ]

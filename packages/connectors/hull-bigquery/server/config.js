@@ -26,7 +26,8 @@ export default function connectorConfig(): HullConnectorConfig {
     handlers: new HullRouter({
       serviceName: "bigquery",
       glue: require("./glue"),
-      services: { bigquery:  require("./service")({
+      services: {
+        bigquery:  require("./service")({
           clientID: CLIENT_ID,
           clientSecret: CLIENT_SECRET
         })

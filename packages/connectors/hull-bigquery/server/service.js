@@ -3,7 +3,8 @@ import { SuperagentApi } from "hull-connector-framework/src/purplefusion/superag
 
 const {
   ConfigurationError,
-  SkippableError
+  SkippableError,
+  ReturnableError
 } = require("hull/src/errors");
 
 const OAuth2Strategy = require("passport-oauth2");
@@ -86,10 +87,8 @@ const service = ({clientID, clientSecret}: {
       {
         truthy: { status: 400 },
         condition: notNull("connector.private_settings.access_token"),
-        errorType: SkippableError,
-        message: MESSAGES.INVALID_QUERY,
-        recoveryroute: "displayQueryError",
-        generateNewRecovery: true
+        errorType: ReturnableError,
+        message: MESSAGES.INVALID_QUERY
       }
     ]
   }
