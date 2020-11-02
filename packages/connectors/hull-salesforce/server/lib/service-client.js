@@ -397,12 +397,20 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const { fields = [], identityClaims = [], fetchDaysBack } = options;
+    const {
+      fields = [],
+      identityClaims = [],
+      fetchDaysBack,
+      lastFetchedAt
+    } = options;
     let fetchToDate;
-    if (fetchDaysBack) {
+    if (fetchDaysBack && !lastFetchedAt) {
       fetchToDate = moment()
         .subtract({ days: fetchDaysBack })
         .toISOString();
+    }
+    if (lastFetchedAt) {
+      fetchToDate = moment(lastFetchedAt, "x").toISOString();
     }
     const query = this.getSoqlQuery({
       type,

@@ -48,20 +48,13 @@ class SalesforceSDK {
     return this.syncAgent.sendAccountMessages(messages);
   }
 
-  async getAllRecords({ sfType, fields, fetchDaysBack }) {
+  async getAllRecords({ sfType, fields, fetchDaysBack, lastFetchedAt }) {
     const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
     return this.syncAgent.sf.getAllRecords(
       sfType,
-      { identityClaims, fields, fetchDaysBack },
+      { identityClaims, fields, fetchDaysBack, lastFetchedAt },
       record => this.saveRecord({ sfType, record })
     );
-  }
-
-  async getUpdatedRecordIds({ sfType, fetchStart, fetchEnd }) {
-    return this.syncAgent.sf.getUpdatedRecordIds(sfType, {
-      start: fetchStart,
-      end: fetchEnd
-    });
   }
 
   async getDeletedRecords({ sfType, fetchStart, fetchEnd }) {
