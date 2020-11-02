@@ -47,7 +47,7 @@
       "name": "query",
       "title": "Query",
       "type": "string",
-      "required": true,
+      "required": false,
       "description": "The query that the connector will execute in Bigquery. Please paste a valid query that you have written and tested in Bigquery's editor."
     },
     {
