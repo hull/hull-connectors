@@ -11,26 +11,11 @@
   ],
   "private_settings": [
     {
-      "name": "oauth",
-      "title": "Oauth",
+      "name": "service_account_key",
       "type": "string",
-      "format": "oauth",
-      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
-      "handler": "oauth",
-      "url": "/auth",
-      "options": {
-        "tokenInUrl": false,
-        "name": "Bigquery",
-        "strategy": {
-          "skipUserProfile": true,
-          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
-          "tokenURL": "https://oauth2.googleapis.com/token",
-          "grant_type": "authorization_code",
-          "scope": [
-            "https://www.googleapis.com/auth/bigquery"
-          ]
-        }
-      }
+      "format": "textarea",
+      "description": "Paste whole JSON file.",
+      "title": "Service Account Key JSON"
     },
     {
       "name": "project_id",
@@ -149,10 +134,10 @@
   "settings_sections": [
     {
       "title": "Authentication",
-      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "description": "In order to authorize connector to access your BigQuery you need to provide a Service Account Key. See documentation how to obtain it.",
       "step": "credentials",
       "properties": [
-        "private_settings.oauth"
+        "private_settings.service_account_key"
       ]
     },
     {

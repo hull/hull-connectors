@@ -10,9 +10,13 @@ Pick the connector from the connectors gallery. One connector can run one query 
 
 ### Authorization & Setup
 
-After installing the connector from the gallery, you need to authorize it against BigQuery API.
+After installing the connector from the gallery, you need to authorize it against BigQuery API using Service Accounts.
 
-Go to the settings and click the Authorize button. You will be shown a consent screen served by Google Cloud. It will ask you to give connector permission to talk to BigQuery API to run your imports.
+This requires provisioning a Service Account in your Google Cloud project. This is a one time operation and gives you precise control over what connector can access in your BigQuery data base.
+
+
+
+
 
 Once this is done you need to define which BigQuery project the connector should work in. This is a single select dropdown.
 

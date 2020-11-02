@@ -1,3 +1,4 @@
+const rawMoment = require("moment");
 const {
   ifL,
   cond,
@@ -26,13 +27,6 @@ const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framew
 function bigquery(op: string, param?: any): Svc {
   return new Svc({ name: "bigquery", op }, param);
 }
-
-const refreshTokenDataTemplate = {
-  refresh_token: "${connector.private_settings.refresh_token}",
-  client_id: process.env.CLIENT_ID,
-  client_secret: process.env.CLIENT_SECRET,
-  grant_type: "refresh_token"
-};
 
 const jobPayloadTemplate = {
     configuration: {
@@ -74,17 +68,16 @@ const glue = {
     set("service_name", "bigquery")
   ],
   isConfigured: cond("allTrue", [
-    cond("notEmpty", settings("access_token")),
-    cond("notEmpty", settings("refresh_token")),
+    cond("notEmpty", settings("service_account_key")),
+    cond("notEmpty", settings("project_id")),
   ]),
   isAuthenticated: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
-    cond("notEmpty", settings("refresh_token"))
+    cond("notEmpty", settings("project_id"))
   ]),
   getProjects: returnValue([
-    ifL(route("isAuthenticated"), [
+      route("obtainAccessToken"),
       set("projectsMap", jsonata(`[$.{"value": id, "label":friendlyName}]`, bigquery("getProjects")))
-    ])
     ],
     {
       status: 200,
@@ -93,14 +86,14 @@ const glue = {
       }
     }
   ),
-  status: ifL(cond("isEmpty", settings("access_token")), {
+  status: ifL(cond("isEmpty", settings("service_account_key")), {
     do: {
       status: "setupRequired",
-      message: "Connector has not been authenticated with Bigquery."
+      message: "Connector is missing Service Account Key which is required to call BigQuery API. Please update settings."
     },
     eldo: {
       status: "ok",
-      message: "allgood"
+      message: ""
     }
   }),
   checkJob: [
@@ -177,12 +170,24 @@ const glue = {
       route("importResults")
     ])
   ],
-  refreshToken:
-    ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
-      ifL(cond("notEmpty", set("refreshTokenResponse", bigquery("refreshToken", refreshTokenDataTemplate))),
+  obtainAccessToken:
+    ifL(cond("notEmpty", "${connector.private_settings.service_account_key}"), [
+      set("serviceAccountKey", jsonata("$eval(service_account_key)", "${connector.private_settings}")),
+      set("serviceAccountEmail", "${serviceAccountKey.client_email}"),
+      set("serviceAccountPrivateKey", "${serviceAccountKey.private_key}"),
+      set("jwtPayload", {
+        iss: "${serviceAccountKey.client_email}",
+        scope: "https://www.googleapis.com/auth/bigquery.readonly",
+        aud: "https://oauth2.googleapis.com/token",
+        exp: rawMoment().add(1, 'hour').unix(),
+        iat: rawMoment().unix()
+      }),
+      set("jwtAssertion", utils("jwtEncode", { payload: "${jwtPayload}", secret: "${serviceAccountPrivateKey}", algorithm: "RS256" })),
+      ifL(cond("notEmpty", set("obtainAccessTokenResponse", bigquery("obtainAccessToken"))),
         settingsUpdate({
-          access_token: "${refreshTokenResponse.access_token}",
-          token_expires_in: "${refreshTokenResponse.expires_in}",
+          access_token: "${obtainAccessTokenResponse.access_token}",
+          token_expires_in: "${obtainAccessTokenResponse.expires_in}",
+          token_type: "${obtainAccessTokenResponse.token_type}",
           token_fetched_at: ex(ex(moment(), "utc"), "format"),
         })
       )
