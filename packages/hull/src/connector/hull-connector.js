@@ -72,14 +72,14 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   return callback;
 };
 
-const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 1 } = process.env;
+const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 511 } = process.env;
 
 const getCPUCount = () => OS.cpus().length;
 
 const getMaxConnections = () =>
   parseInt(SERVER_MAX_CONNECTIONS, 10) || getCPUCount() || 10;
 
-const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 1;
+const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 511;
 
 // const { TransientError } = require("../errors");
 
