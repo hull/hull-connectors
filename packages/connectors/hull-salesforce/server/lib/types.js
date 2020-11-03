@@ -124,7 +124,6 @@ export interface IServiceClient {
   queryExistingRecords(type: string, sfdcId: string, recordIds: string[]): Promise<any[]>;
   getAllRecords(type: TResourceType, options: Object, onRecord: Function): Promise<*>;
   getRecords(type: TResourceType, ids: Array<string>, options: Object, onRecord: Function): Promise<*>;
-  getUpdatedRecordIds(type: TResourceType, options: Object): Promise<*>;
   getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>>;
   exec(fn: string, ...args: any): Promise<any>;
 }

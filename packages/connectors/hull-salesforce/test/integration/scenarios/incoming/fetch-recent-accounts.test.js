@@ -192,7 +192,7 @@ describe("Fetch Accounts Tests", () => {
             "incoming.job.progress",
             {},
             {
-              "jobName": "fetch-all-accounts",
+              "jobName": "fetch-accounts",
               "progress": "1 / 1"
             }
           ],
@@ -429,7 +429,7 @@ describe("Fetch Accounts Tests", () => {
             "incoming.job.progress",
             {},
             {
-              "jobName": "fetch-all-accounts",
+              "jobName": "fetch-accounts",
               "progress": "1 / 1"
             }
           ],
@@ -686,7 +686,7 @@ describe("Fetch Accounts Tests", () => {
             "incoming.job.progress",
             {},
             {
-              "jobName": "fetch-all-accounts",
+              "jobName": "fetch-accounts",
               "progress": "3 / 3"
             }
           ],
