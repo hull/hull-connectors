@@ -166,9 +166,9 @@ const emitToParent = query =>
 
       return swal
         .fire({
-          title: "Import the users from the current query? ",
+          title: "Import entities from the current query? ",
           text:
-            "If you continue, we will import the users from the currently saved query.",
+            "If you continue, we will import the entities from the currently saved query.",
           icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#DD6B55",
@@ -182,7 +182,7 @@ const emitToParent = query =>
             empty();
 
             Swal.fire({
-              title: "Started importing users",
+              title: "Started importing",
               text: "Results will be available shortly in Hull!",
               icon: "success"
             });

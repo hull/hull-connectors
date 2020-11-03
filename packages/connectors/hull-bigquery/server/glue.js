@@ -22,6 +22,8 @@ const {
   cacheLock
 } = require("hull-connector-framework/src/purplefusion/language");
 
+const FULL_IMPORT_DAYS = process.env.FULL_IMPORT_DAYS || "10000";
+
 const { BigqueryUserRead, BigqueryAccountRead, BigqueryEventRead } = require("./service-objects");
 const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
@@ -43,7 +45,7 @@ const refreshTokenDataTemplate = {
 const jobPayloadTemplate = {
     configuration: {
       query: {
-        query: "${connector.private_settings.query}",
+        query: "${formattedQuery}",
         useLegacySql: false,
       }
     },
@@ -129,7 +131,8 @@ const glue = {
             // all good, ready for import
             do: [
               route("paginateResults"),
-              utils("logInfo", "incoming.job.finished")
+              utils("logInfo", "incoming.job.finished"),
+              settingsUpdate({ last_sync_at: "${jobStatus.statistics.creationTime}"})
             ],
             // job is finished but has some errors
             eldo: utils("logError", "incoming.job.error: ${jobStatus.status.errors}")
@@ -153,6 +156,8 @@ const glue = {
       do: ifL(route("isAuthenticated"), [
         set("nowTime", ex(moment(), "unix")),
         set("jobId", "hull_import_${connector.id}_${nowTime}"),
+        set("rawQuery", input()),
+        route("variableReplacement"),
         ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
           settingsUpdate({ job_id: "${jobId}"}),
           utils("logInfo", "incoming.job.start: ${jobStatus.statistics}"),
@@ -164,7 +169,7 @@ const glue = {
       ]
     })
   ],
-  import: route("startImport"),
+  scheduledImport: route("startImport", settings("query")),
   paginateResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("[$.rows.(\n" +
@@ -194,11 +199,6 @@ const glue = {
         })
       )
     ]),
-  stopTracking: [
-    utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
-    settingsUpdate({ job_id: null }),
-    set("jobId", null)
-  ],
   admin: returnValue([
     ifL(cond("allTrue", [
       route("isConfigured"), route("isAuthenticated")
@@ -219,19 +219,30 @@ const glue = {
     pageLocation: "${pageLocation}",
     data: "${retData}"
   }),
-  storedquery: returnValue([
+  storedQuery: returnValue([
     set("trimmedQuery", ld("trimEnd", settings("query"), ";"))
   ], {
     data: "${trimmedQuery}"
   }),
+  variableReplacement: [
+    ifL(cond("isEmpty", settings("last_sync_at")), {
+      do: set("lastSyncAt", ex(ex(ex(moment(), "subtract", FULL_IMPORT_DAYS, "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
+      eldo: set("lastSyncAt", settings("last_sync_at"))
+    }),
+    set("formattedQuery", ld("replace", "${rawQuery}", ":last_sync_at", '"${lastSyncAt}"')),
+    set("importStartData", ex(ex(ex(moment(), "subtract", settings("import_days"), "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
+    set("formattedQuery", ld("replace", "${formattedQuery}", ":import_start_date", '"${importStartData}"'))
+  ],
   run:
     returnValue([
       set("rawQuery", input("body.query")),
-      set("formattedQuery", "${rawQuery} LIMIT 100"),
+      route("variableReplacement"),
+      utils("print", "${formattedQuery}"),
+      set("finalQuery", "${formattedQuery} LIMIT 100"),
       set("rawPreview", bigquery("testQuery", {
         maxResults: 100,
         timeoutMs: 30000,
-        query: "${formattedQuery}",
+        query: "${finalQuery}",
         useLegacySql: false
       })),
       utils("print", "${rawPreview}"),
@@ -257,7 +268,7 @@ const glue = {
       status: "${retStatus}",
       data: "${retData}"
     }),
-  importResults: route("startImport")
+  manualImport: route("startImport", input("body.query"))
 };
 
 module.exports = glue;
