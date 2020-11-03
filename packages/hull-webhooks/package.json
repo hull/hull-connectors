@@ -4,6 +4,7 @@
   "version": "0.1.36-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
+  "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0"
   },

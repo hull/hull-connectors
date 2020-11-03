@@ -3,6 +3,7 @@
   "version": "0.1.36-monorepo",
   "description": "A Node.js client for hull.io",
   "main": "src",
+  "license": "MIT",
   "author": "Romain Dardour <romain@hull.io>",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",
@@ -41,7 +42,7 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "chai-http": "^3.0.0",
+    "chai-http": "^4.3.0",
     "node-mocks-http": "^1.7.0",
     "supertest": "^3.1.0"
   }

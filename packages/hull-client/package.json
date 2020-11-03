@@ -3,6 +3,7 @@
   "version": "0.1.36-monorepo",
   "description": "A barebones Node.js API client for hull.io",
   "main": "src",
+  "license": "MIT",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",
     "test:unit": "NODE_ENV=test mocha --require ../../root-babel-register --exit -R spec ./test/unit/** ./test/unit/*",
