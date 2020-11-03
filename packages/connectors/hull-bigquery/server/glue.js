@@ -227,7 +227,7 @@ const glue = {
   variableReplacement: [
     ifL(cond("isEmpty", settings("last_sync_at")), {
       do: set("lastSyncAt", ex(ex(ex(moment(), "subtract", FULL_IMPORT_DAYS, "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
-      eldo: set("lastSyncAt", ex(ex(settings("last_sync_at"), "utc"), "format", "YYYY-MM-DDThh:mm:ss"))
+      eldo: set("lastSyncAt", ex(ex(moment(settings("last_sync_at")), "utc"), "format", "YYYY-MM-DDThh:mm:ss"))
     }),
     set("formattedQuery", ld("replace", "${rawQuery}", ":last_sync_at", '"${lastSyncAt}"')),
     set("importStartData", ex(ex(ex(moment(), "subtract", settings("import_days"), "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
