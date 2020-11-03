@@ -1,0 +1,369 @@
+---
+- - :permit
+  - MIT
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:49:39.907787000 Z
+- - :permit
+  - ISC
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:49:49.958106000 Z
+- - :permit
+  - Apache 2.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:49:58.419775000 Z
+- - :permit
+  - Simplified BSD
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:50:06.401359000 Z
+- - :permit
+  - New BSD
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:50:19.686322000 Z
+- - :permit
+  - Apache, Version 2.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:54:45.102570000 Z
+- - :permit
+  - BSD Zero Clause License
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:54:51.816426000 Z
+- - :permit
+  - MIT*
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:55:00.657805000 Z
+- - :permit
+  - Apache*
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:55:05.777537000 Z
+- - :permit
+  - Artistic-2.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:56:11.054311000 Z
+- - :permit
+  - BSD
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 14:56:17.043163000 Z
+- - :permit
+  - DBAD
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:09:29.720215000 Z
+- - :permit
+  - BSD*
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:09:33.996952000 Z
+- - :permit
+  - public domain
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:09:44.845464000 Z
+- - :permit
+  - WTFPL
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:10:16.233790000 Z
+- - :permit
+  - CC0-1.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:11:13.090491000 Z
+- - :permit
+  - Unlicense
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:11:42.321971000 Z
+- - :permit
+  - CC-BY-3.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:17:21.316144000 Z
+- - :permit
+  - CC-BY-4.0
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:17:23.711907000 Z
+- - :ignore
+  - hull
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-accounts-processor
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-aircall
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-bigquery
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-canary
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-copper
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-customerio
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-datanyze
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-front
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-google-sheets
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-hubspot
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-hubspot-deals
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-incoming-webhooks
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-intercom
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-intercom-legacy
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-mailchimp
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-mariadb
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-marketo
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-outgoing-account-webhooks
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-outgoing-user-webhooks
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-outreach
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-pipedrive
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-processor
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-repl
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-salesforce
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-scheduled-calls
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-sql
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-typeform
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-warehouse
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :ignore
+  - hull-website
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:21:53.678155000 Z
+- - :permit
+  - Public Domain
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:25:37.113447000 Z
+- - :permit
+  - "(MIT AND Zlib)"
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-11-03 15:25:46.987879000 Z
+- - :approve
+  - map-stream
+  - :who:
+    :why: Actually licensed with MIT, but not properly detected by license_finder
+    :versions: []
+    :when: 2020-11-03 15:32:26.734285000 Z
+- - :approve
+  - buffers
+  - :who:
+    :why: Actually licensed with MIT, but not properly detected by license_finder
+    :versions: []
+    :when: 2020-11-03 15:32:26.734285000 Z
+- - :approve
+  - pkginfo
+  - :who:
+    :why: Missing license information for version 0.2.3 - MIT for more recent versions
+    :versions:
+    - 0.2.3
+    :when: 2020-11-03 15:32:26.734285000 Z
+- - :approve
+  - qs
+  - :who:
+    :why: Missing license information for version 2.3.3 - BSD-3-Clause License
+    :versions:
+    - 2.3.3
+    :when: 2020-11-03 15:32:26.734285000 Z
+- - :approve
+  - uglify-js
+  - :who:
+    :why: BSD
+    :versions: []
+    :when: 2020-11-03 15:50:02.214902000 Z
+- - :approve
+  - newrelic
+  - :who:
+    :why: Apache License 2.0
+    :versions: []
+    :when: 2020-11-03 15:50:37.292431000 Z
+- - :approve
+  - "@newrelic/koa"
+  - :who:
+    :why: Apache License 2.0
+    :versions: []
+    :when: 2020-11-03 15:52:33.482394000 Z
+- - :approve
+  - "@newrelic/native-metrics"
+  - :who:
+    :why: Apache License 2.0
+    :versions: []
+    :when: 2020-11-03 15:52:39.310500000 Z
+- - :approve
+  - "@newrelic/superagent"
+  - :who:
+    :why: Apache License 2.0
+    :versions: []
+    :when: 2020-11-03 15:52:43.816802000 Z
+- - :approve
+  - jszip
+  - :who:
+    :why: Picked MIT license as it is dual licensed
+    :versions: []
+    :when: 2020-11-03 15:55:08.903918000 Z
