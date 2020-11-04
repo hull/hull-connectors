@@ -3,7 +3,8 @@ set -eu
 
 CONNECTOR=${CONNECTOR:=$1}
 
-: "${INSTANCES:=1}"
+: "${WEB_CONCURRENCY:=1}"
+: "${GC_INTERVAL:=100}"
 : "${CONNECTOR:?CONNECTOR environment variable not set or empty. Should be set to the name of a valid connector such in the form \`hull-*\`}"
 
 CONNECTORS=`ls -1 dist/connectors`
@@ -33,4 +34,4 @@ if [ -n "${MARATHON_APP_ID:-}" ]; then
 fi
 
 echo "Starting connector $PATH_TO_CONNECTOR with ${WEB_CONCURRENCY} instances on PORT $PORT"
-PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -f -i $WEB_CONCURRENCY start dist/start.js --no-daemon -- --gc_interval=100 -r newrelic -r appmetrics/start
+PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -f -i $WEB_CONCURRENCY start dist/start.js --no-daemon -- --gc_interval=$GC_INTERVAL -r newrelic -r appmetrics/start
