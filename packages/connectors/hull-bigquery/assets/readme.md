@@ -16,7 +16,7 @@ This requires provisioning a Service Account in your Google Cloud project. This 
 
 1. First, in Google Console navigate to `IAM & Admin > Service Accounts` and click `CREATE SERVICE ACCOUNT` at the top. This will show you a form to fill in details about a new service account. Pick a meaningful name and description here:
   ![Create Service Account Form](./docs/hull-bigquery-create-service-account-1.png)
-2. Click `CREATE` and assign this Service Account a `BigQuery Job User` role. This can be adjusted later.
+2. Click `CREATE` and assign this Service Account a `BigQuery Job User` and `BigQuery Data Viewer` roles. This can be adjusted later. But both roles are required for connector run.
   ![Create Service Account Form](./docs/hull-bigquery-create-service-account-2.png)
 3. You will be redirected to the list of Service Accounts, find the new one and click "Create Key":
   ![Create Service Account Form](./docs/hull-bigquery-create-service-account-3.png)
