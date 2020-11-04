@@ -237,7 +237,6 @@ const glue = {
     returnValue([
       set("rawQuery", input("body.query")),
       route("variableReplacement"),
-      utils("print", "${formattedQuery}"),
       set("finalQuery", "${formattedQuery} LIMIT 100"),
       set("rawPreview", bigquery("testQuery", {
         maxResults: 100,
@@ -245,7 +244,6 @@ const glue = {
         query: "${finalQuery}",
         useLegacySql: false
       })),
-      utils("print", "${rawPreview}"),
       ifL(cond("isEmpty", "${rawPreview.error}"), {
         do: [
           set("retData.entries", jsonata("[$.rows.(\n" +
