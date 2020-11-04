@@ -32,5 +32,5 @@ if [ -n "${MARATHON_APP_ID:-}" ]; then
   source .env
 fi
 
-echo "Starting connector $PATH_TO_CONNECTOR with ${INSTANCES} instances on PORT $PORT"
-PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -f -i $INSTANCES start dist/start.js --no-daemon -- --gc_interval=100 -r newrelic -r appmetrics/start
+echo "Starting connector $PATH_TO_CONNECTOR with ${WEB_CONCURRENCY} instances on PORT $PORT"
+PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR pm2 -f -i $WEB_CONCURRENCY start dist/start.js --no-daemon -- --gc_interval=100 -r newrelic -r appmetrics/start
