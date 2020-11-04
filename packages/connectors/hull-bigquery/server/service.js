@@ -76,6 +76,12 @@ const service = () : RawRestApi => ({
         condition: notNull("connector.private_settings.access_token"),
         errorType: ReturnableError,
         message: MESSAGES.INVALID_QUERY
+      },
+      {
+        truthy: { status: 403 },
+        condition: notNull("connector.private_settings.access_token"),
+        errorType: ReturnableError,
+        message: MESSAGES.INVALID_QUERY
       }
     ]
   }
