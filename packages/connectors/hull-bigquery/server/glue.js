@@ -184,8 +184,8 @@ const glue = {
         iss: "${serviceAccountKey.client_email}",
         scope: "https://www.googleapis.com/auth/bigquery.readonly",
         aud: "https://oauth2.googleapis.com/token",
-        exp: rawMoment().add(1, 'hour').unix(),
-        iat: rawMoment().unix()
+        exp: ex(ex(moment(), "add", 1, "hour"), "unix"),
+        iat: ex(moment(), "unix")
       }),
       set("jwtAssertion", utils("jwtEncode", { payload: "${jwtPayload}", secret: "${serviceAccountPrivateKey}", algorithm: "RS256" })),
       ifL(cond("notEmpty", set("obtainAccessTokenResponse", bigquery("obtainAccessToken"))),
