@@ -10,16 +10,8 @@ export default function connectorConfig(): HullConnectorConfig {
     SECRET,
     PORT = 8082,
     NODE_ENV,
-    CLIENT_ID,
-    CLIENT_SECRET,
     OVERRIDE_FIREHOSE_URL
   } = process.env;
-
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error(
-      "Can't find Bigquery Client ID and/or Client Secret, check env vars"
-    );
-  }
 
   return {
     manifest,
@@ -27,10 +19,7 @@ export default function connectorConfig(): HullConnectorConfig {
       serviceName: "bigquery",
       glue: require("./glue"),
       services: {
-        bigquery:  require("./service")({
-          clientID: CLIENT_ID,
-          clientSecret: CLIENT_SECRET
-        })
+        bigquery:  require("./service")()
       },
       transforms: require("./transforms-to-hull"),
       ensureHook: "ensure"

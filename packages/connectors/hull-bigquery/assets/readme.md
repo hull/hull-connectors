@@ -10,14 +10,29 @@ Pick the connector from the connectors gallery. One connector can run one query 
 
 ### Authorization & Setup
 
-After installing the connector from the gallery, you need to authorize it against BigQuery API.
+After installing the connector from the gallery, you need to authorize it against BigQuery API using Service Accounts.
 
-Go to the settings and click the Authorize button. You will be shown a consent screen served by Google Cloud. It will ask you to give connector permission to talk to BigQuery API to run your imports.
+This requires provisioning a Service Account in your Google Cloud project. This is a one time operation and gives you precise control over what connector can access in your BigQuery data base.
+
+1. First, in Google Console navigate to `IAM & Admin > Service Accounts` and click `CREATE SERVICE ACCOUNT` at the top. This will show you a form to fill in details about a new service account. Pick a meaningful name and description here:
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-1.png)
+2. Click `CREATE` and assign this Service Account a `BigQuery Job User` role. This can be adjusted later.
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-2.png)
+3. You will be redirected to the list of Service Accounts, find the new one and click "Create Key":
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-3.png)
+4. In new modal stay with JSON format, the other one is not supported:
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-4.png)
+5. A new JSON file will be downloaded by your browser. This is the only copy of the key and cannot be restored. Open it in basic text editor such as TextEdit on Mac and **copy whole content** of the file:
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-5.png)
+6. The whole file can be now pasted in the first section of BigQuery connector settings:
+  ![Create Service Account Form](./docs/hull-bigquery-create-service-account-6.png)
+7. Save the settings before going forward.
 
 Once this is done you need to define which BigQuery project the connector should work in. This is a single select dropdown.
 
-The final part of the setup is to define what kind of Hull Entity connector should import. You can select users, accounts, and events. Additionally below you can define on which schedule the importer should run the query.
+The final part of the setup is to define what kind of Hull Entity connector should import. You can select users, accounts, and events. Additionally below you can define on which schedule the importer will run the query.
 
+Now it's time to write the query.
 
 ### Writing the query
 
