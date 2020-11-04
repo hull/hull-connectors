@@ -15,7 +15,7 @@ babel packages/hull-connector-framework -d dist/node_modules/hull-connector-fram
 
 rsync -rl packages/ dist/ --ignore-existing
 
-if [ -z ${$CONNECTOR+sentinel} ]; then
+if [ -z ${CONNECTOR:sentinel} ]; then
   echo "Building all connectors"
   for d in packages/connectors/*; do
     if [ -d "$d" ]; then
