@@ -15,16 +15,10 @@ babel packages/hull-connector-framework -d dist/node_modules/hull-connector-fram
 
 rsync -rl packages/ dist/ --ignore-existing
 
-if [ -z ${CONNECTOR:sentinel} ]; then
-  echo "Building all connectors"
-  for d in packages/connectors/*; do
-    if [ -d "$d" ]; then
-      if [ -d "$d/src" ]; then
-        webpack --progress --config webpack --env=$d
-      fi
+for d in packages/connectors/*; do
+  if [ -d "$d" ]; then
+    if [ -d "$d/src" ]; then
+      webpack --progress --config webpack --env=$d
     fi
-  done
-else
-  echo "Starting build on CONNECTOR='$CONNECTOR'"
-  webpack --progress --config webpack --env="packages/connectors/$CONNECTOR"
-fi
+  fi
+done
