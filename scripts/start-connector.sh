@@ -4,6 +4,7 @@ set -eu
 CONNECTOR=${CONNECTOR:=$1}
 
 : "${WEB_CONCURRENCY:=1}"
+: "${NODE_ARGS:=""}"
 : "${CONNECTOR:?CONNECTOR environment variable not set or empty. Should be set to the name of a valid connector such in the form \`hull-*\`}"
 
 CONNECTORS=`ls -1 dist/connectors`
