@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.37-monorepo (2020-11-05)
+- [hull-bigquery-importer] Bigquery importer
+
 ## v0.1.36-monorepo (2020-10-02)
 - [hull-facebook-audiences] Migrated to monorepo
 

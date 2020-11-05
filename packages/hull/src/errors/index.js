@@ -17,5 +17,6 @@ module.exports = {
   NotificationValidationError: require("./notification-validation-error"),
   ValidationError: require("./validation-error"),
   SkippableError: require("./skippable-error"),
-  PaymentRequiredError: require("./payment-required-error")
+  PaymentRequiredError: require("./payment-required-error"),
+  ReturnableError: require("./returnable-error")
 };
