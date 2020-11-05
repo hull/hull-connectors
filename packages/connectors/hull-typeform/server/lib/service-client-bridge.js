@@ -11,18 +11,16 @@ class ServiceClientBridge {
   }
 
   getAllResponsesStream(formId: string) {
-    let currentPage = 1;
     return promiseToReadableStream(async push => {
       const getAllResponsesPage = async (token?: string) => {
         const response = await this.serviceClient.getResponses(formId, {
-          after: token,
+          before: token,
           completed: true
         });
         if (response.body.items && response.body.items.length > 0) {
           push(response.body.items);
-          if (response.body.page_count > currentPage) {
-            currentPage += 1;
-            const lastToken = response.body.items.slice(-1).token;
+          if (response.body.page_count > 1) {
+            const lastToken = response.body.items.slice(-1)[0].token;
             return getAllResponsesPage(lastToken);
           }
         }
@@ -33,19 +31,17 @@ class ServiceClientBridge {
   }
 
   getRecentResponsesStream(formId: string, { since }: Object) {
-    let currentPage = 1;
     return promiseToReadableStream(async push => {
       const getRecentResponsesPage = async (token?: string) => {
         const response = await this.serviceClient.getResponses(formId, {
-          after: token,
+          before: token,
           since,
           completed: true
         });
         if (response.body.items && response.body.items.length > 0) {
           push(response.body.items);
-          if (response.body.page_count > currentPage) {
-            currentPage += 1;
-            const lastToken = response.body.items.slice(-1).token;
+          if (response.body.page_count > 1) {
+            const lastToken = response.body.items.slice(-1)[0].token;
             return getRecentResponsesPage(lastToken);
           }
         }
