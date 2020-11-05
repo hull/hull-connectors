@@ -1,5 +1,5 @@
 {
-  "name": "Bigquery",
+  "name": "Bigquery Importer",
   "description": "Import data from any BigQuery query",
   "source": "bigquery",
   "logo": "logo.png",
@@ -11,31 +11,16 @@
   ],
   "private_settings": [
     {
-      "name": "oauth",
-      "title": "Oauth",
+      "name": "service_account_key",
       "type": "string",
-      "format": "oauth",
-      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
-      "handler": "oauth",
-      "url": "/auth",
-      "options": {
-        "tokenInUrl": false,
-        "name": "Bigquery",
-        "strategy": {
-          "skipUserProfile": true,
-          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
-          "tokenURL": "https://oauth2.googleapis.com/token",
-          "grant_type": "authorization_code",
-          "scope": [
-            "https://www.googleapis.com/auth/bigquery"
-          ]
-        }
-      }
+      "format": "textarea",
+      "description": "Paste the entire JSON file.",
+      "title": "Service Account Key"
     },
     {
       "name": "project_id",
       "title": "Project ID",
-      "description": "Google cloud project id",
+      "description": "Google cloud project name",
       "type": "string",
       "url": "/get-projects",
       "format": "select",
@@ -47,7 +32,7 @@
     },
     {
       "name": "import_type",
-      "title": "Import type",
+      "title": "Entity to import",
       "description": "What do you want to import to Hull ?",
       "type": "string",
       "enum": [
@@ -62,7 +47,7 @@
       "name": "query",
       "title": "Query",
       "type": "string",
-      "required": true,
+      "required": false,
       "description": "The query that the connector will execute in Bigquery. Please paste a valid query that you have written and tested in Bigquery's editor."
     },
     {
@@ -80,6 +65,30 @@
         "1440",
         "43800"
       ]
+    },
+    {
+      "name": "import_days",
+      "title": "Increment (in days)",
+      "description": "Define the number of days for the incrementation you want to use in your query.",
+      "type": "number",
+      "default": 5,
+      "minimum": 0,
+      "maximum": 31
+    },
+    {
+      "name": "last_sync_at",
+      "title": "Last sync",
+      "type": "string",
+      "format": "hidden"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Query Editor",
+      "url": "/admin.html",
+      "handler": "admin",
+      "size": "large",
+      "editable": true
     }
   ],
   "settings": [],
@@ -89,30 +98,30 @@
   "incoming": [],
   "json": [
     {
-      "name": "manual_import",
-      "url": "/manual-import",
-      "format": "action",
-      "handler": "manualImport",
-      "title": "Manual import",
-      "options": {
-        "fireAndForget": true,
-        "confirm": {
-          "action": "fetch",
-          "text": "You are about to execute the currently saved query and import its results. Confirm?",
-          "button": "Start import"
-        }
-      }
-    },
-    {
       "url" : "/get-projects",
       "handler": "getProjects"
+    },
+    {
+      "url": "/run",
+      "handler": "run",
+      "options": {}
+    },
+    {
+      "url": "/import",
+      "handler": "manualImport",
+      "options": {}
+    },
+    {
+      "url": "/storedquery",
+      "handler": "storedQuery",
+      "options": {}
     }
   ],
   "schedules": [
     {
-      "url": "/import",
+      "url": "/scheduled-import",
       "type": "interval",
-      "handler": "import",
+      "handler": "scheduledImport",
       "value_from": "private_settings.import_interval",
       "default": "180",
       "options": {
@@ -125,7 +134,8 @@
       "type": "interval",
       "value": "5",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],
@@ -149,10 +159,10 @@
   "settings_sections": [
     {
       "title": "Authentication",
-      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "description": "In order to authorize the connector to access your BigQuery project you need to provide a Service Account Key. Find out how to obtain it in the documentation.",
       "step": "credentials",
       "properties": [
-        "private_settings.oauth"
+        "private_settings.service_account_key"
       ]
     },
     {
@@ -164,12 +174,17 @@
     },
     {
       "title": "Import Setup",
-      "description": "Basic setup for the Bigquery connector.",
+      "description": "",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval",
-        "private_settings.query",
-        "json.manual_import"
+        "private_settings.import_interval"
+      ]
+    },
+    {
+      "title": "Incremental queries",
+      "description": "The connector can make a variable called 'import_start_date' available to use in your incremental query. If your SQL query does not use this variable at all, this setting has no effect.",
+      "properties": [
+        "private_settings.import_days"
       ]
     }
   ]

@@ -17,12 +17,8 @@ const {
   iterateL,
   ld,
   hull,
-  Svc,
-  input,
-  cacheLock
+  Svc
 } = require("hull-connector-framework/src/purplefusion/language");
-
-const FULL_IMPORT_DAYS = process.env.FULL_IMPORT_DAYS || "10000";
 
 const { BigqueryUserRead, BigqueryAccountRead, BigqueryEventRead } = require("./service-objects");
 const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
@@ -31,10 +27,17 @@ function bigquery(op: string, param?: any): Svc {
   return new Svc({ name: "bigquery", op }, param);
 }
 
+const refreshTokenDataTemplate = {
+  refresh_token: "${connector.private_settings.refresh_token}",
+  client_id: process.env.CLIENT_ID,
+  client_secret: process.env.CLIENT_SECRET,
+  grant_type: "refresh_token"
+};
+
 const jobPayloadTemplate = {
     configuration: {
       query: {
-        query: "${formattedQuery}",
+        query: "${connector.private_settings.query}",
         useLegacySql: false,
       }
     },
@@ -71,16 +74,17 @@ const glue = {
     set("service_name", "bigquery")
   ],
   isConfigured: cond("allTrue", [
-    cond("notEmpty", settings("service_account_key")),
-    cond("notEmpty", settings("project_id")),
+    cond("notEmpty", settings("access_token")),
+    cond("notEmpty", settings("refresh_token")),
   ]),
   isAuthenticated: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
-    cond("notEmpty", settings("project_id"))
+    cond("notEmpty", settings("refresh_token"))
   ]),
   getProjects: returnValue([
-      route("obtainAccessToken"),
-      set("projectsMap", jsonata(`[$.{"value": id, "label":$string(friendlyName & "(" & id & ")")}]`, bigquery("getProjects")))
+    ifL(route("isAuthenticated"), [
+      set("projectsMap", jsonata(`[$.{"value": id, "label":friendlyName}]`, bigquery("getProjects")))
+    ])
     ],
     {
       status: 200,
@@ -89,19 +93,19 @@ const glue = {
       }
     }
   ),
-  status: ifL(cond("isEmpty", settings("service_account_key")), {
+  status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
-      message: "Connector is missing Service Account Key which is required to call BigQuery API. Please update settings."
+      message: "Connector has not been authenticated with Bigquery."
     },
     eldo: {
       status: "ok",
-      message: ""
+      message: "allgood"
     }
   }),
-  checkJob: cacheLock("checkJob", [
+  checkJob: [
     ifL([
-      route("isAuthenticated"),
+      route("isConfigured"),
       or([
         cond("notEmpty", settings("job_id")),
         cond("notEmpty", "${jobId}")
@@ -116,9 +120,8 @@ const glue = {
           ], {
             // all good, ready for import
             do: [
-              route("paginateResults"),
-              utils("logInfo", "incoming.job.finished"),
-              settingsUpdate({ last_sync_at: "${jobStatus.statistics.creationTime}"})
+              route("importResults"),
+              utils("logInfo", "incoming.job.finished")
             ],
             // job is finished but has some errors
             eldo: utils("logError", "incoming.job.error: ${jobStatus.status.errors}")
@@ -136,14 +139,12 @@ const glue = {
           })
       }),
     ])
-  ]),
+  ],
   startImport: [
     ifL(cond("isEmpty", "${jobId}"), {
-      do: ifL(route("isAuthenticated"), [
+      do: ifL(route("isConfigured"), [
         set("nowTime", ex(moment(), "unix")),
         set("jobId", "hull_import_${connector.id}_${nowTime}"),
-        set("rawQuery", input()),
-        route("variableReplacement"),
         ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
           settingsUpdate({ job_id: "${jobId}"}),
           utils("logInfo", "incoming.job.start: ${jobStatus.statistics}"),
@@ -155,8 +156,9 @@ const glue = {
       ]
     })
   ],
-  scheduledImport: route("startImport", settings("query")),
-  paginateResults: [
+  import: route("startImport"),
+  manualImport: route("startImport"),
+  importResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("[$.rows.(\n" +
       "    $merge(\n" +
@@ -172,102 +174,23 @@ const glue = {
     ]),
     ifL(cond("notEmpty", "${queryPageResults.pageToken}"), [
       set("pageToken", "${queryPageResults.pageToken}"),
-      route("paginateResults")
+      route("importResults")
     ])
   ],
-  obtainAccessToken:
-    ifL(cond("notEmpty", "${connector.private_settings.service_account_key}"), [
-      set("serviceAccountKey", jsonata("$eval(service_account_key)", "${connector.private_settings}")),
-      set("serviceAccountEmail", "${serviceAccountKey.client_email}"),
-      set("serviceAccountPrivateKey", "${serviceAccountKey.private_key}"),
-      set("jwtPayload", {
-        iss: "${serviceAccountKey.client_email}",
-        scope: "https://www.googleapis.com/auth/bigquery",
-        aud: "https://oauth2.googleapis.com/token",
-        exp: ex(ex(moment(), "add", 1, "hour"), "unix"),
-        iat: ex(moment(), "unix")
-      }),
-      set("jwtAssertion", utils("jwtEncode", { payload: "${jwtPayload}", secret: "${serviceAccountPrivateKey}", algorithm: "RS256" })),
-      ifL(cond("notEmpty", set("obtainAccessTokenResponse", bigquery("obtainAccessToken"))),
+  refreshToken:
+    ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
+      ifL(cond("notEmpty", set("refreshTokenResponse", bigquery("refreshToken", refreshTokenDataTemplate))),
         settingsUpdate({
-          access_token: "${obtainAccessTokenResponse.access_token}",
-          token_expires_in: "${obtainAccessTokenResponse.expires_in}",
-          token_type: "${obtainAccessTokenResponse.token_type}",
+          access_token: "${refreshTokenResponse.access_token}",
+          token_expires_in: "${refreshTokenResponse.expires_in}",
           token_fetched_at: ex(ex(moment(), "utc"), "format"),
         })
       )
     ]),
-  admin: returnValue([
-    ifL(cond("allTrue", [
-      route("isConfigured"), route("isAuthenticated")
-    ]), {
-      do: [
-        set("pageLocation", "connected.html"),
-        set("retData", "${connector.private_settings}"),
-        set("retData.query", settings("query")),
-        set("retData.preview_timeout", settings("preview_timeout")),
-        set("retData.last_sync_at", null),
-        set("retData.import_type", settings("import_type"))
-      ],
-      eldo: [
-        set("pageLocation", "home.html")
-      ]
-    })
-  ], {
-    pageLocation: "${pageLocation}",
-    data: "${retData}"
-  }),
-  storedQuery: returnValue([
-    set("trimmedQuery", ld("trimEnd", settings("query"), ";"))
-  ], {
-    data: "${trimmedQuery}"
-  }),
-  variableReplacement: [
-    ifL(cond("isEmpty", settings("last_sync_at")), {
-      do: set("lastSyncAt", ex(ex(ex(moment(), "subtract", FULL_IMPORT_DAYS, "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
-      eldo: set("lastSyncAt", ex(ex(moment(settings("last_sync_at")), "utc"), "format", "YYYY-MM-DDThh:mm:ss"))
-    }),
-    set("formattedQuery", ld("replace", "${rawQuery}", ":last_sync_at", '"${lastSyncAt}"')),
-    set("importStartData", ex(ex(ex(moment(), "subtract", settings("import_days"), "days"), "utc"), "format", "YYYY-MM-DDThh:mm:ss")),
-    set("formattedQuery", ld("replace", "${formattedQuery}", ":import_start_date", '"${importStartData}"'))
-  ],
-  run:
-    returnValue([
-      set("isPreview", true),
-      set("rawQuery", ld("trimEnd", input("body.query"), ";")),
-      route("variableReplacement"),
-      set("finalQuery", "${formattedQuery} LIMIT 100"),
-      set("rawPreview", bigquery("testQuery", {
-        maxResults: 100,
-        timeoutMs: 30000,
-        query: "${finalQuery}",
-        useLegacySql: false
-      })),
-      ifL(cond("isEmpty", "${rawPreview.error}"), {
-        do: [
-          set("retData.entries", jsonata("[$.rows.(\n" +
-            "    $merge(\n" +
-            "        $map($.f, function($v, $i) {\n" +
-            "            {\n" +
-            "                $$.schema.fields[$i].name: $v.v\n" +
-            "            }\n" +
-            "        })\n" +
-            "    )\n" +
-            ")]\n", "${rawPreview}")),
-          set("retStatus", 200)
-        ],
-        eldo: [
-          set("retStatus", "${rawPreview.error.status}"),
-          set("retData.message", "${rawPreview.error.response.body.error.message}")
-        ]
-      })
-    ], {
-      status: "${retStatus}",
-      data: "${retData}"
-    }),
-  manualImport: [
-    set("isPreview", true),
-    route("startImport", input("body.query"))
+  stopTracking: [
+    utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
+    settingsUpdate({ job_id: null }),
+    set("jobId", null)
   ]
 };
 

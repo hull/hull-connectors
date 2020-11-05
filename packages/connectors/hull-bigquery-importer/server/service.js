@@ -3,18 +3,14 @@ import { SuperagentApi } from "hull-connector-framework/src/purplefusion/superag
 
 const {
   ConfigurationError,
-  SkippableError
+  SkippableError,
+  ReturnableError
 } = require("hull/src/errors");
 
-const OAuth2Strategy = require("passport-oauth2");
-
-const { notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
+const { notNull, varEqual } = require("hull-connector-framework/src/purplefusion/conditionals");
 const MESSAGES = require("./messages");
 
-const service = ({clientID, clientSecret}: {
-  clientId: string,
-  clientSecret: string
-}) : RawRestApi => ({
+const service = () : RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://bigquery.googleapis.com/bigquery/v2",
   defaultReturnObj: "body",
@@ -30,8 +26,8 @@ const service = ({clientID, clientSecret}: {
       operation: "get",
       returnObj: "body.projects"
     },
-    refreshToken: {
-      url: "https://oauth2.googleapis.com/token",
+    obtainAccessToken: {
+      url: "https://oauth2.googleapis.com/token?grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwtAssertion}",
       operation: "post",
       endpointType: "create"
     },
@@ -46,14 +42,10 @@ const service = ({clientID, clientSecret}: {
     getJobResults: {
       url: "/projects/${projectId}/queries/${jobId}?maxResults=1000&pageToken=${pageToken}",
       operation: "get"
-    }
-  },
-  authentication: {
-    strategy: "oauth2",
-    params: {
-      Strategy: OAuth2Strategy,
-      clientID,
-      clientSecret
+    },
+    testQuery: {
+      url: "/projects/${projectId}/queries",
+      operation: "post"
     }
   },
   error: {
@@ -69,15 +61,27 @@ const service = ({clientID, clientSecret}: {
     templates: [
       {
         truthy: { status: 401 },
-        condition: notNull("connector.private_settings.access_token"),
+        condition: notNull("connector.private_settings.service_account_key"),
         errorType: ConfigurationError,
         message: MESSAGES.STATUS_UNAUTHORIZED_REFRESH_TOKEN,
-        recoveryroute: "refreshToken",
+        recoveryroute: "obtainAccessToken",
       },
       {
         truthy: { status: 404 },
         errorType: SkippableError,
         message: MESSAGES.GOOGLE_ENTITY_NOT_FOUND
+      },
+      {
+        truthy: { status: 400 },
+        condition: notNull("connector.private_settings.access_token"),
+        errorType: ReturnableError,
+        message: MESSAGES.INVALID_QUERY
+      },
+      {
+        truthy: { status: 403 },
+        condition: varEqual("isPreview", true),
+        errorType: ReturnableError,
+        message: MESSAGES.INVALID_QUERY
       }
     ]
   }
