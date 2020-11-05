@@ -175,8 +175,8 @@ const emitToParent = query =>
           confirmButtonText: "Let's Go",
           closeOnConfirm: false
         })
-        .then(isConfirm => {
-          if (isConfirm === true) {
+        .then(({ isConfirmed }) => {
+          if (isConfirmed === true) {
             button_import.prop("disabled", true);
             button_import.text("Importing...");
             empty();
@@ -264,7 +264,10 @@ const emitToParent = query =>
                 height: 500,
                 sortable: true,
                 classes: "table table-striped table-borderless",
-                data: _.tail(data.entries),
+                // previously, the first entry in "data" was removed for some reason
+                // if we abstract that front end part, we have to update the glue code
+                // otherwise there will be missing one entry during previews
+                data: data.entries,
                 columns: _.map(_.keys(_.first(data.entries)), field => ({
                   field,
                   formatter,
