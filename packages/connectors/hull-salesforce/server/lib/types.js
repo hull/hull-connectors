@@ -145,6 +145,7 @@ export interface IQueryUtil {
 }
 
 export interface IFilterUtil {
+  filterMessages(messages: Array<Object>, hullType: string, isBatch: boolean): Object;
   filterDuplicateMessages(messages: Array<Object>, entity: string): Array<Object>;
   filterFindableAccountMessages(messages: Array<Object>, isBatch: boolean): Array<Object>;
   filterFindableMessages(hullEntityType: string, messages: Array<Object>, isBatch: boolean): Array<Object>;
@@ -153,6 +154,8 @@ export interface IFilterUtil {
   filterEnvelopes(envelopes: Array<IUserUpdateEnvelope>, resourceType: TResourceType): TFilterResults;
   filterAccountEnvelope(results: TFilterResults, envelope: Object, isBatch: boolean): TFilterResults;
   filterAccountEnvelopes(envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>, isBatch: boolean): TFilterResults;
+  filterLeads(messages: Array<IUserUpdateEnvelope>): Array<IUserUpdateEnvelope>;
+  filterContacts(messages: Array<IUserUpdateEnvelope>): Array<IUserUpdateEnvelope>;
 }
 
 export interface IMatchUtil {

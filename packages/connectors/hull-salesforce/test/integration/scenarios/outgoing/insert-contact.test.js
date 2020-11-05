@@ -52,13 +52,6 @@ describe("Insert Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
               return query.q && query.q.match("FROM Account");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
@@ -110,8 +103,8 @@ describe("Insert Contacts Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 262,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 191,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -120,14 +113,6 @@ describe("Insert Contacts Tests", () => {
               "method": "GET",
               "url_length": 248,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 191,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -189,9 +174,6 @@ describe("Insert Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -233,13 +215,6 @@ describe("Insert Contacts Tests", () => {
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
@@ -294,8 +269,8 @@ describe("Insert Contacts Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 262,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 191,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -304,14 +279,6 @@ describe("Insert Contacts Tests", () => {
               "method": "GET",
               "url_length": 248,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 191,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -395,9 +362,6 @@ describe("Insert Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -505,14 +469,6 @@ describe("Insert Contacts Tests", () => {
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
@@ -671,8 +627,8 @@ describe("Insert Contacts Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 317,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 237,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -681,14 +637,6 @@ describe("Insert Contacts Tests", () => {
               "method": "GET",
               "url_length": 325,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 237,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -850,9 +798,6 @@ describe("Insert Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],

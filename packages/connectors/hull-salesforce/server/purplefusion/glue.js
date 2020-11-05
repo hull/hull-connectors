@@ -1,5 +1,7 @@
 /* @flow */
 
+import { filterL } from "hull-connector-framework/src/purplefusion/language";
+
 const defaultFields = require("../lib/default-fields.json");
 
 const {
@@ -52,9 +54,14 @@ const glue = {
     salesforceSyncAgent("userUpdate", { messages: input() }),
     route("sendEvents")
   ],
+  leadUpdate: [
+    salesforceSyncAgent("leadUpdate", { messages: input() }),
+    route("sendEvents")
+  ],
   accountUpdate: [
     salesforceSyncAgent("accountUpdate", { messages: input() })
   ],
+
   getFetchWindow: [
     set("fetchStart", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf")),
     set("fetchEnd", ex(moment(), "valueOf")),

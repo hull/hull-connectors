@@ -44,6 +44,10 @@ class SalesforceSDK {
     return this.syncAgent.sendUserMessages(messages);
   }
 
+  async leadUpdate({ messages }) {
+    return this.syncAgent.sendLeadMessages(messages);
+  }
+
   async accountUpdate({ messages }) {
     return this.syncAgent.sendAccountMessages(messages);
   }

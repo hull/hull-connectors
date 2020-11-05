@@ -232,8 +232,13 @@ class FilterUtil implements IFilterUtil {
 
   filterEnvelopes(
     envelopes: Array<IUserUpdateEnvelope>,
-    resourceType: TResourceType
+    resourceType: TResourceType,
+    isBatch: boolean = false
   ): TFilterResults {
+    if (_.toLower(resourceType) === "account") {
+      return this.filterAccountEnvelopes(envelopes, isBatch);
+    }
+
     const traitGroup = `salesforce_${_.toLower(resourceType)}`;
     const results: TFilterResults = {
       toSkip: [],
@@ -397,6 +402,31 @@ class FilterUtil implements IFilterUtil {
     );
   }
 
+  filterLeads(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return this.matchesLeadSynchronizedSegments({
+        message
+      });
+    });
+  }
+
+  filterContacts(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return (
+        this.matchesContactSynchronizedSegments({
+          message
+        }) &&
+        !this.matchesLeadSynchronizedSegments({
+          message
+        })
+      );
+    });
+  }
+
   matchesContactSynchronizedSegments(envelope: IUserUpdateEnvelope): boolean {
     const messageSegmentIds = _.compact(envelope.message.segments).map(
       s => s.id
@@ -484,22 +514,6 @@ class FilterUtil implements IFilterUtil {
 
       return matchFilter;
     });
-  }
-
-  filterDuplicateMessages(
-    messages: Array<Object>,
-    entity: string
-  ): Array<Object> {
-    if (!messages || !_.isArray(messages) || messages.length === 0) {
-      return [];
-    }
-
-    return _.chain(messages)
-      .groupBy(`${entity}.id`)
-      .map(val => {
-        return _.last(_.sortBy(val, [`${entity}.indexed_at`]));
-      })
-      .value();
   }
 
   hasSyncedHullAttributesWithChanges(message: Object): boolean {

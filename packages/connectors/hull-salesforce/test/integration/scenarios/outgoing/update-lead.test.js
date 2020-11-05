@@ -240,13 +240,6 @@ describe("Update Lead Tests", () => {
               done: true
             }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           const respBody = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WO7uUAG", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0")
@@ -335,14 +328,6 @@ describe("Update Lead Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
               "url_length": 70,
               "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/describe"
             }
@@ -403,9 +388,6 @@ describe("Update Lead Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]
@@ -530,13 +512,6 @@ describe("Update Lead Tests", () => {
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           const respBody = createSoapEnvelope("createResponse", { result: [{ id: "00Q1I000004WO7uUAG", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0")
@@ -610,14 +585,6 @@ describe("Update Lead Tests", () => {
               "method": "GET",
               "url_length": 344,
               "url": expect.stringMatching(/.*FROM.*Lead.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           [
@@ -695,12 +662,9 @@ describe("Update Lead Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500]
+          ["increment","ship.service_api.call",1],
         ],
         platformApiCalls: []
       };
@@ -845,13 +809,6 @@ describe("Update Lead Tests", () => {
               ],
               done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           const respBody = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WHchAAA", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0")
@@ -930,14 +887,6 @@ describe("Update Lead Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -990,9 +939,6 @@ describe("Update Lead Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]
