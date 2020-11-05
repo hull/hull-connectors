@@ -27,6 +27,7 @@ COPY yarn.lock /app/
 
 COPY packages/hull/package.json /app/packages/hull/
 COPY packages/hull-client/package.json /app/packages/hull-client/
+COPY packages/hull-sql/package.json /app/packages/hull-sql/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
 COPY packages/hull-vm/package.json /app/packages/hull-vm/
 COPY packages/hullrepl/package.json /app/packages/hullrepl/
