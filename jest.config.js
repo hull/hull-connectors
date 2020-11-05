@@ -1,6 +1,8 @@
 // jest.config.js
 module.exports = {
   testMatch: [
+    "<rootDir>/packages/connectors/hull-bigquery/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-bigquery-importer/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-coppercrm/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-customerio/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-marketo/test/**/*.(test|spec).js",
@@ -17,6 +19,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-intercom/test/unit/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
+    "<rootDir>/packages/connectors/hull-bigquery/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-bigquery-importer/server/**/*.js",
     "<rootDir>/packages/connectors/hull-intercom/server/**/*.js",
     "<rootDir>/packages/connectors/hull-coppercrm/server/**/*.js",
     "<rootDir>/packages/connectors/hull-customerio/server/**/*.js",
