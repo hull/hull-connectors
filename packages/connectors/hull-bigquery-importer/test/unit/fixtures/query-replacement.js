@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 module.exports = {
   route: "variableReplacement",
   configuration: {
@@ -8,7 +10,7 @@ module.exports = {
   },
   input: {},
   result: [
-    "1993-06-19T10:05:18",
+    moment("1993-06-19T12:05:18").utc().format("YYYY-MM-DDThh:mm:ss"),
     "",
     expect.anything(),
     ""
