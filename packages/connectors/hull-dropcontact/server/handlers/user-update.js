@@ -86,7 +86,19 @@ const updateAccount = ({
     const queuable = enrichable.filter(
       (v, i) => cacheResults[i] !== IN_ENRICH_QUEUE
     );
-    const queuablePayloads = queuable.map(attributeMap);
+    const queuablePayloads = queuable.map(attributeMap).filter(payload => {
+      // eslint-disable-next-line no-shadow
+      const { last_name, first_name, company, website } = payload;
+      const valid = !!last_name && !!first_name && !!(company || website);
+      if (!valid) {
+        client.logger.info("outgoing.user.skip", {
+          message: "Can't enrich user because it's missing required values",
+          payload
+        });
+      }
+      return valid;
+    });
+
     const ids = _.map(queuable, "user.id");
 
     client.logger.info("outgoing.user.start", {
@@ -164,6 +176,8 @@ const updateAccount = ({
     };
   } catch (error) {
     ctx.client.logger.error("outgoing.user.error", {
+      type: "queueing Error",
+      fullError: error,
       error: _.get(error, "body.error") || error.message || error
     });
     return {
