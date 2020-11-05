@@ -13,6 +13,8 @@ const buildConfigurationFromEnvironment = env => {
     FIREHOSE_KAFKA_TOPICS_MAPPING = "",
     FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
     FIREHOSE_KAFKA_ENABLED = true,
+    FIREHOSE_HTTP_FLUSH_AT = 50,
+    FIREHOSE_HTTP_FLUSH_AFTER = 1000,
     LOGGER_KAFKA_BROKERS,
     LOGGER_KAFKA_TOPIC,
     LOGGER_KAFKA_ENABLED = true,
@@ -49,6 +51,15 @@ const buildConfigurationFromEnvironment = env => {
   }
 
   const clientConfig = {};
+
+  if (FIREHOSE_HTTP_FLUSH_AT) {
+    clientConfig.flushAt = parseInt(FIREHOSE_HTTP_FLUSH_AT, 10);
+  }
+
+  if (FIREHOSE_HTTP_FLUSH_AFTER) {
+    clientConfig.flushAfter = parseInt(FIREHOSE_HTTP_FLUSH_AFTER, 10);
+  }
+
   if (FIREHOSE_KAFKA_BROKERS && FIREHOSE_KAFKA_ENABLED !== "false") {
     const topicsMapping = FIREHOSE_KAFKA_TOPICS_MAPPING.split(",").reduce(
       (m, v) => {

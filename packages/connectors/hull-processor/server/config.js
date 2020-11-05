@@ -7,6 +7,11 @@ export default function connectorConfig(): HullConnectorConfig {
   const { FLOW_CONTROL_IN, FLOW_CONTROL_SIZE } = process.env;
 
   return {
+    httpClientConfig: {
+      timeout: 10000,
+      throttle: false,
+      retries: false
+    },
     handlers: handlers({
       flow_size: parseInt(FLOW_CONTROL_SIZE, 10) || 200,
       flow_in: parseInt(FLOW_CONTROL_IN, 10) || 1
