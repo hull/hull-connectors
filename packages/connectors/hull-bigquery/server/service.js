@@ -7,7 +7,7 @@ const {
   ReturnableError
 } = require("hull/src/errors");
 
-const { notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
+const { notNull, varEqual } = require("hull-connector-framework/src/purplefusion/conditionals");
 const MESSAGES = require("./messages");
 
 const service = () : RawRestApi => ({
@@ -79,7 +79,7 @@ const service = () : RawRestApi => ({
       },
       {
         truthy: { status: 403 },
-        condition: notNull("connector.private_settings.access_token"),
+        condition: varEqual("isPreview", true),
         errorType: ReturnableError,
         message: MESSAGES.INVALID_QUERY
       }

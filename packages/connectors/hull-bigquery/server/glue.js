@@ -80,7 +80,7 @@ const glue = {
   ]),
   getProjects: returnValue([
       route("obtainAccessToken"),
-      set("projectsMap", jsonata(`[$.{"value": id, "label":friendlyName}]`, bigquery("getProjects")))
+      set("projectsMap", jsonata(`[$.{"value": id, "label":$string(friendlyName & "(" & id & ")")}]`, bigquery("getProjects")))
     ],
     {
       status: 200,
@@ -182,7 +182,7 @@ const glue = {
       set("serviceAccountPrivateKey", "${serviceAccountKey.private_key}"),
       set("jwtPayload", {
         iss: "${serviceAccountKey.client_email}",
-        scope: "https://www.googleapis.com/auth/bigquery.readonly",
+        scope: "https://www.googleapis.com/auth/bigquery",
         aud: "https://oauth2.googleapis.com/token",
         exp: ex(ex(moment(), "add", 1, "hour"), "unix"),
         iat: ex(moment(), "unix")
@@ -233,7 +233,8 @@ const glue = {
   ],
   run:
     returnValue([
-      set("rawQuery", input("body.query")),
+      set("isPreview", true),
+      set("rawQuery", ld("trimEnd", input("body.query"), ";")),
       route("variableReplacement"),
       set("finalQuery", "${formattedQuery} LIMIT 100"),
       set("rawPreview", bigquery("testQuery", {
@@ -264,7 +265,10 @@ const glue = {
       status: "${retStatus}",
       data: "${retData}"
     }),
-  manualImport: route("startImport", input("body.query"))
+  manualImport: [
+    set("isPreview", true),
+    route("startImport", input("body.query"))
+  ]
 };
 
 module.exports = glue;
