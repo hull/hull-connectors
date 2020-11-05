@@ -7,15 +7,7 @@
     "documentation": "exit 0"
   },
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "bootstrap-sweetalert": "^1.0.1",
-    "bootstrap-table": "^1.16.0",
-    "codemirror": "^5.52.2",
-    "json-loader": "^0.5.7",
-    "s3-upload-stream": "^1.0.7",
-    "snowflake-sdk": "^1.5.3",
-    "sweetalert2": "^9.15.2",
-    "tedious": "^8.2.0"
+    "snowflake-sdk": "^1.5.3"
   },
   "devDependencies": {}
 }

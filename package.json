@@ -9,6 +9,7 @@
       "packages/hullrepl",
       "packages/hull-vm",
       "packages/hull-webhooks",
+      "packages/hull-sql",
       "packages/hull",
       "packages/hull-client",
       "packages/minihull"

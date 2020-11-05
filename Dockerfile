@@ -52,7 +52,6 @@ COPY packages/connectors/hull-repl/package.json /app/packages/connectors/hull-re
 COPY packages/connectors/hull-scheduled-calls/package.json /app/packages/connectors/hull-scheduled-calls/package.json
 COPY packages/connectors/hull-segment/package.json /app/packages/connectors/hull-segment/package.json
 COPY packages/connectors/hull-slack/package.json /app/packages/connectors/hull-slack/package.json
-COPY packages/connectors/hull-sql/package.json /app/packages/connectors/hull-sql/package.json
 COPY packages/connectors/hull-typeform/package.json /app/packages/connectors/hull-typeform/package.json
 COPY packages/connectors/hull-warehouse/package.json /app/packages/connectors/hull-warehouse/package.json
 COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull-website/package.json
