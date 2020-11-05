@@ -16,9 +16,7 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
     KUE_PREFIX = "hull-dropcontact",
-    QUEUE_NAME = "queueApp",
-    SHIP_CACHE_TTL = 60,
-    SHIP_CACHE_MAX = 100
+    QUEUE_NAME = "queueApp"
   } = process.env;
 
   if (NODE_ENV === "production" && !REDIS_URL) {
@@ -60,11 +58,7 @@ export default function connectorConfig(): HullConnectorConfig {
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
     },
-    cacheConfig: {
-      ...cacheConfig,
-      ttl: SHIP_CACHE_TTL || 60,
-      max: SHIP_CACHE_MAX || 100
-    },
+    cacheConfig,
     queueConfig: REDIS_URL
       ? {
           store: "redis",
