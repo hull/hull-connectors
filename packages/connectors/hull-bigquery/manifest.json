@@ -14,13 +14,13 @@
       "name": "service_account_key",
       "type": "string",
       "format": "textarea",
-      "description": "Paste whole JSON file.",
-      "title": "Service Account Key JSON"
+      "description": "Paste the entire JSON file.",
+      "title": "Service Account Key"
     },
     {
       "name": "project_id",
       "title": "Project ID",
-      "description": "Google cloud project id",
+      "description": "Google cloud project name",
       "type": "string",
       "url": "/get-projects",
       "format": "select",
@@ -32,7 +32,7 @@
     },
     {
       "name": "import_type",
-      "title": "Import type",
+      "title": "Entity to import",
       "description": "What do you want to import to Hull ?",
       "type": "string",
       "enum": [
@@ -68,8 +68,8 @@
     },
     {
       "name": "import_days",
-      "title": "Incremental Queries - Start Date (x days ago)",
-      "description": "Enter the number of days and the connector will make a variable called 'import_start_date' available to your query that allows you to run incremental queries. If your SQL query does not use this variable at all, this setting has no effect.",
+      "title": "Increment (in days)",
+      "description": "Define the number of days for the incrementation you want to use in your query.",
       "type": "number",
       "default": 5,
       "minimum": 0,
@@ -159,7 +159,7 @@
   "settings_sections": [
     {
       "title": "Authentication",
-      "description": "In order to authorize connector to access your BigQuery you need to provide a Service Account Key. See documentation how to obtain it.",
+      "description": "In order to authorize the connector to access your BigQuery project you need to provide a Service Account Key. Find out how to obtain it in the documentation.",
       "step": "credentials",
       "properties": [
         "private_settings.service_account_key"
@@ -174,10 +174,16 @@
     },
     {
       "title": "Import Setup",
-      "description": "Basic setup for the Bigquery connector.",
+      "description": "",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval",
+        "private_settings.import_interval"
+      ]
+    },
+    {
+      "title": "Incremental queries",
+      "description": "The connector can make a variable called 'import_start_date' available to use in your incremental query. If your SQL query does not use this variable at all, this setting has no effect.",
+      "properties": [
         "private_settings.import_days"
       ]
     }
