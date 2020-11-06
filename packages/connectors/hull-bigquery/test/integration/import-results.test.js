@@ -284,29 +284,11 @@ describe("BigQuery Import Results Test", () => {
             {
               private_settings: {
                 ...private_settings,
-                last_sync_at: "1598289330136"
-              },
-              refresh_status: false
-            }
-          ],
-          [
-            "GET",
-            "/api/v1/app",
-            {},
-            {}
-          ],
-          [
-            "PUT",
-            expect.whatever(),
-            {},
-            {
-              private_settings: {
-                ...private_settings,
                 job_id: null
               },
               refresh_status: false
             }
-          ],
+          ]
         ]
       };
     });
