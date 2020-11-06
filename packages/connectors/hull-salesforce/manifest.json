@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.36-monorepo",
+  "version": "0.1.37-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -803,6 +803,13 @@
         }
       ],
       "conditions": {
+        "segments": {
+          "user:update": [
+            "private_settings.lead_synchronized_segments",
+            "private_settings.contact_synchronized_segments"
+          ],
+          "account:update": ["private_settings.account_synchronized_segments"]
+        },
         "channels": {
           "only": [
             "user:update",

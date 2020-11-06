@@ -9,7 +9,7 @@ export default async function importBatch(
   ctx: HullContext,
   incomingMessage: HullIncomingHandlerMessage
 ) {
-  const { mailchimpAgent } = shipAppFactory(ctx);
+  const { mailchimpAgent, syncAgent } = shipAppFactory(ctx);
   const batchData = _.get(incomingMessage, "body", {});
   const { batch_id, import_type } = batchData;
 
@@ -54,10 +54,13 @@ export default async function importBatch(
     { ttl: 43200 }
   );
   if (import_type === "email") {
+    const campaigns = await syncAgent.eventsAgent.getCampaignsAndAutomationsToTrack();
+    const last_track_at = syncAgent.ship.private_settings.last_track_at;
     return mailchimpAgent.batchAgent.handle({
       jobName: "trackEmailActivities",
       batchId: batch_id,
-      importType: import_type
+      importType: import_type,
+      additionalData: { campaigns, last_track_at }
     });
   }
 

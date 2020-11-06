@@ -1,5 +1,7 @@
 /* @flow */
 
+import { filterL } from "hull-connector-framework/src/purplefusion/language";
+
 const defaultFields = require("../lib/default-fields.json");
 
 const {
@@ -19,7 +21,8 @@ const {
   transformTo,
   input,
   filter,
-  utils
+  utils,
+  settingsUpdate
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -51,9 +54,14 @@ const glue = {
     salesforceSyncAgent("userUpdate", { messages: input() }),
     route("sendEvents")
   ],
+  leadUpdate: [
+    salesforceSyncAgent("leadUpdate", { messages: input() }),
+    route("sendEvents")
+  ],
   accountUpdate: [
     salesforceSyncAgent("accountUpdate", { messages: input() })
   ],
+
   getFetchWindow: [
     set("fetchStart", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf")),
     set("fetchEnd", ex(moment(), "valueOf")),
@@ -72,29 +80,52 @@ const glue = {
     ])
   ],
   fetchRecent: [
-    route("getFetchWindow"),
-    route("getFetchFields"),
-    set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
-    salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: "${salesforceIds}", fields: "${fetchFields}" })
+    route("fetchAll")
   ],
   fetchRecentContacts: ifL(cond("isEqual", settings("fetch_contacts"), true), [
       set("fetchType", "Contact"),
       set("claimMappingKey", ld("toLower", "user_claims")),
+      set("lastFetchedAt", settings("users_last_fetched_timestamp")),
+
+      ifL(cond("isEmpty", "${lastFetchedAt}"), [
+        set("lastFetchedAt", ex(ex(moment(), "subtract", { minutes: 10 }), "valueOf"))
+      ]),
+
+      set("stopFetchAt", ex(moment(), "valueOf")),
+      settingsUpdate({ "users_last_fetched_timestamp": "${stopFetchAt}" }),
       route("fetchRecent")
   ]),
   fetchRecentLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
     set("fetchType", "Lead"),
     set("claimMappingKey", ld("toLower", "lead_claims")),
+    set("lastFetchedAt", settings("leads_last_fetched_timestamp")),
+    ifL(cond("isEmpty", "${lastFetchedAt}"), [
+      set("lastFetchedAt", ex(ex(moment(), "subtract", { minutes: 10 }), "valueOf"))
+    ]),
+    set("stopFetchAt", ex(moment(), "valueOf")),
+    settingsUpdate({ "leads_last_fetched_timestamp": "${stopFetchAt}" }),
     route("fetchRecent")
   ]),
   fetchRecentAccounts: ifL(cond("isEqual", settings("fetch_accounts"), true), [
     ifL(settings("fetch_accounts"), [
       set("fetchType", "Account"),
+      set("lastFetchedAt", settings("accounts_last_fetched_timestamp")),
+      ifL(cond("isEmpty", "${lastFetchedAt}"), [
+        set("lastFetchedAt", ex(ex(moment(), "subtract", { minutes: 10 }), "valueOf"))
+      ]),
+      set("stopFetchAt", ex(moment(), "valueOf")),
+      settingsUpdate({ "accounts_last_fetched_timestamp": "${stopFetchAt}" }),
       route("fetchRecent")
     ])
   ]),
   fetchRecentTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
     set("fetchType", "Task"),
+    set("lastFetchedAt", settings("events_last_fetched_timestamp")),
+    ifL(cond("isEmpty", "${lastFetchedAt}"), [
+      set("lastFetchedAt", ex(ex(moment(), "subtract", { minutes: 10 }), "valueOf"))
+    ]),
+    set("stopFetchAt", ex(moment(), "valueOf")),
+    settingsUpdate({ "events_last_fetched_timestamp": "${stopFetchAt}" }),
     route("fetchRecent")
   ]),
 
@@ -131,13 +162,13 @@ const glue = {
   ]),
 
   fetchAll: [
-    set("fetchDaysBack", input("fetch_days_back")),
-    set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
-    set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
-    set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
-
-    set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
-    salesforceSyncAgent("getAllRecords", { sfType: "${fetchType}", fields: "${fetchFields}", fetchDaysBack: "${fetchDaysBack}" })
+    route("getFetchFields"),
+    salesforceSyncAgent("getAllRecords", {
+      sfType: "${fetchType}",
+      fields: "${fetchFields}",
+      fetchDaysBack: "${fetchDaysBack}",
+      lastFetchedAt: "${lastFetchedAt}"
+    })
   ],
   fetchAllContacts: [
     set("fetchType", "Contact"),

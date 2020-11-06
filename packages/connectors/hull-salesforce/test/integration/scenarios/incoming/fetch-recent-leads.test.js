@@ -162,18 +162,15 @@ describe("Fetch Leads Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00Q1I000004WHbtUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   "attributes": {
                     "type": "Lead",
@@ -222,17 +219,16 @@ describe("Fetch Leads Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated")
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "jobName": "fetch-leads",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -364,11 +360,6 @@ describe("Fetch Leads Tests", () => {
         metrics: [
           ["increment","connector.request",1],
 
-          // get ids
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-
           // get entities
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
@@ -377,11 +368,17 @@ describe("Fetch Leads Tests", () => {
           // get resource schema
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-
-          ["increment","ship.incoming.users",1],
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });

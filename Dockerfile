@@ -27,6 +27,7 @@ COPY yarn.lock /app/
 
 COPY packages/hull/package.json /app/packages/hull/
 COPY packages/hull-client/package.json /app/packages/hull-client/
+COPY packages/hull-sql/package.json /app/packages/hull-sql/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
 COPY packages/hull-vm/package.json /app/packages/hull-vm/
 COPY packages/hull-webhooks/package.json /app/packages/hull-webhooks/
@@ -54,7 +55,6 @@ COPY packages/connectors/hull-repl/package.json /app/packages/connectors/hull-re
 COPY packages/connectors/hull-scheduled-calls/package.json /app/packages/connectors/hull-scheduled-calls/package.json
 COPY packages/connectors/hull-segment/package.json /app/packages/connectors/hull-segment/package.json
 COPY packages/connectors/hull-slack/package.json /app/packages/connectors/hull-slack/package.json
-COPY packages/connectors/hull-sql/package.json /app/packages/connectors/hull-sql/package.json
 COPY packages/connectors/hull-typeform/package.json /app/packages/connectors/hull-typeform/package.json
 COPY packages/connectors/hull-warehouse/package.json /app/packages/connectors/hull-warehouse/package.json
 COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull-website/package.json
@@ -65,6 +65,7 @@ COPY packages/connectors/hull-intercom-legacy/package.json /app/packages/connect
 COPY packages/connectors/hull-datanyze/package.json /app/packages/connectors/hull-datanyze/package.json
 COPY packages/connectors/hull-google-sheets/package.json /app/packages/connectors/hull-google-sheets/package.json
 COPY packages/connectors/hull-bigquery/package.json /app/packages/connectors/hull-bigquery/package.json
+COPY packages/connectors/hull-bigquery-importer/package.json /app/packages/connectors/hull-bigquery-importer/package.json
 COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/connectors/hull-facebook-audiences/package.json
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 

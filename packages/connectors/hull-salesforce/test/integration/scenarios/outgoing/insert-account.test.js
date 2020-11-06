@@ -190,13 +190,6 @@ describe("Insert Accounts Tests", () => {
         response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          ["info", "outgoing.account.skip", {
-            "account_external_id": "0011I000007Cy18QAC-2",
-            "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9-2",
-            "subject_type": "account",
-            "request_id": expect.whatever()
-          }, { "reason": "doesn't match filter for accounts" }
-          ],
           [
             "info",
             "outgoing.account.success",

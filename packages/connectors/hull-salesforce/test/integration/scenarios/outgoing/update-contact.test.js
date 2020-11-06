@@ -314,12 +314,6 @@ describe("Update Contacts Tests", () => {
 
           scope.get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, FirstName, LastName, Id, ConvertedAccountId, ConvertedContactId, OwnerId, Owner.Email FROM Lead WHERE Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope.get("/services/data/v39.0/query")
-            .query((query) => {
               return query.q && query.q === "SELECT Id, Website FROM Account WHERE Website LIKE '%apple.com%' ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
@@ -415,14 +409,6 @@ describe("Update Contacts Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 292,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
               "url_length": 365,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
@@ -514,15 +500,12 @@ describe("Update Contacts Tests", () => {
         metrics:[
           ["increment", "connector.request", 1],
           ["increment", "ship.service_api.call", 1],
+          ["value", "ship.service_api.limit", 50000],
+          ["value", "ship.service_api.remaining", 49500],
           ["increment", "ship.service_api.call", 1],
           ["increment", "ship.service_api.call", 1],
           ["value", "ship.service_api.limit", 50000],
           ["value", "ship.service_api.remaining", 49500],
-          ["value", "ship.service_api.limit", 50000],
-          ["value", "ship.service_api.remaining", 49500],
-          ["value", "ship.service_api.limit", 50000],
-          ["value", "ship.service_api.remaining", 49500],
-          ["increment", "ship.service_api.call", 1],
           ["increment", "ship.service_api.call", 1]
         ],
         platformApiCalls: []

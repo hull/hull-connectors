@@ -124,7 +124,6 @@ export interface IServiceClient {
   queryExistingRecords(type: string, sfdcId: string, recordIds: string[]): Promise<any[]>;
   getAllRecords(type: TResourceType, options: Object, onRecord: Function): Promise<*>;
   getRecords(type: TResourceType, ids: Array<string>, options: Object, onRecord: Function): Promise<*>;
-  getUpdatedRecordIds(type: TResourceType, options: Object): Promise<*>;
   getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>>;
   exec(fn: string, ...args: any): Promise<any>;
 }
@@ -146,6 +145,7 @@ export interface IQueryUtil {
 }
 
 export interface IFilterUtil {
+  filterMessages(messages: Array<Object>, hullType: string, isBatch: boolean): Object;
   filterDuplicateMessages(messages: Array<Object>, entity: string): Array<Object>;
   filterFindableAccountMessages(messages: Array<Object>, isBatch: boolean): Array<Object>;
   filterFindableMessages(hullEntityType: string, messages: Array<Object>, isBatch: boolean): Array<Object>;
@@ -154,6 +154,8 @@ export interface IFilterUtil {
   filterEnvelopes(envelopes: Array<IUserUpdateEnvelope>, resourceType: TResourceType): TFilterResults;
   filterAccountEnvelope(results: TFilterResults, envelope: Object, isBatch: boolean): TFilterResults;
   filterAccountEnvelopes(envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>, isBatch: boolean): TFilterResults;
+  filterLeads(messages: Array<IUserUpdateEnvelope>): Array<IUserUpdateEnvelope>;
+  filterContacts(messages: Array<IUserUpdateEnvelope>): Array<IUserUpdateEnvelope>;
 }
 
 export interface IMatchUtil {

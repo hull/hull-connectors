@@ -63,7 +63,7 @@ class MailchimpBatchAgent {
    * @api
    */
   async handle(options) {
-    const { batchId, jobName, importType } = options;
+    const { batchId, jobName, importType, additionalData = {} } = options;
 
     if (_.isNil(batchId)) {
       this.client.logger.info("incoming.job.success", {
@@ -147,7 +147,8 @@ class MailchimpBatchAgent {
         ps.map(ops => {
           try {
             return this.ctx.enqueue(jobName, {
-              response: ops
+              response: ops,
+              additionalData
             });
           } catch (e) {
             this.ctx.client.logger.debug({ errors: e });
@@ -164,7 +165,7 @@ class MailchimpBatchAgent {
         });
         if (importType === "email") {
           this.ctx.helpers.settingsUpdate({
-            last_track_at: moment.utc().format()
+            last_track_at: batchData.submitted_at
           });
         }
 

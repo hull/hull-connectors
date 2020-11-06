@@ -6,10 +6,12 @@ const shipAppFactory = require("../lib/ship-app-factory");
 function trackEmailActivities(ctx: any, payload: any) {
   const { syncAgent } = shipAppFactory(ctx);
   const emailActivities = _.get(payload, "response", []);
+  const { last_track_at, campaigns } = _.get(payload, "additionalData", {});
   return trackEvents({
     syncAgent,
-    entities: emailActivities,
-    additionalData: payload.additionalData
+    campaigns,
+    last_track_at,
+    entities: emailActivities
   });
 }
 

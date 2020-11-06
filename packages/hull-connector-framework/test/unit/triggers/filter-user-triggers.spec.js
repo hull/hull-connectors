@@ -222,6 +222,118 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
     );
   });
 
+  it("User Linked To Account. Should Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          id: [null, "1"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(1);
+  });
+
+  it("User Not Linked To Account. Should Not Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          name: [null, "rei"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
+  it("Lead Linked To Account. Should Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          id: [null, "1"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(1);
+  });
+
+  it("Lead Not Linked To Account. Should Not Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          name: [null, "rei"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
   it("User Entered 'all_segments'. Should not filter out trigger.", () => {
     const context = new ContextMock({
       private_settings: {

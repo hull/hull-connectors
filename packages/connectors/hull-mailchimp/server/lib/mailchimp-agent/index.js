@@ -11,6 +11,8 @@ const MailchimpBatchAgent = require("./batch-agent");
 class MailchimpAgent {
   constructor(mailchimpClient, ctx) {
     this.mailchimpClient = mailchimpClient;
+    this.private_settings = ctx.connector.private_settings;
+    this.settingsUpdate = ctx.helpers.settingsUpdate;
     this.client = ctx.client;
     this.ship = ctx.connector;
     this.cache = ctx.cache;
@@ -74,9 +76,14 @@ class MailchimpAgent {
     if (!this.listId) {
       return Promise.reject(new Error("Missing listId"));
     }
+    const webhook_id = _.get(this.private_settings, "webhook_id");
+
+    if (webhook_id) {
+      return Promise.resolve({ webhook_id });
+    }
     return this.cache
       .wrap("webhook", () => this.getWebhooks(req))
-      .then(webhooks => {
+      .then(async webhooks => {
         const promises = [];
         const { organization, id, secret } = req.client.configuration();
         const { hostname } = req;
@@ -89,7 +96,15 @@ class MailchimpAgent {
           .search(search)
           .toString();
         if (_.filter(webhooks, { url: webhookUrl }) <= 0) {
-          promises.push(this.createWebhook(webhookUrl));
+          try {
+            const webhook = await this.createWebhook(webhookUrl);
+            this.settingsUpdate({ webhook_id: webhook.id });
+          } catch (error) {
+            this.client.logger.warn("webhook.error", {
+              errors: error.message,
+              message: "Unable to create webhook"
+            });
+          }
         }
         _.forEach(webhooks, wh => {
           if (wh.url !== webhookUrl && wh.url.includes(organization)) {

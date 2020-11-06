@@ -24,6 +24,10 @@ module.exports = api => {
       "packages/hull-webhooks/src",
       "packages/hull-webhooks/test",
 
+      "packages/hull-sql/src",
+      "packages/hull-sql/server",
+      "packages/hull-sql/test",
+
       "packages/hullrepl/src",
       "packages/hull-client/src",
 

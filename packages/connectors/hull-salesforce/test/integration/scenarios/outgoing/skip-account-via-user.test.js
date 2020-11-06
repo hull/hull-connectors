@@ -187,14 +187,7 @@ describe("Skip Account Via User Update Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q.match("FROM Lead").index > 0;
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact").index > 0;
+              return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [
                 {
@@ -224,8 +217,7 @@ describe("Skip Account Via User Update Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              console.log(">> Matching account query", query.q && query.q.match("FROM Account").index > 0);
-              return query.q && query.q.match("FROM Account").index > 0;
+              return query.q && query.q.match("FROM Account")
             })
             .reply(200, { records: [
                 {
@@ -463,14 +455,6 @@ describe("Skip Account Via User Update Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 343,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
               "url_length": 353,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
@@ -516,9 +500,6 @@ describe("Skip Account Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -673,13 +654,6 @@ describe("Skip Account Via User Update Tests", () => {
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/query")
@@ -923,8 +897,8 @@ describe("Skip Account Via User Update Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url_length": 219,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20%3D%20'a.com'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           expect.arrayContaining([
@@ -933,14 +907,6 @@ describe("Skip Account Via User Update Tests", () => {
               "method": "GET",
               "url_length": 287,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 219,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20%3D%20'a.com'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           [
@@ -976,9 +942,6 @@ describe("Skip Account Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],

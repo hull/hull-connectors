@@ -157,6 +157,7 @@ class SyncAgent {
       ctx: this.ctx,
       connector: this.connector,
       hullClient: this.hullClient,
+      hubspotClient: this.hubspotClient,
       usersSegments: this.usersSegments,
       accountsSegments: this.accountsSegments,
       hubspotContactProperties,
@@ -446,7 +447,7 @@ class SyncAgent {
   ): Promise<*> {
     await this.initialize();
 
-    const envelopes = messages.map(message =>
+    const envelopes = await Promise.map(messages, message =>
       this.buildUpdateMessageEnvelope(message, "contact")
     );
     const filterResults = this.filterUtil.filterUserUpdateMessageEnvelopes(
@@ -578,7 +579,7 @@ class SyncAgent {
       return Promise.resolve();
     }
     await this.initialize();
-    const envelopes = messages.map(message =>
+    const envelopes = await Promise.map(messages, async message =>
       this.buildUpdateMessageEnvelope(message, "company")
     );
     const filterResults = this.filterUtil.filterAccountUpdateMessageEnvelopes(
@@ -792,7 +793,7 @@ class SyncAgent {
       });
   }
 
-  buildUpdateMessageEnvelope(
+  async buildUpdateMessageEnvelope(
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
     serviceType: ServiceType
   ): HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope {
@@ -800,7 +801,7 @@ class SyncAgent {
       message.user.account = message.account;
     }
 
-    const hubspotWriteEntity = this.mappingUtil.mapToHubspotEntity(
+    const hubspotWriteEntity = await this.mappingUtil.mapToHubspotEntity(
       message,
       serviceType
     );

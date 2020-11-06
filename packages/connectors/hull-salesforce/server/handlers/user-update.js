@@ -6,6 +6,8 @@ import type {
 } from "hull";
 
 const _ = require("lodash");
+const { deduplicateMessages } = require("../lib/utils/dedupe-messages");
+const { filterMessagesBySegments } = require("../lib/utils/filter-messages");
 const PurpleFusionRouter = require("../lib/purple-fusion-router");
 
 export default async (
@@ -31,10 +33,38 @@ export default async (
     };
   }
 
-  const route = "userUpdate";
-  const router = new PurpleFusionRouter(route);
+  const filteredMessages = deduplicateMessages(messages, "user");
+
+  const synchronizedUserSegments = _.get(
+    privateSettings,
+    "contact_synchronized_segments",
+    []
+  );
+  const synchronizedLeadSegments = _.get(
+    privateSettings,
+    "lead_synchronized_segments",
+    []
+  );
+
+  let userMessages = filterMessagesBySegments(
+    filteredMessages,
+    synchronizedUserSegments
+  );
+  const leadMessages = filterMessagesBySegments(
+    filteredMessages,
+    synchronizedLeadSegments
+  );
+
+  userMessages = _.difference(userMessages, leadMessages);
+
+  const userRoute = "userUpdate";
+  const leadRoute = "leadUpdate";
+  const router = new PurpleFusionRouter();
   try {
-    await router.invokeOutgoingRoute(ctx, messages);
+    await Promise.all([
+      router.invokeOutgoingRoute(ctx, userMessages, userRoute),
+      router.invokeOutgoingRoute(ctx, leadMessages, leadRoute)
+    ]);
     return {
       status: 200,
       data: {

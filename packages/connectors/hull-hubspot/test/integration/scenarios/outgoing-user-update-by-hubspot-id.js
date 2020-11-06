@@ -31,6 +31,7 @@ const connector = {
   private_settings: {
     token: "hubToken",
     synchronized_user_segments: ["user_segment_1"],
+    link_users_in_service: true,
     mark_deleted_contacts: false,
     mark_deleted_companies: false,
     outgoing_user_attributes: [
@@ -72,6 +73,39 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           .reply(200, contactPropertyGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
+
+        scope
+          .post("/companies/v2/domains/google.com/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, {
+            "results": [
+              {
+                "portalId": 123456,
+                "companyId": 3938547326,
+                "isDeleted": false,
+                "properties": {
+                  "hs_lastmodifieddate": {
+                    "value": "1591727731861"
+                  },
+                  "domain": {
+                    "value": "google.com"
+                  },
+                  "name": {
+                    "value": "Google"
+                  }
+                },
+                "additionalDomains": [],
+                "stateChanges": [],
+                "mergeAudits": []
+              }
+            ],
+            "hasMore": false,
+            "offset": { "companyId": 3938547326, "isPrimary": true }
+          });
+
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
             "properties": [
               {"property":"firstname","value":"bob"},
@@ -83,7 +117,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
               {"property":"industry","value":"software"},
               {"property":"hull_managed_attribute","value":"some value"},
               {"property":"department","value": "software"},
-              {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
+              {"property":"hull_segments","value":"User Segment 1;User Segment 2"},
+              {"property":"associatedcompanyid","value": 3938547326 }
             ],
             "vid": "existingContactId",
             "email": "email@email.com"
@@ -97,6 +132,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
       messages: [
         {
           account: {
+            "domain": "google.com",
             "hubspot/industry": ["software"]
           },
           user: {
@@ -120,6 +156,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
@@ -137,7 +174,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
                 {"property":"industry","value":"software"},
                 {"property":"hull_managed_attribute","value":"some value"},
                 {"property":"department","value":"software"},
-                {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
+                {"property":"hull_segments","value":"User Segment 1;User Segment 2"},
+                {"property":"associatedcompanyid","value":3938547326}
               ]
             }}
         ]
@@ -145,6 +183,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],

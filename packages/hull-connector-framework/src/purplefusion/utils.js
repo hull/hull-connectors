@@ -183,13 +183,24 @@ function createAnonymizedObject(object, pathsToAnonymize = {
 
 function getTriggers(
   entity: HullEntityName,
+  serviceName: string,
   private_settings: PrivateSettings
 ): HullTriggerSet {
-
   // TODO fill out user/lead/account triggers/filters
-  return {
-    "user_events": private_settings[`outgoing_${entity}_events`] || private_settings["outgoing_events"] || []
-  };
+
+  const { link_users_in_service } = private_settings;
+
+  const triggers = {};
+
+  if (entity !== "account") {
+    triggers[`${entity}_events`] = private_settings[`outgoing_${entity}_events`] || private_settings["outgoing_events"] || [];
+
+    if (link_users_in_service) {
+      triggers[`${entity}_account_linked`] = ["id"];
+      triggers["account_attribute_updated"] = [`${serviceName}/id`];
+    }
+  }
+  return triggers;
 }
 
 /**
@@ -212,10 +223,7 @@ function toSendMessage(
 ): boolean {
   const privateSettings = _.get(context, "connector.private_settings");
   const { helpers } = context;
-
-  // TODO expand use of triggers to include all user/lead/account triggers and filters
   const { hasMatchingTriggers } = helpers;
-  const triggers = getTriggers(targetEntity, privateSettings);
 
   const synchronizedUserSegments = _.get(
     context,
@@ -366,42 +374,7 @@ function toSendMessage(
     return false;
   }
 
-  // Should we do on entered segment too?
   if (hullType === "user") {
-    const linkInService = _.get(
-      context,
-      "connector.private_settings.link_users_in_service"
-    );
-
-    if (
-      !isUndefinedOrNull(linkInService) &&
-      typeof linkInService === "boolean" &&
-      linkInService
-    ) {
-      const changedAccounts = _.get(message, "changes.account.id");
-
-      if (!_.isEmpty(changedAccounts)) {
-        // user changed accounts, and link_users_in_service is enabled
-        // so update user...
-        return true;
-      }
-
-      const serviceName = _.get(options, "serviceName");
-      if (!isUndefinedOrNull(serviceName)) {
-        // try to detect if the account id of the user is changing
-        // If 2 users have been resolved to the same user, could result in loops
-        // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
-        // although there's a million factors there...
-        const changedServiceAccounts = _.get(message, `changes.account.${serviceName}/id`);
-        if (changedServiceAccounts) {
-          return true;
-        }
-      }
-      // if account enters a synchronized segment
-      // but it was or wasn't in a synchronized segment before
-      // may want to perform account linking
-    }
-
     const associated_account_id = _.get(context, "connector.private_settings.outgoing_user_associated_account_id");
 
     if (!isUndefinedOrNull(associated_account_id) && typeof associated_account_id === "string") {
@@ -432,6 +405,13 @@ function toSendMessage(
     }
   }
 
+  // TODO expand use of triggers to include all user/lead/account triggers and filters
+  const triggers = getTriggers(targetEntity, serviceName, privateSettings);
+  const matchesTriggers = hasMatchingTriggers({ mode: "any", message, triggers });
+  if (matchesTriggers) {
+    return true;
+  }
+
   // This is a special flag where we send all attributes regardless of change
   // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
@@ -457,18 +437,6 @@ function toSendMessage(
   if (send_all_account_attributes === true && hullType === "account") {
     return true;
   }
-
-  const matchesTriggers = hasMatchingTriggers({ mode: "all", message, triggers });
-  if (matchesTriggers) {
-    return true;
-  }
-
-
-  // Is this the right thing?
-  // don't have to do anything on segment exited right?
-  // just filter on attribute change...
-  // const exitedSegments = _.get(message, "changes.segments.exited");
-  // const exitedAnySegments = !_.isEmpty(enteredSegments);
 
   const outgoingAttributes = _.get(context, outgoingAttributesPath);
   if (_.isEmpty(outgoingAttributes)) {
