@@ -1315,3 +1315,6 @@ A few details:
 
 ## Webpack
 Now build things sequentially since returning an array is not optimized at all
+
+## Queue UI
+Arena is available on `/__queue` - auth with the connector's HostSecret

@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import queueUIRouter from "hull/src/infra/queue/ui-router";
 import OS from "os";
 import _ from "lodash";
 import type { Server } from "http";
@@ -256,14 +257,6 @@ export default class HullConnector {
       }
 
       this.app = app;
-      if (
-        this.connectorConfig.devMode &&
-        !this.connectorConfig.disableWebpack
-      ) {
-        debug("Starting Server in DevMode");
-      } else {
-        debug("Starting Server");
-      }
       const server = this.startApp(app);
       if (server) {
         this.server = server;
@@ -492,6 +485,13 @@ export default class HullConnector {
     app.use(
       "/",
       staticRouter({ path: process.cwd(), manifest: this.manifest })
+    );
+    app.use(
+      "/__queue",
+      queueUIRouter({
+        hostSecret: this.connectorConfig.hostSecret,
+        queue: this.queue
+      })
     );
     app.engine("html", renderFile);
     app.engine("md", renderFile);

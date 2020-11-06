@@ -47,6 +47,8 @@ class MemoryAdapter {
     return this.processQueues();
   }
 
+  setupUiRouter(_router) {}
+
   /**
    * @param {string} jobName
    * @param {Function} jobCallback
