@@ -1124,7 +1124,7 @@ describe("Update Lead Tests", () => {
   });
 
   it("should sends events from message with only event updates", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -1669,7 +1669,7 @@ describe("Update Lead Tests", () => {
   });
 
   it("should send lead after user/account link occurs in Hull", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
