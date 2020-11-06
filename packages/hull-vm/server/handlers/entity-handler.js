@@ -8,7 +8,6 @@ import type {
 import _ from "lodash";
 import type Entry from "../../types";
 import compute from "../compute";
-import serialize from "../serialize";
 import varsFromSettings from "../lib/vars-from-settings";
 import getSample from "../lib/get-sample";
 import getClaims from "../lib/get-claims";

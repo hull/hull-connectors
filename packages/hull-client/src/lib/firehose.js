@@ -1,7 +1,6 @@
 const _ = require("lodash");
-const Configuration = require("./configuration");
-
 const debug = require("debug")("hull:firehose");
+const Configuration = require("./configuration");
 
 const BATCHERS = {};
 
