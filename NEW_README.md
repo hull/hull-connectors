@@ -1312,6 +1312,7 @@ A few details:
 - Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
 - WEB mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot on the PM2 cluster.
 - On heroku, `WEB_CONCURRENCY` is computed from the `WEB_MEMORY` env var which you can set to tell Heroku how much memory to allocate for your instance. Heroku will use this and compute `WEB_CONCURRENCY` to match based on the Dyno's sizes.
+- You can use SERVER_MAX_CONNECTIONS and SERVER_BACKLOG to fine-tune how Express will respond
 
 ### Node Args
 
@@ -1322,3 +1323,5 @@ Now build things sequentially since returning an array is not optimized at all
 
 ## Queue UI
 Arena is available on `/__queue` - auth with the connector's HostSecret
+need to add `QUEUE_ADAPTER=redis` if you want a redis queue
+need to add `CACHE_STORE=redis` if you want a redis cache

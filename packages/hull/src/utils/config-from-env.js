@@ -30,7 +30,7 @@ const buildConfigurationFromEnvironment = env => {
     SERVER = "true",
     WORKER,
     COMBINED,
-    KUE_PREFIX,
+    KUE_PREFIX = "queue",
     REDIS_URL,
     CACHE_REDIS_URL,
     SECRET,
