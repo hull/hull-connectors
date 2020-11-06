@@ -1310,8 +1310,12 @@ A few details:
 
 - The boot environment has been redone to use pm2. check `start-connector.sh` and `start-dev-connector.sh`
 - Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
-- CLUSTER mode supported: Use the `INSTANCES` env var to define how many instances to boot on the PM2 cluster
+- WEB mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot on the PM2 cluster.
+- On heroku, `WEB_CONCURRENCY` is computed from the `WEB_MEMORY` env var which you can set to tell Heroku how much memory to allocate for your instance. Heroku will use this and compute `WEB_CONCURRENCY` to match based on the Dyno's sizes.
 
+### Node Args
+
+- Use NODE_ARGS to add more Node arguments to the dynos. Be careful, in Cluster mode, those aren't passed to child processes it seems.
 
 ## Webpack
 Now build things sequentially since returning an array is not optimized at all
