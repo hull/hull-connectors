@@ -9,11 +9,8 @@
       "packages/hullrepl",
       "packages/hull-vm",
       "packages/hull-webhooks",
-<<<<<<< HEAD
       "packages/hull-lightweight",
-=======
       "packages/hull-sql",
->>>>>>> release/aws
       "packages/hull",
       "packages/hull-client",
       "packages/minihull"
