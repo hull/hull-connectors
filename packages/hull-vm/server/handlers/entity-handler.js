@@ -92,7 +92,7 @@ export default async function getEntity(
     const data: Entry = {
       connectorId: connector.id,
       date: new Date().toString(),
-      result: serialize(result),
+      result,
       code,
       payload
     };

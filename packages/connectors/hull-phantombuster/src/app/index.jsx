@@ -35,12 +35,14 @@ const renderTitle = ({ error, hasRecent, sync_interval, api_key }) => {
       <>
         Hull calls the Phantom below every {sync_interval} minutes.
         <br />
-        Call it now manually by clicking the button below.
+        Call it now manually by clicking the "Fetch Sample from Phantombuster"
+        button below.
       </>
     );
   return (
     <p>
-      We haven't called the Phantom Yet. Call it now manually by clicking the
+      We haven't called the Phantom Yet. <br />
+      Call it now manually by clicking the "Fetch Sample from Phantombuster"
       button below
     </p>
   );
