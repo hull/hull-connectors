@@ -27,6 +27,7 @@ packages/connectors/hull-slack
 packages/connectors/hull-intercom
 packages/connectors/hull-intercom-legacy
 packages/connectors/hull-bigquery
+packages/connectors/hull-bigquery-importer
 packages/connectors/hull-canary
 packages/connectors/hull-hubspot/server/purplefusion
 packages/connectors/hull-salesforce/server/purplefusion
