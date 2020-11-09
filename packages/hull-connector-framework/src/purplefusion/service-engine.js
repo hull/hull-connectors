@@ -15,7 +15,8 @@ const {
 } = require("./hull-service-objects");
 
 const {
-  SkippableError
+  SkippableError,
+  ReturnableError
 } = require("hull/src/errors");
 
 const HullVariableContext = require("./variable-context");
@@ -400,6 +401,12 @@ class ServiceEngine {
       // if the issue was not an error, resolve, in cases where we marked it as a skippable error
       if (error instanceof SkippableError) {
         return Promise.resolve({});
+      } else if (error instanceof ReturnableError) {
+        return Promise.resolve({
+          body: {
+            error: error.extra
+          }
+        });
       }
 
       return Promise.reject(error);

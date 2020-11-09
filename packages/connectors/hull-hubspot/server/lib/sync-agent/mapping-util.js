@@ -77,6 +77,10 @@ class MappingUtil {
 
   incomingContactSchema: HubspotSchema;
 
+  isBatch: boolean;
+
+  sendOnlyChanges: boolean;
+
   constructor({
     ctx,
     connector,
@@ -102,9 +106,12 @@ class MappingUtil {
       outgoing_account_attributes = [],
       link_users_in_service,
       incoming_user_claims = [],
-      incoming_account_claims = []
+      incoming_account_claims = [],
+      send_only_changes
     } = this.connector.private_settings;
 
+    this.isBatch = _.get(ctx.notification, "is_export", false);
+    this.sendOnlyChanges = send_only_changes || false;
     this.outgoingLinking = link_users_in_service || false;
     this.incomingUserClaims = incoming_user_claims;
 
@@ -270,6 +277,40 @@ class MappingUtil {
     return hubspotWriteCompany;
   }
 
+  getOutgoingMapping(serviceType, message) {
+    const { changes } = message;
+    const hullType = _.toLower(serviceType) === "account" ? "account" : "user";
+
+    // TODO need to account for the 5+ minutes between insert and when Hull fetches
+    // the hubspot id
+    const hubspotId = _.get(message[hullType], "hubspot/id");
+    const isInsert = _.isNil(hubspotId);
+
+    const attributeMapping = this[`${_.toLower(serviceType)}OutgoingMapping`];
+    if (!this.sendOnlyChanges || this.isBatch || isInsert) {
+      return attributeMapping;
+    }
+
+    const userSegmentChanged = !_.isEmpty(changes.segments);
+    const accountSegmentChanged = !_.isEmpty(changes.account_segments);
+
+    // TODO attributes can be jsonata expressions
+    return _.filter(attributeMapping, mapping => {
+      if (
+        (mapping.hull === "segments.name[]" && userSegmentChanged) ||
+        (mapping.hull === "account_segments.name[]" && accountSegmentChanged)
+      ) {
+        return true;
+      }
+      let changedAttr = _.get(changes, `${hullType}.${mapping.hull}`);
+      if (!changedAttr) {
+        changedAttr = _.get(changes, mapping.hull);
+      }
+
+      return !_.isNil(changedAttr);
+    });
+  }
+
   async mapToHubspotEntityProperties({
     message,
     hullType,
@@ -281,7 +322,7 @@ class MappingUtil {
     serviceType: ServiceType,
     transform: any
   }): Array<HubspotWriteContactProperty> | Array<HubspotWriteCompanyProperty> {
-    const outgoingMapping = this[`${serviceType}OutgoingMapping`];
+    const outgoingMapping = this.getOutgoingMapping(serviceType, message);
 
     const { mapAttributes } = this.ctx.helpers;
     const rawHubspotProperties = mapAttributes({

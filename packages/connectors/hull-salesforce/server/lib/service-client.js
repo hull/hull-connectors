@@ -397,12 +397,20 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const { fields = [], identityClaims = [], fetchDaysBack } = options;
+    const {
+      fields = [],
+      identityClaims = [],
+      fetchDaysBack,
+      lastFetchedAt
+    } = options;
     let fetchToDate;
-    if (fetchDaysBack) {
+    if (fetchDaysBack && !lastFetchedAt) {
       fetchToDate = moment()
         .subtract({ days: fetchDaysBack })
         .toISOString();
+    }
+    if (lastFetchedAt) {
+      fetchToDate = moment(lastFetchedAt, "x").toISOString();
     }
     const query = this.getSoqlQuery({
       type,
@@ -427,9 +435,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
       return Promise.reject(new Error("Salesforce Result Set Not Found"));
     }
 
-    const records = result.records;
-    const done = result.done;
-    const nextRecordsUrl = result.nextRecordsUrl;
+    const { done, nextRecordsUrl, records } = result;
 
     if (!totalSize) {
       totalSize = result.totalSize;
@@ -437,7 +443,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
 
     progress += _.size(records);
     this.logger.info("incoming.job.progress", {
-      jobName: `fetch-all-${_.toLower(type)}s`,
+      jobName: `fetch-${_.toLower(type)}s`,
       progress: `${progress} / ${totalSize}`
     });
 
@@ -510,31 +516,11 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
           identityClaims,
           options
         ).then(records => {
-          this.metricsClient.increment(
-            type === "Account"
-              ? "ship.incoming.accounts"
-              : "ship.incoming.users",
-            records.length
-          );
           return Promise.all(records.map(record => onRecord(record)));
         });
       },
       { concurrency: 2 }
     );
-  }
-
-  getUpdatedRecordIds(type: TResourceType, options: Object = {}): Promise<*> {
-    const start = options.start
-      ? new Date(options.start)
-      : new Date(new Date().getTime() - 360 * 1000);
-    const end = options.end ? new Date(options.end) : new Date();
-
-    return this.connection
-      .sobject(type)
-      .updated(start, end)
-      .then(res => {
-        return _.get(res, "ids", []);
-      });
   }
 
   getDeletedRecords(

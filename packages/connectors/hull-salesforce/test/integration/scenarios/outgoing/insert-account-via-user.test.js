@@ -195,13 +195,6 @@ describe("Insert Accounts Via User Update Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
               return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
@@ -439,8 +432,8 @@ describe("Insert Accounts Via User Update Tests", () => {
             },
             {
               "method": "GET",
-              "url_length": 343,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 323,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ],
           [
@@ -453,18 +446,6 @@ describe("Insert Accounts Via User Update Tests", () => {
               "method": "GET",
               "url_length": 287,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "method": "GET",
-              "url_length": 323,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ],
           [
@@ -651,9 +632,6 @@ describe("Insert Accounts Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],

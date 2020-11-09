@@ -232,36 +232,7 @@ describe("Skip User Tests", () => {
           }
         ],
         response: { "flow_control": { "type": "next", } },
-        logs: [
-          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          [
-            "debug",
-            "outgoing.user.skip",
-            {
-              "subject_type": "user",
-              "request_id": expect.whatever(),
-              "user_id": "5a43ce781f6d9f471d005d44",
-              "user_email": "adam.pietrzyk@krakowtraders.pl"
-            },
-            {
-              "reason": "No valid user messages to send"
-            }
-          ],
-          [
-            "debug",
-            "outgoing.user.skip",
-            {
-              "subject_type": "user",
-              "request_id": expect.whatever(),
-              "user_id": "randomid",
-              "user_email": "adam.pietrzyk@krakowtraders.pl"
-            },
-            {
-              "reason": "No valid user messages to send"
-            }
-          ],
-          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
-        ],
+        logs: [],
         firehoseEvents: [],
         metrics:[
           ["increment", "connector.request", 1]
@@ -378,23 +349,6 @@ describe("Skip User Tests", () => {
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { "records": [
-              {
-                "attributes": {
-                  "type": "Contact",
-                  "url": "/services/data/v39.0/sobjects/Contact/0031I000004SLT5QAO"
-                },
-                "Id": "0031I000004SLT5QAO",
-                "Email": "adam.pietrzyk@krakowtraders.pl",
-                "FirstName": "Adam",
-                "LastName": "Pietrzyk"
-              }], "done": true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           return scope;
         },
         connector,
@@ -462,14 +416,6 @@ describe("Skip User Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 288,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
           [
             "info",
             "outgoing.user.skip",
@@ -489,9 +435,6 @@ describe("Skip User Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500]
         ],
@@ -604,14 +547,6 @@ describe("Skip User Tests", () => {
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-
           return scope;
         },
         connector,
@@ -676,14 +611,6 @@ describe("Skip User Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           [
             "info",
             "outgoing.user.skip",
@@ -703,9 +630,6 @@ describe("Skip User Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500]
         ],
