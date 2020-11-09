@@ -12,7 +12,6 @@ import type {
   HullAttributeMapping
 } from "hull";
 
-import type { TResourceType } from "hull-salesforce/server/lib/types";
 import type {
   HubspotWriteContact,
   HubspotWriteContactProperty,
