@@ -5,7 +5,6 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.1.37-monorepo",
-
   "tags": [
     "incoming",
     "outgoing",

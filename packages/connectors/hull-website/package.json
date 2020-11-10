@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "bluebird": "^3.5.3",
-    "cookie-parser": "^1.4.4",
     "eventemitter2": "^5.0.1",
     "jwt-simple": "^0.5.1",
     "query-string": "^5.0.1",

@@ -7,6 +7,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -27,7 +28,7 @@ const connector = {
 };
 
 it("Should sync outgoing user and account attributes to Hubspot", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

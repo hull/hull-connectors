@@ -2,7 +2,6 @@
 
 import type { HullConnectorConfig } from "hull";
 import Aws from "aws-sdk";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 // require("dotenv").config();
@@ -36,8 +35,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: handlers(),
+      handlers: handlers(),
     serverConfig: {
       start: COMBINED === "true" || SERVER === "true"
     },

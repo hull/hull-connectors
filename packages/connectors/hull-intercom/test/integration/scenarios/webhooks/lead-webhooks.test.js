@@ -1,5 +1,7 @@
 // @flow
 import connectorConfig from "../../../../server/config";
+import manifest from "../../../../manifest.json";
+
 const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
 const intercomWebhookHandler = require("../../../../server/incoming-webhook")
 
@@ -7,12 +9,11 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("Lead Webhooks Tests", () => {
 
   it("should receive a contact.created webhook", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.incomingRequestHandler,
         /*rawCustomRoutes: [

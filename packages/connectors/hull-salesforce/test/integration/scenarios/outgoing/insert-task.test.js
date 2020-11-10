@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -130,7 +130,7 @@ describe("Insert Tasks Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -169,7 +169,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const contactResponse = createSoapEnvelope("createResponse", { result: [{ id: "contact_id_1", success: "true" }] });
@@ -490,7 +489,7 @@ describe("Insert Tasks Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -540,7 +539,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }, { id: "asdfasdf", success: "true" }] });

@@ -1,7 +1,7 @@
 # build: docker build .-t hull-connectors
 # launch shell: docker run -it hull-connectors /bin/sh
 
-FROM node:10.18-alpine
+FROM node:12.12-alpine
 
 RUN apk --no-cache add bash \
       g++ \
@@ -30,6 +30,8 @@ COPY packages/hull-client/package.json /app/packages/hull-client/
 COPY packages/hull-sql/package.json /app/packages/hull-sql/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
 COPY packages/hull-vm/package.json /app/packages/hull-vm/
+COPY packages/hull-webhooks/package.json /app/packages/hull-webhooks/
+COPY packages/hull-lightweight/package.json /app/packages/hull-lightweight/
 COPY packages/hullrepl/package.json /app/packages/hullrepl/
 
 # CONNECTORS:
@@ -76,4 +78,4 @@ COPY ./ /app/
 RUN yarn build
 
 # This is preferred over ENTRYPOINT as it allows to override the default command in docker run -it
-CMD [ "sh", "scripts/bash-entrypoint.sh" ]
+CMD [ "sh", "scripts/start-connector.sh" ]

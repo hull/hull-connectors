@@ -1,9 +1,12 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import queueUIRouter from "hull/src/infra/queue/ui-router";
+import OS from "os";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import https from "http";
 import repl from "hullrepl";
 import minimist from "minimist";
 import type {
@@ -32,9 +35,11 @@ import {
 import AppMetricsMonitor from "./appmetrics-monitor";
 import errorHandler from "./error";
 
+import buildConfigurationFromEnvironment from "../utils/config-from-env";
+import mergeConfig from "../utils/merge-config";
+
 const { compose } = require("compose-middleware");
 
-const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
@@ -49,8 +54,7 @@ const {
   baseComposedMiddleware
 } = require("../middlewares");
 
-const getAbsolutePath = p =>
-  `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
+const getAbsolutePath = p => `${process.cwd()}/${p}`;
 
 const getCallbacks = (handlers, category: string, handler: string) => {
   const cat = handlers[category];
@@ -68,6 +72,15 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   }
   return callback;
 };
+
+const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 511 } = process.env;
+
+const getCPUCount = () => OS.cpus().length;
+
+const getMaxConnections = () =>
+  parseInt(SERVER_MAX_CONNECTIONS, 10) || getCPUCount() || 10;
+
+const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 511;
 
 // const { TransientError } = require("../errors");
 
@@ -94,10 +107,10 @@ const getCallbacks = (handlers, category: string, handler: string) => {
  * @param {Object}        [options.cache] override default CacheAgent
  * @param {Object}        [options.queue] override default QueueAgent
  * @param {Array}         [options.captureMetrics] an array to capture metrics
- * @param {Array}         [options.captureLogs] an array to capture logs
+ * @param {Array}         [options.logsConfig] an object of type HullLogsConfig that describes the logger configuration
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
-class HullConnector {
+export default class HullConnector {
   middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
 
   handlers: $PropertyType<HullConnectorConfig, "handlers">;
@@ -121,8 +134,6 @@ class HullConnector {
   logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
 
   cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
-
-  resolvedConfig: HullConnectorConfig;
 
   connectorConfig: HullConnectorConfig;
 
@@ -149,12 +160,13 @@ class HullConnector {
       Worker: Class<Worker>,
       Client: Class<HullClient>
     },
-    connectorConfig: HullConnectorConfig | (() => HullConnectorConfig)
+    config: HullConnectorConfig
   ) {
-    const resolvedConfig =
-      typeof connectorConfig === "function"
-        ? connectorConfig()
-        : connectorConfig;
+    const connectorConfig = mergeConfig(
+      config,
+      buildConfigurationFromEnvironment(process.env)
+    );
+
     const {
       manifest,
       instrumentation,
@@ -171,18 +183,18 @@ class HullConnector {
       middlewares = [],
       handlers,
       disableOnExit = false
-    } = resolvedConfig;
+    } = connectorConfig;
 
-    this.resolvedConfig = resolvedConfig;
+    this.logsConfig = logsConfig || {};
     this.clientConfig = {
       ...clientConfig,
+      logsConfig: this.logsConfig,
       connectorName: clientConfig.connectorName || connectorName
     };
-    this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds
-      max: 100, // Items
+      max: 5, // Connections to Redis (??) Shouldn't be used in newer cache-manager-redis-store
       store: "memory",
       ...cacheConfig
     };
@@ -202,7 +214,7 @@ class HullConnector {
 
     // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {
-      ...resolvedConfig,
+      ...connectorConfig,
       clientConfig: this.clientConfig,
       workerConfig: this.workerConfig,
       httpClientConfig: this.httpClientConfig,
@@ -245,22 +257,6 @@ class HullConnector {
       }
 
       this.app = app;
-      if (
-        this.connectorConfig.devMode &&
-        !this.connectorConfig.disableWebpack
-      ) {
-        debug("Starting Server in DevMode");
-        // eslint-disable-next-line global-require
-        const webpackDevMode = require("./dev-mode");
-
-        webpackDevMode(app, {
-          port: this.connectorConfig.port,
-          source: getAbsolutePath("src"),
-          destination: getAbsolutePath("dist")
-        });
-      } else {
-        debug("Starting Server");
-      }
       const server = this.startApp(app);
       if (server) {
         this.server = server;
@@ -290,9 +286,6 @@ class HullConnector {
   }
 
   async getHandlers() {
-    if (this._handlers) {
-      return this._handlers;
-    }
     this._handlers =
       typeof this.handlers === "function"
         ? await this.handlers(this)
@@ -348,7 +341,6 @@ class HullConnector {
             `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
           );
         }
-        // $FlowFixMe
         if (!app[method || defaultMethod]) {
           throw new Error(
             `Trying to setup an unauthorized method: app.${method}`
@@ -490,7 +482,17 @@ class HullConnector {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
-    app.use("/", staticRouter({ manifest: this.manifest }));
+    app.use(
+      "/",
+      staticRouter({ path: process.cwd(), manifest: this.manifest })
+    );
+    app.use(
+      "/__queue",
+      queueUIRouter({
+        hostSecret: this.connectorConfig.hostSecret,
+        queue: this.queue
+      })
+    );
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
@@ -510,7 +512,7 @@ class HullConnector {
     /**
      * Unhandled error middleware
      */
-    app.use(errorHandler);
+    app.use(errorHandler(this.Client));
 
     return app;
   }
@@ -526,7 +528,21 @@ class HullConnector {
    */
   startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
-    return app.listen(port, () => debug("connector.server.listen", { port }));
+    const maxConnections = getMaxConnections();
+    const backlog = getBacklogSize();
+    const server = https.createServer(app);
+    server.listen(
+      {
+        port: parseInt(port, 10),
+        backlog
+        // exclusive: true
+      },
+      () => {
+        debug("connector.server.listen", { port, backlog, maxConnections });
+      }
+    );
+    server.maxConnections = maxConnections;
+    return server;
   }
 
   use(middleware: Middleware) {
@@ -538,7 +554,7 @@ class HullConnector {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
-      throw new Error(
+      console.warn(
         "Worker is started but no jobs hash is declared in Handlers"
       );
     }
@@ -555,5 +571,3 @@ class HullConnector {
     return this._worker;
   }
 }
-
-module.exports = HullConnector;

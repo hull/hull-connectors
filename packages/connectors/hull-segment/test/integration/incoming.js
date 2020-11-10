@@ -1,6 +1,7 @@
 // @flow
 
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -20,7 +21,7 @@ TESTS.map(function performTest({
   firehoseEvents
 }) {
   return it(title, () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       handlerType: handlers.incomingRequestHandler,
       externalApiMock: () => {},
       connector,

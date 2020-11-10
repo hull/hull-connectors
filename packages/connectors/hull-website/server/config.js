@@ -1,6 +1,5 @@
 // @flow
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -31,7 +30,6 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
     trustProxy: true,
     handlers: handlers({
       redisUri: REDIS_URL,

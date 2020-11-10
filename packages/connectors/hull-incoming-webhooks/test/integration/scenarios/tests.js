@@ -5,6 +5,7 @@ import _ from "lodash";
 import { encrypt } from "hull/src/utils/crypto";
 import supertest from "supertest";
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 import TESTS from "../../tests";
 
 const shipID = "9993743b22d60dd829001999";
@@ -27,7 +28,7 @@ TESTS.map(function performTest({
   firehoseEvents
 }) {
   it(title, async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       handlerType: handlers.incomingRequestHandler,
       externalApiMock: () => {},
       externalIncomingRequest: async ({
@@ -65,7 +66,7 @@ TESTS.map(function performTest({
 });
 
 it("Should return 400 on Invalid Json", () =>
-  testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+  testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
     handlerType: handlers.incomingRequestHandler,
     externalApiMock: () => {},
     externalIncomingRequest: async ({

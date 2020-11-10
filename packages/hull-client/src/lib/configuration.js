@@ -50,8 +50,20 @@ const VALID = {
       _.isArray(t.brokersList)
     );
   },
-  logger(l) {
-    return l && typeof l.log === "function";
+  logTransport(t) {
+    return (
+      (t.type === "kafka" && VALID.object(t.object)) ||
+      t.type === "console" ||
+      t.type === "file"
+    );
+  },
+  logsConfig(l) {
+    return (
+      l &&
+      VALID.array(l.transports) &&
+      _.every(l.transports.map(VALID.logTransport)) &&
+      VALID.string(l.level)
+    );
   }
 };
 
@@ -80,12 +92,9 @@ const VALID_PROPS = {
   flushAfter: VALID.number,
   connectorName: VALID.string,
   requestId: VALID.string,
-  logs: VALID.array,
-  logLevel: VALID.string,
+  logsConfig: VALID.logsConfig,
   firehoseEvents: VALID.array,
-  firehoseTransport: VALID.transport,
-  loggerTransport: VALID.array,
-  logger: VALID.logger
+  firehoseTransport: VALID.transport
 };
 
 /**

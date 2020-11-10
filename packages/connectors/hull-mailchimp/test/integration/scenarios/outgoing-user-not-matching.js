@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -37,7 +38,7 @@ const usersSegments = [
 it("should skip user who doesn't match the filter", () => {
   const email = "test@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -64,7 +65,7 @@ it("should skip user who doesn't match the filter", () => {
           }
         ],
         response: {
-          flow_control: { in_time: 30000, in: 10, size: 50, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [

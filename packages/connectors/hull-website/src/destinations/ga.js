@@ -7,13 +7,7 @@ import type { Destination, PublicUpdate } from "../../types";
 
 export default function googleanalytics(
   { userId }: Destination,
-  {
-    events
-  }: // account,
-  // user,
-  // user_segments,
-  // destinations
-  PublicUpdate // changes, // settings = {}
+  { events }: PublicUpdate // changes, // settings = {}
 ) {
   if (window.ga) {
     if (userId) {

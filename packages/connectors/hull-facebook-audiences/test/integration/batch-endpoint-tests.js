@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const FacebookMock = require("./support/facebook-mock");
@@ -36,6 +37,7 @@ it("should send all user fields correctly", () => {
   const email = "";
   return testScenario(
     {
+      manifest,
       connectorConfig: () => ({
         ...connectorConfig(),
         queueConfig: undefined

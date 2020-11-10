@@ -1,5 +1,4 @@
 /* eslint-disable max-classes-per-file */
-
 import _ from "lodash";
 import request from "request-promise";
 import Promise from "bluebird";

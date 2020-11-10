@@ -1,6 +1,6 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
-import redisStore from "cache-manager-redis";
+import redisStore from "cache-manager-redis-store";
 
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
@@ -51,27 +51,29 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  keyPrefix: string;
+  getOptions(options) {
+    const { store } = options;
+    if (store === "redis") {
+      return {
+        ...options,
+        store: redisStore
+      };
+    }
+    return {
+      ...options,
+      store: "memory"
+    };
+  }
 
   constructor(options: HullCacheConfig) {
-    const { keyPrefix, store } = options;
-    this.cache = cacheManager.caching({
-      ...options,
-      store: store === "redis" ? redisStore : "memory"
-    });
+    this.cache = cacheManager.caching(this.getOptions(options));
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
-    this.keyPrefix = keyPrefix;
   }
 
   getConnectorCache(ctx: HullContext) {
     // eslint-disable-line class-methods-use-this
-    return new ConnectorCache(
-      ctx,
-      this.cache,
-      this.promiseReuser,
-      this.keyPrefix
-    );
+    return new ConnectorCache(ctx, this.cache, this.promiseReuser);
   }
 }
 

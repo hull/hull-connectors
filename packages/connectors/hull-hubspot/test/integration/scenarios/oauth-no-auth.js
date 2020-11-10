@@ -7,6 +7,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -22,7 +23,7 @@ const connector = {
 };
 
 it("Should return an Authorization error when trying to refresh token using Hubspot's API", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

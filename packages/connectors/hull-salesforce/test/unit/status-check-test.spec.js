@@ -8,6 +8,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Status Check", () => {
   it("Should return a missing access token error", () => {
@@ -24,7 +25,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -67,7 +68,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -116,7 +117,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -165,7 +166,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -214,7 +215,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -263,7 +264,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: []
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",
@@ -302,7 +303,7 @@ describe("Status Check", () => {
         contact_attributes_outbound: [{ service: "A", hull: "B" }]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "status",

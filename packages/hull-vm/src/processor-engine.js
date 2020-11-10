@@ -17,8 +17,14 @@ export default class ProcessorEngine extends Engine {
   constructor() {
     super();
     this.state.search = this.getSearchCache();
+    this.initialize();
     this.fetchEntry(this.state);
   }
+
+  initialize = async () => {
+    await this.fetchConfig();
+    await this.fetchEntry(this.state);
+  };
 
   getSearchCache = (): string =>
     localStorage.getItem(`search-${this.state.config.id}`);

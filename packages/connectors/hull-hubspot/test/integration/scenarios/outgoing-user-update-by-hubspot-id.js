@@ -1,6 +1,7 @@
 // @flow
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const contactPropertyGroups = [
   ...require("../fixtures/get-contacts-groups"),
@@ -61,7 +62,7 @@ const usersSegments = [
 
 it("should send out a hull user to hubspot using known hubspot id", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

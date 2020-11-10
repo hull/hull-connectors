@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -26,7 +27,7 @@ const private_settings = {
 describe("BigQuery Import Results Test", () => {
 
   it("should import results from BigQuery", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "check-job",

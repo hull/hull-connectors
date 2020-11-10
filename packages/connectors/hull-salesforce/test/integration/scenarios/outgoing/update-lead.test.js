@@ -1,5 +1,5 @@
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -151,7 +151,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -161,7 +161,6 @@ describe("Update Lead Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "LEAD_SEGMENTS__c",
@@ -497,7 +496,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -770,7 +769,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -816,7 +815,6 @@ describe("Update Lead Tests", () => {
 
           nock("https://na98.salesforce.com")
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           return scope;

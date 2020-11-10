@@ -29,12 +29,10 @@ import onAuthorize from "../actions/on-authorize";
 
 export default function handlers({
   clientID,
-  clientSecret,
-  _hostSecret
+  clientSecret
 }: {
   clientID: string,
-  clientSecret: string,
-  _hostSecret: string
+  clientSecret: string
 }): HullHandlersConfiguration {
   return {
     jobs: {

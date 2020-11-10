@@ -1,6 +1,16 @@
 // @flow
 import type { HullContext } from "../../types";
 
+type QueueAdapterOptions = {
+  ttl?: number,
+  delay?: number,
+  priority: "string",
+  attempts?: number,
+  backoff?:
+    | boolean
+    | { delay: number, type: "fixed" | "exponential" }
+    | ((number, number) => number)
+};
 /**
  * @deprecated internal connector queue is considered an antipattern, this function is kept only for backward compatiblity
  * @name enqueue
@@ -30,7 +40,7 @@ module.exports = async function enqueue(
   ctx: HullContext,
   jobName: string,
   jobPayload?: Object,
-  options?: Object = {}
+  options?: QueueAdapterOptions = {}
 ): Promise<*> {
   if (ctx.client === undefined) {
     throw new Error(

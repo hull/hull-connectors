@@ -8,9 +8,6 @@ import type {
 } from "hull";
 import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
 import type { Payload, Result } from "../types";
-import serialize from "./serialize";
-
-const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
@@ -21,7 +18,6 @@ export default async function ingest(
   payload?: Payload
 ) {
   const { client, metric } = ctx;
-  debug("ingest.result", result);
 
   const {
     events,
@@ -45,7 +41,7 @@ export default async function ingest(
 
   const promises = [];
 
-  client.logger.debug("compute.debug", serialize(result));
+  client.logger.debug("compute.debug", result);
 
   // Update user traits
   if (_.size(userTraits)) {

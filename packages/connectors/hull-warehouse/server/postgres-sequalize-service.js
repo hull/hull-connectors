@@ -121,7 +121,7 @@ class SequalizeSdk {
 
     this.sshConfig = getSshTunnelConfig(this.privateSettings);
     this.dbConfig = getDatabaseConfig(this.privateSettings);
-    this.connectionString = `postgres://${username}:${password}@${hostname}:${port}/${name}?ssl=true`;
+    this.connectionString = `postgres://${username}:${password}@${hostname}:${port}/${name}`;
 
     this.userTableName =
       reqContext.connector.private_settings.db_user_table_name;

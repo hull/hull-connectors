@@ -33,17 +33,22 @@ const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
+const KafkaLogger = require("./utils/kafka-logger");
 
-const createLogger = options =>
+const TRANSPORTS = {
+  console: winston.transports.Console,
+  file: winston.transports.File,
+  kafka: KafkaLogger
+};
+
+const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
+  transports.map(({ type, options }) => new TRANSPORTS[type](options));
+
+const createLogger = ({ level, transports }) =>
   winston.createLogger({
-    level: options.level || "info",
+    level,
     format: winston.format.json(),
-    transports: options.transports || [
-      new winston.transports.Console({
-        json: true,
-        stringify: true
-      })
-    ]
+    transports: transportsFromConfig(transports)
   });
 
 /**
@@ -56,12 +61,10 @@ const createLogger = options =>
  * @param {string}  config.organization Hull organization - required
  * @param {string}  [config.requestId] additional parameter which will be added to logs context, it can be HTTP request unique id when you init HullClient and you want to group log lines by the request (it can be a job id etc.)
  * @param {string}  [config.connectorName] additional parameter which will be added to logs context, it's used to track connector name in logs
- * @param {boolean} [config.captureLogs] an optional param to enable capturing logs, when enabled logs won't be sent to stdout/stderr and `logs` array would be initiated, which you can access via hullClient.configuration().logs
  * @param {boolean} [config.captureFirehoseEvents] an option param to enable capturing firehose events, when enabled firehose events won't be sent to firehose endpoint and `firehoseEvents` array woyld be initiated, which you can access via hullClient.configuration().firehoseEvents
  * @param {string}  [config.firehoseUrl=] The url track/traits calls should be sent, available only for testing purposes
  * @param {string}  [config.protocol=https] protocol which will be appended to organization url, override for testing only
  * @param {string}  [config.prefix=/api/v1] prefix of Hull REST API, override for testing only
- * @param {Array}   [config.logs] an optional array to capture all logs entries, you can provide your own array or use `captureLogs` to initiate empty one
  * @param {Array}   [config.firehoseEvents] an optional array to capture all firehose events, you can provide your own array or use `captureFirehoseEvents` to initiate empty one
  *
  * @example
@@ -103,23 +106,23 @@ class HullClient {
   }
 
   constructor(config: HullClientInstanceConfig) {
-    if (config.captureLogs === true) {
-      config.logs = config.logs || [];
+    const { logsConfig = {} } = config;
+    if (logsConfig.capture === true) {
+      logsConfig.logs = logsConfig.logs || [];
     }
-
     if (config.captureFirehoseEvents === true) {
       config.firehoseEvents = config.firehoseEvents || [];
     }
     this.config = config;
+    this.logsConfig = logsConfig;
     this.clientConfig = new Configuration(config);
     const conf = this.configuration() || {};
 
-    const loggerOptions = {
-      level: conf.logLevel || process.env.LOG_LEVEL || "info",
-      transports: conf.loggerTransport
-    };
+    const logger = createLogger({
+      level: logsConfig.level,
+      transports: logsConfig.transports || [{ type: "console" }]
+    });
 
-    const logger = conf.logger || createLogger(loggerOptions);
     const ctxKeys = _.pick(conf, [
       "organization",
       "id",
@@ -199,11 +202,7 @@ class HullClient {
       data: Object | null | void
     ) => {
       if (this.config.esLogTransform) {
-        const timestamp = new Date().toISOString();
-        const label = "";
-        const summary = "";
-
-        const transformedLog = {
+        logger[level]({
           request_id: ctxe.request_id,
           connector_name: ctxe.connector_name,
           user_id: ctxe.user_id,
@@ -219,14 +218,12 @@ class HullClient {
           subject_type: ctxe.subject_type,
           data,
           message,
-          label,
+          label: "",
           level,
-          summary,
+          summary: "",
           "@version": "1",
-          "@timestamp": timestamp
-        };
-
-        logger[level](transformedLog);
+          "@timestamp": new Date().toISOString()
+        });
       } else {
         logger[level](message, { context: ctxe, data });
       }
@@ -242,15 +239,15 @@ class HullClient {
     };
 
     this.requestId = conf.requestId;
-    const logsArray = this.clientConfig.get("logs");
+    const { logs } = this.logsConfig;
 
-    if (logsArray) {
-      if (!Array.isArray(logsArray)) {
+    if (logs) {
+      if (!Array.isArray(logs)) {
         throw new Error("Configuration `logs` must be an Array");
       }
       logger.removeAllListeners();
       logger.on("data", ({ level, message, context, data }) => {
-        logsArray.push({
+        logs.push({
           message,
           level,
           data,
@@ -588,7 +585,10 @@ class UserScopedHullClient extends EntityScopedHullClient {
  */
 class AccountScopedHullClient extends EntityScopedHullClient {}
 
-HullClient.logger = createLogger({ level: process.env.LOG_LEVEL });
+HullClient.logger = createLogger({
+  level: process.env.LOG_LEVEL,
+  transports: [{ type: "console" }]
+});
 
 export type EntityScopedClient = EntityScopedHullClient;
 export type AccountScopedClient = AccountScopedHullClient;

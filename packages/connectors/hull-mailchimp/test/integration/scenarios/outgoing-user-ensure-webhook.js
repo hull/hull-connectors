@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -33,7 +34,7 @@ const usersSegments = [
 it("should ensure a webhook is registered on outgoing traffic", () => {
   const email = "webhook@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -94,7 +95,7 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, size: 50, in_time: 30000, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [

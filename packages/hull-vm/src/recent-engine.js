@@ -13,9 +13,10 @@ export default class RecentEntriesEngine extends Engine {
   }
 
   initialize = async () => {
+    await this.fetchConfig();
     const success = await this.fetchRecent();
-    const { recent } = this.state;
-    if (!success || !recent.length) {
+    const { recent, config } = this.state;
+    if (!config || !success || !recent.length) {
       return setTimeout(this.initialize, 2000);
     }
     return this.selectEntry(_.head(recent));
@@ -42,10 +43,10 @@ export default class RecentEntriesEngine extends Engine {
       const recent: Array<Entry> = await this.request({
         url: "recent"
       });
-      this.setState({ recent, fetching: false, error: undefined });
+      await this.setState({ recent, fetching: false, error: undefined });
       return true;
     } catch (err) {
-      this.setState({ error: err.message, fetching: false });
+      await this.setState({ error: err.message, fetching: false });
       return false;
     }
   };

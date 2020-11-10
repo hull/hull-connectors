@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -35,7 +35,7 @@ const private_settings = {
 describe("Fetch Accounts Tests", () => {
 
   it("should fetch account without a website", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",
@@ -269,7 +269,7 @@ describe("Fetch Accounts Tests", () => {
   });
 
   it("should fetch account", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",
@@ -508,7 +508,7 @@ describe("Fetch Accounts Tests", () => {
   });
 
   it("should fetch duplicated accounts", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",

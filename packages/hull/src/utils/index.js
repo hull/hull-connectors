@@ -29,4 +29,3 @@ module.exports.remapUserSegmentsKey = require("./remap-user-segments");
 module.exports.computeMatchingSegments = require("./compute-matching-segments");
 module.exports.filterMatchingSegments = require("./filter-matching-segments");
 module.exports.getJsonBody = require("./get-json-body");
-module.exports.KafkaLogger = require("./kafka-logger");

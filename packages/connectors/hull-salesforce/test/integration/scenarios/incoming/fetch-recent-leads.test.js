@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -35,7 +35,7 @@ const private_settings = {
 describe("Fetch Leads Tests", () => {
 
   it("should fetch a single lead", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-leads",
@@ -189,7 +189,6 @@ describe("Fetch Leads Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "UserSegments__c",

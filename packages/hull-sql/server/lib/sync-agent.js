@@ -1,7 +1,6 @@
 /**
  * Module dependencies.
  */
-import _ from "lodash";
 import moment from "moment";
 import ps from "promise-streams";
 
@@ -12,6 +11,8 @@ import map from "through2-map";
 import through2 from "through2";
 
 import * as Adapters from "./adapters";
+
+const _ = require("lodash");
 
 const {
   SSHConnection

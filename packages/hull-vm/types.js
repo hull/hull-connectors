@@ -57,6 +57,7 @@ export type Event = {
 };
 
 export type Payload =
+  | {}
   | {
       query: {},
       params: {},

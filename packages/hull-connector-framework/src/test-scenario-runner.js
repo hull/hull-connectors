@@ -6,7 +6,6 @@ const Hull = require("hull");
 const handlers = require("hull/src/handlers");
 const superagent = require("superagent");
 const Minihull = require("minihull");
-const winston = require("winston");
 const nock = require("nock");
 const express = require("express");
 const jwt = require("jwt-simple");
@@ -126,6 +125,7 @@ class TestScenarioRunner extends EventEmitter {
 
   constructor(
     {
+      manifest,
       connectorConfig,
       debounceWait
     }: {
@@ -145,11 +145,10 @@ class TestScenarioRunner extends EventEmitter {
     });
 
     this.connectorConfig = {
+      manifest,
       hostSecret: "please-dont-tell",
       ...connectorConfig()
     };
-    const { manifest } = this.connectorConfig;
-
     this.connectorManifest = manifest;
     this.finished = false;
     this.timeout = 10000;
@@ -183,14 +182,22 @@ class TestScenarioRunner extends EventEmitter {
       }
       clearTimeout(this.timeoutId);
       this.finished = true;
-      const transformedLogs = this.capturedLogs.map(({ level, message, context, data }) => {
-        return [
-          level,
-          message,
-          _.omit(context, "organization", "id", "connector_name", "connector"),
-          data
-        ];
-      });
+      const transformedLogs = this.capturedLogs.map(
+        ({ level, message, context, data }) => {
+          return [
+            level,
+            message,
+            _.omit(
+              context,
+              "organization",
+              "id",
+              "connector_name",
+              "connector"
+            ),
+            data
+          ];
+        }
+      );
       expect(transformedLogs).toEqualIgnoringOrder(
         this.scenarioDefinition.logs,
         "logs do not match"
@@ -303,7 +310,10 @@ class TestScenarioRunner extends EventEmitter {
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
           }
         });
-        if (this.scenarioDefinition.connector.accept_incoming_webhooks === undefined) {
+        if (
+          this.scenarioDefinition.connector.accept_incoming_webhooks ===
+          undefined
+        ) {
           this.scenarioDefinition.connector.accept_incoming_webhooks = true;
         }
         this.nockScope =
@@ -424,7 +434,7 @@ class TestScenarioRunner extends EventEmitter {
 
   setupTestConnector(minihullPort: number) {
     return new Hull.Connector({
-      manifest:{},
+      manifest: {},
       ...this.connectorConfig,
       port: _.random(5000, 9000, false),
       hostSecret: "please-dont-tell",
@@ -433,15 +443,6 @@ class TestScenarioRunner extends EventEmitter {
         ...this.connectorConfig.clientConfig,
         protocol: "http",
         firehoseUrl: `http://localhost:${minihullPort}/api/v1/firehose`,
-        loggerTransport: [
-          new winston.transports.File({
-            level: "debug",
-            filename: "logs/test.log",
-            tailable: true
-          })
-        ],
-        captureLogs: true,
-        logs: this.capturedLogs,
         flushAt: 1,
         flushAfter: 1
       },
@@ -450,7 +451,20 @@ class TestScenarioRunner extends EventEmitter {
         captureMetrics: this.capturedMetrics
       },
       logsConfig: {
-        ...this.connectorConfig.logsConfig
+        ...this.connectorConfig.logsConfig,
+        capture: true,
+        logs: this.capturedLogs,
+        level: "debug",
+        transports: [
+          {
+            type: "file",
+            options: {
+              level: "debug",
+              filename: "logs/test.log",
+              tailable: true
+            }
+          }
+        ]
       },
       disableOnExit: true
     });
