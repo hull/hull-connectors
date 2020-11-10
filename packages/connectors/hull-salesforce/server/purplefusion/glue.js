@@ -22,11 +22,14 @@ const {
   input,
   filter,
   utils,
-  settingsUpdate
+  settingsUpdate,
+  hull
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
-  HullOutgoingEvent
+  HullOutgoingEvent,
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -129,36 +132,91 @@ const glue = {
     route("fetchRecent")
   ]),
 
-  fetchRecentDeleted: [
+  getDeletedRecords: [
     route("getFetchWindow"),
-    set("deletedRecords", salesforceSyncAgent("getDeletedRecords", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" }))
+    set("deletedRecords", salesforceSyncAgent("getDeletedRecords", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
+  ],
+  fetchRecentDeletedEntities: [
+    route("getDeletedRecords"),
+    route("importDeletedEntities"),
+    route("handleMergedSfObjects")
+  ],
+  importDeletedEntities: [
+    iterateL("${deletedRecords}", "deletedRecord", hull("${deletedOp}",
+      cast("${incoming_type}", {
+        ident: {
+          anonymous_id: "${anon_id_prefix}:${deletedRecord.id}"
+        },
+        attributes: {
+          "${service_name}/deleted_at": "${deletedRecord.deletedDate}"
+        }
+      }))
+    ),
+  ],
+  handleMergedSfObjects: [
+    set("deletedIds", ld("map", "${deletedRecords}", "id")),
+
+    // TODO WHERE MasterRecordId != null
+    set("deletedRawRecords", salesforceSyncAgent("queryAllById", { sfType: "${fetchType}", ids: "${deletedIds}", fields: ["MasterRecordId"] })),
+    set("masterRecordIds", ld("map", "${deletedRawRecords}", "MasterRecordId")),
+    ifL(cond("notEmpty", "${masterRecordIds}"), [
+      set("masterRecords", salesforceSyncAgent("queryExistingById", { sfType: "${fetchType}", ids: "${masterRecordIds}", fields: ["Id", "IsDeleted"] })),
+
+      set("existingMasterRecords", filterL(
+        cond("isEqual", ld("get", "${masterRecord}", "IsDeleted"), false),
+        "masterRecord",
+        "${masterRecords}"
+      )),
+
+      iterateL("${existingMasterRecords}", "existingMasterRecord", hull("${op}",
+        cast("${incoming_type}", {
+          ident: {
+            anonymous_id: "${anon_id_prefix}:${existingMasterRecord.Id}"
+          },
+          attributes: {
+            "${service_name}/id": "${existingMasterRecord.Id}",
+            "${service_name}/deleted_at": null
+          }
+        }))
+      )
+    ])
   ],
   fetchRecentDeletedContacts: ifL(cond("isEqual", settings("fetch_contacts"), true), [
-    set("fetchType", "Contact"),
-    route("fetchRecentDeleted"),
-    iterateL("${deletedRecords}", { key: "deletedObject", async: true },
-      salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
-    )
+    set("service_name", "salesforce_contact"),
+    set("anon_id_prefix", "salesforce-contact"),
+    set("fetchType", "contact"),
+    route("fetchRecentDeletedUsers")
   ]),
   fetchRecentDeletedLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
-    set("fetchType", "Lead"),
-    route("fetchRecentDeleted"),
-    iterateL("${deletedRecords}", { key: "deletedObject", async: true },
-      salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
-    )
+    set("service_name", "salesforce_lead"),
+    set("anon_id_prefix", "salesforce-lead"),
+    set("fetchType", "lead"),
+    route("fetchRecentDeletedUsers")
   ]),
+  fetchRecentDeletedUsers: [
+    set("op", "asUser"),
+    set("deletedOp", "userDeletedInService"),
+    set("incoming_type", HullIncomingUser),
+    route("fetchRecentDeletedEntities")
+  ],
   fetchRecentDeletedAccounts: ifL(cond("isEqual", settings("fetch_accounts"), true), [
-    set("fetchType", "Account"),
-    route("fetchRecentDeleted"),
-    iterateL("${deletedRecords}", { key: "deletedObject", async: true },
-      salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
-    )
+    set("op", "asAccount"),
+    set("deletedOp", "accountDeletedInService"),
+    set("incoming_type", HullIncomingAccount),
+    set("service_name", "salesforce"),
+    set("anon_id_prefix", "salesforce"),
+    set("fetchType", "account"),
+    route("fetchRecentDeletedEntities")
   ]),
   fetchRecentDeletedTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
     set("fetchType", "Task"),
-    route("fetchRecentDeleted"),
+    route("getDeletedRecords"),
     route("getFetchFields"),
-    salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: ld("map", "${deletedRecords}", "id"), fields: "${fetchFields}", executeQuery: "queryAll" })
+    set("deletedIds", ld("map", "${deletedRecords}", "id")),
+    set("deletedTasks", salesforceSyncAgent("queryAllById", { sfType: "${fetchType}", ids: "${deletedIds}", fields: "${fetchFields}" })),
+    iterateL("${deletedTasks}", { key: "deletedTask", async: true},
+      salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedTask}" })
+    ),
   ]),
 
   fetchAll: [

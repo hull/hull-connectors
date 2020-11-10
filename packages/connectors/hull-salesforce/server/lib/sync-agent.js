@@ -905,17 +905,11 @@ class SyncAgent {
     const direction = source === "hull" ? "outgoing" : "incoming";
     const action = `${direction}.${hullType}`;
 
-    const traits =
-      direction === "incoming" && sfObject.deletedDate
-        ? this.attributesMapper.mapToHullDeletedObject(
-            sfType,
-            sfObject.deletedDate
-          )
-        : this.attributesMapper.mapToHullAttributeObject(
-            sfType,
-            sfObject,
-            resourceSchema
-          );
+    const traits = this.attributesMapper.mapToHullAttributeObject(
+      sfType,
+      sfObject,
+      resourceSchema
+    );
 
     if (source === "hull") {
       if (_.isEmpty(error) && success) {

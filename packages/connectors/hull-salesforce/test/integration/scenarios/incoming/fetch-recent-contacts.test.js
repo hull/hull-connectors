@@ -169,6 +169,61 @@ describe("Fetch Contacts Tests", () => {
               latestDateCovered: "2018-09-10T18:31:00.000+0000"
             }, { "sforce-limit-info": "api-usage=500/50000" });
 
+          scope
+            .get("/services/data/v39.0/queryAll")
+            .query((query) => {
+              return query.q === "SELECT MasterRecordId FROM Contact WHERE Id IN ('0032F000008DdqkQAC')";
+            })
+            .reply(200, {
+              "totalSize": 2,
+              "done": true,
+              "records": [
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/0032F000008DdqkQAC"
+                  },
+                  "MasterRecordId": "master_record_id_1"
+                },
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/0032F000008DdqkQAC-fake"
+                  },
+                  "MasterRecordId": "master_record_id_2"
+                }
+              ]
+            }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          scope
+            .get("/services/data/v39.0/query")
+            .query((query) => {
+              return query.q === "SELECT Id,IsDeleted FROM Contact WHERE Id IN ('master_record_id_1','master_record_id_2')";
+            })
+            .reply(200, {
+              "totalSize": 3,
+              "done": true,
+              "records": [
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/master_record_id_1"
+                  },
+                  "Id": "master_record_id_1",
+                  "IsDeleted": true
+                },
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/master_record_id_2"
+                  },
+                  "Id": "master_record_id_2",
+                  "IsDeleted": false
+                }
+              ]
+            }, { "sforce-limit-info": "api-usage=500/50000" });
+
+
           return scope;
         },
         response: { status : "deferred"},
@@ -193,35 +248,63 @@ describe("Fetch Contacts Tests", () => {
             }
           ],
           [
-            "info",
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/query")
+            }
+          ],
+          [
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/query")
+            }
+          ],
+          [
+            "debug",
             "incoming.user.success",
             {
               "subject_type": "user",
               "user_anonymous_id": "salesforce-contact:0032F000008DdqkQAC"
             },
             {
-              "traits": {
-                "salesforce_contact/first_name": {
-                  "value": null,
-                  "operation": "set"
+              "data": {
+                "attributes": {
+                  "salesforce_contact/deleted_at": "2018-09-10T16:38:43.000+0000",
+                  "salesforce_contact/id": null
                 },
-                "salesforce_contact/last_name": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/email": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/id": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/deleted_at": {
-                  "value": "2018-09-10T16:38:43.000+0000",
-                  "operation": "set"
+                "ident": {
+                  "anonymous_id": "salesforce-contact:0032F000008DdqkQAC"
                 }
-              }
+              },
+              "type": "User"
+            }
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              "subject_type": "user",
+              "user_anonymous_id": "salesforce-contact:master_record_id_2"
+            },
+            {
+              "data": {
+                "attributes": {
+                  "salesforce_contact/deleted_at": null,
+                  "salesforce_contact/id": "master_record_id_2"
+                },
+                "ident": {
+                  "anonymous_id": "salesforce-contact:master_record_id_2"
+                }
+              },
+              "type": "User"
             }
           ],
           [
@@ -244,26 +327,21 @@ describe("Fetch Contacts Tests", () => {
               "subjectType": "user"
             },
             {
-              "salesforce_contact/first_name": {
-                "value": null,
-                "operation": "set"
+              "salesforce_contact/deleted_at": "2018-09-10T16:38:43.000+0000",
+              "salesforce_contact/id": null
+            }
+          ],
+          [
+            "traits",
+            {
+              "asUser": {
+                "anonymous_id": "salesforce-contact:master_record_id_2"
               },
-              "salesforce_contact/last_name": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/email": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/id": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/deleted_at": {
-                "value": "2018-09-10T16:38:43.000+0000",
-                "operation": "set"
-              }
+              "subjectType": "user"
+            },
+            {
+              "salesforce_contact/deleted_at": null,
+              "salesforce_contact/id": "master_record_id_2"
             }
           ]
         ],
@@ -271,9 +349,13 @@ describe("Fetch Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["increment","ship.service_api.call",1],
+          ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["increment","ship.service_api.call",1],
+          ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500]
-          // TODO why is this missing?
-          // ["increment","ship.incoming.users",1]
         ],
         platformApiCalls: []
       };

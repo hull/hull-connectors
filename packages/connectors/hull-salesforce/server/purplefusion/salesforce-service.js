@@ -68,17 +68,25 @@ class SalesforceSDK {
     });
   }
 
-  async saveRecords({ sfType, ids, fields, executeQuery = "query" }) {
-    const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
-    return this.syncAgent.sf.getRecords(
+  async queryAllById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(
       sfType,
       ids,
-      { identityClaims, fields, executeQuery },
-      record => this.saveRecord({ sfType, record })
+      fields,
+      { queryScope: "queryAll" }
     );
   }
 
-  async saveRecord({ sfType, record, progress = {} }) {
+  async queryExistingById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(
+      sfType,
+      ids,
+      fields,
+      { queryScope: "query" }
+    );
+  }
+
+  async saveRecord({ sfType, record }) {
     return this.syncAgent[`save${sfType}`](
       { source: "salesforce", sfType },
       record
