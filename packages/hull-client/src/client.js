@@ -120,7 +120,9 @@ class HullClient {
 
     const logger = createLogger({
       level: logsConfig.level,
-      transports: logsConfig.transports || [{ type: "console" }]
+      transports: logsConfig.transports || [
+        { type: "console", options: { level: "info" } }
+      ]
     });
 
     const ctxKeys = _.pick(conf, [

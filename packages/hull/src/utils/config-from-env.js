@@ -84,7 +84,14 @@ const buildConfigurationFromEnvironment = env => {
     };
   }
 
-  const transports = [{ type: "console" }];
+  const transports = [
+    {
+      type: "console",
+      options: {
+        level: LOG_LEVEL
+      }
+    }
+  ];
 
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
     if (LOGGER_KAFKA_ENABLED !== "false") {
