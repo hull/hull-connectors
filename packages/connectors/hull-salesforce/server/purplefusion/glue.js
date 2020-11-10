@@ -138,8 +138,10 @@ const glue = {
   ],
   fetchRecentDeletedEntities: [
     route("getDeletedRecords"),
-    route("importDeletedEntities"),
-    route("handleMergedSfObjects")
+    ifL(cond("notEmpty", "${deletedRecords}"), [
+      route("importDeletedEntities"),
+      route("handleMergedSfObjects")
+    ])
   ],
   importDeletedEntities: [
     iterateL("${deletedRecords}", "deletedRecord", hull("${deletedOp}",
