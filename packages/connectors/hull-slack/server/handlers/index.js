@@ -25,7 +25,7 @@ const handler = ({
 }) => (connector: Connector): HullHandlersConfiguration => {
   const { connectorConfig, app } = connector;
 
-  const { /* hostSecret, port, */ devMode } = connectorConfig;
+  const { devMode } = connectorConfig;
 
   const { connectSlack } = BotFactory({
     webserver: app,

@@ -5,11 +5,12 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Outgoing Account Tests", () => {
 
   it("Account Enters Segment. Should Send To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -125,7 +126,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account Leaves Segment. Should Send To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -237,7 +238,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Whitelisted Account Attribute Changed. Should Send To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -356,7 +357,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("New Account in Whitelisted Segment. Should Send to Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -534,7 +535,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Send Single Account To Multiple Zaps", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -697,7 +698,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Send Multiple Accounts To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -875,7 +876,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account enters non-whitelisted segment but is in whitelisted segment. Should not send to zapier.", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -947,7 +948,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   /*it("Webhook Not Valid - Should Unsubscribe", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
     });
   });*/

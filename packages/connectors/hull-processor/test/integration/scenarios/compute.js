@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 import {
   CONNECTOR,
@@ -25,7 +26,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { userValue: "baz", accountValue: "ball" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -74,7 +75,7 @@ describe("Basic Attributes manipulation", () => {
       email: "foo@bar.com",
       anonymous_id: "one"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -127,7 +128,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { identical: "value" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser
@@ -156,7 +157,7 @@ describe("Basic Attributes manipulation", () => {
     const claims = { id: "1234", anonymous_id: "foo" };
     const asAccount = { id: "1234" };
     const attributes = { identical: "value" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           id: "1234",
@@ -202,7 +203,7 @@ describe("Basic Attributes manipulation", () => {
       identical_date: "2020-08-06T16:56:59+02:00"
     };
     const identical_date = "2020-08-06T17:56:59+03:00";
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -249,7 +250,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { different: "1234" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -300,7 +301,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { foo: { bar: "baz" } };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -345,7 +346,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const obj = [{ bar: "baz" }];
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: asUser,
         account: {}
@@ -385,7 +386,7 @@ describe("Basic Attributes manipulation", () => {
     const asAccount = {
       id: "1234"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: asUser,
         account: {}
@@ -432,7 +433,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { foo: { bar: { baz: "ball" } } };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -491,7 +492,7 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { userValue: "bat", accountValue: "ball" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -532,7 +533,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should handle empty events at top level", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`if(events) { console.log("hi"); }`),
@@ -545,7 +546,7 @@ describe("Basic Attributes manipulation", () => {
   it("should apply a simple attribute to a user", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`traits(${JSON.stringify(attributes)})`),
@@ -579,7 +580,7 @@ describe("Basic Attributes manipulation", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const attributes2 = { faa: "baz" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(
@@ -622,7 +623,7 @@ describe("Basic Attributes manipulation", () => {
     const asImpersonatedUser = { email: "foo@bar.com" };
     const attributes = { foo: "bar" };
     const impersonatedAttributes = { boo: "booya" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(
@@ -690,7 +691,7 @@ describe("Basic Attributes manipulation", () => {
     const asImpersonatedAccount = { domain: "bar.com" };
     const attributes = { foo: "bar" };
     const impersonatedAttributes = { boo: "booya" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(
@@ -764,7 +765,7 @@ describe("Basic Attributes manipulation", () => {
         }
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(
@@ -798,7 +799,7 @@ describe("Basic Attributes manipulation", () => {
   it("should apply a simple event to a user", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
@@ -858,7 +859,7 @@ describe("Basic Attributes manipulation", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const asAccount = { domain: "bar.com" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
           ...asUser,
@@ -917,14 +918,14 @@ describe("Request Methods", () => {
   };
   it("should handle request timeouts", () => {
     const error_message = "Error: ESOCKETTIMEDOUT";
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({ user, account }),
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
         scope
           .get("/")
-          .socketDelay(35000)
+          .delayConnection(35000)
           .reply(500, { boom: true });
         return scope;
       },
@@ -956,7 +957,7 @@ describe("Request Methods", () => {
   });
   it("should handle request errors", () => {
     const error_message = '{"boom":true}';
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({ user, account }),
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {

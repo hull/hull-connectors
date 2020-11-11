@@ -7,6 +7,7 @@ type Props = {
   content: any,
   show: any,
   onHide: Function,
+  title?: string | React$Node,
   body?: string | React$Node,
   footer?: string | React$Node,
   actions?: string | React$Node
@@ -21,9 +22,13 @@ export default class ConfigurationModal extends Component<Props> {
         <Modal.Body>
           <div className="ps-2">
             <div>
-              <h3 className="mt-1 mb-0 text-center">{title}</h3>
-              <h1 className="mt-0 mb-0 text-center">🤓</h1>
-              <p>{content}</p>
+              {title && (
+                <>
+                  <h3 className="mt-1 mb-0 text-center">{title}</h3>
+                  <h1 className="mt-0 mb-0 text-center">🤓</h1>
+                </>
+              )}
+              {content}
             </div>
             {body && <div style={{ marginBottom: "1rem" }}>{body}</div>}
             {footer && <div className="mb-1">{footer}</div>}

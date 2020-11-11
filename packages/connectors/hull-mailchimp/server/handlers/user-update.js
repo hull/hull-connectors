@@ -15,8 +15,8 @@ const trackUsers = require("../jobs/track-users");
 
 const flowControl = (type: "next" | "retry") => ({
   type,
-  size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 50,
-  in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 10,
+  // size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 50,
+  // in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 10,
   in_time: parseInt(process.env.FLOW_CONTROL_IN_TIME, 10) || 30000
 });
 /**

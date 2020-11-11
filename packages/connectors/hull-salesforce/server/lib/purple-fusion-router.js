@@ -52,11 +52,21 @@ class PurpleFusionRouter {
     return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx, data);
   }
 
-  async invokeOutgoingRoute(ctx: HullContext, data: Object) {
+  async invokeOutgoingRoute(
+    ctx: HullContext,
+    messages: Array<Object>,
+    route?: string
+  ) {
+    if (_.isEmpty(messages)) {
+      return Promise.resolve({});
+    }
     const endpoint = {
-      handler: this.route
+      handler: _.isNil(route) ? this.route : route
     };
-    return this.hullRouter.createOutgoingDispatchCallback(endpoint)(ctx, data);
+    return this.hullRouter.createOutgoingDispatchCallback(endpoint)(
+      ctx,
+      messages
+    );
   }
 }
 

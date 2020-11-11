@@ -13,6 +13,9 @@ module.exports = {
       ],
       "incoming_events": [
         'contact.tag.created'
+      ],
+      "incoming_lead_attributes": [
+        { "service": "tags", "hull": "intercom_lead/tags", "overwrite": true }
       ]
     }
   },
@@ -116,6 +119,31 @@ module.exports = {
   "serviceRequests": [
     {
       "localContext": expect.anything(),
+      "name": "intercom",
+      "op": "getAllTags",
+      "result": {
+        "body": {
+          "type": "list",
+          "data": []
+        }
+      }
+    },
+    {
+      "localContext": expect.anything(),
+      "name": "intercom",
+      "op": "getContactTags",
+      "result": {
+        "body": {
+          "type": "list",
+          "data": [
+            { "type": "tag", "id": "4406234", "name": "Tag1" },
+            { "type": "tag", "id": "4406229", "name": "Tag2" }
+          ]
+        }
+      }
+    },
+    {
+      "localContext": expect.anything(),
       "name": "hull",
       "op": "asUser",
       "input": {
@@ -123,22 +151,23 @@ module.exports = {
           "email": "bob.dylan@rei.com",
           "anonymous_id": "intercom-lead:lead-5ee3d479d1cf3dedbee23d68"
         },
-        "events": [
-          {
-            "context": {
-              "created_at": 1596633294,
-              "event_id": "5ee3d479d1cf3dedbee23d68-contact.tag.created-1596633294",
-              "event_type": "contact_tag",
-              "ip": "123",
-              "source": "intercom",
-            },
-            "eventName": "Added Tag",
-            "properties": {
-              "tag": "NewCompany",
-              "topic": "contact.tag.created",
-            }
+        "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Bob Dylan"
+          },
+          "intercom_lead/id": {
+            "operation": "set",
+            "value": "5ee3d479d1cf3dedbee23d68"
+          },
+          "intercom_lead/tags": {
+            "value": [
+              "Tag1",
+              "Tag2"
+            ],
+            "operation": "set"
           }
-        ]
+        }
       },
       "result": {}
     }

@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -125,7 +125,7 @@ describe("Insert Leads Tests", () => {
         ],
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -137,13 +137,6 @@ describe("Insert Leads Tests", () => {
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
@@ -215,14 +208,6 @@ describe("Insert Leads Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -288,9 +273,6 @@ describe("Insert Leads Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]
@@ -389,7 +371,7 @@ describe("Insert Leads Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -401,13 +383,6 @@ describe("Insert Leads Tests", () => {
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
@@ -526,14 +501,6 @@ describe("Insert Leads Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -599,9 +566,6 @@ describe("Insert Leads Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]
@@ -702,7 +666,7 @@ describe("Insert Leads Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -714,13 +678,6 @@ describe("Insert Leads Tests", () => {
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
@@ -794,14 +751,6 @@ describe("Insert Leads Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -867,9 +816,6 @@ describe("Insert Leads Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]

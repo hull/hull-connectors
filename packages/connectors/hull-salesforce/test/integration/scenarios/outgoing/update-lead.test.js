@@ -1,5 +1,5 @@
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -151,7 +151,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -161,7 +161,6 @@ describe("Update Lead Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "LEAD_SEGMENTS__c",
@@ -239,13 +238,6 @@ describe("Update Lead Tests", () => {
               ],
               done: true
             }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const respBody = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WO7uUAG", success: "true" }] });
           nock("https://na98.salesforce.com")
@@ -335,14 +327,6 @@ describe("Update Lead Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
               "url_length": 70,
               "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/describe"
             }
@@ -403,9 +387,6 @@ describe("Update Lead Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]
@@ -515,7 +496,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -527,13 +508,6 @@ describe("Update Lead Tests", () => {
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
@@ -612,14 +586,6 @@ describe("Update Lead Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -695,12 +661,9 @@ describe("Update Lead Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500]
+          ["increment","ship.service_api.call",1],
         ],
         platformApiCalls: []
       };
@@ -806,7 +769,7 @@ describe("Update Lead Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -845,13 +808,6 @@ describe("Update Lead Tests", () => {
               ],
               done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Contact");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           const respBody = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WHchAAA", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0")
@@ -859,7 +815,6 @@ describe("Update Lead Tests", () => {
 
           nock("https://na98.salesforce.com")
             .get("/services/data/v39.0/sobjects/Lead/describe")
-            .query()
             .reply(200, { fields: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           return scope;
@@ -930,14 +885,6 @@ describe("Update Lead Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 248,
-              "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
           [
             "info",
             "outgoing.user.success",
@@ -990,9 +937,6 @@ describe("Update Lead Tests", () => {
         metrics:[
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1]

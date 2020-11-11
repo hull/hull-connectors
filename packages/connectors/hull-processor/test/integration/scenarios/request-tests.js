@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 import {
   CONNECTOR,
@@ -18,7 +19,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Request library", () => {
   it("should expose request-promise and parse JSON when asked", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         const scope = nock("http://foobar.com");
@@ -50,12 +51,12 @@ describe("Request library", () => {
   });
 
   it("should allow posting data", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
           .post("/email")
-          .reply(function(uri, requestBody) {
+          .reply(200, function(uri, requestBody) {
             return { result: requestBody.foo };
           });
       },
@@ -92,7 +93,7 @@ describe("Request library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -213,7 +214,7 @@ describe("Request library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -259,7 +260,7 @@ describe("Request library", () => {
       message: "something awful happened",
       code: "AWFUL_ERROR"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")
@@ -292,7 +293,7 @@ describe("Request library", () => {
 
   it("should return http 503 - gateway timeout in case of 3rd part API timeout", () => {
     const error = "Error: ESOCKETTIMEDOUT";
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
         nock("http://foobar.com")

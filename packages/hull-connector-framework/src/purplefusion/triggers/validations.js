@@ -51,7 +51,6 @@ const validateEvents: HullTriggerValidationFunction = (
 ): boolean %checks =>
   !_.isEmpty(intersectionWithEvent(events, whitelist));
 
-// TODOANDY -> is this a custom entry? We already use `ALL` as a value everywhere else.
 const validateSegments: HullTriggerValidationFunction = (
   segments: Array<HullSegment>,
   whitelist: Array<string>
@@ -73,7 +72,7 @@ const isValidSubEntity = (
   whitelist: HullTriggerList
 ): boolean %checks =>
   _.every(rules, rule => {
-    // TODOANY: Whitelisst could be a boolean, yet we assume in every validation function that it's an array of string...
+    // TODO: Whitelist could be a boolean/undefined/..., yet we assume in every validation function that it's an array of string...
     if (typeof rule === "function" && Array.isArray(whitelist)) {
       return rule(entity, whitelist);
     }

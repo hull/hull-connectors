@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const { isValidClaim } = require("../../lib/utils");
+const { isValidClaims } = require("../../lib/utils");
 require('should');
 
 describe('Utils Test', () => {
@@ -9,7 +9,16 @@ describe('Utils Test', () => {
       external_id: "2345345"
     };
 
-    const isValid = isValidClaim(claims);
+    const isValid = isValidClaims(claims);
+    should.equal(isValid, true);
+  });
+
+  it('User claims anonymous id is valid', async () => {
+    const claims = {
+      anonymous_id: "13241"
+    };
+
+    const isValid = isValidClaims(claims);
     should.equal(isValid, true);
   });
 
@@ -18,7 +27,7 @@ describe('Utils Test', () => {
       email: "mail@gmail.com"
     };
 
-    const isValid = isValidClaim(claims);
+    const isValid = isValidClaims(claims);
     should.equal(isValid, true);
   });
 
@@ -27,7 +36,7 @@ describe('Utils Test', () => {
       external_id: "2345345"
     };
 
-    const isValid = isValidClaim(claims);
+    const isValid = isValidClaims(claims);
     should.equal(isValid, true);
   });
 
@@ -37,23 +46,33 @@ describe('Utils Test', () => {
       external_id: "2345345"
     };
 
-    const isValid = isValidClaim(claims);
-    should.equal(isValid, false);
+    const isValid = isValidClaims(claims);
+    should.equal(isValid, true);
   });
 
   it('User claims email is not valid', async () => {
     const claims = {
-      email: "mail@gmail"
+      email: null,
     };
 
-    const isValid = isValidClaim(claims);
+    const isValid = isValidClaims(claims);
     should.equal(isValid, false);
   });
 
   it('User claims undefined is not valid', async () => {
     const claims = {};
 
-    const isValid = isValidClaim(claims);
+    const isValid = isValidClaims(claims);
     should.equal(isValid, false);
+  });
+
+  it('Account claims domain is valid', async () => {
+    const claims = {
+      domain: "not cleaning claims",
+      external_id: null
+    };
+
+    const isValid = isValidClaims(claims);
+    should.equal(isValid, true);
   });
 });

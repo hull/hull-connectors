@@ -13,6 +13,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -29,7 +30,7 @@ const connector = {
 };
 
 it("Should detect when we try to refresh token and fail with unauthorized", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

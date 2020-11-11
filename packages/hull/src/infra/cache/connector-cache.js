@@ -29,6 +29,7 @@ class ConnectorCache {
    * @memberof Context.cache
    * @deprecated
    */
+
   getShipKey(key: string): string {
     return this.getCacheKey(key);
   }
@@ -44,8 +45,8 @@ class ConnectorCache {
         "ConnectorCache can be used only with initialized client, otherwise use ctx.cache.cache.set"
       );
     }
-    const { secret, organization } = this.ctx.client.configuration();
-    return jwt.encode({ sub: key, iss: organization }, secret);
+    const { secret, organization, id } = this.ctx.client.configuration();
+    return jwt.encode({ sub: key, iss: organization }, `${id}_${secret}`);
   }
 
   /**

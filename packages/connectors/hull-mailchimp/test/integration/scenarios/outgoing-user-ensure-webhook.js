@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -33,7 +34,7 @@ const usersSegments = [
 it("should ensure a webhook is registered on outgoing traffic", () => {
   const email = "webhook@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -94,7 +95,7 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, size: 50, in_time: 30000, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [
@@ -179,6 +180,37 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
           ],
           ["value", "connector.send_user_update_messages.messages", 1],
           ["increment", "ship.outgoing.users", 1]
+        ],
+        platformApiCalls: [
+          [
+            "GET",
+            "/api/v1/app",
+            {},
+            {}
+          ],
+          [
+            "PUT",
+            "/api/v1/123456789012345678901234",
+            {},
+            {
+              "private_settings": {
+                "api_key": "1",
+                "domain": "mock",
+                "mailchimp_list_id": "1",
+                "interest_category_id": "2",
+                "interests_mapping": {
+                  "hullSegmentId": "MailchimpInterestId"
+                },
+                "segment_mapping": {
+                  "hullSegmentId": "MailchimpSegmentId"
+                },
+                "synchronized_user_segments": [
+                  "hullSegmentId"
+                ]
+              },
+              "refresh_status": false
+            }
+          ]
         ]
       };
     }

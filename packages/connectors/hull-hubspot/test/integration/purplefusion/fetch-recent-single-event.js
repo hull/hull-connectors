@@ -5,10 +5,11 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 it("Basic fetch recent email events since last scheduled fetch - single event to fetch", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-email-events",

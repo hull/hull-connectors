@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -55,20 +55,13 @@ describe("Update Contacts Tests", () => {
         ...private_settings
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
@@ -136,14 +129,6 @@ describe("Update Contacts Tests", () => {
         response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 262,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
-            }
-          ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -244,9 +229,6 @@ describe("Update Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -259,9 +241,10 @@ describe("Update Contacts Tests", () => {
     });
   });
 
-  it("should update new contact and insert new acount", () => {
+  it("should update new contact by sending only changes and insert new account", () => {
     const connector = {
       private_settings: {
+        send_only_changes: true,
         account_claims: [{ hull: "domain", service: "Website", required: true }],
         lead_synchronized_segments: [],
         contact_synchronized_segments: ["contact_segment_1"],
@@ -269,6 +252,15 @@ describe("Update Contacts Tests", () => {
         lead_attributes_outbound: [],
         contact_attributes_outbound: [
           { hull: "email", service: "Email", overwrite: false },
+          { hull: "intercom_user/name",
+            service: "IntercomName",
+            overwrite: true },
+          { hull: "intercom_user/job_title",
+            service: "JobTitle",
+            overwrite: true },
+          { hull: "intercom_user/phone",
+            service: "Phone",
+            overwrite: true },
           { hull: "salesforce_contact/department",
             service: "Department",
             overwrite: false },
@@ -294,7 +286,7 @@ describe("Update Contacts Tests", () => {
         ...private_settings
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -304,19 +296,13 @@ describe("Update Contacts Tests", () => {
 
           scope.get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, FirstName, LastName, Id, ConvertedAccountId, ConvertedContactId, OwnerId, Owner.Email FROM Lead WHERE Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope.get("/services/data/v39.0/query")
-            .query((query) => {
               return query.q && query.q === "SELECT Id, Website FROM Account WHERE Website LIKE '%apple.com%' ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope.get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
+              return query.q && query.q === "SELECT Email, IntercomName, JobTitle, Phone, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [
                 {
@@ -326,7 +312,10 @@ describe("Update Contacts Tests", () => {
                   },
                   Id: "00Q1I000004WHchUAG",
                   OwnerId: "10Q1I000004WHchOWNER",
-                  Email: "adam@apple.com",
+                  JobTitle: "marketer",
+                  Phone: "123",
+                  IntercomName: "Adam",
+                  Email: "adam_p@apple.com",
                   FirstName: "Adam",
                   LastName: "P",
                   Company: "Apple",
@@ -361,6 +350,9 @@ describe("Update Contacts Tests", () => {
               anonymous_ids: [
                 "salesforce-contact:00Q1I000004WHchUAG"
               ],
+              "intercom_user/name": "Adam P",
+              "intercom_user/job_title": "lead marketer",
+              "intercom_user/phone": "456",
               "salesforce_contact/id": "00Q1I000004WHchUAG",
               email: "adam@apple.com",
               id: "5a43ce781f6d9f471d005d44",
@@ -375,13 +367,13 @@ describe("Update Contacts Tests", () => {
             account_segments: [{ id: "account_segment_2" }],
             events: [],
             changes: {
-              user: {},
+              user: {
+                "intercom_user/job_title": [],
+                "salesforce_contact/department": []
+              },
               segments: {},
               account: {
-                "salesforce/description": [
-                  "old",
-                  "description from account"
-                ]
+                "salesforce/description": []
               },
               account_segments: {},
               is_new: false
@@ -399,15 +391,7 @@ describe("Update Contacts Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 292,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 322,
+              "url_length": 365,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
@@ -450,7 +434,8 @@ describe("Update Contacts Tests", () => {
               "record": {
                 "Description": "description from account",
                 "AccountId": "00Q1I000004WHchUAA",
-                "Id": "00Q1I000004WHchUAG"
+                "Id": "00Q1I000004WHchUAG",
+                "JobTitle": "lead marketer"
               },
               "operation": "update",
               "resource": "Contact"
@@ -497,15 +482,12 @@ describe("Update Contacts Tests", () => {
         metrics:[
           ["increment", "connector.request", 1],
           ["increment", "ship.service_api.call", 1],
+          ["value", "ship.service_api.limit", 50000],
+          ["value", "ship.service_api.remaining", 49500],
           ["increment", "ship.service_api.call", 1],
           ["increment", "ship.service_api.call", 1],
           ["value", "ship.service_api.limit", 50000],
           ["value", "ship.service_api.remaining", 49500],
-          ["value", "ship.service_api.limit", 50000],
-          ["value", "ship.service_api.remaining", 49500],
-          ["value", "ship.service_api.limit", 50000],
-          ["value", "ship.service_api.remaining", 49500],
-          ["increment", "ship.service_api.call", 1],
           ["increment", "ship.service_api.call", 1]
         ],
         platformApiCalls: []

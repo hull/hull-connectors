@@ -24,8 +24,7 @@ const processHullMessage = ({
   // connector,
   // segments,
   channel
-}: // , isBatch
-{
+}: {
   options: HullNotificationHandlerOptions,
   channel: HullNotificationChannel,
   segments: {

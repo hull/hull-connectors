@@ -2,10 +2,10 @@ const glob = require("glob");
 const webpack = require("webpack");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const ProgressBarPlugin = require("progress-bar-webpack-plugin");
+const chalk = require("chalk");
 const _ = require("lodash");
-
-// const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 
 const getFiles = source => glob.sync(`${source}/*.{js,jsx,css,scss}`);
 const getEntry = files =>
@@ -23,81 +23,107 @@ const getEntry = files =>
     {}
   );
 
-const getPlugins = ({ mode, assets, destination }) =>
+const getPlugins = ({ mode, destination }) =>
   mode === "production"
     ? [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-        // new LodashModuleReplacementPlugin({
-        //   collections: true,
-        //   paths: true
-        // }),
-        new MiniCssExtractPlugin({ filename: "[name].css" }),
-        new CopyPlugin([
-          {
-            from: assets,
-            to: path.resolve(destination)
-          }
-        ])
+        new ProgressBarPlugin({ clear: false }),
+        new MiniCssExtractPlugin({
+          filename: "[name].css",
+          chunkFilename: "[id].css"
+        })
       ]
-    : [new MiniCssExtractPlugin({ filename: "[name].css" })];
+    : [
+        new ProgressBarPlugin({ clear: false }),
+        new MiniCssExtractPlugin({
+          filename: "[name].css",
+          chunkFilename: "[id].css"
+        })
+      ];
 
-const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
+
+const buildConfig = ({ files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
-  devtool: mode === "production" ? "source-map" : "inline-source-map",
+  devtool: false,
   output: {
     path: path.resolve(destination),
+    pathinfo: false,
     filename: "[name].js",
     publicPath: "/"
   },
-
+  optimization: {
+    minimize: true,
+    minimizer: [
+      "...",
+      new CssMinimizerPlugin()
+    ]
+  },
   resolve: {
-    modules: [`${process.cwd()}/packages`, "node_modules"],
+    modules: ["packages", "node_modules"],
     extensions: [".js", ".jsx", ".css", ".scss"]
   },
+
+  cache: { type: "memory" },
 
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [{ loader: "style-loader" }, { loader: "css-loader" }]
+        test: /\.(css|s[ac]ss)$/i,
+        use: [
+          { loader: MiniCssExtractPlugin.loader },
+          { loader: "css-loader" },
+          { loader: "sass-loader" }
+        ]
       },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              ["@babel/preset-env", { modules: false }],
-              "@babel/preset-react"
-            ],
-            plugins: ["lodash", "react-hot-loader/babel"]
+        use: [
+          {
+            loader: "babel-loader?cacheDirectory",
+            options: {
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    modules: false,
+                    useBuiltIns: "usage",
+                    corejs: 3,
+                    targets: {
+                      browsers: [
+                        "last 2 versions",
+                        "Firefox ESR",
+                        "> 1%",
+                        "iOS >= 10"
+                      ]
+                    }
+                  }
+                ],
+                "@babel/preset-react"
+              ],
+              plugins: ["lodash", "react-hot-loader/babel"]
+            }
           }
-        }
+        ]
       },
       // svg
-      { test: /.svg$/, loader: "svg-inline-loader" },
-      // images & other files
-      {
-        test: /\.jpe?g$|\.gif$|\.png|\.woff$|\.ttf$|\.wav$|\.mp3$/,
-        loader: "file-loader"
-      },
-      {
-        test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
-      }
+      { test: /.svg$/, loader: "svg-inline-loader" }
+      // // images & other files
+      // {
+      //   test: /\.jpe?g$|\.gif$|\.png|\.woff$|\.ttf$|\.wav$|\.mp3$/,
+      //   type: "asset/resource"
+      // }
     ]
   },
-  plugins: getPlugins({ mode, assets, destination })
+  plugins: getPlugins({ mode, destination })
 });
 
-module.exports = ({ assets, source, destination, mode }) => {
+module.exports = ({ source, destination, mode }) => {
   const files = getFiles(source);
   if (!files || !files.length) {
     return undefined;
   }
 
-  console.log(`${process.cwd()}/packages`);
-  return buildConfig({ assets, files, destination, mode });
+  return buildConfig({ files, destination, mode });
 };

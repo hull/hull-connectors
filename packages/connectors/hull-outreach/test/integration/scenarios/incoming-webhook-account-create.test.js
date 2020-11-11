@@ -15,13 +15,13 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("process account creation webhook from outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
-        console.log(plainCredentials);
         return superagent
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/account-created.json"));

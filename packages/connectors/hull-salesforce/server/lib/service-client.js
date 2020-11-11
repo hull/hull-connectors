@@ -1,5 +1,4 @@
 /* @flow */
-import promiseToReadableStream from "hull/src/utils/promise-to-readable-stream";
 import type {
   IServiceClient,
   IApiResultObject,
@@ -18,11 +17,10 @@ import type {
 
 import type { TAssignmentRule } from "./service-client/assignmentrules";
 
-// eslint-disable-next-line no-unused-vars
-const { pipeStreamToPromise } = require("hull/src/utils");
 const _ = require("lodash");
 const events = require("events");
 const Promise = require("bluebird");
+const moment = require("moment");
 
 const Connection = require("./service-client/connection");
 const {
@@ -95,72 +93,59 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     this.queryUtil = new QueryUtil();
   }
 
-  // eslint-disable-next-line no-unused-vars
-  getSoqlQuery(
+  getSoqlQuery({
+    sfType,
+    fields,
+    identityClaims,
+    fetchToDate
+  }): {
     type: TResourceType,
     fields: Array<string>,
-    identityClaims: Array<Object>
-  ): string {
+    identityClaims: Array<Object>,
+    fetchToDate: string
+  } {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
-      type,
+      sfType,
       fields,
       identityClaims
     );
 
-    let query = `SELECT ${selectFields} FROM ${type}`;
+    let query = `SELECT ${selectFields} FROM ${_.upperFirst(
+      sfType
+    )} WHERE Id != NULL`;
+
+    if (!_.isNil(fetchToDate)) {
+      query += ` AND LastModifiedDate >= ${fetchToDate}`;
+    }
 
     if (!_.isNil(requiredFields) && requiredFields.length > 0) {
-      query += ` WHERE ${requiredFields[0]} != null`;
-
-      for (let i = 1; i < requiredFields.length; i += 1) {
+      for (let i = 0; i < requiredFields.length; i += 1) {
         const requiredField = requiredFields[i];
         query += ` AND ${requiredField} != null`;
       }
     }
 
-    query += " ORDER BY CreatedDate ASC";
+    query += " ORDER BY LastModifiedDate DESC";
 
     return query;
   }
 
   /**
    * Finds the records by Id via SOQL query which has a high limit.
-   *
-   * @param type
-   * @param {string[]} identifiers The list of identifiers.
-   * @param {string[]} fields The list of fields.
-   * @param identityClaims
-   * @param options
-   * @returns {Promise<any[]>} A list of Salesforce objects.
-   * @memberof SalesforceClient
    */
-  // eslint-disable-next-line no-unused-vars
-  findRecordsById(
-    type: TResourceType,
-    identifiers: string[],
+  queryRecordsById(
+    sfType: TResourceType,
+    ids: string[],
     fields: string[],
-    identityClaims: Array<Object>,
     options: Object = {}
   ): Promise<any[]> {
-    const executeQuery = _.get(options, "executeQuery", "query");
-    const idsList = identifiers.map(id => `'${id}'`).join(",");
-    const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
-      type,
-      fields,
-      identityClaims
-    );
-    let query = `SELECT ${selectFields} FROM ${type} WHERE Id IN (${idsList})`;
+    const queryScope = _.get(options, "queryScope", "query");
+    const idsList = ids.map(id => `'${id}'`).join(",");
+    const query = `SELECT ${fields.join(",")} FROM ${_.upperFirst(
+      sfType
+    )} WHERE Id IN (${idsList})`;
 
-    _.forEach(requiredFields, requiredField => {
-      query += ` AND ${requiredField} != null`;
-    });
-    return this.exec(executeQuery, query).then(({ records }) => records);
-  }
-
-  findRecordById(type: TResourceType, id: string): Promise<any[]> {
-    const { selectFields } = this.queryUtil.getSoqlFields(type, [], []);
-    const query = `SELECT ${selectFields} FROM ${type} WHERE Id = '${id}'`;
-    return this.exec("query", query).then(({ records }) => records);
+    return this.exec(queryScope, query).then(({ records }) => records);
   }
 
   /**
@@ -385,140 +370,93 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
   }
 
   async getAllRecords(
-    type: TResourceType,
+    sfType: TResourceType,
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const { fields = [], identityClaims = [] } = options;
-
-    const query = this.getSoqlQuery(type, fields, identityClaims);
-
-    let totalSize;
-    let progress = 0;
-    let done = false;
-    let nextRecordsUrl = null;
-    while (!done) {
-      // eslint-disable-next-line no-await-in-loop
-      const result = await this.queryAllRecords(query, nextRecordsUrl);
-
-      const records = result.records;
-      done = result.done;
-      nextRecordsUrl = result.nextRecordsUrl;
-
-      if (!totalSize) {
-        totalSize = result.totalSize;
-      }
-
-      progress += _.size(records);
-      this.logger.info("incoming.job.progress", {
-        jobName: `fetch-all-${_.toLower(type)}s`,
-        progress: `${progress} / ${totalSize}`
-      });
-
-      // eslint-disable-next-line no-await-in-loop
-      await this.saveRecords(records, onRecord);
+    const {
+      fields = [],
+      identityClaims = [],
+      fetchDaysBack,
+      lastFetchedAt
+    } = options;
+    let fetchToDate;
+    if (fetchDaysBack && !lastFetchedAt) {
+      fetchToDate = moment()
+        .subtract({ days: fetchDaysBack })
+        .toISOString();
     }
-
-    /* const incomingStream = this.getIncomingStream(query);
-
-    try {
-      let progress = 0;
-      await pipeStreamToPromise(incomingStream, records => {
-        progress += records.length;
-        this.logger.info("incoming.job.progress", {
-          jobName: `fetch-all-${_.toLower(type)}`,
-          progress
-        });
-        return this.saveRecords(records, onRecord);
-      });
-      return {
-        status: "ok"
-      };
-    } catch (error) {
-      this.logger.info("incoming.job.error", {
-        jobName: `fetch-all-${_.toLower(type)}`,
-        error: error.message
-      });
-      return {
-        error: error.message
-      };
-    }*/
-  }
-
-  queryAllRecords(query: string, nextRecordsUrl: ?string = null): Promise<*> {
-    return _.isNil(nextRecordsUrl)
-      ? this.connection.query(query)
-      : this.connection.queryMore(nextRecordsUrl);
-  }
-
-  getIncomingStream(query: string, page: ?string = null) {
-    const getAllEntities = this.queryAllRecords.bind(this);
-
-    function getAllEntitiesPage(push, soqlQuery, nextPage) {
-      return getAllEntities(query, nextPage).then(response => {
-        const { records, done, nextRecordsUrl } = response;
-
-        push(records);
-        if (!done && nextRecordsUrl) {
-          return getAllEntitiesPage(push, soqlQuery, nextRecordsUrl);
-        }
-        return Promise.resolve();
-      });
+    if (lastFetchedAt) {
+      fetchToDate = moment(lastFetchedAt, "x").toISOString();
     }
-
-    return promiseToReadableStream(push => {
-      return getAllEntitiesPage(push, query, page);
+    const query = this.getSoqlQuery({
+      sfType,
+      fields,
+      identityClaims,
+      fetchToDate
     });
+    return this.fetchRecords({ query }, sfType, onRecord);
   }
 
-  getRecords(
-    type: TResourceType,
-    ids: Array<string>,
-    options: Object = {},
-    onRecord: Function
-  ): Promise<*> {
-    const { fields = [], identityClaims = [] } = options;
-    const chunks = _.chunk(ids, FETCH_CHUNKSIZE);
+  async fetchRecords(
+    queryOptions: Object,
+    sfType: string,
+    onRecord: Function,
+    fetchProgress: Object = {}
+  ) {
+    let { progress = 0, totalSize } = fetchProgress;
+    const retries = 3;
+    const result = await this.queryAllRecords(queryOptions, retries);
 
-    return Promise.map(
-      chunks,
-      chunk => {
-        return this.findRecordsById(
-          type,
-          chunk,
-          fields,
-          identityClaims,
-          options
-        ).then(records => {
-          this.metricsClient.increment(
-            type === "Account"
-              ? "ship.incoming.accounts"
-              : "ship.incoming.users",
-            records.length
-          );
-          return Promise.all(records.map(record => onRecord(record)));
-        });
-      },
-      { concurrency: 2 }
-    );
-  }
+    if (_.isNil(result) || _.isEmpty(result)) {
+      return Promise.reject(new Error("Salesforce Result Set Not Found"));
+    }
 
-  getUpdatedRecordIds(type: TResourceType, options: Object = {}): Promise<*> {
-    const start = options.start
-      ? new Date(options.start)
-      : new Date(new Date().getTime() - 360 * 1000);
-    const end = options.end ? new Date(options.end) : new Date();
+    const { done, nextRecordsUrl, records } = result;
 
-    return this.connection
-      .sobject(type)
-      .updated(start, end)
-      .then(res => {
-        return _.get(res, "ids", []);
+    if (!totalSize) {
+      totalSize = result.totalSize;
+    }
+
+    progress += _.size(records);
+    this.logger.info("incoming.job.progress", {
+      jobName: `fetch-${_.toLower(sfType)}s`,
+      progress: `${progress} / ${totalSize}`
+    });
+
+    await this.saveRecords(records, onRecord);
+
+    if (!done && nextRecordsUrl) {
+      return this.fetchRecords({ nextRecordsUrl }, sfType, onRecord, {
+        progress,
+        totalSize
       });
+    }
+
+    return Promise.resolve("done");
+  }
+
+  queryAllRecords(queryOptions: Object, retries: number): Promise<*> {
+    const { query, nextRecordsUrl } = queryOptions;
+    try {
+      return _.isNil(nextRecordsUrl)
+        ? this.connection.query(query)
+        : this.connection.queryMore(nextRecordsUrl);
+    } catch (error) {
+      if (retries > 0) {
+        this.logger.info("incoming.job.progress", {
+          retries,
+          retry: _.isNil(nextRecordsUrl) ? query : nextRecordsUrl
+        });
+        retries -= 1;
+        return this.queryAllRecords(queryOptions, retries);
+      }
+      return Promise.reject(error);
+    }
   }
 
   getDeletedRecords(
-    type: TResourceType,
+    sfType: TResourceType,
     options: TDeletedRecordsParameters
   ): Promise<Array<TDeletedRecordInfo>> {
     const start = options.start
@@ -527,7 +465,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     const end = options.end ? new Date(options.end) : new Date();
 
     return this.connection
-      .sobject(type)
+      .sobject(_.upperFirst(sfType))
       .deleted(start, end)
       .then(recordsInfo => {
         return _.get(recordsInfo, "deletedRecords", []);

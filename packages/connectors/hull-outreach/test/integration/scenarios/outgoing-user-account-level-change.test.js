@@ -7,10 +7,11 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier user update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-account-changes-account-attribute-user-level.json"));
     // set this as an id so that we know it exists and doesn't get sent just because there's no id
     // specifically check for the account id

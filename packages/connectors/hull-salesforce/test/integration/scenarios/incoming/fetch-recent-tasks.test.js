@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -35,7 +35,7 @@ const private_settings = {
 describe("Fetch Tasks Tests", () => {
 
   it("should fetch multiple tasks", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-tasks",
@@ -55,18 +55,15 @@ describe("Fetch Tasks Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Task/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00TP0000", "00TP0001"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId,CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById,IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority,RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval,RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet,RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00TP0000','00TP0001') AND Id != null"
+              return query.q && query.q.match("FROM Task");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 2,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   "attributes": {
                     "type": "Task",
@@ -121,17 +118,16 @@ describe("Fetch Tasks Tests", () => {
               "type": "webpayload"
             }
           ],
+          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated?")
+              "jobName": "fetch-tasks",
+              "progress": "2 / 2"
             }
           ],
-          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
             "info",
             "incoming.event.success",
@@ -280,19 +276,23 @@ describe("Fetch Tasks Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",2]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch a single task", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-tasks",
@@ -305,23 +305,15 @@ describe("Fetch Tasks Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Task/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00TP0000"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId," +
-                "CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById," +
-                "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
-                "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
-                "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
-                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,Who.Type FROM Task WHERE Id IN ('00TP0000') AND Id != null";
+              return query.q && query.q.match("FROM Task");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   "attributes": {
                     "type": "Task",
@@ -356,17 +348,16 @@ describe("Fetch Tasks Tests", () => {
               "type": "webpayload"
             }
           ],
+          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated")
+              "jobName": "fetch-tasks",
+              "progress": "1 / 1"
             }
           ],
-          ["debug", "ship.service_api.request", {}, { "method": "GET", "url_length": expect.whatever(), "url": expect.whatever() }],
           [
             "info",
             "incoming.event.success",
@@ -449,19 +440,23 @@ describe("Fetch Tasks Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch deleted tasks", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-deleted-tasks",
@@ -495,12 +490,7 @@ describe("Fetch Tasks Tests", () => {
           scope
             .get("/services/data/v39.0/queryAll")
             .query((query) => {
-              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId," +
-                "CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById," +
-                "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
-                "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
-                "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
-                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA') AND Id != null";
+              return query.q && query.q.match("FROM Task");
             })
             .reply(200, { records: [
                 { attributes:
@@ -727,8 +717,7 @@ describe("Fetch Tasks Tests", () => {
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
         platformApiCalls: []
       };

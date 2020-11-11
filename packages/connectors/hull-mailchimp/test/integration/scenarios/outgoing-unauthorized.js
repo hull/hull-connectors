@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -32,7 +33,7 @@ const usersSegments = [
 
 it("Api token invalid", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -64,8 +65,6 @@ it("Api token invalid", () => {
       response: {
         flow_control: {
           type: "retry",
-          in: 10,
-          size: 50,
           in_time: 30000
         }
       },

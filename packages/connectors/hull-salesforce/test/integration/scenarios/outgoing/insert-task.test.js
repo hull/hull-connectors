@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -130,21 +130,13 @@ describe("Insert Tasks Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
@@ -177,7 +169,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const contactResponse = createSoapEnvelope("createResponse", { result: [{ id: "contact_id_1", success: "true" }] });
@@ -303,8 +294,8 @@ describe("Insert Tasks Tests", () => {
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 263,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 198,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -313,14 +304,6 @@ describe("Insert Tasks Tests", () => {
               "method": "GET",
               "url_length": 233,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 198,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -450,9 +433,6 @@ describe("Insert Tasks Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -509,21 +489,13 @@ describe("Insert Tasks Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
-
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
@@ -567,7 +539,6 @@ describe("Insert Tasks Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Task/describe")
-            .query()
             .reply(200, { records: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }, { id: "asdfasdf", success: "true" }] });
@@ -805,15 +776,14 @@ describe("Insert Tasks Tests", () => {
 
         ],
         response: { "flow_control": { "type": "next", } },
-        // expect.arrayContaining([]),
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 313,
-              "url": expect.stringMatching(/.*FROM.*Lead.*/)
+              "url_length": 198,
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -822,14 +792,6 @@ describe("Insert Tasks Tests", () => {
               "method": "GET",
               "url_length": 317,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 198,
-              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -938,9 +900,6 @@ describe("Insert Tasks Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],

@@ -3,6 +3,7 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 import company from "../fixtures/company.json";
 import prospect_attributes from "../fixtures/prospect-attributes.js";
 import person from "../fixtures/person.json";
@@ -52,7 +53,7 @@ describe("Clearbit Prospector Tests", () => {
   };
 
   it("should prospect domains and update account and users", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -65,12 +66,12 @@ describe("Clearbit Prospector Tests", () => {
       externalApiMock: () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["ceo", "head of marketing"]
+            titles: { "": ["ceo", "head of marketing"] }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -166,7 +167,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should prospect domains and update account and users if ALL segment defined", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector: {
@@ -186,12 +187,12 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["ceo", "head of marketing"]
+            titles: { "": ["ceo", "head of marketing"] }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -290,7 +291,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should support changing prospect domain and titles", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector: {
@@ -316,12 +317,12 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["vp sales"]
+            titles: { "": "vp sales" }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -420,7 +421,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should support changing prospect role and seniority", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector: {
@@ -450,16 +451,16 @@ describe("Clearbit Prospector Tests", () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
           // .log(console.log)
-          .get(/v1\/people\/search/)
+          .get("/v1/people/search")
           .query({
             domain: "foobar.com",
             page: 1,
             page_size: 5,
-            titles: ["vp sales"],
-            cities: ["san francisco"],
-            states: ["california"],
-            roles: ["communications"],
-            seniorities: ["director"]
+            titles: { "": "vp sales" },
+            cities: { "": "san francisco" },
+            states: { "": "california" },
+            roles: { "": "communications" },
+            seniorities: { "": "director" }
           })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
         return scope;
@@ -566,7 +567,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should not prospect accounts if they don't have a Domain", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -603,7 +604,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should not prospect accounts if not in segment whitelist", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -640,7 +641,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should not prospect accounts if in segment whitelist and blacklist ", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -677,7 +678,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should not prospect accounts if ALL segment defined and in and blacklist ", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector: {
@@ -720,7 +721,7 @@ describe("Clearbit Prospector Tests", () => {
     })));
 
   it("should not prospect accounts if Batch Job", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {

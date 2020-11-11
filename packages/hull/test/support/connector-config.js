@@ -6,7 +6,7 @@ const config = {
   manifest: {},
   hostSecret: 1234,
   devMode: false,
-  port: 8080,
+  port: 8082,
   handlers: {
     jobs: {
       handler
@@ -31,7 +31,7 @@ const config = {
     ttl: 1
   },
   logsConfig: {
-    logLevel: "debug"
+    level: "debug"
   },
   clientConfig: {},
   serverConfig: {

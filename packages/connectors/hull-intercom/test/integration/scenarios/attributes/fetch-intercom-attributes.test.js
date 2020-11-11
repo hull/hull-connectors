@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
+import manifest from "../../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const contactFields = require("./api-responses/get-contact-fields-response.json");
@@ -7,12 +8,11 @@ const companyFields = require("./api-responses/get-company-fields-response.json"
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("Fetch Intercom Attributes Tests", () => {
 
   it("should fetch api_writable contact attributes and build outgoing attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/contact_fields_writable",
@@ -121,7 +121,7 @@ describe("Fetch Intercom Attributes Tests", () => {
   });
 
   it("should fetch all contact attributes and build incoming attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/contact_fields",
@@ -150,10 +150,6 @@ describe("Fetch Intercom Attributes Tests", () => {
           {
             "label": "Tags",
             "value": "tags"
-          },
-          {
-            "label": "Segments",
-            "value": "segments"
           },
           {
             "label": "Social Profiles",
@@ -332,7 +328,7 @@ describe("Fetch Intercom Attributes Tests", () => {
   });
 
   it("should fetch all company attributes and build incoming attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/company_fields",
@@ -358,10 +354,6 @@ describe("Fetch Intercom Attributes Tests", () => {
             {
               "label": "Tags",
               "value": "tags"
-            },
-            {
-              "label": "Segments",
-              "value": "segments"
             },
             {
               "label": "Company name",

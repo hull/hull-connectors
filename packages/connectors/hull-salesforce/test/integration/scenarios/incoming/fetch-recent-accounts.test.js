@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -35,7 +35,7 @@ const private_settings = {
 describe("Fetch Accounts Tests", () => {
 
   it("should fetch account without a website", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",
@@ -128,11 +128,6 @@ describe("Fetch Accounts Tests", () => {
             ],
             "account_claims": [
               {
-                "hull": "domain",
-                "service": "Website",
-                "required": false
-              },
-              {
                 "hull": "external_id",
                 "service": "CustomIdentifierField",
                 "required": false
@@ -147,23 +142,21 @@ describe("Fetch Accounts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Account/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["0011I000007Cy18QAC"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Account") && !query.q.match("AND Website != null");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              "totalSize": 1,
+              "nextRecordsUrl": "/services/data/v42.0/query/0go0dVM-2000",
+              "done": true,
+              "records": [
                 {
                   "attributes": {
                     "type": "Account",
                     "url": "/services/data/v39.0/sobjects/Account/0011I000007Cy18QAC"
                   },
+                  "CustomIdentifierField": "1234",
                   "Id": "0011I000007Cy18QAC",
                   "Website": "krakowtraders.pl",
                   "Name": "Krakow Trades",
@@ -191,17 +184,16 @@ describe("Fetch Accounts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomIdentifierField%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20AND%20Id%20!%3D%20null"
+              "jobName": "fetch-accounts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -209,15 +201,11 @@ describe("Fetch Accounts Tests", () => {
             "incoming.account.success",
             {
               "subject_type": "account",
-              "account_domain": "krakowtraders.pl",
+              "account_external_id": "1234",
               "account_anonymous_id": "salesforce:0011I000007Cy18QAC"
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -244,16 +232,12 @@ describe("Fetch Accounts Tests", () => {
             "traits",
             {
               "asAccount": {
-                "domain": "krakowtraders.pl",
+                "external_id": "1234",
                 "anonymous_id": "salesforce:0011I000007Cy18QAC"
               },
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -269,19 +253,23 @@ describe("Fetch Accounts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.accounts",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch account", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",
@@ -392,18 +380,14 @@ describe("Fetch Accounts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Account/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["0011I000007Cy18QAC"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Account") && query.q.match("AND Website != null") && query.q.match("AND CustomField1 != null");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              done: true,
+              records: [
                 {
                   attributes: {
                     type: "Account",
@@ -437,17 +421,16 @@ describe("Fetch Accounts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20AND%20Id%20!%3D%20null%20AND%20Website%20!%3D%20null%20AND%20CustomField1%20!%3D%20null"
+              "jobName": "fetch-accounts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -461,10 +444,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -498,10 +477,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -517,19 +492,23 @@ describe("Fetch Accounts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.accounts",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch duplicated accounts", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-accounts",
@@ -640,18 +619,14 @@ describe("Fetch Accounts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Account/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["0011I000007Cy18QAC", "0011I000007Cy18QAD", "0011I000007Cy18QAE"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Account");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 3,
+              done: true,
+              records: [
                 {
                   attributes: {
                     type: "Account",
@@ -703,17 +678,16 @@ describe("Fetch Accounts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start=")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC'%2C'0011I000007Cy18QAD'%2C'0011I000007Cy18QAE')%20AND%20Id%20!%3D%20null%20AND%20Website%20!%3D%20null"
+              "jobName": "fetch-accounts",
+              "progress": "3 / 3"
             }
           ],
           [
@@ -726,10 +700,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -751,10 +721,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -776,10 +742,6 @@ describe("Fetch Accounts Tests", () => {
             },
             {
               "traits": {
-                "domain": {
-                  "value": "krakowtraders.pl",
-                  "operation": "setIfNull"
-                },
                 "salesforce/website": {
                   "value": "krakowtraders.pl",
                   "operation": "set"
@@ -812,10 +774,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -836,10 +794,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -860,10 +814,6 @@ describe("Fetch Accounts Tests", () => {
               "subjectType": "account"
             },
             {
-              "domain": {
-                "value": "krakowtraders.pl",
-                "operation": "setIfNull"
-              },
               "salesforce/website": {
                 "value": "krakowtraders.pl",
                 "operation": "set"
@@ -879,13 +829,17 @@ describe("Fetch Accounts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.accounts",3]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });

@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -39,7 +39,7 @@ const private_settings = {
 describe("Fetch Contacts Tests", () => {
 
   it("should fetch a deleted contact", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-deleted-contacts",
@@ -169,6 +169,61 @@ describe("Fetch Contacts Tests", () => {
               latestDateCovered: "2018-09-10T18:31:00.000+0000"
             }, { "sforce-limit-info": "api-usage=500/50000" });
 
+          scope
+            .get("/services/data/v39.0/queryAll")
+            .query((query) => {
+              return query.q === "SELECT MasterRecordId FROM Contact WHERE Id IN ('0032F000008DdqkQAC')";
+            })
+            .reply(200, {
+              "totalSize": 2,
+              "done": true,
+              "records": [
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/0032F000008DdqkQAC"
+                  },
+                  "MasterRecordId": "master_record_id_1"
+                },
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/0032F000008DdqkQAC-fake"
+                  },
+                  "MasterRecordId": "master_record_id_2"
+                }
+              ]
+            }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          scope
+            .get("/services/data/v39.0/query")
+            .query((query) => {
+              return query.q === "SELECT Id,IsDeleted FROM Contact WHERE Id IN ('master_record_id_1','master_record_id_2')";
+            })
+            .reply(200, {
+              "totalSize": 3,
+              "done": true,
+              "records": [
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/master_record_id_1"
+                  },
+                  "Id": "master_record_id_1",
+                  "IsDeleted": true
+                },
+                {
+                  "attributes": {
+                    "type": "Contact",
+                    "url": "/services/data/v42.0/sobjects/Contact/master_record_id_2"
+                  },
+                  "Id": "master_record_id_2",
+                  "IsDeleted": false
+                }
+              ]
+            }, { "sforce-limit-info": "api-usage=500/50000" });
+
+
           return scope;
         },
         response: { status : "deferred"},
@@ -193,35 +248,63 @@ describe("Fetch Contacts Tests", () => {
             }
           ],
           [
-            "info",
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/query")
+            }
+          ],
+          [
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/query")
+            }
+          ],
+          [
+            "debug",
             "incoming.user.success",
             {
               "subject_type": "user",
               "user_anonymous_id": "salesforce-contact:0032F000008DdqkQAC"
             },
             {
-              "traits": {
-                "salesforce_contact/first_name": {
-                  "value": null,
-                  "operation": "set"
+              "data": {
+                "attributes": {
+                  "salesforce_contact/deleted_at": "2018-09-10T16:38:43.000+0000",
+                  "salesforce_contact/id": null
                 },
-                "salesforce_contact/last_name": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/email": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/id": {
-                  "value": null,
-                  "operation": "set"
-                },
-                "salesforce_contact/deleted_at": {
-                  "value": "2018-09-10T16:38:43.000+0000",
-                  "operation": "set"
+                "ident": {
+                  "anonymous_id": "salesforce-contact:0032F000008DdqkQAC"
                 }
-              }
+              },
+              "type": "User"
+            }
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              "subject_type": "user",
+              "user_anonymous_id": "salesforce-contact:master_record_id_2"
+            },
+            {
+              "data": {
+                "attributes": {
+                  "salesforce_contact/deleted_at": null,
+                  "salesforce_contact/id": "master_record_id_2"
+                },
+                "ident": {
+                  "anonymous_id": "salesforce-contact:master_record_id_2"
+                }
+              },
+              "type": "User"
             }
           ],
           [
@@ -244,26 +327,21 @@ describe("Fetch Contacts Tests", () => {
               "subjectType": "user"
             },
             {
-              "salesforce_contact/first_name": {
-                "value": null,
-                "operation": "set"
+              "salesforce_contact/deleted_at": "2018-09-10T16:38:43.000+0000",
+              "salesforce_contact/id": null
+            }
+          ],
+          [
+            "traits",
+            {
+              "asUser": {
+                "anonymous_id": "salesforce-contact:master_record_id_2"
               },
-              "salesforce_contact/last_name": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/email": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/id": {
-                "value": null,
-                "operation": "set"
-              },
-              "salesforce_contact/deleted_at": {
-                "value": "2018-09-10T16:38:43.000+0000",
-                "operation": "set"
-              }
+              "subjectType": "user"
+            },
+            {
+              "salesforce_contact/deleted_at": null,
+              "salesforce_contact/id": "master_record_id_2"
             }
           ]
         ],
@@ -271,9 +349,13 @@ describe("Fetch Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["increment","ship.service_api.call",1],
+          ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["increment","ship.service_api.call",1],
+          ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500]
-          // TODO why is this missing?
-          // ["increment","ship.incoming.users",1]
         ],
         platformApiCalls: []
       };
@@ -281,7 +363,7 @@ describe("Fetch Contacts Tests", () => {
   });
 
   it("should fetch a single contact", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -336,18 +418,15 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00Q1I000004WHbtUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Contact");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   "attributes": {
                     "type": "Contact",
@@ -367,7 +446,6 @@ describe("Fetch Contacts Tests", () => {
 
           scope
             .get("/services/data/v39.0/sobjects/Contact/describe")
-            .query()
             .reply(200, { fields: [
                 {
                   name: "UserSegments__c",
@@ -398,17 +476,16 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CUserSegments__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
+              "jobName": "fetch-contacts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -549,19 +626,23 @@ describe("Fetch Contacts Tests", () => {
           ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch a contact and link to an account", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -700,18 +781,15 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00Q1I000004WHbtUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Contact");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   attributes: {
                     type: "Contact",
@@ -758,32 +836,16 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start=")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
-            }
-          ],
-          [
-            "debug",
-            "incoming.account.link",
-            {},
-            {
-              "user": {
-                "email": "becci.blankenshield@adventure-works.com",
-                "anonymous_id": "salesforce-contact:00Q1I000004WHbtUAG"
-              },
-              "account": {
-                "anonymous_id": "salesforce:0011I000007Cy18QAC",
-                "domain": "krakowtraders.pl"
-              }
+              "jobName": "fetch-contacts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -888,31 +950,36 @@ describe("Fetch Contacts Tests", () => {
                 "anonymous_id": "salesforce-contact:00Q1I000004WHbtUAG"
               },
               "asAccount": {
-                "domain": "krakowtraders.pl",
                 "anonymous_id": "salesforce:0011I000007Cy18QAC"
               },
               "subjectType": "account"
             },
-            {}
+            {
+              "salesforce/id": "0011I000007Cy18QAC"
+            }
           ]
         ],
         metrics: [
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch contact with related entity fields", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -944,18 +1011,15 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00Q1I000004WHchUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,OwnerId,Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
+              return query.q && query.q.match("FROM Contact");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   attributes: {
                     type: "Contact",
@@ -994,17 +1058,16 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start=")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwnerId%2COwner.Email%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
+              "jobName": "fetch-contacts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -1080,19 +1143,23 @@ describe("Fetch Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });
 
   it("should fetch a single contact with broken attribute mapper", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-contacts",
@@ -1129,18 +1196,15 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: ["00Q1I000004WHchUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,Owner.Email,Description FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
+              return query.q && query.q.match("FROM Contact");
             })
-            .reply(200, { records: [
+            .reply(200, {
+              totalSize: 1,
+              nextRecordsUrl: "/services/data/v42.0/query/0go0dVM-2000",
+              done: true,
+              records: [
                 {
                   attributes: {
                     type: "Contact",
@@ -1179,17 +1243,16 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated")
+              "url": expect.whatever()
             }
           ],
           [
-            "debug",
-            "ship.service_api.request",
+            "info",
+            "incoming.job.progress",
             {},
             {
-              "method": "GET",
-              "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwner.Email%2CDescription%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
+              "jobName": "fetch-contacts",
+              "progress": "1 / 1"
             }
           ],
           [
@@ -1257,13 +1320,17 @@ describe("Fetch Contacts Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.incoming.users",1]
+          ["value","ship.service_api.remaining",49500]
         ],
-        platformApiCalls: []
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/9993743b22d60dd829001999",
+            {},
+            expect.objectContaining({"private_settings": expect.whatever()})
+          ]
+        ]
       };
     });
   });

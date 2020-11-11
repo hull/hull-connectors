@@ -1,6 +1,7 @@
 // @flow
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -33,7 +34,7 @@ const usersSegments = [
 
 it("should allow through with mapped account attribute changes", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -44,6 +45,13 @@ it("should allow through with mapped account attribute changes", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
+        scope
+          .post("/companies/v2/domains/doe.com/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, { "results": [] });
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
           {
             "properties": [
@@ -124,6 +132,7 @@ it("should allow through with mapped account attribute changes", () => {
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
@@ -147,6 +156,8 @@ it("should allow through with mapped account attribute changes", () => {
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],

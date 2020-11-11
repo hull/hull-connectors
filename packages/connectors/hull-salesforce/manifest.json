@@ -561,7 +561,7 @@
       "type": "array",
       "format": "table",
       "default": [],
-      "required": true,
+      "required": false,
       "items": {
         "type": "object",
         "properties": {
@@ -803,6 +803,13 @@
         }
       ],
       "conditions": {
+        "segments": {
+          "user:update": [
+            "private_settings.lead_synchronized_segments",
+            "private_settings.contact_synchronized_segments"
+          ],
+          "account:update": ["private_settings.account_synchronized_segments"]
+        },
         "channels": {
           "only": [
             "user:update",
