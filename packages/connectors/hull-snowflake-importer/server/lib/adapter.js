@@ -52,8 +52,9 @@ export function getRequiredParameters() {
 
 export function isValidConfiguration(settings) {
   const val = settings.db_account;
-  if (val && typeof val === "string" && val.length > 0) {
-  }
+  // if (val && typeof val === "string" && val.length > 0) {
+  // TODO: WHy is this an empty block ? Commented to pass Linting
+  // }
   return true;
 }
 
@@ -89,7 +90,7 @@ export function validateResult(result, import_type = "users") {
  * @returns {{errors: Array}}
  */
 
-export function checkForError(error) {
+export function checkForError(_error) {
   // default behavior is to check for a "message" and bubble it up which is correct
   return false;
 }

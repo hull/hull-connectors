@@ -9,3 +9,4 @@ export { default as storedquery } from "./actions/storedquery";
 export { default as validateResultColumns } from "./actions/validate-result-columns";
 export { default as startImport } from "./jobs/start-import";
 export { default as startSync } from "./jobs/start-sync";
+export { default as handler } from "./handler";
