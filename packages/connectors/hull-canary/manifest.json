@@ -5,7 +5,7 @@
   "ui": false,
   "picture": "picture.png",
   "readme": "readme.md",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "private_settings": [
     {
       "name": "events_to_send",

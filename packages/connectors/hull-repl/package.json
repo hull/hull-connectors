@@ -1,7 +1,7 @@
 {
   "name": "hull-repl",
   "description": "Send test data to debug your flows",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "exit 0; echo 'No Tests here' Sad Panda",

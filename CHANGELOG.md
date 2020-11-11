@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.38-monorepo (2020-11-11)
+- [hull-lightweight] Add support for standard and lightweight connectors
+
 ## v0.1.37-monorepo (2020-11-05)
 - [hull-bigquery-importer] Bigquery importer
 

@@ -4,7 +4,7 @@
   "source": "intercom",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "tags": [
     "outgoing",
     "incoming",
