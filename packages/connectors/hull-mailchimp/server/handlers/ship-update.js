@@ -12,7 +12,15 @@ function shipUpdateHandler(ctx: any) {
     return Promise.resolve();
   }
 
-  return syncAgent.syncConnector({ forceCheck: true });
+  try {
+    return syncAgent.syncConnector({ forceCheck: true });
+  } catch (error) {
+    ctx.client.logger.error("connector.sync.error", {
+      error: error.message,
+      message: "Unable to sync connector"
+    });
+    return Promise.resolve();
+  }
 }
 
 module.exports = shipUpdateHandler;

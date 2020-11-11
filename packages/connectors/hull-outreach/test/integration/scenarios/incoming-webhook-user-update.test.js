@@ -6,9 +6,10 @@ process.env.CLIENT_SECRET = "1234";
 const _ = require("lodash");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("process incoming user update webhook from outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {

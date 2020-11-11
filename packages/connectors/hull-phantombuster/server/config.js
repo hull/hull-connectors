@@ -2,7 +2,6 @@
 
 import type { HullConnectorConfig } from "hull";
 import { entryModel } from "hull-vm";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -22,7 +21,6 @@ export default function connectorConfig(): HullConnectorConfig {
   });
 
   return {
-    manifest,
     handlers: handlers({ EntryModel }),
     timeout: 25000,
     httpClientConfig: {

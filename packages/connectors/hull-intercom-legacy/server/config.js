@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -14,8 +13,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: handlers({
+      handlers: handlers({
       hostSecret: SECRET || "1234",
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET

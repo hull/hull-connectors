@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
@@ -9,7 +9,7 @@ process.env.CLIENT_SECRET = "123";
 describe("Fetch Recent Companies Tests", () => {
 
   it("should fetch recently updated companies last page is not empty but should be ignored", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-companies",
@@ -529,7 +529,7 @@ describe("Fetch Recent Companies Tests", () => {
   });
 
   it("should fetch recently updated companies last page is empty", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetch-recent-companies",

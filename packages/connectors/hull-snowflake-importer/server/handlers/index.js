@@ -1,36 +1,41 @@
 // @flow
 import type { HullHandlersConfiguration } from "hull";
-import sync from "../actions/sync";
-import admin from "../actions/admin";
-import status from "../actions/status";
-import run from "../actions/run";
-import storedquery from "../actions/storedquery";
-import importResults from "../actions/import-results";
-import startImport from "../jobs/start-import";
-import startSync from "../jobs/start-sync";
+
+import {
+  admin,
+  sync,
+  status,
+  run,
+  storedquery,
+  importResults,
+  startImport,
+  startSync
+} from "hull-sql";
+
+import { snowflake } from "../lib";
 
 const handler = (): HullHandlersConfiguration => {
   return {
     jobs: {
-      startImport,
-      startSync
+      startImport: startImport(snowflake),
+      startSync: startSync(snowflake)
     },
     incoming: {},
     subscriptions: {},
     batches: {},
     statuses: {
-      status
+      status: status(snowflake)
     },
     schedules: {
-      sync
+      sync: sync(snowflake)
     },
     json: {
-      run,
-      importResults,
-      storedquery
+      run: run(snowflake),
+      importResults: importResults(snowflake),
+      storedquery: storedquery(snowflake)
     },
     tabs: {
-      admin
+      admin: admin(snowflake)
     }
   };
 };

@@ -1,8 +1,11 @@
 const _ = require("lodash");
 
-const trackEvents = async ({ syncAgent, entities = [] }) => {
-  const last_track_at = syncAgent.ship.private_settings.last_track_at;
-  const campaigns = await syncAgent.eventsAgent.getCampaignsAndAutomationsToTrack();
+const trackEvents = async ({
+  syncAgent,
+  campaigns,
+  last_track_at,
+  entities = []
+}) => {
   entities = syncAgent.eventsAgent.filterEvents(entities, last_track_at);
 
   entities = entities.map(emailActivity => {

@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const debug = require("debug")("hull:firehose");
 const Configuration = require("./configuration");
 
 const BATCHERS = {};
@@ -41,7 +42,7 @@ class FirehoseBatcher {
       const callback = (err, res) => {
         return err ? reject(err) : resolve(res);
       };
-
+      debug("Firehose Message Queued", message);
       this.queue.push({ message, callback });
 
       if (FirehoseBatcher.exiting === true) return this.flush();

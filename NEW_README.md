@@ -1278,11 +1278,11 @@ LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
 
 
 ## Lightweight Connectors
-- checkout the `packages/hull/src/lightweight folder for details on how it works.
+- checkout the `packages/hull-lightweight folder for details on how it works.
 
 - Start in Dev with:
 ```
-  yarn combined:lightweight hull-xxx
+  yarn combined hull-xxx
 ```
 
 - Start in Production with:
@@ -1304,4 +1304,24 @@ A few details:
   - `user-processor`
 
 - environment variables (or .env) MUST contain a `SECRET`
-- You can create new lightweight packages by looking at `packages/hull/src/lightweight` subfolders. For now, only `incoming-webhooks` exist
+- You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `source-webhooks` exist
+
+## PM2 environment
+
+- The boot environment has been redone to use pm2. check `start-connector.sh` and `start-dev-connector.sh`
+- Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
+- WEB mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot on the PM2 cluster.
+- On heroku, `WEB_CONCURRENCY` is computed from the `WEB_MEMORY` env var which you can set to tell Heroku how much memory to allocate for your instance. Heroku will use this and compute `WEB_CONCURRENCY` to match based on the Dyno's sizes.
+- You can use SERVER_MAX_CONNECTIONS and SERVER_BACKLOG to fine-tune how Express will respond
+
+### Node Args
+
+- Use NODE_ARGS to add more Node arguments to the dynos. Be careful, in Cluster mode, those aren't passed to child processes it seems.
+
+## Webpack
+Now build things sequentially since returning an array is not optimized at all
+
+## Queue UI
+Arena is available on `/__queue` - auth with the connector's HostSecret
+need to add `QUEUE_ADAPTER=redis` if you want a redis queue
+need to add `CACHE_STORE=redis` if you want a redis cache

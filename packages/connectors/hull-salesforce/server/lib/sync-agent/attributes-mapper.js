@@ -325,30 +325,6 @@ class AttributesMapper implements IAttributesMapper {
     return event;
   }
 
-  mapToHullDeletedObject(resource: TResourceType, deletedAt: Date): any {
-    const mappings = _.get(this.mappingsInbound, resource, []);
-    const attribPrefix =
-      resource === "Account"
-        ? "salesforce"
-        : `salesforce_${resource.toLowerCase()}`;
-
-    if (!_.includes(mappings, "Id")) {
-      mappings.push({ service: "Id", hull: `${attribPrefix}/id` });
-    }
-
-    const hObject = {};
-    _.forEach(mappings, mapping => {
-      const traitSet = { value: null, operation: "set" };
-      _.set(hObject, createAttributeName(attribPrefix, mapping.hull), traitSet);
-    });
-    _.set(hObject, `${attribPrefix}/deleted_at`, {
-      value: deletedAt,
-      operation: "set"
-    });
-
-    return hObject;
-  }
-
   mapToHullIdentityObject(
     resourceType: TResourceType,
     sfObject: Object,

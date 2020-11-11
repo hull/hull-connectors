@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import manifest from "../manifest.json";
 
 const { canariesStatus, canariesRestart } = require("./canaries/handler");
 const { canaryNotify } = require("./canaries/notify");
@@ -16,8 +15,7 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   return {
-    manifest,
-    handlers: {
+      handlers: {
       subscriptions: {
         userUpdate: (context, data) =>
           canaryNotify("user:update", context, data),

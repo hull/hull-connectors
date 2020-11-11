@@ -2,13 +2,14 @@
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
 
 const _ = require("lodash");
+const moment = require("moment");
 const shipAppFactory = require("../../lib/ship-app-factory");
 
 export default async function importBatch(
   ctx: HullContext,
   incomingMessage: HullIncomingHandlerMessage
 ) {
-  const { mailchimpAgent } = shipAppFactory(ctx);
+  const { mailchimpAgent, syncAgent } = shipAppFactory(ctx);
   const batchData = _.get(incomingMessage, "body", {});
   const { batch_id, import_type } = batchData;
 
@@ -41,12 +42,25 @@ export default async function importBatch(
     };
   }
 
-  await ctx.cache.set(batchLockKey, true, { ttl: 43200 });
+  const importInitiated = moment().unix();
+  await ctx.cache.set(
+    batchLockKey,
+    {
+      connector: mailchimpAgent.ship.id,
+      importType: import_type,
+      importInitiated,
+      batchId: batch_id
+    },
+    { ttl: 43200 }
+  );
   if (import_type === "email") {
+    const campaigns = await syncAgent.eventsAgent.getCampaignsAndAutomationsToTrack();
+    const last_track_at = syncAgent.ship.private_settings.last_track_at;
     return mailchimpAgent.batchAgent.handle({
       jobName: "trackEmailActivities",
       batchId: batch_id,
-      importType: import_type
+      importType: import_type,
+      additionalData: { campaigns, last_track_at }
     });
   }
 

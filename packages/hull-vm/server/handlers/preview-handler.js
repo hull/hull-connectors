@@ -8,7 +8,6 @@ import type {
 
 import compute from "../compute";
 import type { PreviewRequest } from "../../types";
-import serialize from "../serialize";
 
 export default async function computeHandler(
   ctx: HullContext,
@@ -60,7 +59,7 @@ export default async function computeHandler(
     }
     return {
       status: 200,
-      data: serialize(result)
+      data: result
     };
   } catch (error) {
     return {

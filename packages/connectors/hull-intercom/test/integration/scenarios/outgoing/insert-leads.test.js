@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const contactFields = require("../attributes/api-responses/get-contact-fields-response.json");
 
@@ -10,7 +10,7 @@ process.env.CLIENT_SECRET = "123";
 describe("Insert Lead Tests", () => {
 
   it("should insert a lead, create tags, create data attribute, and send events from user", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -690,9 +690,9 @@ describe("Insert Lead Tests", () => {
       };
     });
   });
-/*
+
   it("should insert a lead after lookup returns empty", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -1154,5 +1154,5 @@ describe("Insert Lead Tests", () => {
         platformApiCalls: []
       };
     });
-  });*/
+  });
 });

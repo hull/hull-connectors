@@ -24,7 +24,7 @@ async function fetchConnector(ctx, cache): Promise<*> {
     .wrap(
       "connector",
       () => {
-        debug("fetchConnector - calling API");
+        debug("fetchConnector - calling API connector");
         return getConnector().catch(err => {
           const { status } = err;
           if (status === 402 || status === 404) {
@@ -54,9 +54,9 @@ async function fetchSegments(ctx, entity = "user", cache) {
     return segments;
   }
   const { id } = ctx.client.configuration();
-  const getSegments = () =>
+  const getSegments = async () =>
     ctx.client.get(
-      `/${entitySegments}`,
+      entitySegments,
       { shipId: id },
       { timeout: 5000, retry: 1000 }
     );
@@ -68,7 +68,7 @@ async function fetchSegments(ctx, entity = "user", cache) {
         if (ctx.client === undefined) {
           return Promise.reject(new Error("Missing client"));
         }
-        debug("fetchSegments - calling API");
+        debug(`fetchSegments - calling API ${entitySegments}`);
         return getSegments().catch(err => {
           const { status } = err;
           if (status === 402 || status === 404) {
@@ -114,7 +114,6 @@ function fullContextFetchMiddlewareFactory({
         )
       );
     }
-
     try {
       const ctx = req.hull;
       if (ctx.client === undefined) {
@@ -125,6 +124,11 @@ function fullContextFetchMiddlewareFactory({
         fetchSegments(ctx, "user", cacheContextFetch),
         fetchSegments(ctx, "account", cacheContextFetch)
       ]);
+
+      if (req.hull.__contextFetched) {
+        return next();
+      }
+
       debug("received responses %o", {
         connector: typeof connector,
         usersSegments: Array.isArray(usersSegments),

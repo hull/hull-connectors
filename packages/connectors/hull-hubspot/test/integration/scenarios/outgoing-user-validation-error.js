@@ -2,6 +2,7 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
@@ -35,7 +36,7 @@ tests:
     3) user with only hull sync failures is resent after connector sync
  */
 it("should send out a new hull user to hubspot - validation error", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

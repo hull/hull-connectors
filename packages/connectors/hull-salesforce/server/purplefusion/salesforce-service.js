@@ -44,24 +44,21 @@ class SalesforceSDK {
     return this.syncAgent.sendUserMessages(messages);
   }
 
+  async leadUpdate({ messages }) {
+    return this.syncAgent.sendLeadMessages(messages);
+  }
+
   async accountUpdate({ messages }) {
     return this.syncAgent.sendAccountMessages(messages);
   }
 
-  async getAllRecords({ sfType, fields }) {
+  async getAllRecords({ sfType, fields, fetchDaysBack, lastFetchedAt }) {
     const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
     return this.syncAgent.sf.getAllRecords(
       sfType,
-      { identityClaims, fields },
+      { identityClaims, fields, fetchDaysBack, lastFetchedAt },
       record => this.saveRecord({ sfType, record })
     );
-  }
-
-  async getUpdatedRecordIds({ sfType, fetchStart, fetchEnd }) {
-    return this.syncAgent.sf.getUpdatedRecordIds(sfType, {
-      start: fetchStart,
-      end: fetchEnd
-    });
   }
 
   async getDeletedRecords({ sfType, fetchStart, fetchEnd }) {
@@ -71,17 +68,25 @@ class SalesforceSDK {
     });
   }
 
-  async saveRecords({ sfType, ids, fields, executeQuery = "query" }) {
-    const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
-    return this.syncAgent.sf.getRecords(
+  async queryAllById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(
       sfType,
       ids,
-      { identityClaims, fields, executeQuery },
-      record => this.saveRecord({ sfType, record })
+      fields,
+      { queryScope: "queryAll" }
     );
   }
 
-  async saveRecord({ sfType, record, progress = {} }) {
+  async queryExistingById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(
+      sfType,
+      ids,
+      fields,
+      { queryScope: "query" }
+    );
+  }
+
+  async saveRecord({ sfType, record }) {
     return this.syncAgent[`save${sfType}`](
       { source: "salesforce", sfType },
       record

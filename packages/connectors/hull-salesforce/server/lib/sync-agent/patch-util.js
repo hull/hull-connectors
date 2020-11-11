@@ -20,14 +20,21 @@ class PatchUtil {
 
   sendNullValues: boolean;
 
+  sendOnlyChanges: boolean;
+
+  isBatch: boolean;
+
   /**
    * Creates an instance of PatchUtil.
    * @param {*} connectorSettings The settings of the connector, passed as object.
+   * @param isBatch
    * @memberof PatchUtil
    */
-  constructor(connectorSettings: any) {
+  constructor(connectorSettings: any, isBatch = false) {
     this.mappingsOutbound = {};
+    this.sendOnlyChanges = _.get(connectorSettings, "send_only_changes", false);
     this.sendNullValues = _.get(connectorSettings, "send_null_values", false);
+    this.isBatch = isBatch;
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
       _.set(
@@ -135,6 +142,22 @@ class PatchUtil {
     return sfAttributeValue !== hullAttributeValue;
   }
 
+  getFilteredMappings(resourceType: TResourceType, changes: Object) {
+    if (!this.sendOnlyChanges || this.isBatch) {
+      return _.get(this.mappingsOutbound, resourceType);
+    }
+
+    const hullType = _.toLower(resourceType) === "account" ? "account" : "user";
+    return _.filter(_.get(this.mappingsOutbound, resourceType), mapping => {
+      let changedAttr = _.get(changes, `${hullType}.${mapping.hull}`);
+      if (!changedAttr) {
+        changedAttr = _.get(changes, mapping.hull);
+      }
+
+      return !_.isNil(changedAttr);
+    });
+  }
+
   /**
    * Creates a patch object to handle attributes with and without overwrite in
    * the correct way.
@@ -143,6 +166,7 @@ class PatchUtil {
    * @param {*} hullToSFObject The Salesforce object created from the current Hull object (result of AttributesMapper).
    * @param {*} existingSFObject The current object in Salesforce, pass an empty object if none exists.
    * @param schema
+   * @param changes
    * @returns {TPatchResult} The patch result indicating whether to process the object or not.
    * @memberof PatchUtil
    *
@@ -153,9 +177,10 @@ class PatchUtil {
     resource: TResourceType,
     hullToSFObject: any,
     existingSFObject: any,
-    schema: Object
+    schema: Object,
+    changes = {}
   ): TPatchResult {
-    const mappings = _.get(this.mappingsOutbound, resource);
+    const mappings = this.getFilteredMappings(resource, changes);
     const result: TPatchResult = {
       hasChanges: false,
       patchObject: {}

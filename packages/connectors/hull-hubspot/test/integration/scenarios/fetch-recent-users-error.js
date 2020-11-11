@@ -4,6 +4,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 const contactPropertyGroups = require("../fixtures/get-contacts-groups");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = 1;
@@ -19,7 +20,7 @@ const connector = {
 };
 
 it("Fetch recent contacts should fail on incorrect permissions error", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-contacts",

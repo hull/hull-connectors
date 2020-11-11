@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
@@ -53,7 +54,7 @@ const accountsSegments = [
 
 it("should attempt to update hubspot company after validation error and retry", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

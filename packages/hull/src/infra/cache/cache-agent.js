@@ -1,8 +1,7 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
-import redisStore from "cache-manager-redis";
+import redisStore from "cache-manager-redis-store";
 
-const debug = require("debug")("hull:cache-agent");
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
 const PromiseReuser = require("../../utils/promise-reuser");
@@ -52,13 +51,22 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  constructor(config: HullCacheConfig) {
-    debug("New Cache Store", { config });
-    const { store } = config;
-    this.cache = cacheManager.caching({
-      ...config,
-      store: store === "redis" ? redisStore : "memory"
-    });
+  getOptions(options) {
+    const { store } = options;
+    if (store === "redis") {
+      return {
+        ...options,
+        store: redisStore
+      };
+    }
+    return {
+      ...options,
+      store: "memory"
+    };
+  }
+
+  constructor(options: HullCacheConfig) {
+    this.cache = cacheManager.caching(this.getOptions(options));
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
   }

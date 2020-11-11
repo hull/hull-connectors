@@ -5,6 +5,8 @@ const EntityMessageFactory = require("./factories/entity-message");
 const expect = require("expect");
 
 const FilterUtil = require("../../server/lib/sync-agent/filter-util");
+const { deduplicateMessages } = require("../../server/lib/utils/dedupe-messages");
+
 
 const smartNotifierPayload = require("../fixtures/smartnotifier_payloads/userupdate_noaccount.json");
 
@@ -1308,7 +1310,7 @@ describe("Filter Util Tests", function testSuite() {
       _.set(msg2, "user.indexed_at", timestamp2.toISOString());
       _.set(msg2, "user.coconuts", 9);
 
-      const deduped = filterUtil.filterDuplicateMessages(_.concat(snsPayloadIn.messages, msg2), "user");
+      const deduped = deduplicateMessages(_.concat(snsPayloadIn.messages, msg2), "user");
       expect(deduped).toEqual(smartNotifierPayload.messages);
     });
 
@@ -1324,7 +1326,7 @@ describe("Filter Util Tests", function testSuite() {
       _.set(msg2, "user.id", "123456780789");
       snsPayloadIn.messages.push(msg2);
 
-      const deduped = filterUtil.filterDuplicateMessages(snsPayloadIn.messages, "user");
+      const deduped = deduplicateMessages(snsPayloadIn.messages, "user");
       expect(deduped).toEqual(snsPayloadIn.messages);
     });
 
@@ -1345,7 +1347,7 @@ describe("Filter Util Tests", function testSuite() {
       _.set(msg3, "user.id", "123456780789");
       snsPayloadIn.messages.push(msg3);
 
-      const deduped = filterUtil.filterDuplicateMessages(_.concat(snsPayloadIn.messages, msg2), "user");
+      const deduped = deduplicateMessages(_.concat(snsPayloadIn.messages, msg2), "user");
       expect(deduped).toEqual(snsPayloadIn.messages);
     });
 
@@ -1355,7 +1357,7 @@ describe("Filter Util Tests", function testSuite() {
         lead_synchronized_segments: ["a"]
       };
       const filterUtil = new FilterUtil(privateSettings);
-      const deduped = filterUtil.filterDuplicateMessages({ foo: "baz" }, "user");
+      const deduped = deduplicateMessages({ foo: "baz" }, "user");
       expect(deduped).toEqual([]);
     });
 
@@ -1365,7 +1367,7 @@ describe("Filter Util Tests", function testSuite() {
         lead_synchronized_segments: ["a"]
       };
       const filterUtil = new FilterUtil(privateSettings);
-      const deduped = filterUtil.filterDuplicateMessages([], "user");
+      const deduped = deduplicateMessages([], "user");
       expect(deduped).toEqual([]);
     });
   });

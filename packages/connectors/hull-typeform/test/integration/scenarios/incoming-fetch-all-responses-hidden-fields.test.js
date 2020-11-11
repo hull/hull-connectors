@@ -12,9 +12,10 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("incoming fetch all responses hidden fields", () => {
-  return testScenario({ connectorConfig }, ({ handlers, alterFixture, expect, nock }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, alterFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",

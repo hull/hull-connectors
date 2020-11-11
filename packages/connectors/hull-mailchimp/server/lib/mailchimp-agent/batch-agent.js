@@ -63,7 +63,7 @@ class MailchimpBatchAgent {
    * @api
    */
   async handle(options) {
-    const { batchId, jobName, importType } = options;
+    const { batchId, jobName, importType, additionalData = {} } = options;
 
     if (_.isNil(batchId)) {
       this.client.logger.info("incoming.job.success", {
@@ -114,6 +114,7 @@ class MailchimpBatchAgent {
         type: importType,
         message: "Batch Job Still Processing in Mailchimp"
       });
+      await this.ctx.cache.del(`${importType}_batch_lock`);
       return Promise.resolve([]);
     }
 
@@ -146,7 +147,8 @@ class MailchimpBatchAgent {
         ps.map(ops => {
           try {
             return this.ctx.enqueue(jobName, {
-              response: ops
+              response: ops,
+              additionalData
             });
           } catch (e) {
             this.ctx.client.logger.debug({ errors: e });
@@ -163,22 +165,29 @@ class MailchimpBatchAgent {
         });
         if (importType === "email") {
           this.ctx.helpers.settingsUpdate({
-            last_track_at: moment.utc().format()
+            last_track_at: batchData.submitted_at
           });
         }
 
         await this.ctx.cache.del(`${importType}_batch_id`);
         await this.ctx.cache.del(`${importType}_batch_lock`);
 
-        return this.mailchimpClient.deleteBatchJob(batchId).catch(error => {
-          return this.client.logger.info("incoming.job.warning", {
-            batchId,
-            jobName: "mailchimp-batch-job",
-            type: importType,
-            message: `Unable to delete batch job: ${error.message}`
-          });
-        });
+        return this.delete(batchId);
       });
+  }
+
+  delete(batchId, retry = 1) {
+    return this.mailchimpClient.deleteBatchJob(batchId).catch(error => {
+      if (retry > 0) {
+        retry -= 1;
+        return this.delete(batchId, retry);
+      }
+      return this.client.logger.info("incoming.job.warning", {
+        batchId,
+        jobName: "mailchimp-batch-job",
+        message: `Unable to delete batch job: ${error.message}`
+      });
+    });
   }
 }
 

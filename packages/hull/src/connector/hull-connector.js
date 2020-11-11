@@ -1,9 +1,12 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import queueUIRouter from "hull/src/infra/queue/ui-router";
+import OS from "os";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import https from "http";
 import repl from "hullrepl";
 import minimist from "minimist";
 import type {
@@ -37,7 +40,6 @@ import mergeConfig from "../utils/merge-config";
 
 const { compose } = require("compose-middleware");
 
-const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
@@ -52,8 +54,7 @@ const {
   baseComposedMiddleware
 } = require("../middlewares");
 
-const getAbsolutePath = p =>
-  `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
+const getAbsolutePath = p => `${process.cwd()}/${p}`;
 
 const getCallbacks = (handlers, category: string, handler: string) => {
   const cat = handlers[category];
@@ -71,6 +72,15 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   }
   return callback;
 };
+
+const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 511 } = process.env;
+
+const getCPUCount = () => OS.cpus().length;
+
+const getMaxConnections = () =>
+  parseInt(SERVER_MAX_CONNECTIONS, 10) || getCPUCount() || 10;
+
+const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 511;
 
 // const { TransientError } = require("../errors");
 
@@ -184,7 +194,7 @@ export default class HullConnector {
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds
-      max: 100, // Items
+      max: 5, // Connections to Redis (??) Shouldn't be used in newer cache-manager-redis-store
       store: "memory",
       ...cacheConfig
     };
@@ -247,14 +257,6 @@ export default class HullConnector {
       }
 
       this.app = app;
-      if (
-        this.connectorConfig.devMode &&
-        !this.connectorConfig.disableWebpack
-      ) {
-        debug("Starting Server in DevMode");
-      } else {
-        debug("Starting Server");
-      }
       const server = this.startApp(app);
       if (server) {
         this.server = server;
@@ -480,7 +482,17 @@ export default class HullConnector {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
-    app.use("/", staticRouter({ manifest: this.manifest }));
+    app.use(
+      "/",
+      staticRouter({ path: process.cwd(), manifest: this.manifest })
+    );
+    app.use(
+      "/__queue",
+      queueUIRouter({
+        hostSecret: this.connectorConfig.hostSecret,
+        queue: this.queue
+      })
+    );
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
@@ -516,7 +528,21 @@ export default class HullConnector {
    */
   startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
-    return app.listen(port, () => debug("connector.server.listen", { port }));
+    const maxConnections = getMaxConnections();
+    const backlog = getBacklogSize();
+    const server = https.createServer(app);
+    server.listen(
+      {
+        port: parseInt(port, 10),
+        backlog
+        // exclusive: true
+      },
+      () => {
+        debug("connector.server.listen", { port, backlog, maxConnections });
+      }
+    );
+    server.maxConnections = maxConnections;
+    return server;
   }
 
   use(middleware: Middleware) {
@@ -528,7 +554,7 @@ export default class HullConnector {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
-      throw new Error(
+      console.warn(
         "Worker is started but no jobs hash is declared in Handlers"
       );
     }

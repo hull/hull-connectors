@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -91,7 +91,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -190,13 +190,6 @@ describe("Insert Accounts Tests", () => {
         response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          ["info", "outgoing.account.skip", {
-            "account_external_id": "0011I000007Cy18QAC-2",
-            "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9-2",
-            "subject_type": "account",
-            "request_id": expect.whatever()
-          }, { "reason": "doesn't match filter for accounts" }
-          ],
           [
             "info",
             "outgoing.account.success",
@@ -317,7 +310,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -721,7 +714,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -920,7 +913,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -1187,7 +1180,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
@@ -1376,7 +1369,7 @@ describe("Insert Accounts Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",

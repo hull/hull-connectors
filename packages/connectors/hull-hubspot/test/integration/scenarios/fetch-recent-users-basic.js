@@ -4,6 +4,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 const contactPropertyGroups = require("../fixtures/get-contacts-groups");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = 1;
@@ -21,7 +22,7 @@ const connector = {
 };
 
 it("should fetch recent users using settings", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-contacts",
@@ -214,7 +215,7 @@ it("should fetch recent users using settings", () => {
 });
 
 it("Should Fetch Contact With Mapped Incoming Attributes", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-contacts",
@@ -357,7 +358,7 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
 });
 
 it("Should Fetch Contact With Missing Optional Claims", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-contacts",

@@ -1,6 +1,7 @@
 // @flow
 /* global describe, it, beforeEach, afterEach */
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "abc";
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 it("send batch account update to hubspot in a batch", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

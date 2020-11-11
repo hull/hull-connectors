@@ -83,16 +83,16 @@ class QueryUtil implements IQueryUtil {
   }
 
   getSoqlFields(
-    serviceType: string,
+    sfType: string,
     fields: Array<string>,
-    identityClaims: Array<Object>
+    identityClaims: Array<Object> = []
   ): Object {
     let selectFields: string[] = [];
 
     const requiredFields = [];
     requiredFields.push("Id");
-    switch (serviceType) {
-      case "Lead":
+    switch (_.toLower(sfType)) {
+      case "lead":
         selectFields.push(
           "Id",
           "Email",
@@ -100,13 +100,13 @@ class QueryUtil implements IQueryUtil {
           "ConvertedContactId"
         );
         break;
-      case "Account":
+      case "account":
         selectFields.push("Id", "Website");
         break;
-      case "Contact":
+      case "contact":
         selectFields.push("Id", "Email", "AccountId");
         break;
-      case "Task":
+      case "task":
         selectFields.push("Id", "Subject", "WhoId", "Who.Type");
         break;
       default:
@@ -114,7 +114,9 @@ class QueryUtil implements IQueryUtil {
         break;
     }
 
-    const queryClaims = ["Lead", "Contact", "Account"].includes(serviceType);
+    const queryClaims = ["lead", "contact", "account"].includes(
+      _.toLower(sfType)
+    );
     if (queryClaims && !_.isNil(identityClaims) && _.size(identityClaims) > 0) {
       selectFields = _.concat(selectFields, _.map(identityClaims, "service"));
 

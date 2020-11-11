@@ -7,10 +7,11 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier account update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-account-changes.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,

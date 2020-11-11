@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
+import manifest from "../../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const contactFields = require("./api-responses/get-contact-fields-response.json");
@@ -11,7 +12,7 @@ process.env.CLIENT_SECRET = "123";
 describe("Fetch Intercom Attributes Tests", () => {
 
   it("should fetch api_writable contact attributes and build outgoing attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/contact_fields_writable",
@@ -120,7 +121,7 @@ describe("Fetch Intercom Attributes Tests", () => {
   });
 
   it("should fetch all contact attributes and build incoming attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/contact_fields",
@@ -327,7 +328,7 @@ describe("Fetch Intercom Attributes Tests", () => {
   });
 
   it("should fetch all company attributes and build incoming attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/company_fields",

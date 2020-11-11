@@ -1,7 +1,7 @@
 @import "../../../assets/style/index.scss";
-@import "codemirror/theme/material-ocean";
-@import "bootstrap-table/dist/bootstrap-table";
-@import "sweetalert2/src/sweetalert2.scss";
+@import "~codemirror/theme/material-ocean";
+@import "~bootstrap-table/dist/bootstrap-table";
+@import "~sweetalert2/src/sweetalert2.scss";
 
 .flex-row {
   display: flex;

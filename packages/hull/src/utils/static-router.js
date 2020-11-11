@@ -7,14 +7,11 @@ function readmeRoute(req, res) {
   );
 }
 
-function staticRouter({ manifest }) {
+function staticRouter({ path, manifest }) {
   const { readme = "readme.md" } = manifest;
-
-  const applicationDirectory = process.cwd();
   const router = express.Router();
-
-  router.use(express.static(`${applicationDirectory}/dist`));
-  router.use(express.static(`${applicationDirectory}/assets`));
+  router.use(express.static(`${path}/dist`));
+  router.use(express.static(`${path}/assets`));
 
   router.get("/readme.md", (_req, res) => res.render(readme));
   router.get("/manifest.json", (req, res) => res.send(manifest));

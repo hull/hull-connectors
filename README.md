@@ -73,7 +73,7 @@ First build the production dist:
 `yarn build`
 
 Then given you have the env file in place (if not look above), you can use bash script to run:
-`dotenv -e .env.hull-foo bash scripts/bash-entrypoint.sh hull-foo`
+`dotenv -e .env.hull-foo bash scripts/start-connector.sh hull-foo`
 
 
 **How to test single connector?**
