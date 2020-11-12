@@ -109,10 +109,10 @@ As a result just 1 row is processed.
 ### How to switch organization Hull Importer Add-on is sending data to?
 
 Being able to switch existing spreadsheet from one organization to another may be important
-to perform first testing import in staging organization and then re-run the exact same setup against production organization.
+to perform an initial testing import in your staging organization, and then re-running the exact same setup in your production organization.
 ``
-Assuming that you have a spreadsheet where Hull Importer Add-on is already present and configured you just need
-to click "Edit settings" button at the top of the sidebar and paste a token from the connector which is installed in your target organization.
+Assuming that you already have a spreadsheet where the Hull Importer Add-on is already present and configured, you just need
+to click the "Edit settings" button at the top of the sidebar and paste the generated token by the connector you have installed in the desired organization.
 
 ![Users ignored](./screenshots/edit_settings.png)
 
