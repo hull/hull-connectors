@@ -26,40 +26,53 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { userValue: "baz", accountValue: "ball" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          "foo/bar": "baz"
-        },
-        account: {
-          ...asAccount,
-          "foo/bar": "ball"
-        }
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ userValue: user.foo.bar, accountValue: account.foo.bar })`
-      ),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            "foo/bar": "baz"
+          },
+          account: {
+            ...asAccount,
+            "foo/bar": "ball"
+          }
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ userValue: user.foo.bar, accountValue: account.foo.bar })`
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes, no_ops: {} }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("should use all the possible claims to refine resolution", () => {
@@ -75,44 +88,61 @@ describe("Basic Attributes manipulation", () => {
       email: "foo@bar.com",
       anonymous_id: "one"
     };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          "foo/bar": "baz"
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ value: "foosball" })`),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser: expectedClaims,
-            subjectType: "user"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            "foo/bar": "baz"
           },
-          { value: "foosball" }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[expectedClaims, { value: "foosball" }]]
-          })
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`hull.traits({ value: "foosball" })`),
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              asUser: expectedClaims,
+              subjectType: "user"
+            },
+            { value: "foosball" }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { value: "foosball" }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234",
+              user_external_id: "foobar",
+              user_email: "foo@bar.com",
+              user_anonymous_id: "one"
+            },
+            expect.objectContaining({
+              userTraits: [[expectedClaims, { value: "foosball" }]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234",
+              user_external_id: "foobar",
+              user_email: "foo@bar.com",
+              user_anonymous_id: "one"
+            },
+            { attributes: { value: "foosball" }, no_ops: {} }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("locally omit unneeded aliases", () => {
@@ -128,67 +158,83 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { identical: "value" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.alias({ anonymous_id: "bar" })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [],
-            userAliases: [[claims, [[{ anonymous_id: "bar" }, "alias"]]]]
-          })
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser
+          },
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`hull.alias({ anonymous_id: "bar" })`),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234",
+              user_anonymous_id: "foo"
+            },
+            expect.objectContaining({
+              userTraits: [],
+              userAliases: [[claims, [[{ anonymous_id: "bar" }, "alias"]]]]
+            })
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
   });
 
   it("not make any call if user already has alias", () => {
     const claims = { id: "1234", anonymous_id: "foo" };
     const asAccount = { id: "1234" };
     const attributes = { identical: "value" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          id: "1234",
-          anonymous_ids: ["foo"]
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.alias({ anonymous_id: "foo" })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [],
-            userAliases: [
-              [
-                {
-                  anonymous_id: "foo",
-                  id: "1234"
-                },
-                [[{ anonymous_id: "foo" }, "alias"]]
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            id: "1234",
+            anonymous_ids: ["foo"]
+          },
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`hull.alias({ anonymous_id: "foo" })`),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_anonymous_id: "foo",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [],
+              userAliases: [
+                [
+                  {
+                    anonymous_id: "foo",
+                    id: "1234"
+                  },
+                  [[{ anonymous_id: "foo" }, "alias"]]
+                ]
               ]
-            ]
-          })
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
+            })
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
   });
 
   it("locally omit identical attributes to reduce calls", () => {
@@ -203,43 +249,54 @@ describe("Basic Attributes manipulation", () => {
       identical_date: "2020-08-06T16:56:59+02:00"
     };
     const identical_date = "2020-08-06T17:56:59+03:00";
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          ...attributes
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ identical: "value", identical_date: "${identical_date}" })`
-      ),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, { ...attributes, identical_date }]]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          {
-            attributes: {},
-            no_ops: {
-              identical: "identical value",
-              identical_date: "identical date"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            ...attributes
+          },
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ identical: "value", identical_date: "${identical_date}" })`
+        ),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, { ...attributes, identical_date }]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              attributes: {},
+              no_ops: {
+                identical: "identical value",
+                identical_date: "identical date"
+              }
             }
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("locally omit ONLY identical attributes to reduce calls", () => {
@@ -250,47 +307,58 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { different: "1234" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          identical: "value",
-          different: 1234
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ different: "1234", identical: "value" })`
-      ),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            identical: "value",
+            different: 1234
           },
-          attributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, { ...attributes, identical: "value" }]]
-          })
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ different: "1234", identical: "value" })`
+        ),
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              asUser,
+              subjectType: "user"
+            },
+            attributes
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: { identical: "identical value" } }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, { ...attributes, identical: "value" }]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes, no_ops: { identical: "identical value" } }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("be able to skip identical JSON payloads", () => {
@@ -301,41 +369,58 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { foo: { bar: "baz" } };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          ...attributes
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ "foo": { "bar": "baz" } })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            ...attributes
+          },
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ "foo": { "bar": "baz" } })`
+        ),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]]
+            })
+          ],
+          [
+            "debug",
+            'Nested object found in key "foo"',
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            attributes["foo"]
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes: {}, no_ops: { foo: "identical value" } }
+          ]
         ],
-        [
-          "debug",
-          'Nested object found in key "foo"',
-          expect.whatever(),
-          attributes["foo"]
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: {}, no_ops: { foo: "identical value" } }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("recognizes Arrays of Objects as JSON Objects", () => {
@@ -346,37 +431,48 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const obj = [{ bar: "baz" }];
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: asUser,
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ "foo": [{ "bar": "baz" }] })`
-      ),
-      firehoseEvents: [
-        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, { foo: obj }]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: asUser,
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ "foo": [{ "bar": "baz" }] })`
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, { foo: obj }]
         ],
-        ["debug", 'Nested object found in key "foo"', expect.whatever(), obj],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { foo: obj }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, { foo: obj }]]
+            })
+          ],
+          ["debug", 'Nested object found in key "foo"', expect.whatever(), obj],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes: { foo: obj }, no_ops: {} }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("doesn't confuse Arrays for JSON Objects", () => {
@@ -386,43 +482,54 @@ describe("Basic Attributes manipulation", () => {
     const asAccount = {
       id: "1234"
     };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: asUser,
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
-          },
-          {
-            foo: ["bar", "baz"]
-          }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, { foo: ["bar", "baz"] }]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: asUser,
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              asUser,
+              subjectType: "user"
+            },
+            {
+              foo: ["bar", "baz"]
+            }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, { foo: ["bar", "baz"] }]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("be able to identify differences in JSON objects and send the full payload", () => {
@@ -433,52 +540,67 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { foo: { bar: { baz: "ball" } } };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          foo: { bar: { baz: "ball", bim: "bam" } }
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ foo: { bar: { baz: "ball" } } })`
-      ),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            foo: { bar: { baz: "ball", bim: "bam" } }
           },
-          attributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]]
-          })
+          account: {}
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits({ foo: { bar: { baz: "ball" } } })`
+        ),
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              asUser,
+              subjectType: "user"
+            },
+            attributes
+          ]
         ],
-        [
-          "debug",
-          'Nested object found in key "foo"',
-          expect.whatever(),
-          attributes["foo"]
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]]
+            })
+          ],
+          [
+            "debug",
+            'Nested object found in key "foo"',
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            attributes["foo"]
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes, no_ops: {} }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   // it("locally omit identical attributes on Accounts to reduce calls ????", () => {
@@ -492,130 +614,172 @@ describe("Basic Attributes manipulation", () => {
       id: "1234"
     };
     const attributes = { userValue: "bat", accountValue: "ball" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          "foo/bar": {
-            baz: "bat"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            "foo/bar": {
+              baz: "bat"
+            }
+          },
+          account: {
+            ...asAccount,
+            "foo/bar": {
+              baz: "ball"
+            }
           }
-        },
-        account: {
-          ...asAccount,
-          "foo/bar": {
-            baz: "ball"
-          }
-        }
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "hull.traits({ userValue: user.foo.bar.baz, accountValue: account.foo.bar.baz })"
-      ),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]]
-          })
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          "hull.traits({ userValue: user.foo.bar.baz, accountValue: account.foo.bar.baz })"
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes, no_ops: {} }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("should handle empty events at top level", () => {
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`if(events) { console.log("hi"); }`),
-      firehoseEvents: [],
-      logs: [["debug", "compute.debug", expect.whatever(), expect.whatever()]],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`if(events) { console.log("hi"); }`),
+        firehoseEvents: [],
+        logs: [
+          ["debug", "compute.debug", expect.whatever(), expect.whatever()]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
   });
 
   it("should apply a simple attribute to a user", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`traits(${JSON.stringify(attributes)})`),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`traits(${JSON.stringify(attributes)})`),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          {
-            attributes: {
-              foo: "bar"
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
             },
-            no_ops: {}
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              attributes: {
+                foo: "bar"
+              },
+              no_ops: {}
+            }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("should work as top level or scoped methods", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const attributes2 = { faa: "baz" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `traits(${JSON.stringify(attributes)}); hull.traits(${JSON.stringify(
-          attributes2
-        )})`
-      ),
-      firehoseEvents: [
-        [
-          "traits",
-          { asUser, subjectType: "user" },
-          { ...attributes, ...attributes2 }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, { ...attributes, ...attributes2 }]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `traits(${JSON.stringify(attributes)}); hull.traits(${JSON.stringify(
+            attributes2
+          )})`
+        ),
+        firehoseEvents: [
+          [
+            "traits",
+            { asUser, subjectType: "user" },
+            { ...attributes, ...attributes2 }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          {
-            attributes: { ...attributes, ...attributes2 },
-            no_ops: {}
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, { ...attributes, ...attributes2 }]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              attributes: { ...attributes, ...attributes2 },
+              no_ops: {}
+            }
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("should support impersonation from User processor to another User", () => {
@@ -623,135 +787,149 @@ describe("Basic Attributes manipulation", () => {
     const asImpersonatedUser = { email: "foo@bar.com" };
     const attributes = { foo: "bar" };
     const impersonatedAttributes = { boo: "booya" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits(${JSON.stringify(
-          attributes
-        )}); hull.asUser(${JSON.stringify(
-          asImpersonatedUser
-        )}).traits(${JSON.stringify(impersonatedAttributes)})`
-      ),
-      firehoseEvents: [
-        ["traits", { asUser, subjectType: "user" }, attributes],
-        [
-          "traits",
-          { asUser: asImpersonatedUser, subjectType: "user" },
-          impersonatedAttributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [
-              [asUser, attributes],
-              [asImpersonatedUser, impersonatedAttributes]
-            ]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits(${JSON.stringify(
+            attributes
+          )}); hull.asUser(${JSON.stringify(
+            asImpersonatedUser
+          )}).traits(${JSON.stringify(impersonatedAttributes)})`
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes],
+          [
+            "traits",
+            { asUser: asImpersonatedUser, subjectType: "user" },
+            impersonatedAttributes
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          {
-            request_id: expect.whatever(),
-            subject_type: "user",
-            user_id: "1234"
-          },
-          {
-            attributes,
-            no_ops: {}
-          }
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [
+                [asUser, attributes],
+                [asImpersonatedUser, impersonatedAttributes]
+              ]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              attributes,
+              no_ops: {}
+            }
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_email: asImpersonatedUser.email
+            },
+            {
+              attributes: impersonatedAttributes,
+              no_ops: {}
+            }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          {
-            request_id: expect.whatever(),
-            subject_type: "user",
-            user_email: asImpersonatedUser.email
-          },
-          {
-            attributes: impersonatedAttributes,
-            no_ops: {}
-          }
+        metrics: [
+          METRIC_CONNECTOR_REQUEST,
+          ["increment", "ship.incoming.users", 2]
         ]
-      ],
-      metrics: [
-        METRIC_CONNECTOR_REQUEST,
-        ["increment", "ship.incoming.users", 2]
-      ]
-    }));
+      })
+    );
   });
   it("should support impersonation from User processor to Account", () => {
     const asUser = { id: "1234" };
     const asImpersonatedAccount = { domain: "bar.com" };
     const attributes = { foo: "bar" };
     const impersonatedAttributes = { boo: "booya" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits(${JSON.stringify(
-          attributes
-        )}); hull.asAccount(${JSON.stringify(
-          asImpersonatedAccount
-        )}).traits(${JSON.stringify(impersonatedAttributes)})`
-      ),
-      firehoseEvents: [
-        ["traits", { asUser, subjectType: "user" }, attributes],
-        [
-          "traits",
-          { asAccount: asImpersonatedAccount, subjectType: "account" },
-          impersonatedAttributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[asUser, attributes]],
-            accountTraits: [[asImpersonatedAccount, impersonatedAttributes]]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          `hull.traits(${JSON.stringify(
+            attributes
+          )}); hull.asAccount(${JSON.stringify(
+            asImpersonatedAccount
+          )}).traits(${JSON.stringify(impersonatedAttributes)})`
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes],
+          [
+            "traits",
+            { asAccount: asImpersonatedAccount, subjectType: "account" },
+            impersonatedAttributes
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          {
-            request_id: expect.whatever(),
-            subject_type: "user",
-            user_id: "1234"
-          },
-          {
-            attributes,
-            no_ops: {}
-          }
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              userTraits: [[asUser, attributes]],
+              accountTraits: [[asImpersonatedAccount, impersonatedAttributes]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              attributes,
+              no_ops: {}
+            }
+          ],
+          [
+            "debug",
+            "incoming.account.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "account",
+              account_domain: asImpersonatedAccount.domain
+            },
+            {
+              attributes: impersonatedAttributes,
+              no_ops: {}
+            }
+          ]
         ],
-        [
-          "debug",
-          "incoming.account.success",
-          {
-            request_id: expect.whatever(),
-            subject_type: "account",
-            account_domain: asImpersonatedAccount.domain
-          },
-          {
-            attributes: impersonatedAttributes,
-            no_ops: {}
-          }
+        metrics: [
+          METRIC_CONNECTOR_REQUEST,
+          ["increment", "ship.incoming.users", 1],
+          ["increment", "ship.incoming.accounts", 1]
         ]
-      ],
-      metrics: [
-        METRIC_CONNECTOR_REQUEST,
-        ["increment", "ship.incoming.users", 1],
-        ["increment", "ship.incoming.accounts", 1]
-      ]
-    }));
+      })
+    );
   });
 
   it("should flatten a single level deep", () => {
@@ -765,145 +943,184 @@ describe("Basic Attributes manipulation", () => {
         }
       }
     };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "hull.traits({ value: 'val0', group: { value: 'val1', group: { value: 'val2' } } }, { source: 'group' });"
-      ),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({ userTraits: [[asUser, attributes]] })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(
+          "hull.traits({ value: 'val0', group: { value: 'val1', group: { value: 'val2' } } }, { source: 'group' });"
+        ),
+        firehoseEvents: [
+          ["traits", { asUser, subjectType: "user" }, attributes]
         ],
-        [
-          "debug",
-          'Nested object found in key "group/group"',
-          expect.whatever(),
-          attributes["group/group"]
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({ userTraits: [[asUser, attributes]] })
+          ],
+          [
+            "debug",
+            'Nested object found in key "group/group"',
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            attributes["group/group"]
+          ],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            { attributes, no_ops: {} }
+          ]
         ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+      })
+    );
   });
 
   it("should apply a simple event to a user", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
-      firehoseEvents: [
-        [
-          "track",
-          { asUser, subjectType: "user" },
-          {
-            event: "New Event",
-            event_id: expect.anything(),
-            ip: "0",
-            referer: null,
-            url: null,
-            source: "processor",
-            properties: { foo: "bar" }
-          }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            events: [
-              {
-                claims: { id: "1234" },
-                event: {
-                  properties: { foo: "bar" },
-                  context: { source: "processor" },
-                  eventName: "New Event"
-                }
-              }
-            ]
-          })
-        ],
-        [
-          "debug",
-          "incoming.event.success",
-          expect.whatever(),
-          {
-            eventName: "New Event",
-            properties: {
-              foo: "bar"
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
+        firehoseEvents: [
+          [
+            "track",
+            { asUser, subjectType: "user" },
+            {
+              event: "New Event",
+              event_id: expect.anything(),
+              ip: "0",
+              referer: null,
+              url: null,
+              source: "processor",
+              properties: { foo: "bar" }
             }
-          }
+          ]
+        ],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              events: [
+                {
+                  claims: { id: "1234" },
+                  event: {
+                    properties: { foo: "bar" },
+                    context: { source: "processor" },
+                    eventName: "New Event"
+                  }
+                }
+              ]
+            })
+          ],
+          [
+            "debug",
+            "incoming.event.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              eventName: "New Event",
+              properties: {
+                foo: "bar"
+              }
+            }
+          ]
+        ],
+        metrics: [
+          METRIC_CONNECTOR_REQUEST,
+          ["increment", "ship.incoming.events", 1]
         ]
-      ],
-      metrics: [
-        METRIC_CONNECTOR_REQUEST,
-        ["increment", "ship.incoming.events", 1]
-      ]
-    }));
+      })
+    );
   });
 
   it("should send an account link to the firehose", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const asAccount = { domain: "bar.com" };
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          domain: "bar.com"
-        }
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode("hull.account({ domain: user.domain })"),
-      // TODO: This should really exist as a Firehose method as "link"
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            asAccount,
-            subjectType: "account"
-          },
-          {}
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            accountLinks: [[asUser, asAccount]]
-          })
-        ],
-        [
-          "debug",
-          "incoming.account.link.success",
-          expect.whatever(),
-          {
-            accountClaims: asAccount,
-            userClaims: asUser
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...asUser,
+            domain: "bar.com"
           }
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode("hull.account({ domain: user.domain })"),
+        // TODO: This should really exist as a Firehose method as "link"
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              asUser,
+              asAccount,
+              subjectType: "account"
+            },
+            {}
+          ]
+        ],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              accountLinks: [[asUser, asAccount]]
+            })
+          ],
+          [
+            "debug",
+            "incoming.account.link.success",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              accountClaims: asAccount,
+              userClaims: asUser
+            }
+          ]
+        ],
+        metrics: [
+          METRIC_CONNECTOR_REQUEST,
+          ["increment", "ship.incoming.accounts.link", 1]
         ]
-      ],
-      metrics: [
-        METRIC_CONNECTOR_REQUEST,
-        ["increment", "ship.incoming.accounts.link", 1]
-      ]
-    }));
+      })
+    );
   });
 });
 
@@ -918,77 +1135,99 @@ describe("Request Methods", () => {
   };
   it("should handle request timeouts", () => {
     const error_message = "Error: ESOCKETTIMEDOUT";
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({ user, account }),
-      handlerType: handlers.notificationHandler,
-      externalApiMock: () => {
-        const scope = nock("https://foo.com");
-        scope
-          .get("/")
-          .delayConnection(35000)
-          .reply(500, { boom: true });
-        return scope;
-      },
-      connector: connectorWithCode(
-        `const res = await request("https://foo.com")`
-      ),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            errors: [error_message]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({ user, account }),
+        handlerType: handlers.notificationHandler,
+        externalApiMock: () => {
+          const scope = nock("https://foo.com");
+          scope
+            .get("/")
+            .delayConnection(35000)
+            .reply(500, { boom: true });
+          return scope;
+        },
+        connector: connectorWithCode(
+          `const res = await request("https://foo.com")`
+        ),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              errors: [error_message]
+            })
+          ],
+          [
+            "error",
+            "incoming.user.error",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              errors: [error_message],
+              hull_summary: `Error Processing entity: ${error_message}`
+            }
+          ]
         ],
-        [
-          "error",
-          "incoming.user.error",
-          expect.whatever(),
-          {
-            errors: [error_message],
-            hull_summary: `Error Processing user: ${error_message}`
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      })
+    );
   });
   it("should handle request errors", () => {
     const error_message = '{"boom":true}';
-    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({ user, account }),
-      handlerType: handlers.notificationHandler,
-      externalApiMock: () => {
-        const scope = nock("https://foo.com");
-        scope.get("/").reply(500, { boom: true });
-        return scope;
-      },
-      connector: connectorWithCode(
-        `const res = await request("https://foo.com")`
-      ),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            errors: [error_message]
-          })
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({ user, account }),
+        handlerType: handlers.notificationHandler,
+        externalApiMock: () => {
+          const scope = nock("https://foo.com");
+          scope.get("/").reply(500, { boom: true });
+          return scope;
+        },
+        connector: connectorWithCode(
+          `const res = await request("https://foo.com")`
+        ),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            expect.objectContaining({
+              errors: [error_message]
+            })
+          ],
+          [
+            "error",
+            "incoming.user.error",
+            {
+              request_id: expect.whatever(),
+              subject_type: "user",
+              user_id: "1234"
+            },
+            {
+              errors: [error_message],
+              hull_summary: `Error Processing entity: ${error_message}`
+            }
+          ]
         ],
-        [
-          "error",
-          "incoming.user.error",
-          expect.whatever(),
-          {
-            errors: [error_message],
-            hull_summary: `Error Processing user: ${error_message}`
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      })
+    );
   });
 });

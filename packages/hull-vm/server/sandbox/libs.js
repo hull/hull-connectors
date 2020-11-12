@@ -5,13 +5,12 @@ import _ from "lodash";
 import moment from "moment";
 import urijs from "urijs";
 
-import type { Result } from "../../types";
 import getRequest from "./request";
 import getSuperagent from "./superagent";
 import getUUID from "./uuid";
 import getLibPhoneNumber from "./libphonenumber";
 
-export default function getLibs(ctx: HullContext, result: Result) {
+export default function getLibs(ctx: HullContext) {
   return {
     _,
     moment,
@@ -19,8 +18,8 @@ export default function getLibs(ctx: HullContext, result: Result) {
     setIfNull: (value: string) => ({ operation: "setIfNull", value }),
     increment: (value: string) => ({ operation: "increment", value }),
     decrement: (value: string) => ({ operation: "increment", value }),
-    request: getRequest(ctx, result),
-    superagent: getSuperagent(ctx, result),
+    request: getRequest(ctx),
+    superagent: getSuperagent(ctx),
     LibPhoneNumber: getLibPhoneNumber(),
     uuid: getUUID()
   };
