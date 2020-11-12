@@ -59,6 +59,18 @@ function start(connector, { host, port }) {
     client.timing("http", http.duration);
   });
 
+  monitor.on("http-outbound", function handleHTTP(http) {
+    client.timing("http", http.duration);
+  });
+
+  monitor.on("https", function handleHTTP(https) {
+    client.timing("https", https.duration);
+  });
+
+  monitor.on("https-outbound", function handleHTTP(https) {
+    client.timing("https", https.duration);
+  });
+
   monitor.on("socketio", function handleSocketio(socketio) {
     client.timing(
       `socketio.${socketio.method}.${socketio.event}`,
@@ -68,6 +80,10 @@ function start(connector, { host, port }) {
 
   monitor.on("mysql", function handleMySQL(mysql) {
     client.timing("mysql", mysql.duration);
+  });
+
+  monitor.on("postgresql", function handleMySQL(postgresql) {
+    client.timing("postgresql", postgresql.duration);
   });
 
   monitor.on("mongo", function handleMongo(mongo) {

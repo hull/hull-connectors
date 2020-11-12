@@ -50,14 +50,6 @@
       "maximum": 31
     },
     {
-      "name": "db_type",
-      "type": "string",
-      "title": "Type",
-      "enum": ["redshift", "postgres", "mysql", "mssql"],
-      "default": "postgres",
-      "required": true
-    },
-    {
       "name": "db_host",
       "type": "string",
       "title": "Host Name",
@@ -157,7 +149,6 @@
       "title": "Database connection",
       "description": "***Security Recommendation***<br>We recommend to grant the user below read-only access to dedicated tables to keep your information safe. Please refer to the manual of your database server for additional security recommendations.",
       "properties": [
-        "private_settings.db_type",
         "private_settings.db_host",
         "private_settings.db_port",
         "private_settings.db_name",

@@ -10,3 +10,4 @@ export { default as validateResultColumns } from "./actions/validate-result-colu
 export { default as startImport } from "./jobs/start-import";
 export { default as startSync } from "./jobs/start-sync";
 export { default as handler } from "./handler";
+export { default as parseConnectionConfig } from "./utils/parse-connection-config";

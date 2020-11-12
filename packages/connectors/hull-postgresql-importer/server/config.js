@@ -5,7 +5,7 @@ import Aws from "aws-sdk";
 import { handler } from "hull-sql";
 
 // TODO: Implement the DB Adapter in lib/adapter
-import adapter from "./lib/adapter";
+import * as adapter from "./lib/adapter";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
