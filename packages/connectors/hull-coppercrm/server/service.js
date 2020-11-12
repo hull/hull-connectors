@@ -14,13 +14,14 @@ const {
 } = require("hull/src/errors");
 
 const {
-  CopperCRMIncomingLead,
+  CopperCRMIncomingLead,upsertLead
   CopperCRMOutgoingLead,
   CopperCRMOutgoingExistingLead,
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity,
-  CopperCRMIncomingActivity
+  CopperCRMIncomingActivity,
+  CopperCRMOutgoingPerson
   } = require("./service-objects");
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
@@ -46,6 +47,38 @@ const service = ({ clientID, clientSecret } : {
       operation: "put",
       input: CopperCRMOutgoingLead,
       output: CopperCRMIncomingLead
+    },
+    //https://developer.copper.com/people/fetch-a-person-by-id.html
+    findPersonById: {
+      url: "/developer_api/v1/people/${personId}",
+      operation: "get",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/fetch-a-person-by-email.html
+    findPersonByEmail: {
+      url: "/developer_api/v1/people/fetch_by_email",
+      operation: "post",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/list-people-search.html
+    batchFindPerson: {
+      url: "/developer_api/v1/people/search",
+      operation: "post",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/create-a-new-person.html
+    insertPerson: {
+      url: "/developer_api/v1/people",
+      operation: "post",
+      input: CopperCRMOutgoingPerson,
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/update-a-person.html
+    updatePerson: {
+      url: "/developer_api/v1/people/${personId}",
+      operation: "put",
+      input: CopperCRMOutgoingPerson,
+      output: CopperCRMIncomingPerson
     },
     getUsers: {
       url: "/v1/users/search",

@@ -157,7 +157,40 @@ const glue = {
         )
     ])
   ]),
-  userUpdate: {},
+  userUpdate: ifL(route("isConfigured"),[
+    iterateL(input(), { key: "message", async: true }, [
+      ifL(set("personId", "${message.user.coppercrm_person/id}"),
+        set("copperPerson", coppercrm("updatePerson", cast(HullOutgoingUser, "${message}")))
+      ),
+      ifL("${copperPerson.id}",
+        hull("asUser", "${copperLead}")
+      )
+    ]),
+    set("newUser", ld("filter", ld("reject", input(), "user.coppercrm_person/id")), "user.email"),
+    set("newEmails", ld("map", "${newUsers}", "user.email")),
+
+    ifL(cond("notEmpty", "${newEmails}"), [
+      set("existingUsers", jsonata("emails.{ $string(email): % }", coppercrm("batchFindPerson", {
+        "page_size": 25,
+        "sort_by": "name",
+        "emails": "${newEmails}"
+      }))),
+
+      iterateL("${newUser}", { key: "message", async: true }, [
+        set("copperPerson", get("${existingUsers}", "${message.user.email}")),
+        ifL(set("personId", "${copperPerson.id}"), {
+          do: set("copperPerson", coppercrm("updatePerson", cast(HullOutgoingUser, "${message}"))),
+          eldo: set("copperPerson", coppercrm("insertPerson", cast(HullOutgoingUser, "${message}"))),
+        }),
+        ifL("${copperPerson.id}",
+          hull("asUser", "${copperPerson}")
+        )
+      ])
+
+    ]),
+
+
+  ]),
 
   // Incremental polling logic
   fetchAllLeads: ifL(route("isConfigured"),

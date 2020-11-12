@@ -44,6 +44,13 @@ const transformsToHull: ServiceTransforms = [
           }
         ]
       },
+      createEnumTransformWithAttributeList({
+        attribute: "assigneeEmail",
+        attributeId: "assignee_id",
+        attributeList: "outgoing_lead_attributes",
+        route: "getAssignees",
+        forceRoute: "forceGetAssignees"
+      }),
       {
         operateOn: { component: "input", select: "ident[0]" },
         // For now only support resolution on email
