@@ -32,7 +32,7 @@ export default async function javascript(
   const { id } = connector;
   const frozen = {
     ...payload,
-    ...getLibs(ctx, result),
+    ...getLibs(ctx),
     ...(claims ? scopedUserMethods(payload) : {}),
     hull,
     console: getConsole(result, preview),

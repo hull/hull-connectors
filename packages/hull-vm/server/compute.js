@@ -23,7 +23,6 @@ export default async function compute(
     errors: [],
     data: {},
     success: false,
-    isAsync: false,
     userTraits: Map({}),
     userAliases: Map({}),
     accountTraits: Map({}),
