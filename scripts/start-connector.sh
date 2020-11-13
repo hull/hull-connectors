@@ -34,11 +34,6 @@ if [ -n "${MARATHON_APP_ID:-}" ]; then
 fi
 
 echo "Starting connector $PATH_TO_CONNECTOR with ${WEB_CONCURRENCY} instances on PORT $PORT"
-PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR ./node_modules/.bin/pm2-runtime ecosystem.config.js
 
-# PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR ./node_modules/.bin/pm2-runtime -f -i $WEB_CONCURRENCY start dist/start.js --no-daemon --node-args="$NODE_ARGS"
-# PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR node --trace-gc ./node_modules/pm2/lib/binaries/CLI.js -f -i 2 start dist/start.js --no-daemon
-# WEB_CONCURRENCY=$WEB_CONCURRENCY PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR ./node_modules/pm2/bin/pm2 -f -i 2 start ecosystem.config.js --node-args="--trace-gc"
-# PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR node --trace-gc ./node_modules/pm2/lib/binaries/CLI.js -f -i 2 start dist/start.js --no-daemon -- --node-args="--trace-gc"
-# PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR node --trace-gc --inspect ./node_modules/pm2/lib/binaries/CLI.js -f -i 8 start dist/start.js --no-daemon -- --trace-gc
-# WEB_CONCURRENCY=$WEB_CONCURRENCY PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR ./node_modules/pm2/bin/pm2 -f -i 2 start ecosystem.config.js --node-args="--trace-gc"
+PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR node dist/start.js $NODE_ARGS
+
