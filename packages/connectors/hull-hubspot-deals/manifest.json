@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -33,11 +33,7 @@
           "authorizationURL": "https://app.hubspot.com/oauth/authorize",
           "tokenURL": "https://api.hubapi.com/oauth/v1/token",
           "grant_type": "authorization_code",
-          "scope": [
-            "oauth",
-            "contacts",
-            "timeline"
-          ]
+          "scope": ["oauth", "contacts", "timeline"]
         }
       }
     },
@@ -90,7 +86,7 @@
             "type": "string",
             "format": "select",
             "enum": ["dealname"],
-            "options" : {
+            "options": {
               "allowCreate": false
             }
           },
@@ -162,27 +158,26 @@
     "value": "5",
     "handler": "status"
   },
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "channels": [
-      {
-        "channel": "user:update",
-        "handler": "userUpdate"
-      },
-      {
-        "channel": "ship:update",
-        "handler": "shipUpdate"
-      }
-    ],
-    "conditions": {
-      "channels": {
-        "only": [
-          "user:update",
-          "ship:update"
-        ]
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": ["user:update", "ship:update"]
+        }
       }
     }
-  }],
+  ],
   "batches": [
     {
       "url": "/batch",
@@ -217,16 +212,12 @@
       "title": "Connect with Hubspot",
       "step": "credentials",
       "description": "Please begin by authenticating this connector with Hubspot. You must have appropriate privileges to grant access. Hull requests access to only the endpoints required to do synchronization with our platform",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Deal Identity",
       "description": "Deal identity is important in order to prevent duplication in Hubspot as well as Hull",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "Deal Outgoing Setup",

@@ -96,7 +96,7 @@ const buildConfigurationFromEnvironment = env => {
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
     if (LOGGER_KAFKA_ENABLED !== "false") {
       transports.push({
-        type: "kakfa",
+        type: "kafka",
         options: {
           brokersList: LOGGER_KAFKA_BROKERS.split(","),
           topic: LOGGER_KAFKA_TOPIC,

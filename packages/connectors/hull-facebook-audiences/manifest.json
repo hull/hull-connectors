@@ -1,6 +1,6 @@
 {
   "name": "Facebook Ad Audiences",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "description": "Target your Leads with Facebook Ads",
   "tags": ["outgoing", "smart-notifier"],
   "source": "facebook-audiences",
@@ -22,7 +22,7 @@
       "handler": "syncAudiences"
     }
   ],
-  "readme" : "readme.md",
+  "readme": "readme.md",
   "private_settings": [
     {
       "name": "oauth",
@@ -54,10 +54,10 @@
       }
     },
     {
-      "name" : "facebook_access_token",
-      "title" : "Facebook Access Token",
-      "type" : "string",
-      "format":"hidden"
+      "name": "facebook_access_token",
+      "title": "Facebook Access Token",
+      "type": "string",
+      "format": "hidden"
     },
     {
       "name": "synchronized_segments",
@@ -99,75 +99,73 @@
       }
     },
     {
-      "type" : "string",
-      "name" : "matching_fields",
+      "type": "string",
+      "name": "matching_fields",
       "title": "Matching Fields",
       "format": "title",
       "description": "The fields which are sent to custom audiences to build matching."
     },
     {
       "title": "Email Address",
-      "name" : "field_email",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_email",
+      "type": "string",
+      "format": "trait",
       "default": "email"
     },
     {
       "title": "First Name",
-      "name" : "field_first_name",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_first_name",
+      "type": "string",
+      "format": "trait",
       "default": "first_name"
     },
     {
       "title": "Last Name",
-      "name" : "field_last_name",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_last_name",
+      "type": "string",
+      "format": "trait",
       "default": "last_name"
     },
     {
       "title": "Phone",
-      "name" : "field_phone",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_phone",
+      "type": "string",
+      "format": "trait",
       "default": "phone"
     },
     {
       "title": "Gender",
-      "name" : "field_gender",
-      "type" : "string",
+      "name": "field_gender",
+      "type": "string",
       "format": "trait"
     },
     {
       "title": "US State",
-      "name" : "field_state",
-      "type" : "string",
+      "name": "field_state",
+      "type": "string",
       "format": "trait"
     },
     {
       "title": "City",
-      "name" : "field_city",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_city",
+      "type": "string",
+      "format": "trait",
       "default": "address_city"
     },
     {
       "title": "Country",
-      "name" : "field_country",
-      "type" : "string",
-      "format" : "trait",
+      "name": "field_country",
+      "type": "string",
+      "format": "trait",
       "default": "address_country"
     }
   ],
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
+      "conditions": {
         "channels": {
-          "only": [
-            "user:update"
-          ]
+          "only": ["user:update"]
         }
       },
       "channels": [
@@ -207,24 +205,18 @@
     {
       "title": "Connect with Facebook",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Select ad account",
       "description": "After you have authenticated with Facebook, please select the ad account that Hull will synchronize with. You can only pick one ad account, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the ad account, please click Save on the top right",
       "step": "credentials",
-      "properties": [
-        "private_settings.facebook_ad_account_id"
-      ]
+      "properties": ["private_settings.facebook_ad_account_id"]
     },
     {
       "title": "User Filter",
       "description": "Select the Segments to sync with Facebook Audiences and pick a data source value for each segment. Please refer to Facebook Ads documentation for more details.",
-      "properties": [
-        "private_settings.synchronized_segments_mapping"
-      ]
+      "properties": ["private_settings.synchronized_segments_mapping"]
     },
     {
       "title": "User Mapping",

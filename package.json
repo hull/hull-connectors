@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -24,10 +24,8 @@
   "lint-staged": {
     "*.{js,jsx}": [
       "pretty-quick --staged",
-      "eslint packages --fix",
-      "git add"
-    ],
-    "*.{js,css,md}": "prettier --write"
+      "eslint packages --fix"
+    ]
   },
   "license": "MIT",
   "scripts": {
@@ -68,7 +66,7 @@
     "flow-typed": "^2.5.2",
     "husky": "^4.3.0",
     "jest": "^24.8.0",
-    "lint-staged": ">=10",
+    "lint-staged": "^10.5.1",
     "mocha": "^6.1.4",
     "nock": "^13.0.4",
     "nodemon": "^2.0.6",

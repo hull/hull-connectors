@@ -1,5 +1,4 @@
 const manifest = () => ({
-  version: "0.1.36-monorepo",
   tags: ["batch", "smart-notifier", "kraken-exports"],
   logo: "logo.png",
   picture: "picture.png",
@@ -18,7 +17,7 @@ const manifest = () => ({
       title: "Webhook URL",
       step: "credentials",
       description:
-        "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
+        "Paste the URL to external service in order to enable integration. Please refer to documentation for details.",
       properties: ["json.credentials"]
     }
   ],

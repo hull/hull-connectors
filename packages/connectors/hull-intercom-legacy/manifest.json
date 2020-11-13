@@ -4,7 +4,7 @@
   "source": "intercom",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -103,10 +103,7 @@
             }
           }
         },
-        "required": [
-          "hull",
-          "name"
-        ]
+        "required": ["hull", "name"]
       }
     },
     {
@@ -138,10 +135,7 @@
             }
           }
         },
-        "required": [
-          "name",
-          "hull"
-        ]
+        "required": ["name", "hull"]
       }
     },
     {
@@ -302,7 +296,7 @@
           "handler": "userSegmentDelete"
         }
       ],
-      "conditions" : {
+      "conditions": {
         "segments": {
           "user:update": ["private_settings.synchronized_segments"]
         }
@@ -313,9 +307,7 @@
     {
       "title": "Connect with Intercom",
       "description": "Please begin by authenticating this connector with Intercom.",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Outgoing Data",

@@ -1,10 +1,7 @@
 {
   "name": "PhantomBuster",
   "description": "Retrieve Phantombuster results",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "source": "scheduled-calls",
   "picture": "picture.png",
   "ui": false,
@@ -20,7 +17,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.25-monorepo",
+  "version": "0.1.38-monorepo",
   "private_settings": [
     {
       "name": "variables",
@@ -53,19 +50,7 @@
       "title": "Check every:",
       "description": "Interval in minutes between checks for new data in Phantombuster",
       "default": 30,
-      "enum": [
-        1,
-        5,
-        10,
-        15,
-        30,
-        60,
-        120,
-        240,
-        480,
-        960,
-        1440
-      ],
+      "enum": [1, 5, 10, 15, 30, 60, 120, 240, 480, 960, 1440],
       "required": true
     },
     {
@@ -101,9 +86,7 @@
       "title": "Credentials",
       "description": "Configure Phantombuster. After you have entered the key, hit Save on the top right of the page, and RELOAD the current page to configure the Phantom to fetch",
       "step": "credentials",
-      "properties": [
-        "private_settings.api_key"
-      ]
+      "properties": ["private_settings.api_key"]
     },
     {
       "title": "Configuration",
@@ -117,9 +100,7 @@
     {
       "title": "Configuration",
       "description": "Configure custom variables to pass to the connector (optional)",
-      "properties": [
-        "private_settings.variables"
-      ]
+      "properties": ["private_settings.variables"]
     }
   ],
   "json": [

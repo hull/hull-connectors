@@ -4,7 +4,7 @@
   "source": "copper",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.38-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -431,7 +431,7 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
+      "conditions": {
         "segments": {
           "user:update": ["private_settings.synchronized_lead_segments"]
         }
@@ -471,9 +471,7 @@
     {
       "title": "Lead - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for leads.  If you need another identifier please contact your Hull customer success representative",
-      "properties": [
-        "private_settings.lead_claims"
-      ]
+      "properties": ["private_settings.lead_claims"]
     },
     {
       "title": "Lead - Fetching Leads from Copper",
@@ -494,9 +492,7 @@
     {
       "title": "Person - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
-      "properties": [
-        "private_settings.person_claims"
-      ]
+      "properties": ["private_settings.person_claims"]
     },
     {
       "title": "Person - Fetching People from Copper",
@@ -510,9 +506,7 @@
     {
       "title": "Company - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email_domain is configured as the primary identifier for companies.  If you need another identifier please contact your Hull customer success representative",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Company - Fetching Companies from Copper",
@@ -525,9 +519,7 @@
     {
       "title": "Opportunity - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  For Opportunities, you must specify the \"Type\" of opportunity.  This could be a field which represents New, Upsell, Growth.  The Opportunity Type is used as a way to group opportunity attributes together on accounts or users.  That way you're more efficiently able to segment accounts and users by the different types of opportunities.  If the Opportunity Type field is blank on the Opportunity, Hull will not ingest it.  Additionally if you have multiple opportunities of the same type on an account or user, the attributes will likely overwrite each other, so be careful what field you use.  Please contact your Hull representative for more guidance if needed",
-      "properties": [
-        "private_settings.incoming_opportunity_type"
-      ]
+      "properties": ["private_settings.incoming_opportunity_type"]
     },
     {
       "title": "Opportunity - Fetching Opportunities from CopperCRM",
