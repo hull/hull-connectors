@@ -17,7 +17,7 @@ import path from "path";
     __dirname
   });
 
-  const connectorPath = path.join(process.cwd(), PATH_TO_CONNECTOR);
+  const connectorPath = path.join(process.env.PWD, PATH_TO_CONNECTOR);
   process.chdir(connectorPath);
 
   try {
