@@ -5,11 +5,7 @@
   "source": "snowflake",
   "logo": "logo.png",
   "version": "0.1.37-monorepo",
-  "tags": [
-    "incoming",
-    "oneColumn",
-    "sql-accounts"
-  ],
+  "tags": ["incoming", "oneColumn", "sql-accounts"],
   "private_settings": [
     {
       "type": "string",
@@ -22,13 +18,9 @@
       "title": "Import type",
       "description": "What do you want to import to Hull ?",
       "type": "string",
-      "enum": [
-        "users",
-        "accounts",
-        "events"
-      ],
+      "enum": ["users", "accounts", "events"],
       "default": "users",
-      "required" : true
+      "required": true
     },
     {
       "name": "enabled",
@@ -41,7 +33,7 @@
       "title": "Sync interval (in minutes)",
       "type": "string",
       "default": "180",
-      "enum": [ "30", "60", "180", "360", "720", "1440" ]
+      "enum": ["30", "60", "180", "360", "720", "1440"]
     },
     {
       "name": "overwrite",
@@ -63,34 +55,24 @@
       "title": "Database connection"
     },
     {
-      "name": "db_type",
-      "type": "string",
-      "title": "Type",
-      "enum": [
-        "snowflake"
-      ],
-      "default": "snowflake",
-      "required" : true
-    },
-    {
       "name": "db_account",
       "type": "string",
       "title": "Snowflake Account Name",
-      "required" : true,
+      "required": true,
       "description": "Do not include the region.  This is the public account name for connecting.  It is the FIRST part of your connection string.  Example: ab12334"
     },
     {
       "name": "db_region",
       "type": "string",
       "title": "Region",
-      "required" : true,
+      "required": true,
       "description": "Region of the database"
     },
     {
       "name": "db_name",
       "type": "string",
       "title": "Database name",
-      "required" : true
+      "required": true
     },
     {
       "type": "string",
@@ -109,13 +91,13 @@
       "name": "db_user",
       "type": "string",
       "title": "Username",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_password",
       "type": "string",
       "title": "Password",
-      "required" : true
+      "required": true
     },
     {
       "name": "query",
