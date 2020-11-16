@@ -1,5 +1,3 @@
-const winston = require("winston");
-
 const buildConfigurationFromEnvironment = env => {
   const {
     NODE_ENV,
@@ -90,8 +88,7 @@ const buildConfigurationFromEnvironment = env => {
     {
       type: "console",
       options: {
-        level: LOG_LEVEL,
-        format: winston.format.simple()
+        level: LOG_LEVEL
       }
     }
   ];

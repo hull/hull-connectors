@@ -121,13 +121,7 @@ class HullClient {
     const logger = createLogger({
       level: logsConfig.level,
       transports: logsConfig.transports || [
-        {
-          type: "console",
-          options: {
-            level: "info",
-            format: winston.format.simple()
-          }
-        }
+        { type: "console", options: { level: "info" } }
       ]
     });
 
@@ -595,15 +589,7 @@ class AccountScopedHullClient extends EntityScopedHullClient {}
 
 HullClient.logger = createLogger({
   level: process.env.LOG_LEVEL,
-  transports: [
-    {
-      type: "console",
-      options: {
-        json: true,
-        stringify: true
-      }
-    }
-  ]
+  transports: [{ type: "console" }]
 });
 
 export type EntityScopedClient = EntityScopedHullClient;
