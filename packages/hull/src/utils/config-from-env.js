@@ -84,7 +84,7 @@ const buildConfigurationFromEnvironment = env => {
     };
   }
 
-  const transports = [
+  const transportConfigs = [
     {
       type: "console",
       options: {
@@ -95,7 +95,7 @@ const buildConfigurationFromEnvironment = env => {
 
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
     if (LOGGER_KAFKA_ENABLED !== "false") {
-      transports.push({
+      transportConfigs.push({
         type: "kafka",
         options: {
           brokersList: LOGGER_KAFKA_BROKERS.split(","),
@@ -124,9 +124,7 @@ const buildConfigurationFromEnvironment = env => {
   }
   const logsConfig = {
     level: LOG_LEVEL,
-    transports
-    // logs: [],
-    // capture: false
+    transportConfigs
   };
 
   if (!SECRET && NODE_ENV === "production") {

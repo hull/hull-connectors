@@ -45,6 +45,7 @@ const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
+const winston = require("winston");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
@@ -54,6 +55,8 @@ const {
   extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
+
+const KafkaLogger = require("../utils/kafka-logger");
 
 const getAbsolutePath = p => `${process.cwd()}/${p}`;
 
@@ -90,6 +93,15 @@ const getMaxConnections = () =>
 const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 511;
 
 // const { TransientError } = require("../errors");
+
+const TRANSPORTS = {
+  console: winston.transports.Console,
+  file: winston.transports.File,
+  kafka: KafkaLogger
+};
+
+const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
+  transports.map(({ type, options }) => new TRANSPORTS[type](options));
 
 /**
  * An object that's available in all action handlers and routers as `req.hull`.
@@ -191,6 +203,14 @@ export default class HullConnector {
       handlers,
       disableOnExit = false
     } = connectorConfig;
+
+    logsConfig.transports = transportsFromConfig(logsConfig.transportConfigs);
+
+    clientConfig.logger = winston.createLogger({
+      level: connectorConfig.LOG_LEVEL,
+      format: winston.format.json(),
+      transports: logsConfig.transports
+    });
 
     this.logsConfig = logsConfig || {};
     this.clientConfig = {
