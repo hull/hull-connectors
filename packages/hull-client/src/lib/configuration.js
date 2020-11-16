@@ -64,6 +64,9 @@ const VALID = {
       _.every(l.transports.map(VALID.logTransport)) &&
       VALID.string(l.level)
     );
+  },
+  logger(l) {
+    return l && typeof l.log === "function";
   }
 };
 
@@ -94,7 +97,8 @@ const VALID_PROPS = {
   requestId: VALID.string,
   logsConfig: VALID.logsConfig,
   firehoseEvents: VALID.array,
-  firehoseTransport: VALID.transport
+  firehoseTransport: VALID.transport,
+  logger: VALID.logger
 };
 
 /**
