@@ -80,7 +80,7 @@
             "title": "Lead Field ID",
             "type": "string",
             "format": "select",
-            "options" : {
+            "options": {
               "allowCreate": false,
               "loadOptions": "/attributes-leads-outgoing"
             }
@@ -270,10 +270,7 @@
       ],
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "ship:update"]
         }
       }
     }
@@ -304,9 +301,7 @@
     {
       "title": "User - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Marketo as well as the data we pull from Marketo.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "User - Fetching Users from Marketo",

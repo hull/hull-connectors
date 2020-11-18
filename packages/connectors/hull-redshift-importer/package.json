@@ -1,0 +1,14 @@
+{
+  "name": "hull-redshift-importer",
+  "version": "0.1.37-monorepo",
+  "description": "Import Users, Events and Accounts from Redshift",
+  "scripts": {
+    "test": "exit 0",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "pg": "8.3.0",
+    "pg-query-stream": "^3.4.1"
+  },
+  "devDependencies": {}
+}

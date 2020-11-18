@@ -93,7 +93,6 @@ Text on the button reflects the selection of rows and gives a hint of which rows
 
 Once the button is hit, the import operation starts and a confirmation message will appear below that button.
 
-
 ## FAQ
 
 ### Number of imported users is smaller than number of selected rows, why?
@@ -104,7 +103,6 @@ Screenshot below illustrate this behavior - 3 rows are selected, but two of them
 As a result just 1 row is processed.
 
 ![Users ignored](./screenshots/users_ignored.png)
-
 
 ### How to switch organization Hull Importer Add-on is sending data to?
 
