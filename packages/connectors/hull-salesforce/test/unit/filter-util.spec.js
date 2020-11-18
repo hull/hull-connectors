@@ -94,11 +94,11 @@ describe("Filter Util Tests", function testSuite() {
       message.account.external_id = "1";
 
       const filterUtil = new FilterUtil(privateSettings);
-      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] }, skip: {} }];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
       expect(results.toInsert).toHaveLength(0);
       expect(results.toSkip).toHaveLength(1);
-      expect(results.toSkip[0].skipReason).toEqual("The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record");
+      expect(results.toSkip[0].envelope.skip.account).toEqual("The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record");
       expect(results.toUpdate).toHaveLength(0);
     });
 
@@ -239,11 +239,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual( "Missing required unique identifier in Hull.");
+      expect(results.toSkip[0].envelope.skip.account).toEqual( "Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -358,7 +359,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
@@ -395,7 +397,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
@@ -434,13 +437,14 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const filterUtil = new FilterUtil(privateSettings);
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("Missing required unique identifier in Hull.");
+      expect(results.toSkip[0].envelope.skip.account).toEqual("Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -474,11 +478,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("Missing required unique identifier in Hull.");
+      expect(results.toSkip[0].envelope.skip.account).toEqual("Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -510,11 +515,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("user doesn't have an account");
+      expect(results.toSkip).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -545,11 +551,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("doesn't match filter for accounts and contacts");
+      expect(results.toSkip).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -580,11 +587,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("user treated as lead");
+      expect(results.toSkip).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -616,7 +624,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         },
         {
           message,
@@ -659,7 +668,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         },
         {
           message,
@@ -667,7 +677,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
@@ -706,11 +717,12 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterAccountEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("doesn't match filter for accounts");
+      expect(results.toSkip[0].envelope.skip.account).toEqual("doesn't match filter for accounts");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -732,7 +744,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -758,12 +771,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterContactEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("Contact has been manually deleted in Salesforce and won't be re-created.");
+      expect(results.toSkip[0].envelope.skip.contact).toEqual("Contact has been manually deleted in Salesforce.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -785,12 +799,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterContactEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("User doesn't have an email address");
+      expect(results.toSkip[0].envelope.skip.contact).toEqual("User doesn't have an email address.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -811,12 +826,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterContactEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("Contact has been potentially manually deleted in Salesforce and will not be sent out.");
+      expect(results.toSkip[0].envelope.skip.contact).toEqual("Contact has been potentially manually deleted in Salesforce.");
       expect(results.toInsert).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -838,7 +854,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -864,7 +881,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -892,7 +910,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -918,7 +937,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -942,7 +962,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterContactEnvelopes(envelopes);
@@ -966,7 +987,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -994,7 +1016,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1020,7 +1043,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1047,7 +1071,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1073,7 +1098,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1098,7 +1124,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: [{ Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" }]
-          }
+          },
+          skip: {}
         }
       ];
       const results = filterUtil.filterLeadEnvelopes(envelopes);
@@ -1124,12 +1151,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterLeadEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("Lead has been potentially manually deleted in Salesforce and will not be sent out.");
+      expect(results.toSkip[0].envelope.skip.lead).toEqual("Lead has been potentially manually deleted in Salesforce.");
       expect(results.toInsert).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -1151,7 +1179,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: [{ Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" }]
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1176,7 +1205,8 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
@@ -1202,12 +1232,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterLeadEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
+      expect(results.toSkip[0].envelope.skip.lead).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -1228,12 +1259,13 @@ describe("Filter Util Tests", function testSuite() {
             account: [],
             contact: [],
             lead: []
-          }
+          },
+          skip: {}
         }
       ];
 
       const results = filterUtil.filterLeadEnvelopes(envelopes);
-      expect(results.toSkip[0].skipReason).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
+      expect(results.toSkip[0].envelope.skip.lead).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });

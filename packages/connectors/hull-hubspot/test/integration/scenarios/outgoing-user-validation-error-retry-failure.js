@@ -346,9 +346,6 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },

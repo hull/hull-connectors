@@ -9,14 +9,14 @@ const debug = require("debug")("hull:promise-to-writable-stream");
  * When the promise rejects error will be passed to the wrapping stream as an error event.
  */
 function promiseToWritableStream(
-  promise: (chunk: any, encoding?: string) => Promise<any>
+  onData: (chunk: any, encoding?: string) => Promise<any>
 ): Writable {
   return new Writable({
     objectMode: true,
     write(chunk, encoding, callback) {
       debug("writing to a promise");
       try {
-        promise(chunk, encoding)
+        onData(chunk, encoding)
           .then(() => {
             debug("promise resolved");
             callback();

@@ -5,6 +5,7 @@ import Hull from "hull";
 const _ = require("lodash");
 const momentConstructor = require("moment");
 const hash = require('object-hash');
+const jwt = require("jwt-simple");
 
 const uri = require("urijs");
 
@@ -81,6 +82,18 @@ class FrameworkUtils {
 
   print(context: Object, params: any) {
     return console.log(`PRINT: ${JSON.stringify(params)}`);
+  }
+
+  logError(context: Object, params: any) {
+    context.client.logger.error(JSON.stringify(params));
+  }
+
+  logInfo(context: Object, params: any) {
+    context.client.logger.info(JSON.stringify(params));
+  }
+
+  jwtEncode(context: Object, params: any) {
+    return jwt.encode(params.payload, params.secret, params.algorithm);
   }
 
 }

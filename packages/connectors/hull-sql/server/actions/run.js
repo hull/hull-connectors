@@ -17,7 +17,7 @@ async function run(ctx: HullContext): HullExternalResponse {
     };
   }
 
-  const query = _.get(ctx, "notification.query", agent.getQuery());
+  const query = agent.getQuery(_.get(ctx, "notification.query"));
   if (!query) {
     return {
       status: 403,

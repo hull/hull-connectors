@@ -52,7 +52,7 @@ const getSchema = async (ctx: HullContext, type: ImportType) => {
     return transformAttributes({ schema, type });
   }
   if (type === "user_event") {
-    return ctx.entities.events.getSchema();
+    return [];
   }
   throw new Error("Unsupported schema");
 };

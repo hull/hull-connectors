@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.1.37-monorepo (2020-11-05)
+- [hull-bigquery-importer] Bigquery importer
+
+## v0.1.36-monorepo (2020-10-02)
+- [hull-facebook-audiences] Migrated to monorepo
+
+## v0.1.35-monorepo (2020-08-25)
+- [hull-bigquery] Bigquery mvp
+
+## v0.1.34-monorepo (2020-08-11)
+- [hull-google-sheets] Support for events
+
 ## v0.1.33-monorepo (2020-07-16)
 - [hull-mailchimp] Fetch recent contacts
 

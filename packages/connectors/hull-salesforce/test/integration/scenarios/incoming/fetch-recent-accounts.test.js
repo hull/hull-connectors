@@ -38,7 +38,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -284,7 +284,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -532,7 +532,7 @@ describe("Fetch Accounts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentAccounts",
+        handlerUrl: "fetch-recent-accounts",
         connector: {
           private_settings: {
             ...private_settings,

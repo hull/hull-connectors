@@ -7,7 +7,7 @@
     "kraken-exports"
   ],
   "picture": "picture.png",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.37-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -88,6 +88,7 @@
       "default": [],
       "options": {
         "standard": {
+          "all_events": "All Events",
           "CREATED": "User Created"
         }
       }

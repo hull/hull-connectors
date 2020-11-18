@@ -456,7 +456,7 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -481,46 +481,6 @@ describe("Update Accounts Via User Update Tests", () => {
               "method": "GET",
               "url_length": 237,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [
@@ -1054,7 +1014,7 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -1079,46 +1039,6 @@ describe("Update Accounts Via User Update Tests", () => {
               "method": "GET",
               "url_length": 237,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 4,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 4,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [
@@ -1708,7 +1628,8 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
+        // expect.arrayContaining([]),
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -1733,46 +1654,6 @@ describe("Update Accounts Via User Update Tests", () => {
               "method": "GET",
               "url_length": 237,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 9,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 9,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [
@@ -2209,7 +2090,7 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -2234,46 +2115,6 @@ describe("Update Accounts Via User Update Tests", () => {
               "method": "GET",
               "url_length": 277,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20OR%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [

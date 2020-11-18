@@ -18,7 +18,9 @@ const private_settings = {
   fetch_tasks: false,
   send_outgoing_tasks: false,
   lead_assignmentrule: "none",
-  lead_assignmentrule_update: "none"
+  lead_assignmentrule_update: "none",
+  lead_claims: [{ "hull": "email", "service": "Email", "required": false }],
+  user_claims: [{ "hull": "email", "service": "Email", "required": false }]
 }
 
 describe("Insert Contacts Tests", () => {
@@ -101,7 +103,7 @@ describe("Insert Contacts Tests", () => {
           }
 
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -109,7 +111,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -117,7 +119,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -125,43 +127,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -194,7 +160,8 @@ describe("Insert Contacts Tests", () => {
             },
             {
               "error": "Outgoing Batch Error: ERROR_HTTP_400: {\"message\":\"some random error\"}",
-              "resourceType": "Contact"
+              "resourceType": "Contact",
+              "warning": "Unable to determine invalid user"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
@@ -242,8 +209,13 @@ describe("Insert Contacts Tests", () => {
       private_settings: {
         contact_synchronized_segments: ["contact_segment_1"],
         send_null_values: true,
+        lead_claims: [
+          { "hull": "email", "service": "Email"}
+        ],
+        user_claims: [
+          { "hull": "email", "service": "Email"}
+        ],
         contact_attributes_outbound: [
-          { hull: "email", service: "Email", overwrite: false },
           { hull: "traits_salesforce_contact/department",
             service: "Department",
             overwrite: true }
@@ -315,8 +287,7 @@ describe("Insert Contacts Tests", () => {
           }
 
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
-        // expect.arrayContaining([
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -324,7 +295,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -332,7 +303,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 248,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -340,43 +311,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -478,6 +413,7 @@ describe("Insert Contacts Tests", () => {
   it("should insert a new contact and update an existing account", () => {
     const connector = {
       private_settings: {
+        ...private_settings,
         send_null_values: true,
         contact_synchronized_segments: ["59f09bc7f9c5a94af600076d"],
         account_synchronized_segments: [
@@ -493,11 +429,6 @@ describe("Insert Contacts Tests", () => {
           {
             hull: "last_name",
             service: "LastName",
-            overwrite: false
-          },
-          {
-            hull: "email",
-            service: "Email",
             overwrite: false
           },
           {
@@ -535,12 +466,12 @@ describe("Insert Contacts Tests", () => {
             "overwrite": false
           },
           {
-            "hull": "traits_salesforce_contact/last_name",
+            "hull": "salesforce_contact/last_name",
             "service": "LastName",
             "overwrite": false
           },
           {
-            "hull": "traits_salesforce_contact/email",
+            "hull": "salesforce_contact/email",
             "service": "Email",
             "overwrite": false
           }
@@ -563,7 +494,8 @@ describe("Insert Contacts Tests", () => {
           }
         ],
         account_claims: [{ hull: "domain", service: "Website", required: true }],
-        ...private_settings
+        user_claims: [{ hull: "email", service: "C_Email__c", required: true }],
+        lead_claims: [{ hull: "email", service: "Email", required: true }]
       }
     };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
@@ -602,10 +534,10 @@ describe("Insert Contacts Tests", () => {
                 }
               ], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }] });
+          const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }, { id: "aOuvlns903761", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0", (body) => {
-              return body.indexOf("<create><sObjects><type>Contact</type><FirstName>Adam</FirstName><LastName>Pietrzyk</LastName><Email>adam.pietrzyk@krakowtraders.pl</Email>") !== -1;
+              return body.indexOf("<create><sObjects><type>Contact</type><C_Email__c>adam.pietrzyk@krakowtraders.pl</C_Email__c><FirstName>Adam</FirstName><LastName>Pietrzyk</LastName>") !== -1;
             })
             .reply(200, respBodyC1, { "Content-Type": "text/xml", "sforce-limit-info": "api-usage=500/50000" });
 
@@ -689,6 +621,7 @@ describe("Insert Contacts Tests", () => {
               "domain": "krakowtraders.pl",
               "email": "rafa.kasczka@krakowtraders.pl",
               "first_name": "Rafa",
+              "last_name": "kasczka",
               "id": "59c975d75226a8c3a6001f40",
               "segment_ids": [
                 "59f09bc7f9c5a94af600076d"
@@ -731,7 +664,7 @@ describe("Insert Contacts Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -739,15 +672,15 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 317,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
               "method": "GET",
-              "url_length": 304,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Description%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url_length": 325,
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -755,47 +688,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 237,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           [
@@ -831,10 +724,32 @@ describe("Insert Contacts Tests", () => {
               "record": {
                 "FirstName": "Adam",
                 "LastName": "Pietrzyk",
-                "Email": "adam.pietrzyk@krakowtraders.pl",
+                "C_Email__c": "adam.pietrzyk@krakowtraders.pl",
                 "Description": 2,
                 "AccountId": "ahfidugi123",
                 "Id": "aOuvlns903760"
+              },
+              "operation": "insert",
+              "resource": "Contact"
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.success",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "59c975d75226a8c3a6001f40",
+              "user_email": "rafa.kasczka@krakowtraders.pl",
+              "user_anonymous_id": "salesforce-contact:aOuvlns903761"
+            },
+            {
+              "record": {
+                "FirstName": "Rafa",
+                "LastName": "kasczka",
+                "C_Email__c": "rafa.kasczka@krakowtraders.pl",
+                "AccountId": "ahfidugi123",
+                "Id": "aOuvlns903761"
               },
               "operation": "insert",
               "resource": "Contact"
@@ -891,12 +806,41 @@ describe("Insert Contacts Tests", () => {
                 "value": "Pietrzyk",
                 "operation": "set"
               },
-              "salesforce_contact/email": {
-                "value": "adam.pietrzyk@krakowtraders.pl",
+              "salesforce_contact/id": {
+                "value": "aOuvlns903760",
+                "operation": "setIfNull"
+              }
+            }
+          ],
+          [
+            "traits",
+            {
+              "asUser": {
+                "id": "59c975d75226a8c3a6001f40",
+                "email": "rafa.kasczka@krakowtraders.pl",
+                "anonymous_id": "salesforce-contact:aOuvlns903761"
+              },
+              "subjectType": "user"
+            },
+            {
+              "first_name": {
+                "value": "Rafa",
+                "operation": "setIfNull"
+              },
+              "salesforce_contact/first_name": {
+                "value": "Rafa",
+                "operation": "set"
+              },
+              "last_name": {
+                "value": "kasczka",
+                "operation": "setIfNull"
+              },
+              "salesforce_contact/last_name": {
+                "value": "kasczka",
                 "operation": "set"
               },
               "salesforce_contact/id": {
-                "value": "aOuvlns903760",
+                "value": "aOuvlns903761",
                 "operation": "setIfNull"
               }
             }

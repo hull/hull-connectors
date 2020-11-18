@@ -218,7 +218,7 @@ const glue = {
       ifL(cond("isEmpty", "${lastFetchAt}"),
         set("lastFetchAt", ex(moment(settings("companies_last_fetch_at")), "valueOf"))),
 
-      ifL(cond("isEmpty", "lastFetchAt"),
+      ifL(cond("isEmpty", "${lastFetchAt}"),
         set("lastFetchAt", ex(ex(moment(), "subtract", { minutes: 5 }), "valueOf"))),
 
       settingsUpdate({ companies_last_fetch_timestamp: "${stopFetchAt}" }),
@@ -247,7 +247,7 @@ const glue = {
       set("lastFetchAt", settings("last_fetch_timestamp")),
       ifL(cond("isEmpty", "${lastFetchAt}"),
         set("lastFetchAt", ex(moment(settings("last_fetch_at")), "valueOf"))),
-      ifL(cond("isEmpty", "lastFetchAt"),
+      ifL(cond("isEmpty", "${lastFetchAt}"),
         set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
       set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
       set("stopFetchAt", ex(moment(), "valueOf")),

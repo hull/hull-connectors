@@ -7,6 +7,7 @@ const { Router } = require("express");
 const {
   credentialsFromQueryMiddleware,
   clientMiddleware,
+  helpersMiddleware,
   fullContextFetchMiddleware,
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
@@ -35,6 +36,7 @@ function actionHandler(jobName: string, options: Object) {
   router.use(credentialsFromQueryMiddleware()); // parse config from query
   router.use(timeoutMiddleware());
   router.use(clientMiddleware()); // initialize client
+  router.use(helpersMiddleware()); // initialize client
   router.use(haltOnTimedoutMiddleware());
   router.use(instrumentationContextMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "action" }));

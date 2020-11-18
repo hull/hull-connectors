@@ -1,39 +1,18 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import _ from "lodash";
 import manifest from "../manifest.json";
-import handlers from "./handlers";
 
-require("dotenv").config();
+/*
+const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
+const intercomWebhookHandler = require("./incoming-webhook");
+*/
 
-const { Queue } = require("hull/src/infra");
-const KueAdapter = require("hull/src/infra/queue/adapter/kue");
+const _ = require("lodash");
+const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
 export default function connectorConfig(): HullConnectorConfig {
-  const {
-    PORT = 8082,
-    LOG_LEVEL,
-    NODE_ENV,
-    SECRET = "1234",
-    KUE_PREFIX = "intercom",
-    REDIS_URL,
-    SHIP_CACHE_MAX,
-    SHIP_CACHE_TTL,
-    QUEUE_NAME = "queueApp",
-    OVERRIDE_FIREHOSE_URL,
-    COMBINED,
-    SERVER,
-    CLIENT_ID,
-    CLIENT_SECRET,
-    WORKER
-  } = process.env;
-
-  if (COMBINED !== "true" && WORKER !== "true" && SERVER !== "true") {
-    throw new Error(
-      "None of the processes were started, set any of COMBINED, SERVER or WORKER env vars"
-    );
-  }
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
     throw new Error(
@@ -41,41 +20,41 @@ export default function connectorConfig(): HullConnectorConfig {
     );
   }
 
-  const startServer = COMBINED === "true" || SERVER === "true";
-  const startWorker = COMBINED === "true" || WORKER === "true";
-  const hostSecret = SECRET || "1234";
   return {
     manifest,
-    devMode: NODE_ENV === "development",
-    logLevel: LOG_LEVEL,
-    hostSecret,
-    port: PORT || 8082,
-    handlers: handlers({
-      hostSecret,
-      clientID: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
-    }),
     middlewares: [],
-    serverConfig: {
-      start: startServer
-    },
-    workerConfig: {
-      start: startWorker,
-      queueName: QUEUE_NAME || "queue"
-    },
+    handlers: new HullRouter({
+      serviceName: "intercom",
+      glue: require("./glue"),
+      services: {
+        intercom: require("./service")({
+          clientID: CLIENT_ID,
+          clientSecret: CLIENT_SECRET
+        })
+      },
+      transforms: _.concat(
+        require("./transforms-to-hull"),
+        require("./transforms-to-service")
+      ),
+      ensureHook: "ensure"
+    }).createHandler
+    /*
+    Intercom API V2 webhooks support:
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
+      cachedCredentials: {
+        cacheCredentials: true,
+        appendCredentials: true,
+        credentialsKeyPath: "profile._json.app.id_code",
+        serviceKey: "app_id",
+        handler: intercomWebhookHandler
+      }
     },
-    cache: {
-      store: "memory",
-      max: !_.isNil(SHIP_CACHE_MAX) ? parseInt(SHIP_CACHE_MAX, 10) : 100,
-      ttl: !_.isNil(SHIP_CACHE_TTL) ? parseInt(SHIP_CACHE_TTL, 10) : 60
-    },
-    queue: new Queue(
-      new KueAdapter({
-        prefix: KUE_PREFIX,
-        redis: REDIS_URL
-      })
-    )
+    rawCustomRoutes: [
+      {
+        url: "/webhooks",
+        handler: webhookHandler,
+        method: "post"
+      }
+    ]*/
   };
 }
