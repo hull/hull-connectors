@@ -1,5 +1,7 @@
 @import "../../../assets/style/index.scss";
 @import "codemirror/theme/material-ocean";
+@import "codemirror/lib/codemirror";
+
 @import "bootstrap-table/dist/bootstrap-table";
 @import "sweetalert2/src/sweetalert2.scss";
 
@@ -9,11 +11,11 @@
   justify-content: space-between;
 }
 
-.page-container{
+.page-container {
   margin-top: 55px;
 }
 
-.header-row{
+.header-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -27,10 +29,10 @@
   box-shadow: 0 0px 20px 0px #252a33;
 }
 
-body{
+body {
   background: white;
 }
-#button_import{
+#button_import {
   margin-left: 1rem;
 }
 body.dark .btn {
@@ -42,7 +44,10 @@ body.dark .btn-success {
   background-color: #48b648;
 }
 
-#preview-error, #preview-loading, #changed-indicator, #preview-results {
+#preview-error,
+#preview-loading,
+#changed-indicator,
+#preview-results {
   display: none;
 }
 #result {
@@ -51,14 +56,14 @@ body.dark .btn-success {
 }
 
 .query-alert {
-  margin-top: .5rem;
+  margin-top: 0.5rem;
   margin-bottom: 0;
 }
-.status-line{
+.status-line {
   flex-direction: row;
   display: flex;
   align-items: center;
-  small{
+  small {
     margin-left: 10px;
   }
   .check {
@@ -75,48 +80,48 @@ body.dark .btn-success {
     position: relative;
   }
 }
-.query-header{
+.query-header {
   margin-bottom: 1rem;
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   position: relative;
-  h5{
+  h5 {
     margin: 0;
   }
-  #actions{
+  #actions {
     position: absolute;
-    right: 0
+    right: 0;
   }
 }
-code{
+code {
   color: #95b5e0;
   margin: 0 0.2rem;
   font-size: 14px;
 }
-pre{
+pre {
   margin-bottom: 0;
-  code{
+  code {
     font-size: 14px;
     color: #999;
-    .v{
-      color: #0F6;
+    .v {
+      color: #0f6;
     }
-    .kw{
-      color: #F60;
+    .kw {
+      color: #f60;
     }
   }
 }
-hr{
+hr {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 th em {
-  color: #8091AD;
-  font-size: .8em;
+  color: #8091ad;
+  font-size: 0.8em;
 }
 #querying {
-  font-family:  Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   font-size: 12px;
 }
 .CodeMirror {
@@ -135,29 +140,29 @@ h6 {
   margin-top: 0;
 }
 
-.card{
+.card {
   background-color: #ffffff12;
   border: 0;
 }
 
-.cm-s-material-ocean.CodeMirror{
+.cm-s-material-ocean.CodeMirror {
   background-color: #242a33;
   border-radius: 6px;
   border-color: #ffffff24;
 }
-.cm-s-material-ocean .CodeMirror-gutters{
+.cm-s-material-ocean .CodeMirror-gutters {
   background: #0f111a33;
 }
 
-.area{
+.area {
   position: relative;
   z-index: 3;
   background: transparent;
-  .area-content{
+  .area-content {
     background: #242a33e0;
   }
-  .btn.btn-maximize{
-    &:focus{
+  .btn.btn-maximize {
+    &:focus {
       outline-style: none;
       box-shadow: none;
       border-color: transparent;
@@ -166,11 +171,11 @@ h6 {
     right: 4px;
     top: 4px;
     z-index: 3;
-    padding-left: .5rem;
-    padding-right: .5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     outline: none;
   }
-  &.maximized{
+  &.maximized {
     z-index: 4;
     background-color: #242a33e0;
     position: fixed;
@@ -178,28 +183,28 @@ h6 {
     left: 0px;
     right: 0px;
     bottom: 0px;
-    .area-content{
+    .area-content {
       position: absolute;
-      left: 30px;;
-      right: 30px;;
-      top: 55px;;
+      left: 30px;
+      right: 30px;
+      top: 55px;
       bottom: 20px;
       height: calc(100% - 80px);
       box-shadow: 0 0 20px 8px #0000004f;
     }
-    .CodeMirror{
+    .CodeMirror {
       height: 100%;
     }
   }
 }
 
-body.maximized{
+body.maximized {
   overflow: hidden;
 }
 
 .table thead th,
 .table-bordered th,
-.table-bordered td{
+.table-bordered td {
   border-color: #363f4a;
 }
 .table-bordered {
@@ -207,14 +212,14 @@ body.maximized{
 }
 
 .bootstrap-table .fixed-table-container.fixed-height:not(.has-footer),
-.bootstrap-table .fixed-table-container.fixed-height .table thead th{
+.bootstrap-table .fixed-table-container.fixed-height .table thead th {
   border-bottom-color: #333941;
 }
-.bootstrap-table.bootstrap4{
+.bootstrap-table.bootstrap4 {
   border: 1px solid #ffffff24;
   border-radius: 6px;
   overflow: hidden;
 }
-.bootstrap-table .fixed-table-container .table thead th .th-inner{
+.bootstrap-table .fixed-table-container .table thead th .th-inner {
   text-align: left;
 }
