@@ -107,7 +107,13 @@
     {
       "name": "ignore_users_withoutchanges",
       "type": "boolean",
-      "title": "Ignore users and/or accounts without changes in the mapped attributes.",
+      "title": "Ignore users without changes in the mapped attributes.",
+      "default": false
+    },
+    {
+      "name": "ignore_accounts_withoutchanges",
+      "type": "boolean",
+      "title": "Ignore accounts without changes in the mapped attributes.",
       "default": false
     },
     {
