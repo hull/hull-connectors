@@ -28,7 +28,7 @@ const transformsToHull: ServiceTransforms = [
         arrayStrategy: "append_index",
         condition: doesNotContain(["email", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
-        outputPath: "attributes.bigquery/${service_field_name}",
+        outputPath: "attributes.${attributesGroupName}/${service_field_name}",
       },
       {
         mapping: { type: "input" },
@@ -58,7 +58,7 @@ const transformsToHull: ServiceTransforms = [
         arrayStrategy: "append_index",
         condition: doesNotContain(["domain", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
-        outputPath: "attributes.bigquery/${service_field_name}",
+        outputPath: "attributes.${attributesGroupName}/${service_field_name}",
       },
       {
         mapping: { type: "input" },

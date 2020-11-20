@@ -37,6 +37,14 @@
       "required": true
     },
     {
+      "name": "attributes_group_name",
+      "title": "Attributes Group Name",
+      "description": "How imported attributes should be grouped on User or Account profile? By default they are imported into `bigquery` group.",
+      "type": "string",
+      "default": "bigquery",
+      "required": true
+    },
+    {
       "name": "query",
       "title": "Query",
       "type": "string",
@@ -158,7 +166,8 @@
       "description": "",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval"
+        "private_settings.import_interval",
+        "private_settings.attributes_group_name"
       ]
     },
     {
