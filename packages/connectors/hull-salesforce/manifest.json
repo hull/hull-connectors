@@ -131,7 +131,7 @@
       "format": "hidden"
     },
     {
-      "name": "user_claims",
+      "name": "contact_claims",
       "title": "Contact Identity",
       "type": "array",
       "format": "table",
@@ -578,6 +578,63 @@
           }
         }
       }
+    },
+    {
+      "name": "task_attributes_inbound",
+      "title": "Task Incoming Fields",
+      "description": "List of Task fields to fetch from Salesforce",
+      "type": "array",
+      "default": [
+        { "service": "Id", "hull": "Id" },
+        { "service": "Subject", "hull": "Subject" },
+        { "service": "WhoId", "hull": "WhoId" },
+        { "service": "Status", "hull": "Status" },
+        { "service": "AccountId", "hull": "AccountId" },
+        { "service": "CreatedDate", "hull": "CreatedDate_at" },
+        { "service": "IsArchived", "hull": "IsArchived" },
+        { "service": "OwnerId", "hull": "OwnerId" },
+        { "service": "CallDurationInSeconds", "hull": "CallDurationInSeconds" },
+        { "service": "CallObject", "hull": "CallObject" },
+        { "service": "CallDisposition", "hull": "CallDisposition" },
+        { "service": "CallType", "hull": "CallType" },
+        { "service": "IsClosed", "hull": "IsClosed" },
+        { "service": "Description", "hull": "Description" },
+        { "service": "IsRecurrence", "hull": "IsRecurrence" },
+        { "service": "CreatedById", "hull": "CreatedById" },
+        { "service": "IsDeleted", "hull": "IsDeleted" },
+        { "service": "ActivityDate", "hull": "ActivityDate_at" },
+        { "service": "RecurrenceEndDateOnly", "hull": "RecurrenceEndDateOnly" },
+        { "service": "IsHighPriority", "hull": "IsHighPriority" },
+        { "service": "LastModifiedById", "hull": "LastModifiedById" },
+        { "service": "LastModifiedDate", "hull": "LastModifiedDate_at" },
+        { "service": "Priority", "hull": "Priority" },
+        { "service": "RecurrenceActivityId", "hull": "RecurrenceActivityId" },
+        { "service": "RecurrenceDayOfMonth", "hull": "RecurrenceDayOfMonth" },
+        {
+          "service": "RecurrenceDayOfWeekMask",
+          "hull": "RecurrenceDayOfWeekMask"
+        },
+        { "service": "RecurrenceInstance", "hull": "RecurrenceInstance" },
+        { "service": "RecurrenceInterval", "hull": "RecurrenceInterval" },
+        { "service": "RecurrenceMonthOfYear", "hull": "RecurrenceMonthOfYear" },
+        {
+          "service": "RecurrenceTimeZoneSidKey",
+          "hull": "RecurrenceTimeZoneSidKey"
+        },
+        { "service": "RecurrenceType", "hull": "RecurrenceType" },
+        { "service": "WhatId", "hull": "WhatId" },
+        { "service": "ReminderDateTime", "hull": "ReminderDateTime" },
+        { "service": "IsReminderSet", "hull": "IsReminderSet" },
+        {
+          "service": "RecurrenceRegeneratedType",
+          "hull": "RecurrenceRegeneratedType"
+        },
+        {
+          "service": "RecurrenceStartDateOnly",
+          "hull": "RecurrenceStartDateOnly_at"
+        },
+        { "service": "Type", "hull": "Type" }
+      ]
     }
   ],
   "settings": [],
@@ -848,7 +905,7 @@
     {
       "title": "Contact Identity",
       "description": "Contact Identity",
-      "properties": ["private_settings.user_claims"]
+      "properties": ["private_settings.contact_claims"]
     },
     {
       "title": "Users - Fetching Contacts from Salesforce",

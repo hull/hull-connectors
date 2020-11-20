@@ -68,7 +68,7 @@ class SyncAgent {
 
   accountClaims: Array<Object>;
 
-  userClaims: Array<Object>;
+  contactClaims: Array<Object>;
 
   filterUtil: FilterUtil;
 
@@ -106,7 +106,7 @@ class SyncAgent {
     this.mappings = getMappings(connector);
     this.isBatch = _.get(ctx.notification, "is_export", false);
     this.accountClaims = private_settings.account_claims || [];
-    this.userClaims = private_settings.user_claims || [];
+    this.contactClaims = private_settings.contact_claims || [];
     this.leadClaims = private_settings.lead_claims || [];
 
     this.privateSettings = private_settings;
@@ -137,26 +137,10 @@ class SyncAgent {
   }
 
   getIdentityClaims({ sfType }) {
-    switch (_.toLower(sfType)) {
-      case "account": {
-        return this.accountClaims;
-      }
-
-      case "contact": {
-        return this.userClaims;
-      }
-
-      case "lead": {
-        return this.leadClaims;
-      }
-
-      case "task": {
-        return this.userClaims;
-      }
-
-      default:
-        return [];
+    if (_.toLower(sfType) === "task") {
+      return this.contactClaims;
     }
+    return this[`${_.toLower(sfType)}Claims`] || [];
   }
 
   fetchLeadAssignmentRules() {
@@ -608,7 +592,7 @@ class SyncAgent {
             "Contact",
             user,
             sfContacts,
-            this.userClaims
+            this.contactClaims
           );
         }
 
@@ -727,140 +711,6 @@ class SyncAgent {
     return resourceSchema;
   }
 
-  async saveTask(params: Object, record: Object): Promise<*> {
-    const promises = [];
-
-    const serviceType = _.get(record, "attributes.type", null);
-    const createdDate = _.get(record, "CreatedDate");
-    const associatedType = _.get(record, "Who.Type", null);
-
-    if (serviceType === null) {
-      this.hullClient.logger.error("Salesforce object type not found");
-      return Promise.resolve();
-    }
-    if (associatedType === null) {
-      this.hullClient.logger.error(
-        `Salesforce object [${JSON.stringify(
-          record
-        )}] not associated with a user or account entity`
-      );
-      return Promise.resolve();
-    }
-
-    const isValid = !!_.get(record, "WhoId") && !!_.get(record, "Subject");
-    if (!isValid) {
-      this.hullClient.logger.error(
-        `Unable to save record ${_.get(record, "Id")}`
-      );
-      return Promise.resolve();
-    }
-
-    const anonymousId = `salesforce-${associatedType.toLowerCase()}:${_.get(
-      record,
-      "WhoId"
-    )}`;
-
-    const asUser = this.hullClient.asUser({ anonymous_id: anonymousId });
-
-    const context = {};
-    const event_id = `salesforce-${_.toLower(serviceType)}:${_.get(
-      record,
-      "Id"
-    )}`;
-    _.set(context, "source", "salesforce");
-    _.set(context, "created_at", createdDate);
-    _.set(context, "event_id", event_id);
-
-    const taskType = _.get(record, "Type", null);
-    let eventName = !_.isNil(taskType)
-      ? `Salesforce Task:${taskType}`
-      : "Salesforce Task";
-
-    if (_.get(record, "IsDeleted", false)) {
-      eventName = `DELETED - ${eventName}`;
-    }
-
-    const event = this.attributesMapper.mapToHullEvent(
-      _.get(this.mappings, "Task"),
-      serviceType,
-      record
-    );
-
-    if (serviceType === "Task") {
-      promises.push(
-        asUser
-          .track(eventName, event, context)
-          .then(() => {
-            asUser.logger.info("incoming.event.success", { event });
-          })
-          .catch(error => {
-            asUser.logger.error("incoming.event.error", { error });
-          })
-      );
-    }
-    return Promise.all(promises);
-  }
-
-  async saveContact(
-    params: {
-      sfType: TResourceType,
-      source: string,
-      method: string,
-      error: Object
-    },
-    sfObject: Object,
-    message?: Object
-  ): Promise<*> {
-    return this.save(
-      {
-        hullType: "user",
-        ...params
-      },
-      sfObject,
-      message
-    );
-  }
-
-  async saveLead(
-    params: {
-      sfType: TResourceType,
-      source: string,
-      method: string,
-      error: Object
-    },
-    sfObject: Object,
-    message?: Object
-  ): Promise<*> {
-    return this.save(
-      {
-        hullType: "user",
-        ...params
-      },
-      sfObject,
-      message
-    );
-  }
-
-  async saveAccount(
-    params: {
-      sfType: TResourceType,
-      source: string,
-      method: string,
-      error: Object
-    },
-    sfObject: Object,
-    message?: Object
-  ): Promise<*> {
-    return this.save(
-      {
-        hullType: "account",
-        ...params
-      },
-      sfObject,
-      message
-    );
-  }
-
   async save(
     params: {
       hullType: string,
@@ -893,33 +743,6 @@ class SyncAgent {
 
     const asEntity = this.hullClient[`as${_.upperFirst(hullType)}`](identity);
 
-    if (source === "salesforce") {
-      for (let i = 0; i < _.size(identityClaims); i += 1) {
-        const claim = identityClaims[i];
-        if (
-          claim.required === true &&
-          _.get(sfObject, claim.service, "n/a") === "n/a"
-        ) {
-          return asEntity.logger.info(`incoming.${hullType}.skip`, {
-            type: sfType,
-            reason: `${sfType} is missing required claim ${claim.service}.`
-          });
-        }
-      }
-
-      // backwards compatible before claims settings
-      if (
-        hullType === "user" &&
-        this.requireEmail &&
-        _.get(sfObject, "Email", "n/a") === "n/a"
-      ) {
-        return asEntity.logger.info("incoming.user.skip", {
-          type: "Contact",
-          reason: "User has no email address and is not identifiable."
-        });
-      }
-    }
-
     const promises = [];
 
     const direction = source === "hull" ? "outgoing" : "incoming";
@@ -948,26 +771,6 @@ class SyncAgent {
             data: sfObject
           })
         );
-      }
-    } else if (source === "salesforce") {
-      promises.push(
-        asEntity
-          .traits(traits)
-          .then(() => {
-            return asEntity.logger.info(`${action}.success`, { traits });
-          })
-          .catch(err => {
-            return asEntity.logger.error(`${action}.error`, { error: err });
-          })
-      );
-
-      if (
-        this.linkAccounts &&
-        this.fetchAccounts &&
-        sfType === "Contact" &&
-        sfObject.AccountId
-      ) {
-        promises.push(this.linkIncomingAccount(asEntity, sfObject));
       }
     }
 

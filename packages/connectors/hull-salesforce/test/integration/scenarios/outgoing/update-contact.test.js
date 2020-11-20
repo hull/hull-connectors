@@ -19,7 +19,7 @@ const private_settings = {
   send_outgoing_tasks: false,
   lead_assignmentrule: "none",
   lead_assignmentrule_update: "none",
-  user_claims: [{ hull: "email", service: "Email" }],
+  contact_claims: [{ hull: "email", service: "Email" }],
   lead_claims: [{ hull: "email", service: "Email" }]
 };
 

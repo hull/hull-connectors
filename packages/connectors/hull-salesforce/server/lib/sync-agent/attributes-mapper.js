@@ -20,8 +20,7 @@ const TOPLEVEL_ATTRIBUTES = {
     { service: "FirstName", hull: "first_name" },
     { service: "LastName", hull: "last_name" }
   ],
-  Account: [{ service: "Name", hull: "name" }],
-  Task: []
+  Account: [{ service: "Name", hull: "name" }]
 };
 
 /**
@@ -41,17 +40,6 @@ function createAttributeName(
   return `${salesforceField
     .replace("traits_", "")
     .replace(/_created$/, "_created_at")}`;
-}
-
-function getIdentityClaimsKey(resourceType) {
-  if (resourceType === "Account") {
-    return "account";
-  }
-  if (resourceType === "Lead") {
-    return "lead";
-  }
-
-  return "user";
 }
 
 /**
@@ -87,7 +75,6 @@ class AttributesMapper implements IAttributesMapper {
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
       const attribPrefix =
         r === "Account" ? "salesforce" : `salesforce_${r.toLowerCase()}`;
-      const claimsKey = getIdentityClaimsKey(r);
       const outgoingAttributes = _.cloneDeep(
         _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
       );
@@ -95,7 +82,7 @@ class AttributesMapper implements IAttributesMapper {
         _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`, [])
       );
       const claims = _.cloneDeep(
-        _.get(connectorSettings, `${claimsKey}_claims`, [])
+        _.get(connectorSettings, `${_.toLower(r)}_claims`, [])
       );
 
       _.set(this.mappingsOutbound, r, _.concat(claims, outgoingAttributes));
@@ -312,19 +299,6 @@ class AttributesMapper implements IAttributesMapper {
     return hObject;
   }
 
-  mapToHullEvent(mapping: Object, resource: TResourceType, sObject: any): any {
-    const event = _.cloneDeep(sObject);
-    _.forEach(mapping.fetchFields, (hull, service) => {
-      const value = _.get(sObject, service);
-      if (value) {
-        _.unset(event, service);
-        _.set(event, hull, value);
-      }
-    });
-
-    return event;
-  }
-
   mapToHullIdentityObject(
     resourceType: TResourceType,
     sfObject: Object,
@@ -346,9 +320,6 @@ class AttributesMapper implements IAttributesMapper {
           }
         });
 
-        break;
-      case "Task":
-        _.set(ident, "event_id", `salesforce-${_.toLower(resourceType)}:${id}`);
         break;
       default:
         _.set(

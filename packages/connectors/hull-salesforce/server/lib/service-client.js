@@ -20,7 +20,6 @@ import type { TAssignmentRule } from "./service-client/assignmentrules";
 const _ = require("lodash");
 const events = require("events");
 const Promise = require("bluebird");
-const moment = require("moment");
 
 const Connection = require("./service-client/connection");
 const {
@@ -37,14 +36,6 @@ const CONNECTION_EVENTS = [
   "refresh",
   "error"
 ];
-
-// We cannot go higher than 750 because the SOQL query has a limit of 20k characters;
-// each ID has between 14 and 16 characters, plus 2 characters for ' escape characters plus delimiter
-// plus about 50 characters of overhead.
-const FETCH_CHUNKSIZE = Math.min(
-  parseInt(process.env.FETCH_CHUNKSIZE, 10) || 500,
-  750
-);
 
 class ServiceClient extends events.EventEmitter implements IServiceClient {
   /**
@@ -360,80 +351,6 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
         }
       ]);
     });
-  }
-
-  async saveRecords(records, onRecord) {
-    const chunks = _.chunk(records, FETCH_CHUNKSIZE);
-    await Promise.map(chunks, async chunk => {
-      return Promise.all(chunk.map(record => onRecord(record)));
-    });
-  }
-
-  async getAllRecords(
-    sfType: TResourceType,
-    options: Object = {},
-    onRecord: Function
-  ): Promise<*> {
-    const {
-      fields = [],
-      identityClaims = [],
-      fetchDaysBack,
-      lastFetchedAt
-    } = options;
-    let fetchToDate;
-    if (fetchDaysBack && !lastFetchedAt) {
-      fetchToDate = moment()
-        .subtract({ days: fetchDaysBack })
-        .toISOString();
-    }
-    if (lastFetchedAt) {
-      fetchToDate = moment(lastFetchedAt, "x").toISOString();
-    }
-    const query = this.getSoqlQuery({
-      sfType,
-      fields,
-      identityClaims,
-      fetchToDate
-    });
-    return this.fetchRecords({ query }, sfType, onRecord);
-  }
-
-  async fetchRecords(
-    queryOptions: Object,
-    sfType: string,
-    onRecord: Function,
-    fetchProgress: Object = {}
-  ) {
-    let { progress = 0, totalSize } = fetchProgress;
-    const retries = 3;
-    const result = await this.queryAllRecords(queryOptions, retries);
-
-    if (_.isNil(result) || _.isEmpty(result)) {
-      return Promise.reject(new Error("Salesforce Result Set Not Found"));
-    }
-
-    const { done, nextRecordsUrl, records } = result;
-
-    if (!totalSize) {
-      totalSize = result.totalSize;
-    }
-
-    progress += _.size(records);
-    this.logger.info("incoming.job.progress", {
-      jobName: `fetch-${_.toLower(sfType)}s`,
-      progress: `${progress} / ${totalSize}`
-    });
-
-    await this.saveRecords(records, onRecord);
-
-    if (!done && nextRecordsUrl) {
-      return this.fetchRecords({ nextRecordsUrl }, sfType, onRecord, {
-        progress,
-        totalSize
-      });
-    }
-
-    return Promise.resolve("done");
   }
 
   queryAllRecords(queryOptions: Object, retries: number): Promise<*> {

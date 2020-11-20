@@ -1,10 +1,13 @@
 /* @flow */
 
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
-const { HullOutgoingEvent } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
-const { TaskWrite } = require("./service-objects");
-const { toISOString } = require("hull-connector-framework/src/purplefusion/transform-utils");
-
+const {
+  HullOutgoingEvent
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { SalesforceTaskWrite } = require("./service-objects");
+const {
+  toISOString
+} = require("hull-connector-framework/src/purplefusion/transform-utils");
 
 const {
   doesNotContain,
@@ -18,11 +21,10 @@ const {
   not
 } = require("hull-connector-framework/src/purplefusion/conditionals");
 
-
 const transformsToService: ServiceTransforms = [
   {
     input: HullOutgoingEvent,
-    output: TaskWrite,
+    output: SalesforceTaskWrite,
     strategy: "PropertyKeyedValue",
     direction: "outgoing",
     arrayStrategy: "send_raw_array",
@@ -51,14 +53,12 @@ const transformsToService: ServiceTransforms = [
       {
         mapping: "connector.private_settings.salesforce_external_id",
         inputPath: "event.event_id",
-        outputPath: "${connector.private_settings.salesforce_external_id}",
+        outputPath: "${connector.private_settings.salesforce_external_id}"
       }
     ],
     preAttributeTransform: [
       {
-        attributes: [
-          "event.created_at",
-        ],
+        attributes: ["event.created_at"],
         transform: toISOString()
       }
     ]

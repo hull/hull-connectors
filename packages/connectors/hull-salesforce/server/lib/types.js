@@ -155,11 +155,6 @@ export interface IServiceClient {
     sfdcId: string,
     recordIds: string[]
   ): Promise<any[]>;
-  getAllRecords(
-    type: TResourceType,
-    options: Object,
-    onRecord: Function
-  ): Promise<*>;
   getDeletedRecords(
     type: TResourceType,
     options: TDeletedRecordsParameters
@@ -184,7 +179,6 @@ export interface IAttributesMapper {
     sObject: any,
     resourceSchema: Object
   ): any;
-  mapToHullEvent(mappings: Object, resource: TResourceType, sObject: any): any;
 }
 
 export interface IQueryUtil {
