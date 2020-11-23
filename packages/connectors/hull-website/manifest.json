@@ -110,7 +110,7 @@
     {
       "name": "script_enabled",
       "title": "Load scripts",
-      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js tag is loaded.",
+      "description": "When enabled, all external scripts, the embedded script, and selected third party scripts below will be injected and executed everytime a page with Hull.js is loaded.",
       "type": "boolean",
       "default": false
     },
@@ -120,6 +120,23 @@
       "description": "",
       "type": "boolean",
       "default": false
+    },
+    {
+      "name": "built_in_scripts",
+      "title": "Third Party Scripts",
+      "description": "Enable built in third party scripts to be executed with Hull.js",
+      "type": "array",
+      "format": "select",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "https://intercom.hullapp.com/ship.js",
+          "https://hubspot.hullapp.com/ship.js",
+          "https://google-ads.hullapp.com/ship.js",
+          "https://facebook-audiences.hullapp.com/ship.js"
+        ]
+      }
     }
   ],
   "json": [
@@ -157,6 +174,7 @@
       "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Check documentation to find urls to paste here.<br />All custom scripts will be injected and executed on every page load wherver the Hull Website tag is installed.",
       "properties": [
         "private_settings.script_enabled",
+        "private_settings.built_in_scripts",
         "settings.load_scripts",
         "settings.init_script"
       ]
