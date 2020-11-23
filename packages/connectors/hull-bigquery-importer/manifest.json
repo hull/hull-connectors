@@ -4,7 +4,7 @@
   "source": "bigquery",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": ["incoming", "first-install"],
   "private_settings": [
     {

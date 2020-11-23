@@ -1,6 +1,6 @@
 {
   "name": "hull-snowflake-importer",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "description": "Import Users, Events and Accounts from Snowflake",
   "scripts": {
     "test": "exit 0",

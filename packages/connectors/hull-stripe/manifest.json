@@ -1,5 +1,5 @@
 {
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "name": "hull-stripe",
   "description": "Capture Stripe customers, charges and subscriptions data.",
   "type": "source-webhook"
