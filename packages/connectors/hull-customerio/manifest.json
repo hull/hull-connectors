@@ -113,14 +113,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update"
-          ]
+          "only": ["user:update"]
         },
         "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments"
-          ]
+          "user:update": ["private_settings.synchronized_segments"]
         }
       },
       "channels": [

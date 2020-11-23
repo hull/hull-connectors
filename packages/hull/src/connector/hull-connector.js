@@ -4,6 +4,7 @@ import type { $Application, Middleware } from "express";
 import queueUIRouter from "hull/src/infra/queue/ui-router";
 import OS from "os";
 import _ from "lodash";
+import cluster from "cluster";
 import type { Server } from "http";
 import express from "express";
 import https from "http";
@@ -44,6 +45,7 @@ const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
+const winston = require("winston");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
@@ -53,6 +55,8 @@ const {
   extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
+
+const KafkaLogger = require("../utils/kafka-logger");
 
 const getAbsolutePath = p => `${process.cwd()}/${p}`;
 
@@ -73,9 +77,15 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   return callback;
 };
 
-const { SERVER_MAX_CONNECTIONS, SERVER_BACKLOG = 511 } = process.env;
+const {
+  WEB_CONCURRENCY = 1,
+  SERVER_MAX_CONNECTIONS,
+  SERVER_BACKLOG = 511
+} = process.env;
 
 const getCPUCount = () => OS.cpus().length;
+
+const getConcurrency = () => parseInt(WEB_CONCURRENCY || 1, 10);
 
 const getMaxConnections = () =>
   parseInt(SERVER_MAX_CONNECTIONS, 10) || getCPUCount() || 10;
@@ -83,6 +93,15 @@ const getMaxConnections = () =>
 const getBacklogSize = () => parseInt(SERVER_BACKLOG, 10) || 511;
 
 // const { TransientError } = require("../errors");
+
+const TRANSPORTS = {
+  console: winston.transports.Console,
+  file: winston.transports.File,
+  kafka: KafkaLogger
+};
+
+const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
+  transports.map(({ type, options }) => new TRANSPORTS[type](options));
 
 /**
  * An object that's available in all action handlers and routers as `req.hull`.
@@ -185,6 +204,14 @@ export default class HullConnector {
       disableOnExit = false
     } = connectorConfig;
 
+    logsConfig.transports = transportsFromConfig(logsConfig.transportConfigs);
+
+    clientConfig.logger = winston.createLogger({
+      level: connectorConfig.LOG_LEVEL,
+      format: winston.format.json(),
+      transports: logsConfig.transports
+    });
+
     this.logsConfig = logsConfig || {};
     this.clientConfig = {
       ...clientConfig,
@@ -250,6 +277,22 @@ export default class HullConnector {
       debug("No Worker started: `workerConfig.start` is false");
     }
     if (this.serverConfig.start) {
+      const concurrency = getConcurrency();
+      if (concurrency > 1) {
+        if (cluster.isMaster) {
+          console.log(
+            `Starting cluster in Main Mode, with ${concurrency} instances`
+          );
+          for (let i = 0; i < concurrency; i += 1) {
+            cluster.fork();
+          }
+          return;
+        }
+        console.log("Starting cluster in Secondary Mode");
+      } else {
+        console.log("Starting in Single process mode");
+      }
+
       const app = express();
 
       if (this.connectorConfig.trustProxy) {

@@ -1,0 +1,237 @@
+{
+  "name": "MS SQL Importer",
+  "description": "Import data from your MS SQL databases",
+  "picture": "picture.png",
+  "version": "0.1.37-monorepo",
+  "source": "mssql",
+  "tags": [
+    "incoming",
+    "oneColumn",
+    "beta-release",
+    "sql-accounts",
+    "first-install"
+  ],
+  "private_settings": [
+    {
+      "name": "import_type",
+      "title": "Import type",
+      "description": "What do you want to import to Hull ?",
+      "type": "string",
+      "enum": ["users", "accounts", "events"],
+      "default": "users",
+      "required": true
+    },
+    {
+      "name": "enabled",
+      "title": "Enable Sync (default interval is 3 hours)",
+      "type": "boolean",
+      "default": "false"
+    },
+    {
+      "name": "sync_interval",
+      "title": "Sync interval (in minutes)",
+      "type": "string",
+      "default": "180",
+      "enum": ["30", "60", "180", "360", "720", "1440", "43800"]
+    },
+    {
+      "name": "overwrite",
+      "title": "Use SQL value in case of data conflict",
+      "type": "boolean",
+      "default": "true"
+    },
+    {
+      "name": "import_days",
+      "title": "Incremental Queries - Start Date (x days ago)",
+      "description": "Enter the number of days and the connector will make a variable called 'import_start_date' available to your query that allows you to run incremental queries. If your SQL query does not use this variable at all, this setting has no effect.",
+      "type": "number",
+      "default": "5",
+      "minimum": 0,
+      "maximum": 31
+    },
+    {
+      "name": "db_host",
+      "type": "string",
+      "title": "Host Name",
+      "required": true,
+      "description": "The public host name of your database server."
+    },
+    {
+      "name": "db_port",
+      "type": "number",
+      "title": "Port",
+      "required": true,
+      "description": "Default ports: MySql: 3306, MS SQL: 5432, MS SQL: 1433",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    {
+      "name": "db_name",
+      "type": "string",
+      "title": "Database name",
+      "required": true
+    },
+    {
+      "name": "db_options",
+      "type": "string",
+      "title": "Additional connection options",
+      "required": false,
+      "description": "Add connection options for the different database types. See below for more details."
+    },
+    {
+      "name": "db_user",
+      "type": "string",
+      "title": "Username",
+      "required": true
+    },
+    {
+      "name": "db_password",
+      "type": "string",
+      "title": "Password",
+      "required": true,
+      "format": "password"
+    },
+    {
+      "name": "query",
+      "title": "Query to run",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_sync_at",
+      "title": "Last sync",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_updated_at",
+      "title": "Last updated_at",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_job_id",
+      "title": "Last job ID",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "type": "string",
+      "format": "title",
+      "name": "ssh_tunnel_login",
+      "title": "SSH Tunnel Login"
+    },
+    {
+      "name": "ssh_host",
+      "type": "string",
+      "title": "SSH host"
+    },
+    {
+      "name": "ssh_port",
+      "type": "string",
+      "title": "SSH port",
+      "description": "Defaults to port 22"
+    },
+    {
+      "name": "ssh_username",
+      "type": "string",
+      "title": "SSH username"
+    },
+    {
+      "name": "ssh_private_key",
+      "type": "string",
+      "format": "textarea",
+      "title": "SSH private key"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Database connection",
+      "description": "***Security Recommendation***<br>We recommend to grant the user below read-only access to dedicated tables to keep your information safe. Please refer to the manual of your database server for additional security recommendations.",
+      "properties": [
+        "private_settings.db_host",
+        "private_settings.db_port",
+        "private_settings.db_name",
+        "private_settings.db_options",
+        "private_settings.db_user",
+        "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "Connector Configuration",
+      "description": "To write your query, go to the **Overview** tab and click the **Query Editor** button **AFTER** saving these settings",
+      "properties": [
+        "private_settings.import_type",
+        "private_settings.enabled",
+        "private_settings.sync_interval",
+        "private_settings.overwrite",
+        "private_settings.import_days"
+      ]
+    },
+    {
+      "title": "SSH Tunnel Configuration",
+      "description": "If your connection must go through an ssh tunnel, please input the information here",
+      "properties": [
+        "private_settings.ssh_host",
+        "private_settings.ssh_port",
+        "private_settings.ssh_username",
+        "private_settings.ssh_private_key"
+      ]
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [
+    {
+      "title": "Query Editor",
+      "url": "/admin.html",
+      "handler": "admin",
+      "size": "large",
+      "editable": true
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
+  },
+  "ui": false,
+  "schedules": [
+    {
+      "url": "/sync",
+      "type": "interval",
+      "handler": "sync",
+      "value_from": "private_settings.sync_interval",
+      "default": "180"
+    }
+  ],
+  "json": [
+    {
+      "url": "/run",
+      "handler": "run",
+      "options": {}
+    },
+    {
+      "url": "/import",
+      "handler": "importResults",
+      "options": {}
+    },
+    {
+      "url": "/storedquery",
+      "handler": "storedquery",
+      "options": {}
+    }
+  ]
+}

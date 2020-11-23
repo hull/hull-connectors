@@ -26,9 +26,7 @@
       "name": "type",
       "type": "string",
       "title": "Type",
-      "enum": [
-        "postgres"
-      ],
+      "enum": ["postgres"],
       "default": "postgres",
       "required": true
     },
@@ -278,11 +276,7 @@
           "account:update": ["private_settings.synchronized_account_segments"]
         },
         "channels": {
-          "only": [
-            "ship:update",
-            "user:update",
-            "account:update"
-          ]
+          "only": ["ship:update", "user:update", "account:update"]
         }
       }
     }

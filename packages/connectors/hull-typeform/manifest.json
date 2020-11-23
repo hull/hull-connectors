@@ -1,10 +1,7 @@
 {
   "name": "Typeform",
   "description": "Fetch form responses",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
@@ -166,17 +163,13 @@
     {
       "title": "Connect with Typeform",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Select Form",
       "step": "actions",
       "description": "Select the form that will be imported to Hull",
-      "properties": [
-        "private_settings.form_id"
-      ]
+      "properties": ["private_settings.form_id"]
     },
     {
       "title": "Import Settings",
@@ -191,9 +184,7 @@
       "title": "Actions",
       "step": "actions",
       "description": "Import Form entries from typeform",
-      "properties": [
-        "json.fetch_all_responses"
-      ]
+      "properties": ["json.fetch_all_responses"]
     }
   ]
 }

@@ -68,11 +68,7 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "ship:update",
-            "user:update",
-            "account:update"
-          ]
+          "only": ["ship:update", "user:update", "account:update"]
         }
       },
       "channels": [
@@ -91,10 +87,7 @@
   "settings_sections": [
     {
       "title": "Canary Actions",
-      "properties": [
-        "json.start_canary",
-        "private_settings.events_to_send"
-      ]
+      "properties": ["json.start_canary", "private_settings.events_to_send"]
     }
   ]
 }

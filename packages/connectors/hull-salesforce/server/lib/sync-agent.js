@@ -206,11 +206,17 @@ class SyncAgent {
     this.asEntity = this.hullClient.asUser;
     this.enrichMessages("user", messages);
 
-    await this.sendMessages(messages, {
+    const filteredMessages = this.filterUtil.filterMessages(
+      "Contact",
+      messages,
+      this.isBatch
+    );
+
+    await this.sendMessages(filteredMessages, {
       hullType: "account",
       resourceType: "Account"
     });
-    return this.sendMessages(messages, {
+    return this.sendMessages(filteredMessages, {
       hullType: "user",
       resourceType: "Contact"
     });
@@ -219,7 +225,14 @@ class SyncAgent {
   async sendLeadMessages(messages: Array<THullUserUpdateMessage>): Promise<*> {
     this.asEntity = this.hullClient.asUser;
     this.enrichMessages("user", messages);
-    return this.sendMessages(messages, {
+
+    const filteredMessages = this.filterUtil.filterMessages(
+      "Lead",
+      messages,
+      this.isBatch
+    );
+
+    return this.sendMessages(filteredMessages, {
       hullType: "user",
       resourceType: "Lead"
     });
@@ -229,7 +242,14 @@ class SyncAgent {
     messages: Array<THullAccountUpdateMessage>
   ): Promise<*> {
     this.asEntity = this.hullClient.asAccount;
-    return this.sendMessages(messages, {
+
+    const filteredMessages = this.filterUtil.filterMessages(
+      "Account",
+      messages,
+      this.isBatch
+    );
+
+    return this.sendMessages(filteredMessages, {
       hullType: "account",
       resourceType: "Account"
     });
@@ -240,7 +260,7 @@ class SyncAgent {
     { hullType, resourceType }
   ): Promise<*> {
     if (_.isEmpty(messages)) {
-      return Promise.resolve();
+      return Promise.resolve({});
     }
     let sfEntities = {};
     try {

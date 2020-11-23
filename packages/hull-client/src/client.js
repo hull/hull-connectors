@@ -33,22 +33,17 @@ const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
-const KafkaLogger = require("./utils/kafka-logger");
 
-const TRANSPORTS = {
-  console: winston.transports.Console,
-  file: winston.transports.File,
-  kafka: KafkaLogger
-};
-
-const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
-  transports.map(({ type, options }) => new TRANSPORTS[type](options));
-
-const createLogger = ({ level, transports }) =>
+const createLogger = options =>
   winston.createLogger({
-    level,
+    level: options.level || "info",
     format: winston.format.json(),
-    transports: transportsFromConfig(transports)
+    transports: options.transports || [
+      new winston.transports.Console({
+        json: true,
+        stringify: true
+      })
+    ]
   });
 
 /**
@@ -118,12 +113,7 @@ class HullClient {
     this.clientConfig = new Configuration(config);
     const conf = this.configuration() || {};
 
-    const logger = createLogger({
-      level: logsConfig.level,
-      transports: logsConfig.transports || [
-        { type: "console", options: { level: "info" } }
-      ]
-    });
+    const logger = conf.logger || createLogger(logsConfig);
 
     const ctxKeys = _.pick(conf, [
       "organization",
@@ -587,10 +577,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
  */
 class AccountScopedHullClient extends EntityScopedHullClient {}
 
-HullClient.logger = createLogger({
-  level: process.env.LOG_LEVEL,
-  transports: [{ type: "console" }]
-});
+HullClient.logger = createLogger({ level: process.env.LOG_LEVEL });
 
 export type EntityScopedClient = EntityScopedHullClient;
 export type AccountScopedClient = AccountScopedHullClient;

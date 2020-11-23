@@ -1,88 +1,113 @@
 # CHANGELOG
 
 ## v0.1.38-monorepo (2020-11-11)
+
 - [hull-lightweight] Add support for standard and lightweight connectors
 
 ## v0.1.37-monorepo (2020-11-05)
+
 - [hull-bigquery-importer] Bigquery importer
 
 ## v0.1.36-monorepo (2020-10-02)
+
 - [hull-facebook-audiences] Migrated to monorepo
 
 ## v0.1.35-monorepo (2020-08-25)
+
 - [hull-bigquery] Bigquery mvp
 
 ## v0.1.34-monorepo (2020-08-11)
+
 - [hull-google-sheets] Support for events
 
 ## v0.1.33-monorepo (2020-07-16)
+
 - [hull-mailchimp] Fetch recent contacts
 
 ## v0.1.32-monorepo (2020-07-10)
+
 - [hull-google-sheets] Rework of the google-sheets connector
 
 ## v0.1.31-monorepo (2020-07-08)
-- [hull-postgres-exporter] Rename Warehouse to Hull PostgreSQL 
+
+- [hull-postgres-exporter] Rename Warehouse to Hull PostgreSQL
 
 ## v0.1.30-monorepo
+
 - [hull-salesforce] Moved fetch to purplefusion
 - [hull-mailchimp] Improved status update when receiving webhooks
 
 ## v0.1.29-monorepo
+
 - [hull-mailchimp] Improved webhook lifecycle
 - [hull-mailchimp] Logs user member during warnings and errors
 
 ## v0.1.28-monorepo
+
 - [hull-salesforce] add salesforce
 
 ## v0.1.27-monorepo
+
 - [hull-typeform] paginate while fetching list of forms when selecting a form
 
 ## v0.1.26-monorepo
+
 - [hull-mailchimp] handle archived users
 
 ## v0.1.25-monorepo
+
 - [hull-hubspot] jsonata attribute mapper
 
 ## v0.1.24-monorepo
+
 - [hull-sql] add sql connector
 
 ## v0.1.23-monorepo
+
 - [hull-processor] support for uuid
 - [hull-processor] support for libgooglephone
 
 ## v0.1.22-monorepo
+
 - [hull-hubspot] sync connector if upsert fails due to mismatched segments
 
 ## v0.1.21-monorepo
+
 - [hull-outreach] additional attributes fetched in Outreach events
 - [hull-outreach] optimized fetch operations of Outreach events
 
 ## v0.1.20-monorepo
+
 - [hull-outgoing-user-webhooks] release
 - [hull-outgoing-account-webhooks] release
 
 ## v0.1.19-monorepo
+
 - [hull-datawarehouse] support ssh tunnel
 
 ## v0.1.18-monorepo
+
 - [hull-coppercrm] merged coppercrm to master
 - [hull-hubspot] additional logging for null values
 
 ## v0.1.17-monorepo
+
 - [hull-outreach] send users and accounts segments as attributes to Outreach
 - [hull-segment] Migrate to monorepo
 - [hull-connectors] CircleCI config now publishes docker images and deploys to DCOS
 - [hull-repl] Release of Repl connector
 
 ## v0.1.16-monorepo
+
 - [hull-hubspot] handle empty contact identity claims
 - [hull-hubspot] use vid on contact upsert
 
 ## v0.1.15-monorepo
+
 - [hull-connector-framework] add triggers
 
 ## v0.1.14-monorepo
+
 - [hull-hubspot] map contact meta data
 - [hull-slack] fix account trigger bug
 

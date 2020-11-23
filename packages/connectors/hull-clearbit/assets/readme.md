@@ -8,10 +8,10 @@ The Clearbit Connector enables sales and marketing teams to enrich customer prof
 2. Choose `Clearbit`.
 3. Confirm the installation by clicking `Install`.
 4. Click on `Settings` and fill in the "Clearbit API Key" field.
-    As described in this field, you can go to https://dashboard.clearbit.com/api in order to find this key.
-    If you are not sure which key to use, see [Finding Your Clearbit API Key](#Finding-Your-Clearbit-API-Key) for details.
-    
-    ![Getting Started Step 1](./docs/gettingstarted01.png)
+   As described in this field, you can go to https://dashboard.clearbit.com/api in order to find this key.
+   If you are not sure which key to use, see [Finding Your Clearbit API Key](#Finding-Your-Clearbit-API-Key) for details.
+
+   ![Getting Started Step 1](./docs/gettingstarted01.png)
 
 5. Complete the configuration of the Clearbit connector (see [Features](#Features) to learn how to configure the various solutions).
 
@@ -27,13 +27,12 @@ The Clearbit connector supports to `create users`, `create accounts`, `add trait
 
 Here's a summary of all the essential attributes (user and account levels) you have to remember for your setup:
 
-| Account attribute       | User Attribute |
-|:-----------------------:|:--------------:|
-| enriched_at             | enriched_at    |
-| revealed_at             | revealed_at    |
-| prospected_account_id   | prospected_at  |
-| prospected_users        | /              |
-
+|   Account attribute   | User Attribute |
+| :-------------------: | :------------: |
+|      enriched_at      |  enriched_at   |
+|      revealed_at      |  revealed_at   |
+| prospected_account_id | prospected_at  |
+|   prospected_users    |       /        |
 
 ## Finding Your Clearbit API Key
 

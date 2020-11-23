@@ -1,12 +1,7 @@
 {
   "name": "Google Sheets importer",
   "description": "Import data from your Google Sheets",
-  "tags": [
-    "incoming",
-    "oneColumn",
-    "first-install",
-    "single-install"
-  ],
+  "tags": ["incoming", "oneColumn", "first-install", "single-install"],
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
@@ -67,10 +62,7 @@
     {
       "title": "Credentials",
       "description": "Configure the Google Sheets addon by first installing it on your Google Account by opening the link below, then enter the token in the settings section of the addon inside Google Sheets",
-      "properties": [
-        "json.install",
-        "json.credentials"
-      ]
+      "properties": ["json.install", "json.credentials"]
     }
   ]
 }
