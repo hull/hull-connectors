@@ -42,7 +42,8 @@
       "description": "How imported attributes should be grouped on User or Account profile? By default they are imported into the `bigquery` group.",
       "type": "string",
       "default": "bigquery",
-      "required": true
+      "required": true,
+      "pattern": "^[a-zA-Z0-9_]+$"
     },
     {
       "name": "query",
