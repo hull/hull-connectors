@@ -4,7 +4,7 @@
   "source": "bigquery",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": ["incoming", "first-install"],
   "private_settings": [
     {
@@ -35,6 +35,15 @@
       "enum": ["users", "accounts", "events"],
       "default": "users",
       "required": true
+    },
+    {
+      "name": "attributes_group_name",
+      "title": "Attributes Group Name",
+      "description": "How imported attributes should be grouped on User or Account profile? By default they are imported into the `bigquery` group.",
+      "type": "string",
+      "default": "bigquery",
+      "required": true,
+      "pattern": "^[a-zA-Z0-9_]+$"
     },
     {
       "name": "query",
@@ -158,7 +167,8 @@
       "description": "",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval"
+        "private_settings.import_interval",
+        "private_settings.attributes_group_name"
       ]
     },
     {
