@@ -5,7 +5,7 @@ const SyncAgent = require("../lib/sync-agent");
 
 const ENTITY = "task";
 
-const getLeadProperties = ({ fieldType } = {}) => async (
+const getTaskProperties = ({ fieldType } = {}) => async (
   ctx: HullContext
 ): HullExternalResponse => {
   const syncAgent = new SyncAgent(ctx);
@@ -19,4 +19,4 @@ const getLeadProperties = ({ fieldType } = {}) => async (
   };
 };
 
-module.exports = getLeadProperties;
+module.exports = getTaskProperties;

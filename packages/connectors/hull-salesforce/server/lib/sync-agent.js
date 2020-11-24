@@ -161,7 +161,7 @@ class SyncAgent {
     const grouping = _.isEmpty(fieldType) ? entity : `${entity}_${fieldType}`;
     return this.cache
       .wrap("fieldsSchema", () => {
-        return getFieldsSchema(this.sf, this.mappings);
+        return getFieldsSchema(this.sf, ["Contact", "Task", "Lead", "Account"]);
       })
       .then((definitions = {}) => {
         const schema = _.concat(
