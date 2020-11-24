@@ -43,6 +43,10 @@ const HullUserRaw: ServiceObjectDefinition = {
   service_name: "HullUserRaw",
   name: "User"
 };
+const HullUserRaw2: ServiceObjectDefinition = {
+  service_name: "HullUserRaw2",
+  name: "User"
+};
 
 const HullLeadRaw: ServiceObjectDefinition = {
   service_name: "HullLeadRaw",
@@ -149,7 +153,6 @@ const HullApiEventDefinition: ServiceObjectDefinition = {
   name: "HullApiEventDefinition"
 };
 
-
 // Triggers
 const HullUserAttributeChangedTrigger: ServiceObjectDefinition = {
   service_name: "HullUserAttributeChangedTrigger",
@@ -209,6 +212,7 @@ module.exports = {
   HullOutgoingDropdownOption,
   HullConnectorEnumDefinition,
   HullUserRaw,
+  HullUserRaw2,
   HullLeadRaw,
   ServiceUserRaw,
   ServiceLeadRaw,

@@ -77,7 +77,7 @@
     },
     {
       "name": "outgoing_lead_attributes",
-      "title": "User Attributes to send to CopperCrm",
+      "title": "Lead Attributes to send to CopperCrm",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -89,7 +89,28 @@
       }
     },
     {
-      "name": "person_claims",
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Persons to CopperCrm when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to CopperCrm",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCRM User Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-people-outgoing"
+      }
+    },
+    {
+      "name": "user_claims",
       "title": "Person Identity",
       "type": "array",
       "format": "table",
@@ -351,6 +372,10 @@
       "handler": "attributesLeadsOutgoing"
     },
     {
+      "url": "/attributes-people-outgoing",
+      "handler": "attributesPeopleOutgoing"
+    },
+    {
       "url": "/attributes-people-incoming",
       "handler": "attributesPeopleIncoming"
     },
@@ -433,7 +458,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "segments": {
-          "user:update": ["private_settings.synchronized_lead_segments"]
+          "user:update": [
+            "private_settings.synchronized_lead_segments",
+            "private_settings.synchronized_user_segments"
+          ]
         }
       },
       "channels": [
@@ -492,7 +520,7 @@
     {
       "title": "Person - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
-      "properties": ["private_settings.person_claims"]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "Person - Fetching People from Copper",
@@ -501,6 +529,14 @@
         "private_settings.incoming_person_attributes",
         "private_settings.link_person_in_hull",
         "json.fetch_all_people"
+      ]
+    },
+    {
+      "title": "Person - Send Persons to CopperCrm",
+      "description": "Hull gives it's customers the ability to send persons to copper crm",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
       ]
     },
     {

@@ -1,5 +1,9 @@
 /* @flow */
-import type { RawRestApi, EndpointType, RequestType } from "hull-connector-framework/src/purplefusion/types";
+import type {
+  RawRestApi,
+  EndpointType,
+  RequestType
+} from "hull-connector-framework/src/purplefusion/types";
 
 const _ = require("lodash");
 
@@ -14,7 +18,7 @@ const {
 } = require("hull/src/errors");
 
 const {
-  CopperCRMIncomingLead,upsertLead
+  CopperCRMIncomingLead,
   CopperCRMOutgoingLead,
   CopperCRMOutgoingExistingLead,
   CopperCRMIncomingPerson,
@@ -22,12 +26,16 @@ const {
   CopperCRMIncomingOpportunity,
   CopperCRMIncomingActivity,
   CopperCRMOutgoingPerson
-  } = require("./service-objects");
+} = require("./service-objects");
 
-const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
+const {
+  SuperagentApi
+} = require("hull-connector-framework/src/purplefusion/superagent-api");
 
-
-const service = ({ clientID, clientSecret } : {
+const service = ({
+  clientID,
+  clientSecret
+}: {
   clientID: string,
   clientSecret: string
 }): RawRestApi => ({
@@ -50,32 +58,32 @@ const service = ({ clientID, clientSecret } : {
     },
     //https://developer.copper.com/people/fetch-a-person-by-id.html
     findPersonById: {
-      url: "/developer_api/v1/people/${personId}",
+      url: "/v1/people/${personId}",
       operation: "get",
       output: CopperCRMIncomingPerson
     },
     //https://developer.copper.com/people/fetch-a-person-by-email.html
     findPersonByEmail: {
-      url: "/developer_api/v1/people/fetch_by_email",
+      url: "/v1/people/fetch_by_email",
       operation: "post",
       output: CopperCRMIncomingPerson
     },
     //https://developer.copper.com/people/list-people-search.html
     batchFindPerson: {
-      url: "/developer_api/v1/people/search",
+      url: "/v1/people/search",
       operation: "post",
       output: CopperCRMIncomingPerson
     },
     //https://developer.copper.com/people/create-a-new-person.html
     insertPerson: {
-      url: "/developer_api/v1/people",
+      url: "/v1/people",
       operation: "post",
       input: CopperCRMOutgoingPerson,
       output: CopperCRMIncomingPerson
     },
     //https://developer.copper.com/people/update-a-person.html
     updatePerson: {
-      url: "/developer_api/v1/people/${personId}",
+      url: "/v1/people/${personId}",
       operation: "put",
       input: CopperCRMOutgoingPerson,
       output: CopperCRMIncomingPerson
@@ -84,8 +92,8 @@ const service = ({ clientID, clientSecret } : {
       url: "/v1/users/search",
       operation: "post",
       query: {
-        "page_size": 200,
-        "page_number": 1
+        page_size: 200,
+        page_number: 1
       }
     },
     getActivityTypes: {
@@ -129,11 +137,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingLead,
       query: {
-        "sort_by": "date_modified",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_modified_date": "${dateOffset}"
+        sort_by: "date_modified",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_modified_date: "${dateOffset}"
       }
     },
     fetchAllLeads: {
@@ -141,11 +149,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingLead,
       query: {
-        "sort_by": "date_created",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_created_date": "${dateOffset}"
+        sort_by: "date_created",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_created_date: "${dateOffset}"
       }
     },
     fetchRecentPeople: {
@@ -153,11 +161,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingPerson,
       query: {
-        "sort_by": "date_modified",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_modified_date": "${dateOffset}"
+        sort_by: "date_modified",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_modified_date: "${dateOffset}"
       }
     },
     fetchAllPeople: {
@@ -165,11 +173,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingPerson,
       query: {
-        "sort_by": "date_created",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_created_date": "${dateOffset}"
+        sort_by: "date_created",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_created_date: "${dateOffset}"
       }
     },
     fetchRecentCompanies: {
@@ -177,23 +185,23 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingCompany,
       query: {
-        "sort_by": "date_modified",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_modified_date": "${dateOffset}"
-      },
+        sort_by: "date_modified",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_modified_date: "${dateOffset}"
+      }
     },
     fetchAllCompanies: {
       url: "/v1/companies/search",
       operation: "post",
       output: CopperCRMIncomingCompany,
       query: {
-        "sort_by": "date_created",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_created_date": "${dateOffset}"
+        sort_by: "date_created",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_created_date: "${dateOffset}"
       }
     },
     fetchRecentOpportunities: {
@@ -201,11 +209,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingOpportunity,
       query: {
-        "sort_by": "date_modified",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_modified_date": "${dateOffset}"
+        sort_by: "date_modified",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_modified_date: "${dateOffset}"
       }
     },
     fetchAllOpportunities: {
@@ -213,11 +221,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingOpportunity,
       query: {
-        "sort_by": "date_created",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_created_date": "${dateOffset}"
+        sort_by: "date_created",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_created_date: "${dateOffset}"
       }
     },
     fetchRecentActivities: {
@@ -225,10 +233,10 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingActivity,
       query: {
-        "sort_by": "${datePathOnEntity}",
-        "sort_direction": "desc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}"
+        sort_by: "${datePathOnEntity}",
+        sort_direction: "desc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}"
       }
     },
     fetchAllActivities: {
@@ -236,11 +244,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       output: CopperCRMIncomingActivity,
       query: {
-        "sort_by": "${datePathOnEntity}",
-        "sort_direction": "asc",
-        "page_size": "${pageSize}",
-        "page_number": "${pageOffset}",
-        "minimum_activity_date": "${dateOffset}"
+        sort_by: "${datePathOnEntity}",
+        sort_direction: "asc",
+        page_size: "${pageSize}",
+        page_number: "${pageOffset}",
+        minimum_activity_date: "${dateOffset}"
       }
     },
     getAllWebhooks: {
@@ -258,17 +266,26 @@ const service = ({ clientID, clientSecret } : {
   },
   superagent: {
     settings: [
-      { method: "set", params: { "Content-Type": "application/json" }},
+      { method: "set", params: { "Content-Type": "application/json" } },
       // only set this if access token exists...
       // todo may need a way of erroring out if no access token found
       // or a way to control when we do and don't want it doing that
-      { method: "set", params: { "X-PW-AccessToken": "${connector.private_settings.coppercrm_api_key}"}},
-      { method: "set", params: { "X-PW-Application": "developer_api"}},
-      { method: "set", params: { "X-PW-UserEmail": "${connector.private_settings.coppercrm_email}"}}
+      {
+        method: "set",
+        params: {
+          "X-PW-AccessToken": "${connector.private_settings.coppercrm_api_key}"
+        }
+      },
+      { method: "set", params: { "X-PW-Application": "developer_api" } },
+      {
+        method: "set",
+        params: {
+          "X-PW-UserEmail": "${connector.private_settings.coppercrm_email}"
+        }
+      }
     ]
   },
   error: {
-
     parser: {
       httpStatus: "status",
       parser: {
@@ -282,30 +299,32 @@ const service = ({ clientID, clientSecret } : {
       {
         truthy: { status: 500 },
         errorType: TransientError,
-        message: "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
+        message:
+          "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
         retryAttempts: 2
       },
       {
         truthy: { status: 503 },
         errorType: TransientError,
-        message: "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
+        message:
+          "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
         retryAttempts: 2
       },
       {
         truthy: { status: 502 },
         errorType: TransientError,
-        message: "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
+        message:
+          "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
         retryAttempts: 3
       },
       {
         truthy: { status: 422 },
         errorType: SkippableError,
-        message: "Copper has detected an issue with the data that you're trying to send, please inspect the attributes being sent to Copper for correct format, and that the entities you're trying to update are not ambiguous"
+        message:
+          "Copper has detected an issue with the data that you're trying to send, please inspect the attributes being sent to Copper for correct format, and that the entities you're trying to update are not ambiguous"
       }
     ]
-
   }
 });
-
 
 module.exports = service;

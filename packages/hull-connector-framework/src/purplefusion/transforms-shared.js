@@ -14,10 +14,7 @@ const {
   varUndefinedOrNull
 } = require("./conditionals");
 
-const {
-  getAttributeName,
-  getAttributeNamespace
-} = require("./utils");
+const { getAttributeName, getAttributeNamespace } = require("./utils");
 
 const {
   createIncomingServiceUserTransform
@@ -25,6 +22,7 @@ const {
 
 const {
   HullUserRaw,
+  HullUserRaw2,
   HullLeadRaw,
   ServiceUserRaw,
   ServiceAccountRaw,
@@ -39,7 +37,6 @@ const {
   HullApiAttributeDefinition,
   HullIncomingOpportunity
 } = require("./hull-service-objects");
-
 
 /**
  * On the way back still need the notion of putting into the identification
@@ -66,7 +63,7 @@ const transformsShared: ServiceTransforms = [
             // for account mappints
             operateOn: { component: "input", select: "${mapping.hull}" },
             writeTo: { path: "attributes.${mapping.service}" }
-          },
+          }
         ]
       },
       // {
@@ -86,7 +83,48 @@ const transformsShared: ServiceTransforms = [
         operateOn: "${connector.private_settings.lead_claims}",
         expand: { valueName: "mapping" },
         then: {
-          operateOn: { component: "input", select: "user.${mapping.hull}"},
+          operateOn: { component: "input", select: "user.${mapping.hull}" },
+          condition: not(varUndefinedOrNull("operateOn")),
+          writeTo: {
+            appendToArray: true,
+            path: "ident",
+            format: {
+              hull: "${mapping.hull}",
+              service: "${mapping.service}",
+              value: "${operateOn}"
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    input: HullOutgoingUser,
+    output: HullUserRaw2,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: "${connector.private_settings.outgoing_user_attributes}",
+        expand: { valueName: "mapping" },
+        then: [
+          {
+            operateOn: { component: "input", select: "user.${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+          {
+            // for account mappings
+            operateOn: { component: "input", select: "${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          }
+        ]
+      },
+      {
+        operateOn: "${connector.private_settings.user_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "user.${mapping.hull}" },
           condition: not(varUndefinedOrNull("operateOn")),
           writeTo: {
             appendToArray: true,
@@ -99,6 +137,20 @@ const transformsShared: ServiceTransforms = [
           }
         }
       },
+      {
+        condition: isEqual(
+          "connector.private_settings.link_users_in_service",
+          true
+        ),
+        inputPath: "account.${service_name}/id",
+        outputPath: "hull_service_accountId"
+      },
+      {
+        mapping:
+          "connector.private_settings.outgoing_user_associated_account_id",
+        inputPath: "user.${hull_field_name}",
+        outputPath: "hull_service_accountId"
+      }
     ]
   },
   {
@@ -119,12 +171,16 @@ const transformsShared: ServiceTransforms = [
       // not sure if this is the way we want to do this...
       // link users in service may mean something more complex...
       {
-        condition: isEqual("connector.private_settings.link_users_in_service", true),
+        condition: isEqual(
+          "connector.private_settings.link_users_in_service",
+          true
+        ),
         inputPath: "account.${service_name}/id",
         outputPath: "hull_service_accountId"
       },
       {
-        mapping: "connector.private_settings.outgoing_user_associated_account_id",
+        mapping:
+          "connector.private_settings.outgoing_user_associated_account_id",
         inputPath: "user.${hull_field_name}",
         outputPath: "hull_service_accountId"
       },
@@ -133,12 +189,12 @@ const transformsShared: ServiceTransforms = [
         // the account attribute will be labeled account.X
         mapping: "connector.private_settings.outgoing_user_attributes",
         inputPath: "${hull_field_name}",
-        outputPath: "${service_field_name}",
+        outputPath: "${service_field_name}"
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         inputPath: "user.${hull_field_name}",
-        outputPath: "${service_field_name}",
+        outputPath: "${service_field_name}"
       },
       {
         mapping: "connector.private_settings.user_claims",
@@ -169,9 +225,14 @@ const transformsShared: ServiceTransforms = [
         mapping: { type: "input" },
         condition: [
           isEqual("connector.private_settings.fetch_all_attributes", true),
-          not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
+          not(
+            isServiceAttribute(
+              "connector.private_settings.incoming_user_attributes",
+              "service_field_name"
+            )
+          ),
           not(isEqual("service_field_name", "hull_events")),
-          isNotEqual("value", "null"),
+          isNotEqual("value", "null")
         ],
         inputPath: "${service_field_name}",
         outputPath: "attributes.${service_name}/${hull_field_name}",
@@ -186,13 +247,19 @@ const transformsShared: ServiceTransforms = [
         outputFormat: "${service_name}:${value}"
       },
       {
-        condition: isEqual("connector.private_settings.link_users_in_hull", true),
+        condition: isEqual(
+          "connector.private_settings.link_users_in_hull",
+          true
+        ),
         inputPath: "hull_service_accountId",
         outputPath: "accountIdent.anonymous_id",
         outputFormat: "${service_name}:${value}"
       },
       {
-        condition: isEqual("connector.private_settings.link_users_in_hull", true),
+        condition: isEqual(
+          "connector.private_settings.link_users_in_hull",
+          true
+        ),
         inputPath: "hull_service_accountId",
         outputPath: "accountAttributes.${service_name}/id",
         outputFormat: "${value}"
@@ -234,16 +301,26 @@ const transformsShared: ServiceTransforms = [
         operateOn: "${connector.private_settings.incoming_account_attributes}",
         expand: { valueName: "mapping" },
         then: {
-          operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+          operateOn: {
+            component: "input",
+            select: "${mapping.service}",
+            name: "serviceValue"
+          },
           condition: isNotEqual("serviceValue", undefined),
           then: [
             {
               condition: isEqual("mapping.overwrite", false),
-              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "setIfNull", value: "${operateOn}" } }
+              writeTo: {
+                path: "attributes.${mapping.hull}",
+                format: { operation: "setIfNull", value: "${operateOn}" }
+              }
             },
             {
               condition: isEqual("mapping.overwrite", true),
-              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
+              writeTo: {
+                path: "attributes.${mapping.hull}",
+                format: { operation: "set", value: "${operateOn}" }
+              }
             }
           ]
         }
@@ -252,21 +329,34 @@ const transformsShared: ServiceTransforms = [
         operateOn: "${connector.private_settings.account_claims}",
         expand: { valueName: "mapping" },
         then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
+          operateOn: { component: "input", select: "${mapping.service}" },
           writeTo: { path: "ident.${mapping.hull}" }
         }
       },
       {
         operateOn: { component: "input", select: "id" },
-        then:[
-          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
-          { writeTo: { path: "attributes.${service_name}/id", format: { operation: "set", value: "${operateOn}" } } }
+        then: [
+          {
+            writeTo: {
+              path: "ident.anonymous_id",
+              format: "${service_name}:${operateOn}"
+            }
+          },
+          {
+            writeTo: {
+              path: "attributes.${service_name}/id",
+              format: { operation: "set", value: "${operateOn}" }
+            }
+          }
         ]
       },
       {
         operateOn: { component: "input", select: "name" },
         condition: not(varUndefinedOrNull("operateOn")),
-        writeTo: { path: "attributes.name", format: { operation: "setIfNull", value: "${operateOn}" } }
+        writeTo: {
+          path: "attributes.name",
+          format: { operation: "setIfNull", value: "${operateOn}" }
+        }
       }
     ]
   },
@@ -281,7 +371,10 @@ const transformsShared: ServiceTransforms = [
         operateOn: { component: "input", select: "hull_service_accountId" },
         condition: not(varUndefinedOrNull("operateOn")),
         // validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
-        writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+        writeTo: {
+          path: "accountIdent.anonymous_id",
+          format: "${service_name}:${operateOn}"
+        }
       },
       // {
       //   operateOn: { component: "input", select: "hull_raw_service_accountId" },
@@ -290,20 +383,28 @@ const transformsShared: ServiceTransforms = [
       {
         operateOn: { component: "input", select: "hull_service_userId" },
         condition: not(varUndefinedOrNull("operateOn")),
-        writeTo: { path: "userIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+        writeTo: {
+          path: "userIdent.anonymous_id",
+          format: "${service_name}:${operateOn}"
+        }
       },
       {
         operateOn: { component: "input", select: "hull_raw_service_userId" },
-        writeTo: { path: "userIdent.anonymous_id" },
+        writeTo: { path: "userIdent.anonymous_id" }
       },
       {
-        operateOn: { component: "input", select: "${connector.private_settings.incoming_opportunity_type}", name: "opportunityType"},
+        operateOn: {
+          component: "input",
+          select: "${connector.private_settings.incoming_opportunity_type}",
+          name: "opportunityType"
+        },
         condition: notNull("opportunityType", undefined),
         then: [
           {
             operateOn: { component: "input", select: "id" },
             writeTo: {
-              path: "attributes.${service_name}_opportunity_${opportunityType}/id",
+              path:
+                "attributes.${service_name}_opportunity_${opportunityType}/id",
               format: {
                 value: "${operateOn}",
                 operation: "set"
@@ -311,23 +412,30 @@ const transformsShared: ServiceTransforms = [
             }
           },
           {
-            operateOn: "${connector.private_settings.incoming_opportunity_attributes}",
+            operateOn:
+              "${connector.private_settings.incoming_opportunity_attributes}",
             expand: { valueName: "mapping" },
             then: {
-              operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+              operateOn: {
+                component: "input",
+                select: "${mapping.service}",
+                name: "serviceValue"
+              },
               condition: isNotEqual("serviceValue", undefined),
               then: [
                 {
                   condition: isEqual("mapping.overwrite", true),
                   writeTo: {
-                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
+                    path:
+                      "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
                     format: { operation: "set", value: "${operateOn}" }
                   }
                 },
                 {
                   condition: isEqual("mapping.overwrite", false),
                   writeTo: {
-                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
+                    path:
+                      "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
                     format: { operation: "setIfNull", value: "${operateOn}" }
                   }
                 }
@@ -367,7 +475,7 @@ const transformsShared: ServiceTransforms = [
       {
         inputPath: "accountIdent.external_id",
         outputPath: "accountId"
-      },
+      }
     ]
   },
   {
@@ -376,7 +484,9 @@ const transformsShared: ServiceTransforms = [
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
-    transforms: [`$.{ "name": ($contains(key, /^traits_/) ? $substring(key, 7) : key), "type": type, "display": key }`]
+    transforms: [
+      `$.{ "name": ($contains(key, /^traits_/) ? $substring(key, 7) : key), "type": type, "display": key }`
+    ]
   },
   {
     input: HullConnectorAttributeDefinition,
@@ -384,7 +494,9 @@ const transformsShared: ServiceTransforms = [
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
-    transforms: [`{ "data": { "options": $.{"value": name, "label": display } }, "status": 200 }`]
+    transforms: [
+      `{ "data": { "options": $.{"value": name, "label": display } }, "status": 200 }`
+    ]
   },
   {
     input: HullConnectorAttributeDefinition,
@@ -392,7 +504,9 @@ const transformsShared: ServiceTransforms = [
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
-    transforms: [`$[readOnly=false]{ "data": {"options": $.{"value": name, "label": display } }, "status": 200 }`]
+    transforms: [
+      `$[readOnly=false]{ "data": {"options": $.{"value": name, "label": display } }, "status": 200 }`
+    ]
   }
 ];
 
