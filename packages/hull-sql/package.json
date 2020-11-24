@@ -1,7 +1,7 @@
 {
   "name": "hull-sql",
   "description": "Hull Sql Base",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
   "scripts": {
@@ -14,6 +14,7 @@
     "codemirror": "^5.52.2",
     "json-loader": "^0.5.7",
     "s3-upload-stream": "^1.0.7",
+    "sequelize": "^6.3.5",
     "sweetalert2": "^9.15.2",
     "tedious": "^8.2.0"
   },

@@ -134,7 +134,7 @@ class FilterUtil {
         return filterUtilResults.toUpdate.push(envelope);
       }
 
-      if (_.isNil(envelope.message.account.domain)) {
+      if (_.isEmpty(envelope.message.account.domain)) {
         envelope.skipReasonLog = "Account doesn't have value for domain";
         return filterUtilResults.toSkip.push(envelope);
       }

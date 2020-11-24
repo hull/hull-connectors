@@ -68,7 +68,11 @@ const glue = {
     set("projectId", settings("project_id")),
     set("importType", settings("import_type")),
     set("operation", get("${importType}", OPERATION_MAPPING)),
-    set("service_name", "bigquery")
+    set("service_name", "bigquery"),
+    set("attributesGroupName", ifL(cond("isEmpty", settings("attributes_group_name")), {
+      do: "bigquery",
+      eldo: settings("attributes_group_name")
+    }))
   ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("service_account_key")),

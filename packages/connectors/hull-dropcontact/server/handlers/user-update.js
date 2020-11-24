@@ -8,6 +8,16 @@ import type {
 
 const IN_ENRICH_QUEUE = "queued";
 
+export function isInSegments(
+  segmentDefinitions: Array<{ id: string, [string]: any }> = [],
+  segmentsListIds: Array<string> = []
+) {
+  return (
+    segmentsListIds.includes("ALL") ||
+    _.intersection(_.map(segmentDefinitions, "id"), segmentsListIds).length > 0
+  );
+}
+
 const toDropcontactMapping = hash =>
   _.map(hash, (hull, service) => ({
     service,
@@ -39,6 +49,7 @@ const updateAccount = ({
   const { mapAttributes } = helpers;
   const { private_settings } = connector;
   const {
+    excluded_user_segments,
     api_key,
     last_name,
     first_name,
@@ -68,7 +79,10 @@ const updateAccount = ({
 
     // Filter out users who shouldn't be enriched
     const enrichable = messages.filter(
-      m => isBatch || !m.user["dropcontact/emails"]
+      m =>
+        isBatch ||
+        (!m.user["dropcontact/emails"] &&
+          !isInSegments(m.segments, excluded_user_segments))
     );
 
     // Query the cache to fetch the status for each enrichable user ID
@@ -86,20 +100,32 @@ const updateAccount = ({
     const queuable = enrichable.filter(
       (v, i) => cacheResults[i] !== IN_ENRICH_QUEUE
     );
-    const queuablePayloads = queuable.map(attributeMap).filter(payload => {
-      // eslint-disable-next-line no-shadow
-      const { last_name, first_name, company, website } = payload;
-      const valid = !!last_name && !!first_name && !!(company || website);
-      if (!valid) {
-        client.logger.info("outgoing.user.skip", {
-          message: "Can't enrich user because it's missing required values",
-          payload
-        });
-      }
-      return valid;
-    });
 
-    const ids = _.map(queuable, "user.id");
+    const ids = [];
+
+    const queuablePayloads = _.reduce(
+      queuable,
+      (payloads, message) => {
+        const { user } = message;
+        const payload = attributeMap(message);
+        // eslint-disable-next-line no-shadow
+        const { last_name, first_name, company, website } = payload;
+        const valid = !!last_name && !!first_name && !!(company || website);
+
+        if (valid) {
+          ids.push(user.id);
+          payloads.push(payload);
+        } else {
+          client.logger.info("outgoing.user.skip", {
+            message: "Can't enrich user because it's missing required values",
+            payload
+          });
+        }
+
+        return payloads;
+      },
+      []
+    );
 
     client.logger.info("outgoing.user.start", {
       cacheResults,

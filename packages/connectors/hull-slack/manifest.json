@@ -2,7 +2,7 @@
   "name": "Slack",
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": ["kraken"],
   "private_settings": [
     {
@@ -16,10 +16,7 @@
       "options": {
         "name": "Slack",
         "strategy": {
-          "scope": [
-            "bot",
-            "channels:write"
-          ],
+          "scope": ["bot", "channels:write"],
           "skipUserProfile": true
         }
       }
@@ -70,14 +67,8 @@
       "items": {
         "type": "object",
         "dependencies": {
-          "channel": [
-            "event",
-            "text"
-          ],
-          "event": [
-            "channel",
-            "text"
-          ]
+          "channel": ["event", "text"],
+          "event": ["channel", "text"]
         },
         "properties": {
           "event": {
@@ -137,14 +128,8 @@
       "items": {
         "type": "object",
         "dependencies": {
-          "channel": [
-            "event",
-            "text"
-          ],
-          "event": [
-            "channel",
-            "text"
-          ]
+          "channel": ["event", "text"],
+          "event": ["channel", "text"]
         },
         "properties": {
           "event": {
@@ -152,14 +137,8 @@
             "description": "Event that triggers a notification",
             "type": "string",
             "format": "select",
-            "enum": [
-              "ENTERED_ACCOUNT_SEGMENT",
-              "LEFT_ACCOUNT_SEGMENT"
-            ],
-            "enumNames": [
-              "Entered Account Segment",
-              "Left Account Segment"
-            ]
+            "enum": ["ENTERED_ACCOUNT_SEGMENT", "LEFT_ACCOUNT_SEGMENT"],
+            "enumNames": ["Entered Account Segment", "Left Account Segment"]
           },
           "synchronized_segment": {
             "title": "Applicable Account Segments",
@@ -210,10 +189,7 @@
       },
       "items": {
         "type": "object",
-        "required": [
-          "block_title",
-          "attributes"
-        ],
+        "required": ["block_title", "attributes"],
         "properties": {
           "block_title": {
             "title": "Block Title",
@@ -233,30 +209,22 @@
     {
       "title": "Connect with Slack",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Slack User Notification Triggers",
       "description": "Choose the scenarios where you would like to receive Slack notifications. \"Entered/Left User Segment\" events apply to the selected segment, whereas for other event types, the user must be IN the segment for the notification to trigger",
-      "properties": [
-        "private_settings.notify_events"
-      ]
+      "properties": ["private_settings.notify_events"]
     },
     {
       "title": "Slack Account Notification Triggers",
       "description": "Choose the scenarios where you would like to receive Slack notifications. \"Entered/Left Account Segment\" events apply to the selected segment",
-      "properties": [
-        "private_settings.notify_account_events"
-      ]
+      "properties": ["private_settings.notify_account_events"]
     },
     {
       "title": "Attribute Blocks",
       "description": "Define blocks with fields to attach to slack notifications. Blocks will be attached to every notification",
-      "properties": [
-        "private_settings.attachements"
-      ]
+      "properties": ["private_settings.attachements"]
     }
   ],
   "readme": "readme.md",
@@ -292,11 +260,7 @@
       "url": "/smart-notify",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       },
       "channels": [

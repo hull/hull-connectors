@@ -12,7 +12,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "private_settings": [
     {
       "name": "triggers",
@@ -54,9 +54,7 @@
           "ALL": "All Users"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     },
     {
       "name": "synchronized_account_segments",
@@ -69,9 +67,7 @@
           "ALL": "All Accounts"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     }
   ],
   "resources": [],
@@ -80,9 +76,7 @@
       "title": "Credentials",
       "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
-      "properties": [
-        "json.credentials"
-      ]
+      "properties": ["json.credentials"]
     }
   ],
   "incoming": [
@@ -153,11 +147,7 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "ship:update",
-            "account:update"
-          ]
+          "only": ["user:update", "ship:update", "account:update"]
         },
         "segments": {
           "user:update": ["private_settings.synchronized_user_segments"],

@@ -1,18 +1,14 @@
 {
   "name": "Segment",
   "description": "Complete control over your customer data with Hull and Segment",
-  "tags": [
-    "batch",
-    "kraken-exports",
-    "smart-notifier"
-  ],
+  "tags": ["batch", "kraken-exports", "smart-notifier"],
   "index": "ship.js",
   "source": "segment",
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "mappings": {
     "identify": {
       "outgoing": {}
@@ -119,9 +115,7 @@
           "LEFT_SEGMENT": "Left Segment"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     },
     {
       "name": "forward_events",
@@ -164,11 +158,7 @@
       "title": "User ID",
       "description": "Attribute to use as `userId` in the segment payload. Warning: This can affect your MTUs.",
       "type": "string",
-      "enum": [
-        "id",
-        "external_id",
-        "email"
-      ],
+      "enum": ["id", "external_id", "email"],
       "default": "external_id",
       "format": "hidden"
     },
@@ -177,11 +167,7 @@
       "title": "Public Account ID Field",
       "description": "Account field to use as the groupId for data sent to segment",
       "type": "string",
-      "enum": [
-        "id",
-        "external_id",
-        "domain"
-      ],
+      "enum": ["id", "external_id", "domain"],
       "default": "external_id",
       "format": "hidden"
     },
@@ -244,15 +230,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "ship:update",
-            "user:update"
-          ]
+          "only": ["ship:update", "user:update"]
         },
         "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments"
-          ]
+          "user:update": ["private_settings.synchronized_segments"]
         }
       },
       "channels": [
@@ -267,10 +248,7 @@
     {
       "title": "Credentials",
       "description": "In **Segment.com**, go to `Destinations → Hull` and paste the following api key",
-      "properties": [
-        "json.credentials",
-        "settings.write_key"
-      ]
+      "properties": ["json.credentials", "settings.write_key"]
     },
     {
       "title": "Incoming traffic",

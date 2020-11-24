@@ -3,7 +3,7 @@
   "description": "Track web traffic and integrate with other client side services.",
   "picture": "picture.png",
   "index": "ship.js",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "smart-notifier",
     "incoming",
@@ -80,10 +80,7 @@
       "type": "array",
       "description": "Only these attributes will be sent.",
       "format": "trait",
-      "default": [
-        "domain",
-        "email"
-      ]
+      "default": ["domain", "email"]
     },
     {
       "name": "public_segments",
@@ -140,17 +137,12 @@
       "title": "Installation",
       "description": "To install Hull tracking library in your website start by whitelisting all domains it will be loaded on.<br />Then copy and paste the tracking tag in the `head` section of the HTML on each page you would like to track.",
       "step": "credentials",
-      "properties": [
-        "private_settings.whitelisted_domains",
-        "json.credentials"
-      ]
+      "properties": ["private_settings.whitelisted_domains", "json.credentials"]
     },
     {
       "title": "Tracking",
       "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.<br />Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/). If you need to deploy custom scripts you can use **Scripts** section below.",
-      "properties": [
-        "private_settings.track_page_inits"
-      ]
+      "properties": ["private_settings.track_page_inits"]
     },
     {
       "title": "Scripts",

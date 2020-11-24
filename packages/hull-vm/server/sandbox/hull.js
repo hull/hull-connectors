@@ -103,7 +103,7 @@ const buildHullContext = ({
   const identifyFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
     claims: ClaimType,
     target: "userTraits" | "accountTraits"
-  ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
+  ) => (attributes: Attributes = {}, context?: HullAttributeContext = {}) => {
     if (attributes.anonymous_id !== undefined) {
       deprecationLogger(
         "You are setting an anonymous_id as an attribute value, which is invalid. Please send it in `hull.asUser({ anonymous_id: xxx })`, `hull.asAccount({ anonymous_id: xxx })` or hull.alias({ anonymous_id: xxx })"

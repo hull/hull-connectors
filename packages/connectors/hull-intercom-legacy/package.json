@@ -1,6 +1,6 @@
 {
   "name": "hull-intercom-legacy",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "description": "Hull Intercom Legacy Integration",
   "scripts": {
     "test": "yarn run test:integration",

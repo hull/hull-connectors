@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="257px" height="257px" viewBox="0 0 257 257" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>redshift-importer/logo</title>
+    <g id="redshift-importer/logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFFFFF" x="0" y="0" width="257" height="257"></rect>
+        <g id="aws-redshift-logo" transform="translate(55.000000, 46.000000)" fill-rule="nonzero">
+            <polygon id="Path" fill="#205B97" points="73 127.000394 135 142 135 24 73 38.9996065"></polygon>
+            <path d="M136.086957,24 L148,29.9998426 L148,136.000157 L136.086957,142 L136.086957,24 Z M73.5434783,127.000394 L11,142 L11,24 L73.5434783,38.9996065 L73.5434783,127.000394 Z" id="Shape" fill="#5193CE"></path>
+            <polygon id="Path" fill="#205B97" points="12 24 0 29.9998426 0 136.000157 12 142"></polygon>
+            <polygon id="Path" fill="#5193CE" points="88.4925904 165 113 153.048439 113 11.9515614 88.4925904 0 81 78.3511801"></polygon>
+            <polygon id="Path" fill="#205B97" points="57.5074096 165 33 153.048439 33 11.9515614 57.5074096 0 65 78.3511801"></polygon>
+            <polygon id="Path" fill="#2E73B7" points="58 0 90 0 90 165 58 165"></polygon>
+        </g>
+    </g>
+</svg>

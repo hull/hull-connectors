@@ -1,7 +1,7 @@
 {
   "name": "hull-facebook-audiences",
   "description": "Target your Leads with Facebook Ads",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",

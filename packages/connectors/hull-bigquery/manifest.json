@@ -4,11 +4,8 @@
   "source": "bigquery",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
-  "tags": [
-    "incoming",
-    "first-install"
-  ],
+  "version": "0.1.39-monorepo",
+  "tags": ["incoming", "first-install"],
   "private_settings": [
     {
       "name": "oauth",
@@ -26,9 +23,7 @@
           "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
           "tokenURL": "https://oauth2.googleapis.com/token",
           "grant_type": "authorization_code",
-          "scope": [
-            "https://www.googleapis.com/auth/bigquery"
-          ]
+          "scope": ["https://www.googleapis.com/auth/bigquery"]
         }
       }
     },
@@ -50,11 +45,7 @@
       "title": "Import type",
       "description": "What do you want to import to Hull ?",
       "type": "string",
-      "enum": [
-        "users",
-        "accounts",
-        "events"
-      ],
+      "enum": ["users", "accounts", "events"],
       "default": "users",
       "required": true
     },
@@ -71,15 +62,7 @@
       "description": "Define here the amount of time (in minutes) between imports.",
       "type": "string",
       "default": "180",
-      "enum": [
-        "30",
-        "60",
-        "180",
-        "360",
-        "720",
-        "1440",
-        "43800"
-      ]
+      "enum": ["30", "60", "180", "360", "720", "1440", "43800"]
     }
   ],
   "settings": [],
@@ -104,7 +87,7 @@
       }
     },
     {
-      "url" : "/get-projects",
+      "url": "/get-projects",
       "handler": "getProjects"
     }
   ],
@@ -151,16 +134,12 @@
       "title": "Authentication",
       "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Select project",
       "description": "Select the google project you'd like to work on. The connector will create jobs associated to this project.",
-      "properties": [
-        "private_settings.project_id"
-      ]
+      "properties": ["private_settings.project_id"]
     },
     {
       "title": "Import Setup",

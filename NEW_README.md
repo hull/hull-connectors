@@ -1229,7 +1229,6 @@ export default function handler(EntryModel: Object) {
 }
 ```
 
-
 ### Consolidated defaults, and environment variable conventions
 
 We now automatically configure the connector if the `config.js` file exposes no value, and specific environment variables are set. This means that if no value is set for some configuration entries in `HullConnectorConfig`, we will rely on the environment variables to define them.
@@ -1243,7 +1242,7 @@ REQUEST_TIMEOUT = "25s", //defines the timeout for a request - connector will cl
 QUEUE_ADAPTER = "memory",
 QUEUE_NAME = "queueApp",
 CACHE_STORE = "memory",
-SERVER = "true", //Boot the server 
+SERVER = "true", //Boot the server
 WORKER, // Boots the worker (for connectors which use a Queue)
 COMBINED, //Boots in worker+server mode in a single process (for local dev.)
 KUE_PREFIX, // Prefix for Queues - should be unique per connector
@@ -1276,22 +1275,23 @@ LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
 
 ```
 
-
 ## Lightweight Connectors
+
 - checkout the `packages/hull-lightweight folder for details on how it works.
 
 - Start in Dev with:
+
 ```
   yarn combined hull-xxx
 ```
 
 - Start in Production with:
+
 ```
   yarn start:lightweight hull-xxx
 ```
 
-
-A few details: 
+A few details:
 
 - manifest MUST must be in `/manifest.json`
 - manifest MUST contain a `type` entry defining the connector type
@@ -1299,6 +1299,7 @@ A few details:
 - If you define items in Arrays, or objects in the manifest, they will be deeply merged with defaults. I.E. settings, subscriptions etc...will be added
 - handler must be in `/server/index.js`
 - handler must export a method using `export default` and this method shall have the appropriate signature for the right lightweight connector type. Currently we have the following types:
+
   - `source-webhooks`
   - `destination`
   - `user-processor`
@@ -1306,11 +1307,11 @@ A few details:
 - environment variables (or .env) MUST contain a `SECRET`
 - You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `source-webhooks` exist
 
-## PM2 environment
+## Boot environment
 
-- The boot environment has been redone to use pm2. check `start-connector.sh` and `start-dev-connector.sh`
+- The boot environment has been redone. check `start-connector.sh` and `start-dev-connector.sh`
 - Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
-- WEB mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot on the PM2 cluster.
+- Cluster mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot in cluster mode. Don't use this locally as babel will complain
 - On heroku, `WEB_CONCURRENCY` is computed from the `WEB_MEMORY` env var which you can set to tell Heroku how much memory to allocate for your instance. Heroku will use this and compute `WEB_CONCURRENCY` to match based on the Dyno's sizes.
 - You can use SERVER_MAX_CONNECTIONS and SERVER_BACKLOG to fine-tune how Express will respond
 
@@ -1319,9 +1320,11 @@ A few details:
 - Use NODE_ARGS to add more Node arguments to the dynos. Be careful, in Cluster mode, those aren't passed to child processes it seems.
 
 ## Webpack
+
 Now build things sequentially since returning an array is not optimized at all
 
 ## Queue UI
+
 Arena is available on `/__queue` - auth with the connector's HostSecret
 need to add `QUEUE_ADAPTER=redis` if you want a redis queue
 need to add `CACHE_STORE=redis` if you want a redis cache

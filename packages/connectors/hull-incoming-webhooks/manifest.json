@@ -1,10 +1,7 @@
 {
   "name": "Incoming Webhooks",
   "description": "Recompute external properties and emit events with Javascript logic whenever user is send to connector by webhook",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "picture": "picture.png",
   "ui": false,
   "tabs": [
@@ -19,7 +16,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "private_settings": [
     {
       "name": "code",
@@ -62,16 +59,12 @@
       "title": "Incoming Webhook URL",
       "description": "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
       "step": "credentials",
-      "properties": [
-        "json.credentials"
-      ]
+      "properties": ["json.credentials"]
     },
     {
       "title": "Configuration",
       "description": "Configure the way the connector runs",
-      "properties": [
-        "private_settings.variables"
-      ]
+      "properties": ["private_settings.variables"]
     }
   ],
   "json": [

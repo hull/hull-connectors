@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -101,10 +101,7 @@
           },
           "hull": {
             "title": "Hull User Ident",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["external_id", "email"]
           }
         }
       },
@@ -184,18 +181,11 @@
         "properties": {
           "service": {
             "title": "Account Field ID",
-            "enum": [
-              "domain",
-              "customId",
-              "name"
-            ]
+            "enum": ["domain", "customId", "name"]
           },
           "hull": {
             "title": "Hull Account",
-            "enum": [
-              "external_id",
-              "domain"
-            ]
+            "enum": ["external_id", "domain"]
           }
         }
       },
@@ -483,16 +473,12 @@
       "title": "Connect with Outreach",
       "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "User - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "User - Fetching from Outreach",
@@ -517,9 +503,7 @@
     {
       "title": "Account - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for account identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /><b>Please be aware that Outreach will reject accounts sent without a name</b>",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Account - Fetching from Outreach",

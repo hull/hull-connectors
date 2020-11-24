@@ -59,10 +59,8 @@ export default async function enrichQueue(
         data.map(async (payload, index) => {
           const id = ids[index];
           const asUser = client.asUser({
-            ...(payload?.email?.length
-              ? { email: payload.email[0].email }
-              : {}),
-            id
+            id,
+            ...(payload?.email?.length ? { email: payload.email[0].email } : {})
           });
 
           const asAccount = link_user_in_hull
@@ -96,13 +94,14 @@ export default async function enrichQueue(
           return Promise.all([
             // Remove matched IDs from the Queue
             cache.del(id),
-            asUser.traits(
-              mapAttributes({
+            asUser.traits({
+              ...mapAttributes({
                 payload,
                 direction: "incoming",
                 mapping: incoming_user_attributes
-              })
-            ),
+              }),
+              "dropcontact/enriched_at": new Date().toISOString()
+            }),
             ...accountPromises
           ]);
         })

@@ -1,0 +1,11 @@
+{
+  "name": "hull-google-ads",
+  "version": "0.1.38-monorepo",
+  "description": "",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -4,11 +4,8 @@
   "source": "bigquery",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.38-monorepo",
-  "tags": [
-    "incoming",
-    "first-install"
-  ],
+  "version": "0.1.39-monorepo",
+  "tags": ["incoming", "first-install"],
   "private_settings": [
     {
       "name": "service_account_key",
@@ -35,13 +32,18 @@
       "title": "Entity to import",
       "description": "What do you want to import to Hull ?",
       "type": "string",
-      "enum": [
-        "users",
-        "accounts",
-        "events"
-      ],
+      "enum": ["users", "accounts", "events"],
       "default": "users",
       "required": true
+    },
+    {
+      "name": "attributes_group_name",
+      "title": "Attributes Group Name",
+      "description": "How imported attributes should be grouped on User or Account profile? By default they are imported into the `bigquery` group.",
+      "type": "string",
+      "default": "bigquery",
+      "required": true,
+      "pattern": "^[a-zA-Z0-9_]+$"
     },
     {
       "name": "query",
@@ -56,15 +58,7 @@
       "description": "Define here the amount of time (in minutes) between imports.",
       "type": "string",
       "default": "180",
-      "enum": [
-        "30",
-        "60",
-        "180",
-        "360",
-        "720",
-        "1440",
-        "43800"
-      ]
+      "enum": ["30", "60", "180", "360", "720", "1440", "43800"]
     },
     {
       "name": "import_days",
@@ -98,7 +92,7 @@
   "incoming": [],
   "json": [
     {
-      "url" : "/get-projects",
+      "url": "/get-projects",
       "handler": "getProjects"
     },
     {
@@ -161,31 +155,26 @@
       "title": "Authentication",
       "description": "In order to authorize the connector to access your BigQuery project you need to provide a Service Account Key. Find out how to obtain it in the documentation.",
       "step": "credentials",
-      "properties": [
-        "private_settings.service_account_key"
-      ]
+      "properties": ["private_settings.service_account_key"]
     },
     {
       "title": "Select project",
       "description": "Select the google project you'd like to work on. The connector will create jobs associated to this project.",
-      "properties": [
-        "private_settings.project_id"
-      ]
+      "properties": ["private_settings.project_id"]
     },
     {
       "title": "Import Setup",
       "description": "",
       "properties": [
         "private_settings.import_type",
-        "private_settings.import_interval"
+        "private_settings.import_interval",
+        "private_settings.attributes_group_name"
       ]
     },
     {
       "title": "Incremental queries",
       "description": "The connector can make a variable called 'import_start_date' available to use in your incremental query. If your SQL query does not use this variable at all, this setting has no effect.",
-      "properties": [
-        "private_settings.import_days"
-      ]
+      "properties": ["private_settings.import_days"]
     }
   ]
 }
