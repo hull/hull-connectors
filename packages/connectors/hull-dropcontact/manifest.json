@@ -221,7 +221,7 @@
     },
     {
       "name": "synchronized_user_segments",
-      "title": "User Filter",
+      "title": "User Inclusion List",
       "description": "Enrich with Dropcontact when users match these segments (Users with a Dropcontact email will still be skipped)",
       "type": "array",
       "options": {
@@ -229,6 +229,15 @@
           "ALL": "All Users"
         }
       },
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "excluded_user_segments",
+      "title": "User Exclusion List",
+      "description": "Do NOT enrich with dropcontact users matching these segments (Batch updates will ignore this filter)",
+      "type": "array",
+      "options": {},
       "default": [],
       "format": "segment"
     },
@@ -342,7 +351,10 @@
     {
       "title": "Filtering",
       "description": "Select which users will be enriched with Dropcontact. Users with a `dropcontact/email` attribute will be skipped anyways",
-      "properties": ["private_settings.synchronized_user_segments"]
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.excluded_user_segments"
+      ]
     },
     {
       "title": "Lookup mapping",
