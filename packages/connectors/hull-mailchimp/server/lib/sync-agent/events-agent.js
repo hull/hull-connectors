@@ -30,6 +30,7 @@ class EventsAgent {
     return this.mailchimpClient
       .get("/automations")
       .query({
+        count: 1000,
         fields: "automations.id,automations.status,automations.send_time"
       })
       .then(({ body }) => {
@@ -76,6 +77,7 @@ class EventsAgent {
         fields:
           "campaigns.id,campaigns.status,campaigns.title,campaigns.send_time,campaigns.settings.title",
         list_id: this.listId,
+        count: 1000,
         since_send_time: weekAgo.format()
       })
       .then(response => {
@@ -194,7 +196,7 @@ class EventsAgent {
             })
             .then(
               () => {
-                asUser.logger.info("incoming.event.success", {
+                asUser.logger.debug("incoming.event.success", {
                   email: email.email_address,
                   action: a.action,
                   timestamp: a.timestamp,

@@ -18,7 +18,12 @@ import type {
   HullClientConfig,
   HullNotification,
   HullCredentialsObject,
-  HullClient
+  HullClient,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullEvent,
+  HullSegment,
+  HullTriggerSet
 } from "./index";
 
 import {
@@ -27,12 +32,13 @@ import {
   extractRequest,
   mappingToOptions,
   mapAttributes,
+  streamRequest,
+  getStandardMapping,
   operations
 } from "../helpers";
 
 const ConnectorCache = require("../infra/cache/connector-cache");
 const MetricAgent = require("../infra/instrumentation/metric-agent");
-
 // =====================================
 //   Hull Context
 // =====================================
@@ -110,6 +116,18 @@ export type HullContext = {|
     extractRequest: $Call<typeof extractRequest, HullContext>,
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
+    streamRequest: $Call<typeof streamRequest, HullContext>,
+    getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
+    hasMatchingTriggers: ({
+      matchOnBatch?: boolean,
+      mode: "any" | "all",
+      message: HullUserUpdateMessage | HullAccountUpdateMessage,
+      triggers: HullTriggerSet
+    }) => boolean,
+    segmentChangesToEvents: (
+      HullAccountUpdateMessage | HullUserUpdateMessage,
+      Array<HullSegment>
+    ) => Array<HullEvent>,
     operations: $Call<typeof operations, HullContext>
   }
 |};

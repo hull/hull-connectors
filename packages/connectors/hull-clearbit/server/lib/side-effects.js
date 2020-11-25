@@ -10,7 +10,8 @@ import type {
 
 import { now } from "./utils";
 
-const getClearbitAnonymousId = entity => `clearbit:${entity.id}`;
+const getClearbitAnonymousId = (entity = {}) =>
+  entity.id && `clearbit:${entity.id}`;
 
 /**
  * Create a new user on Hull from a discovered Prospect
@@ -29,15 +30,17 @@ export async function saveProspect({
   account: HullAccount | { domain?: string },
   prospect: ClearbitProspect
 }): Promise<any> {
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping } = helpers;
   const { id, email } = prospect;
   try {
     const traits = mapAttributes({
-      entity: prospect,
-      mapping: "incoming_prospect_mapping",
-      type: "prospect",
-      direction: "incoming"
+      payload: prospect,
+      direction: "incoming",
+      mapping: [
+        ...connector.private_settings.incoming_prospect_mapping,
+        ...getStandardMapping({ type: "prospect", direction: "incoming" })
+      ]
     });
 
     // as a new user
@@ -54,7 +57,7 @@ export async function saveProspect({
       ? { "clearbit/prospected_account_id": account.id }
       : {};
 
-    metric.increment("ship.incoming.users", 1, ["prospect"]);
+    metric.increment("ship.incoming.users", 1, ["handler:prospect"]);
     return asUser.traits({ ...traits, ...attribution, ...accountAttribution });
   } catch (err) {
     console.log("ERROR!-----------------", err);
@@ -120,30 +123,32 @@ export async function saveAccount(
   ctx: HullContext,
   {
     account,
-    person,
+    person = {},
     company,
     user,
     source
   }: {
     account: HullAccount,
-    user: HullUser,
+    user?: HullUser,
     person: ClearbitPerson,
     company: ClearbitCompany,
     source: "prospect" | "enrich" | "discover" | "reveal"
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes, operations } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping, operations } = helpers;
   const { setIfNull } = operations;
 
   const timestamp = now();
   const traits = {
     ...mapAttributes({
-      entity: company,
-      mapping: "incoming_company_mapping",
-      type: "company",
-      direction: "incoming"
+      payload: company,
+      direction: "incoming",
+      mapping: [
+        ...connector.private_settings.incoming_company_mapping,
+        ...getStandardMapping({ type: "company", direction: "incoming" })
+      ]
     }),
     "clearbit/id": company.id,
     "clearbit/fetched_at": timestamp,
@@ -155,19 +160,22 @@ export async function saveAccount(
       : {})
   };
 
-  const accountClaims = {
-    ...account,
-    anonymous_id: getClearbitAnonymousId(company)
-  };
-  const userClaims = {
-    ...user
-  };
-  if (person) {
-    userClaims.anonymous_id = getClearbitAnonymousId(person);
+  const accountClaims = { ...account };
+  const clearbitAccountClaim = getClearbitAnonymousId(company);
+  if (clearbitAccountClaim) {
+    accountClaims.anonymous_id = clearbitAccountClaim;
   }
-  const asAccount = _.isEmpty(account)
-    ? client.asUser(userClaims).account(accountClaims)
-    : client.asAccount(accountClaims);
+
+  const userClaims = { ...user };
+  const clearbitClaim = getClearbitAnonymousId(person);
+  if (clearbitClaim) {
+    userClaims.anonymous_id = clearbitClaim;
+  }
+
+  const asAccount =
+    _.isEmpty(account) && !_.isEmpty(userClaims)
+      ? client.asUser(userClaims).account(accountClaims)
+      : client.asAccount(accountClaims);
 
   await asAccount.traits(traits);
 
@@ -177,7 +185,7 @@ export async function saveAccount(
   //   // traits
   // });
 
-  metric.increment("ship.incoming.accounts", 1, ["saveAccount"]);
+  metric.increment("ship.incoming.accounts", 1, ["handler:saveAccount"]);
   return company;
 }
 
@@ -194,8 +202,8 @@ export async function saveUser(
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes, operations } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping, operations } = helpers;
   const { setIfNull } = operations;
 
   // Never ever change the email address (Clearbit strips +xxx parts, so we end up
@@ -215,10 +223,12 @@ export async function saveUser(
   const traits = {
     ...(person
       ? mapAttributes({
-          entity: person,
-          type: "person",
-          mapping: "incoming_person_mapping",
-          direction: "incoming"
+          payload: person,
+          direction: "incoming",
+          mapping: [
+            ...connector.private_settings.incoming_person_mapping,
+            ...getStandardMapping({ type: "person", direction: "incoming" })
+          ]
         })
       : {}),
     "clearbit/fetched_at": timestamp,
@@ -231,7 +241,7 @@ export async function saveUser(
   };
 
   await asUser.traits(traits);
-  metric.increment("ship.incoming.users", 1, ["saveUser"]);
+  metric.increment("ship.incoming.users", 1, ["ship_action:saveUser"]);
   // asUser.logger.info("incoming.user.success", { ...meta, source });
   // return { traits, user, person };
 }

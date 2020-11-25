@@ -1,6 +1,7 @@
 // @flow
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "abc";
 
 test("incoming fetch all responses basic", () => {
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, requireFixture, expect, nock }) => {
       return {
         handlerType: handlers.scheduleHandler,
@@ -51,14 +52,12 @@ test("incoming fetch all responses basic", () => {
           ],
           ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             { subject_type: "user", user_email: "lian1078@other.com" },
             {}
           ],
           [
-            "info",
-            "incoming.user-event.success",
+            "debug", "incoming.user-event.success",
             { subject_type: "user", user_email: "lian1078@other.com" },
             {
               event: "Form Submitted",
@@ -71,14 +70,12 @@ test("incoming fetch all responses basic", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             { subject_type: "user", user_email: "sarahbsmith@example.com" },
             {}
           ],
           [
-            "info",
-            "incoming.user-event.success",
+            "debug", "incoming.user-event.success",
             {
               subject_type: "user",
               user_email: "sarahbsmith@example.com"
@@ -94,8 +91,7 @@ test("incoming fetch all responses basic", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.skip",
+            "debug", "incoming.user.skip",
             {
               subject_type: "user"
             },
@@ -106,8 +102,7 @@ test("incoming fetch all responses basic", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.skip",
+            "debug", "incoming.user.skip",
             {
               subject_type: "user"
             },

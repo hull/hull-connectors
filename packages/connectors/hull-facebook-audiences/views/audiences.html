@@ -1,0 +1,165 @@
+<html>
+  <head>
+    <title>Hull Facebook Audiences</title>
+    <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
+    <style type="text/css">
+      .info {
+        border-bottom: 1px dotted #8091AD;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body class='container'>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="panel panel-default mt-1">
+          <% if (audiences && _.size(audiences)) { -%>
+            <div class="panel-heading">
+              <h5 class='mt-05 mb-05 text-accented uppercase'>Managed Audiences</h5>
+            </div>
+            <table class='table table-condensed datagrid-table table table-bordered table-hover'>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Approximate Count</th>
+                  <th>Last updated At</th>
+                  <th>Re-sync</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% _.forEach(audiences, (audience, segmentId) => {  -%>
+                <tr>
+                  <td  style='vertical-align: middle;'>
+                    <a href="<%- fb.getManagerUrl(audience) %>" target='fb_ads_manager'>
+                      <%= audience.name %>
+                    </a>
+                  </td>
+                  <td  style='vertical-align: middle;'>
+                    <small class="text-muted">
+                      <%= audience.operation_status.description %>
+                      <% if (!_.includes(synchronizedSegments.map(s => s.id), segmentId)) { -%>
+                        (is not included in segments setting, won't be synced)
+                      <% } -%>
+                    </small>
+                  </td>
+                  <td  style='vertical-align: middle;'>
+                    <small class="text-muted">
+                      <% if (audience.approximate_count === -1) { -%>
+                      <span class="info" title="Facebook is not reporting the estimated audience size, please check information below">Not available</span>
+                      <% } else { -%>
+                      <%= audience.approximate_count %>
+                      <% } -%>
+                    </small>
+                  </td>
+                  <td  style='vertical-align: middle;'>
+                    <small class="text-muted">
+                      <% if (audience.time_content_updated === 0) { -%>
+                      <span class="info" title="It can take up to 15 minutes to get changes populate on Facebook end">Not updated yet</span>
+                      <% } else { -%>
+                      <%= new Date(audience.time_content_updated * 1000) %>
+                      <% } -%>
+                    </small>
+                  </td>
+
+                  <td  style='vertical-align: middle;'>
+                    <% if (_.includes(synchronizedSegments.map(s => s.id), segmentId)) { -%>
+                    <button class="btn btn-pill btn-rounded" data-trigger="<%= segmentId %>">Trigger resync</button>
+                    <% } -%>
+                  </td>
+                </tr>
+                <% }) -%>
+              </tbody>
+            </table>
+
+          <% if (_.difference(synchronizedSegments.map(s => s.id), _.keys(audiences)).length > 0) { -%>
+              <div class="panel-body text-center">
+                  <h1 class="condensed mt-0 mb-0">Some segments are out of sync</h1>
+                  <div class="mt-2">
+                    <div class="mb-2 col-md-4 col-md-offset-4">
+                      <form method="post" action="/sync-audiences?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
+                        <input type="submit" name="action" value="Create & Sync new segments" class="btn btn-danger">
+                      </form>
+                    </div>
+                  </div>
+                </div>
+            <% } -%>
+
+
+            <% } else { -%>
+
+              <% if (!segments || !segments.length) { -%>
+                <div class="panel-body text-center">
+                  <h1 class="condensed mt-0 mb-0">No segment found</h1>
+                  <p>First, go to the Users tab and create some segments, then specify which segments you want to send to Facebook from the Settings tab</p>
+                  <div class="mt-2">
+                    <div class="mb-2 col-md-2 col-md-offset-5">
+                      <img src="https://dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/images/blankslate/avatar.svg" class="img-responsive">
+                    </div>
+                  </div>
+                </div>
+              <% } else if (!synchronizedSegments || !synchronizedSegments.length) { -%>
+                <div class="panel-body text-center">
+                  <h1 class="condensed mt-0 mb-0">No segments set to synchronize</h1>
+                  <p>Go to settings to pick some segments to be synchronized</p>
+                  <div class="mt-2">
+                    <div class="mb-2 col-md-2 col-md-offset-5">
+                      <img src="https://dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/images/blankslate/avatar.svg" class="img-responsive">
+                    </div>
+                  </div>
+                </div>
+              <% } else { -%>
+                <div class="panel-body text-center">
+                  <h1 class="condensed mt-0 mb-0">No audiences synchronized</h1>
+                  <p>Synchronize following segments: <%= synchronizedSegments.map(s => s.name).join(", ") %></p>
+                  <div class="mt-2">
+                    <div class="mb-2 col-md-2 col-md-offset-5">
+                      <img src="https://dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/images/blankslate/avatar.svg" class="img-responsive">
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <div class="mb-2 col-md-4 col-md-offset-4">
+                      <form method="post" action="/sync-audiences?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
+                        <input type="submit" name="action" value="Sync selected segments" class="btn btn-danger">
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              <% } -%>
+            <% } -%>
+        </div>
+        <div class="panel panel-default mt-1">
+          <div class="panel-body">
+            <h3 class="condensed mt-0 mb-0">Why approximate count of some audiences is not available?</h3>
+            <p>Recently created custom audiences may not show Approximate Count value in the table above.
+            This is an information fetched directly from Facebook Audiences API, the very same information is reported on the Custom Audience Details page (follow the link in the Name column above). Missing estimated size should not affect your integration flow and the same issue affects Custom Audiences created without Hull connector. To confirm that the sync is working please refer to "Audience History" section of Custom Audience Details page. You should see entries with number of rows being added and removed which should reflect number of users who enter and leave given Hull segment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+    <script type="text/javascript">
+      $("[data-trigger]").click(function() {
+        var segmentId = $(this).attr("data-trigger");
+        swal({
+          title: "Trigger a full segment resync",
+          text: "You are going to resync this Hull segment with Facebook Custom Audiences. " +
+            "Depending on the segment size it may cause significant traffic within your organization. " +
+            "Are you sure you want to continue?",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "Yes, re-sync it!",
+          closeOnConfirm: false
+        }, function(isConfirm) {
+          if (isConfirm) {
+            $.post(window.location.href.replace("/audiences", "/trigger-extract") + "&segment_id=" + segmentId);
+            swal("Re-sync started", "Selected segment will be re synced shortly.", "success");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

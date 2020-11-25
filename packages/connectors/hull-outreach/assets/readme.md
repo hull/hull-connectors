@@ -71,6 +71,27 @@ Accounts are fetched by either clicking "Actions" and manually triggering a fetc
 - **incoming account identity** - specify which `Outreach Account Properties` we will use to identify `Hull Account`
 - **incoming account attributes** - defines which `Outreach Account Properties` are stored in `Hull Account Attributes` and the fields they are mapped to.
 
+## Outreach Incoming Events
+
+The connector is able to pull in events from Outreach in a variety of different circumstances.  Currently the connector is focused on supporting email events and prospect state changes.  This is because other types of events do not always relate to a user.  However if there's an event that you consider relevant, please reach out to your Hull support representative to request if the event may be added.
+
+The following events are the types that Hull currently supports:
+
+    [
+      "bounced_message",
+      "emails_opt_out",
+      "inbound_message",
+      "message_clicked",
+      "message_opened",
+      "message_opened_sender",
+      "outbound_message",
+      "prospect_stage_changed"
+    ]
+
+### Incoming Events Limitations
+
+- The outreach event api is not always stable and event names can change.  Because of this, we've built in the ability to notify when there's an event we've never seen before.  In this case, Hull will triage the scenario, map the event and the incremental fetching of events will be restored.  Please be aware of this scenario if you see it.
+- Although the properties in the events api are limited, we try our best to enrich the events with relevant information from other endpoints as well.  Though this type of additional enrichment is on a case by case basis.
 
 ## Supported Objects
 The Outreach connector allows you to synchronize data between Hull and Outreach for the following objects:
@@ -120,7 +141,7 @@ Additionally, because email is an array, when sending users to be updated in Out
 - Check the identifiers which you specified in the settings.  Do those identifiers exist in Outreach?
 - Make sure you've specified attributes in the incoming attributes in the settings page.  If you set the attributes after you performed a full fetch, you may have to perform a full fetch again to retrieve all of the newly mapped attributes.
 - Check the logs for incoming.user/account.error or incoming.user/account.skip to ensure that there wasn't any additional circumstance which filtered the data
-- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: http://status.hull.io/
+- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: https://status.hull.io/
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
 Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Credentials` Tab and perform the OAuth flow authorization again.  Make sure that you are linking the connector again to the same Outreach portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.

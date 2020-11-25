@@ -1,0 +1,32 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Lead",
+        "url": "/services/data/v39.0/sobjects/Lead/00Q1I000004WHbtUAG"
+      },
+      "Id": "00Q1I000004WHbtUAG",
+      "Email": "becci.blankenshield@adventure-works.com",
+      "FirstName": "Becci",
+      "LastName": "Blankenshield",
+      "Company": "Adventure Works",
+      "Website": "adventure-works.com",
+      "Status": "Open - Not Contacted"
+    },
+    {
+      "attributes": {
+        "type": "Lead",
+        "url": "/services/data/v39.0/sobjects/Lead/00Q1I000004WHchUAG"
+      },
+      "Id": "00Q1I000004WO7uUAG",
+      "Email": "adam.pietrzyk@krakowtraders.pl",
+      "FirstName": "Adam",
+      "LastName": "Pietrzyk",
+      "Status": "Open - Not Contacted",
+      "LEAD_SEGMENTS__c": "LEADSegment1",
+      "LEAD_STAGES__c": "Open;Closed;PROSPECTing;Promising;Needs Analysis",
+      "LEAD_RANDOM_PL__c": "Appointment scheduled;Qualified to buy;Sent;Won;Lost"
+    }
+  ],
+  "done": true
+}

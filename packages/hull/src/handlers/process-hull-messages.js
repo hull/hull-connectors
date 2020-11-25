@@ -2,9 +2,11 @@
 import fp from "lodash/fp";
 import type {
   HullConnector,
+  HullNotificationChannel,
   HullNotificationHandlerOptions,
   HullUserUpdateMessage,
-  HullSegment,
+  HullUserSegment,
+  HullAccountSegment,
   HullAccountUpdateMessage
 } from "../types";
 
@@ -15,22 +17,23 @@ const {
   remapUserSegmentsKey
 } = require("../utils");
 
+type Messages = Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>;
+type MessageProcessor = Messages => Messages;
 const processHullMessage = ({
   // options,
   // connector,
   // segments,
   channel
-}: // , isBatch
-{
+}: {
   options: HullNotificationHandlerOptions,
-  channel: "user:update" | "account:update",
+  channel: HullNotificationChannel,
   segments: {
-    user_segments?: Array<HullSegment>,
-    account_segments?: Array<HullSegment>
+    user_segments?: Array<HullUserSegment>,
+    account_segments?: Array<HullAccountSegment>
   },
   connector: HullConnector,
   isBatch: boolean
-}): Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage> => {
+}): MessageProcessor => {
   // const { filter } = options;
 
   // "remapUserSegmentsKey" ensures that we have the following keys

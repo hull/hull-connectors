@@ -1,4 +1,5 @@
 // @flow
+import _ from "lodash";
 import type {
   HullContext,
   HullUserUpdateMessage,
@@ -18,14 +19,17 @@ const updateAccount = ({
 ): HullNotificationResponse => {
   try {
     const updateLogic = userUpdateLogic(ctx);
-    await Promise.all(messages.map(updateLogic));
+    const actions = await Promise.all(messages.map(updateLogic));
+    ctx.client.logger.info("outgoing.user.info", { actions });
     return {
       type: "next",
       size: flow_size,
       in: flow_in
     };
-  } catch (err) {
-    console.log("Error", err);
+  } catch (error) {
+    ctx.client.logger.error("outgoing.user.error", {
+      error: _.get(error, "body.error") || error.message || error
+    });
     return {
       type: "retry",
       size: flow_size,

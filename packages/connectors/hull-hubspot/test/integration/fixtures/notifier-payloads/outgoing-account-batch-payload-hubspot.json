@@ -13,7 +13,7 @@
       "closeio/id": "lead_XoT4xTPj6zTaxIGBmeHtYgz8tyukqiea7BNzYqYfvWx",
       "closeio/industry_sample": "Manufacturing",
       "closeio/lead_owner": "user_J864wVQKIkI5Jmedx5HVMAMV3H6S4S744B5t9Flw9i2",
-      "closeio/name": "Wayne Enterprises (Sample\u00a0Lead)",
+      "closeio/name": "Wayne Enterprises (Sample Lead)",
       "closeio/status": "Qualified",
       "closeio/updated_at": "2019-02-22T17:10:29+00:00",
       "closeio/url": "http://wayneenterprises.com",
@@ -25,7 +25,7 @@
       "hubspot/id": 1778846597,
       "hubspot/website": "wayneenterprises.com",
       "indexed_at": "2019-04-02T14:07:04+00:00",
-      "name": "Wayne Enterprises (Sample\u00a0Lead)",
+      "name": "Wayne Enterprises (Sample Lead)",
       "outreach/custom1": "Manufacturing",
       "outreach/custom2": "175 4th st nw",
       "outreach/description": "great company by thomas wayne",
@@ -34,8 +34,8 @@
       "id": "5bf2e7bf064aee16a600092a"
     },
     "user": {},
-    "segments": {},
-    "account_segments": {},
+    "segments": [],
+    "account_segments": [],
     "message_id": "4ckrkcf4544ea54d5950689f97f02f4a2cb389af",
     "update_id": "5d04019a85ab0bef5800e63d:5:0:0"
   }

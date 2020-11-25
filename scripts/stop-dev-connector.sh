@@ -1,0 +1,1 @@
+exec killall -KILL ngrok

@@ -4,6 +4,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -12,12 +13,14 @@ const incomingData = require("../fixtures/get-companies-recent-modified");
 const connector = {
   private_settings: {
     token: "hubToken",
-    handle_accounts: true
+    handle_accounts: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
-it.skip("should fetch all companies", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+it.skip("should fetch recent companies", () => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-companies",
@@ -67,13 +70,12 @@ it.skip("should fetch all companies", () => {
           "incoming.account.skip",
           {},
           {
-            company: incomingData.results[1],
+            company: incomingData.results[1].companyId,
             reason: "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com" }),
           {
             traits: {
@@ -86,8 +88,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             account_domain: "foo.com",
             subject_type: "account"
@@ -134,8 +135,6 @@ it.skip("should fetch all companies", () => {
         ["increment", "ship.incoming.accounts", 2]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         [
           "PUT",

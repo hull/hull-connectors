@@ -103,8 +103,7 @@ module.exports = [
           entity: undefined,
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -244,8 +243,7 @@ module.exports = [
             }
           ],
           accountLinks: [[{ id: "123" }, { external_id: "external" }]],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -462,8 +460,7 @@ module.exports = [
               }
             ]
           ],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -634,8 +631,7 @@ module.exports = [
             }
           ],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -735,8 +731,7 @@ module.exports = [
           entity: undefined,
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -815,8 +810,7 @@ module.exports = [
           entity: undefined,
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -890,8 +884,8 @@ module.exports = [
           entity: undefined,
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [

@@ -15,13 +15,13 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("process account creation webhook from outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
-        console.log(plainCredentials);
         return superagent
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/account-created.json"));
@@ -92,7 +92,7 @@ test("process account creation webhook from outreach", () => {
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" } ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "account_domain": "skywalkerindustries.com",
           "account_anonymous_id": "outreach:6"
@@ -100,7 +100,7 @@ test("process account creation webhook from outreach", () => {
         ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" } ]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:6", "domain": "skywalkerindustries.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 6}, "outreach/name": {"operation": "set", "value": "Skywalker Industries"}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:6", "domain": "skywalkerindustries.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 6}, "name": { "operation": "setIfNull", "value" : "Skywalker Industries" }, "outreach/name": {"operation": "set", "value": "Skywalker Industries"}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

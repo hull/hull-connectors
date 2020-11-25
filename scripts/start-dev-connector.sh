@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 # this scripts starts the connector in dev
 
-if [ -f packages/connectors/$1/.env ]; then
-  source packages/connectors/$1/.env
+CONNECTOR=${CONNECTOR:=$1}
+PATH_TO_CONNECTOR="packages/connectors/$CONNECTOR"
+
+if [ -f $PATH_TO_CONNECTOR/.env ]; then
+  source $PATH_TO_CONNECTOR/.env
+  cat $PATH_TO_CONNECTOR/.env
 fi
-  
-exec nodemon packages/connectors/$1/server --inspect --exec babel-node -- packages/connectors/$1/server
+
+echo "Starting $PATH_TO_CONNECTOR on PORT $PORT";
+WEB_CONCURRENCY=1 PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR nodemon --exec babel-node --inspect packages/start.js

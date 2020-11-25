@@ -1,26 +1,25 @@
 module.exports = (ctxMock) => {
   const userData = {
-    id: "5abd08c4aede0354c3000363",
-    email: "sven+dt7@hull.io"
+    id: "test-1",
+    email: "test@example.com"
   };
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
- 
+
   const event = {
     context: {
       ip: "0"
     },
-    created_at: 1522338867,
+    created_at: 1234567890,
     event: "Email Delivered",
-    event_id: "01C9S7G83JJEXG1SZ5QBMXRAS4",
+    event_id: "01ASDG7S9P6MAZPTJ78JND9GDC",
     properties: {
-      campaign_id: "12",
-      campaign_name: "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
-      customer_id: "5abd08c4aede0354c3000363",
-      email_address: "Sven <sven+dt7@hull.io>",
-      email_id: "ZI6aBAABYnJ3muVry9xcBjL7Aj-e",
-      email_subject: "How Vault Enterprise trials work",
-      template_id: "35"
+      campaign_id: 1424,
+      customer_id: "test-1",
+      email_address: "test@example.com",
+      email_id: "SA13dk35ja7s8d9kja3s2dASdasd==",
+      email_subject: "Thanks for joining!",
+      content_id: 35
     }
   };
 
@@ -28,8 +27,8 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.track.mock.calls[0])
     .toEqual([event.event, event.properties, event.context]);
 
-  expect(ctxMock.client.logger.info.mock.calls).toHaveLength(1);
-  expect(ctxMock.client.logger.info.mock.calls[0])
+  expect(ctxMock.client.logger.debug.mock.calls).toHaveLength(1);
+  expect(ctxMock.client.logger.debug.mock.calls[0])
     .toEqual(["incoming.event.success", { event }]);
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(1);

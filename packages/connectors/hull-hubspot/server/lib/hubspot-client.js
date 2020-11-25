@@ -5,12 +5,12 @@ import type { HullConnector, HullContext } from "hull";
 import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotAccountUpdateMessageEnvelope,
-  HubspotContactPropertyGroups,
-  HubspotCompanyPropertyGroups,
+  HubspotPropertyGroup,
   HubspotReadContact,
   HubspotWriteContact,
   HubspotWriteCompany,
-  HubspotReadCompany
+  HubspotReadCompany,
+  HubspotProperty
 } from "../types";
 
 declare type HubspotGetAllContactsResponse = {
@@ -30,11 +30,6 @@ declare type HubspotGetAllCompaniesResponse = {
     "has-more": boolean,
     offset: string
   }
-};
-
-declare type HubspotGetCompanyResponse = {
-  ...IncomingMessage,
-  body: HubspotReadCompany
 };
 
 const _ = require("lodash");
@@ -60,10 +55,6 @@ class HubspotClient {
   agent: superagent;
 
   settingsUpdate: Function;
-
-  incomingAccountIdentHull: string;
-
-  incomingAccountIdentService: string;
 
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
@@ -109,6 +100,15 @@ class HubspotClient {
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: "",
         grant_type: "refresh_token"
+      })
+      .catch(error => {
+        if (error.response) {
+          const details =
+            (error.response.body && error.response.body.message) || "unknown";
+          const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
+          return Promise.reject(new ConfigurationError(errorMessage));
+        }
+        return Promise.reject(error);
       });
   }
 
@@ -130,16 +130,11 @@ class HubspotClient {
           force: true
         })
           .catch(error => {
-            if (error.response) {
-              const details =
-                (error.response.body && error.response.body.message) ||
-                "unknown";
-              const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
-              return Promise.reject(new ConfigurationError(errorMessage));
-            }
             return Promise.reject(error);
           })
-          .then(() => promise());
+          .then(() => {
+            return promise();
+          });
       }
       return Promise.reject(err);
     });
@@ -202,6 +197,7 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
+   * @param properties
    * @param  {Number} [count=100]
    * @param  {Number} [offset=0]
    * @return {Promise}
@@ -254,7 +250,8 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
-   * @param  {Number} [count=100]
+   * @param properties
+   * @param limit
    * @param  {Number} [offset=0]
    * @return {Promise}
    */
@@ -264,7 +261,9 @@ class HubspotClient {
     offset: ?string = null
   ): Promise<HubspotGetAllCompaniesResponse> {
     return this.retryUnauthorized(() => {
+      const includeMergeAudits = true;
       return this.agent.get("/companies/v2/companies/paged").query({
+        includeMergeAudits,
         limit,
         offset,
         properties
@@ -298,79 +297,6 @@ class HubspotClient {
     });
   }
 
-  /**
-   * Get most recent contacts and filters out these who last modification
-   * time if older that the lastFetchAt. If there are any contacts modified since
-   * that time queues import of them and getting next chunk from hubspot API.
-   * @see http://developers.hubspot.com/docs/methods/contacts/get_recently_updated_contacts
-   * @param  {Date} lastFetchAt
-   * @param  {Date} stopFetchAt
-   * @param  {Number} [count=100]
-   * @param  {Number} [offset=0]
-   * @return {Promise -> Array}
-   */
-  getRecentlyUpdatedContacts(
-    properties: Array<string> = [],
-    count: number = 100,
-    offset: ?number = null
-  ): Promise<HubspotGetAllContactsResponse> {
-    return this.retryUnauthorized(() => {
-      return this.agent
-        .get("/contacts/v1/lists/recently_updated/contacts/recent")
-        .query({
-          count,
-          timeOffset: offset,
-          property: properties
-        });
-    });
-  }
-
-  getRecentContactsStream(
-    lastFetchAt: string,
-    stopFetchAt: string,
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Readable {
-    return promiseToReadableStream(push => {
-      const getRecentContactsPage = pageOffset => {
-        return this.getRecentlyUpdatedContacts(
-          properties,
-          count,
-          pageOffset
-        ).then(response => {
-          const contacts = response.body.contacts.filter(c => {
-            const time = moment(
-              c.properties.lastmodifieddate.value,
-              "x"
-            ).milliseconds(0);
-            return (
-              time.isAfter(lastFetchAt) &&
-              time
-                .subtract(
-                  process.env.HUBSPOT_FETCH_OVERLAP_SEC || 10,
-                  "seconds"
-                )
-                .isBefore(stopFetchAt)
-            );
-          });
-          const hasMore = response.body["has-more"];
-          // const vidOffset = response.body["vid-offset"];
-          const timeOffset = response.body["time-offset"];
-          if (contacts.length > 0) {
-            push(contacts);
-          }
-          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
-            return getRecentContactsPage(timeOffset);
-          }
-
-          return Promise.resolve();
-        });
-      };
-      return getRecentContactsPage(offset);
-    });
-  }
-
   postContacts(body: Array<HubspotWriteContact>): Promise<*> {
     return this.retryUnauthorized(() => {
       return this.agent
@@ -381,78 +307,6 @@ class HubspotClient {
         .set("Content-Type", "application/json")
         .send(body);
     });
-  }
-
-  postContactsEnvelopes(
-    envelopes: Array<HubspotUserUpdateMessageEnvelope>
-  ): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
-    if (envelopes.length === 0) {
-      return Promise.resolve([]);
-    }
-    const body = envelopes.map(envelope => envelope.hubspotWriteContact);
-
-    function handleSuccessResponse(res) {
-      if (res.statusCode === 202) {
-        return Promise.resolve(envelopes);
-      }
-      const erroredOutEnvelopes = envelopes.map(envelope => {
-        envelope.error = "unknown response from hubspot";
-        return envelope;
-      });
-      return Promise.resolve(erroredOutEnvelopes);
-    }
-
-    return this.postContacts(body)
-      .then(handleSuccessResponse)
-      .catch(responseError => {
-        const errorInfo = responseError.response.body;
-        if (errorInfo.status !== "error") {
-          const erroredOutEnvelopes = envelopes.map(envelope => {
-            envelope.error = "unknown response from hubspot";
-            return envelope;
-          });
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const erroredOutEnvelopes = _.get(errorInfo, "failureMessages", []).map(
-          error => {
-            const envelope = envelopes[error.index];
-            const hubspotMessage =
-              error.propertyValidationResult &&
-              _.truncate(error.propertyValidationResult.message, {
-                length: 100
-              });
-            const hubspotPropertyName =
-              error.propertyValidationResult &&
-              error.propertyValidationResult.name;
-            envelope.error =
-              hubspotMessage || error.message || error.error.message;
-            envelope.errorProperty = hubspotPropertyName;
-            return envelope;
-          }
-        );
-
-        const retryEnvelopes = envelopes.filter((envelope, index) => {
-          return !_.find(errorInfo.failureMessages, {
-            index
-          });
-        });
-
-        if (retryEnvelopes.length === 0) {
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const retryBody = retryEnvelopes.map(
-          envelope => envelope.hubspotWriteContact
-        );
-        return this.postContacts(retryBody)
-          .then(handleSuccessResponse)
-          .catch(() => {
-            const retryErroredOutEnvelopes = envelopes.map(envelope => {
-              envelope.error = "batch retry rejected";
-              return envelope;
-            });
-            return Promise.resolve(retryErroredOutEnvelopes);
-          });
-      });
   }
 
   postCompanies(body: HubspotWriteCompany): Promise<*> {
@@ -467,9 +321,78 @@ class HubspotClient {
     });
   }
 
-  postCompaniesEnvelopes(
+  postEnvelopes({
+    envelopes,
+    hubspotEntity
+  }: {
+    envelopes: Array<
+      HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope
+    >,
+    hubspotEntity: string
+  }): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
+    if (hubspotEntity === "contact") {
+      return this.postContactsEnvelopes({ envelopes });
+    }
+
+    if (hubspotEntity === "company") {
+      return this.postCompaniesUpdateEnvelopes({ envelopes });
+    }
+
+    return Promise.resolve({});
+  }
+
+  handleSuccessResponse(envelopes) {
+    return res => {
+      if (res.statusCode === 202) {
+        return Promise.resolve(envelopes);
+      }
+      const erroredOutEnvelopes = envelopes.map(envelope => {
+        envelope.error = "unknown response from hubspot";
+        return envelope;
+      });
+      return Promise.resolve(erroredOutEnvelopes);
+    };
+  }
+
+  postContactsEnvelopes({
+    envelopes
+  }: {
+    envelopes: Array<HubspotUserUpdateMessageEnvelope>
+  }): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
+    if (envelopes.length === 0) {
+      return Promise.resolve([]);
+    }
+    const body = envelopes.map(envelope => envelope.hubspotWriteContact);
+
+    return this.postContacts(body)
+      .then(this.handleSuccessResponse(envelopes))
+      .catch(responseError => {
+        return Promise.reject(responseError);
+      });
+  }
+
+  postCompaniesUpdateEnvelopes({
+    envelopes
+  }: {
     envelopes: Array<HubspotAccountUpdateMessageEnvelope>
-  ): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
+  }): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
+    if (envelopes.length === 0) {
+      return Promise.resolve([]);
+    }
+    const body = envelopes.map(envelope => envelope.hubspotWriteCompany);
+
+    return this.postCompaniesUpdate(body)
+      .then(this.handleSuccessResponse(envelopes))
+      .catch(responseError => {
+        return Promise.reject(responseError);
+      });
+  }
+
+  postCompaniesInsertEnvelopes({
+    envelopes
+  }: {
+    envelopes: Array<HubspotAccountUpdateMessageEnvelope>
+  }): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
     if (envelopes.length === 0) {
       return Promise.resolve([]);
     }
@@ -500,86 +423,6 @@ class HubspotClient {
     });
   }
 
-  postCompaniesUpdateEnvelopes(
-    envelopes: Array<HubspotAccountUpdateMessageEnvelope>
-  ): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
-    if (envelopes.length === 0) {
-      return Promise.resolve([]);
-    }
-    const body = envelopes.map(envelope => envelope.hubspotWriteCompany);
-
-    function handleSuccessResponse(res) {
-      if (res.statusCode === 202) {
-        return Promise.resolve(envelopes);
-      }
-      const erroredOutEnvelopes = envelopes.map(envelope => {
-        envelope.error = "unknown response from hubspot";
-        return envelope;
-      });
-      return Promise.resolve(erroredOutEnvelopes);
-    }
-    return this.postCompaniesUpdate(body)
-      .then(handleSuccessResponse)
-      .catch(responseError => {
-        const errorInfo = responseError.response.body;
-        if (errorInfo.status !== "error") {
-          const erroredOutEnvelopes = envelopes.map(envelope => {
-            envelope.error = "unknown response from hubspot";
-            return envelope;
-          });
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const erroredOutEnvelopes = (errorInfo.validationResults || []).reduce(
-          (agg, error) => {
-            const envelope = _.find(envelopes, {
-              hubspotWriteCompany: {
-                objectId: error.id
-              }
-            });
-            if (envelope === undefined) {
-              return agg;
-            }
-            const hubspotMessage =
-              error.propertyValidationResult &&
-              _.truncate(error.propertyValidationResult.message, {
-                length: 100
-              });
-            const hubspotPropertyName =
-              error.propertyValidationResult &&
-              error.propertyValidationResult.name;
-            envelope.error =
-              hubspotMessage || error.message || error.error.message;
-            envelope.errorProperty = hubspotPropertyName;
-            return agg.concat([envelope]);
-          },
-          []
-        );
-
-        const retryEnvelopes = envelopes.filter(envelope => {
-          return !_.find(errorInfo.validationResults, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
-        }, []);
-
-        if (retryEnvelopes.length === 0) {
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const retryBody = retryEnvelopes.map(
-          envelope => envelope.hubspotWriteCompany
-        );
-        return this.postCompaniesUpdate(retryBody)
-          .then(handleSuccessResponse)
-          .catch(errorResponse => {
-            const errorMessage = errorResponse.response.body.message;
-            const retryErroredOutEnvelopes = envelopes.map(envelope => {
-              envelope.error = `An unknown error was returned by Hubspot API when doing an update. Please contact our support team. Raw message: ${errorMessage}`;
-              return envelope;
-            });
-            return Promise.resolve(retryErroredOutEnvelopes);
-          });
-      });
-  }
-
   postCompanyDomainSearch(domain: string) {
     return this.retryUnauthorized(() => {
       return this.agent
@@ -595,7 +438,7 @@ class HubspotClient {
     });
   }
 
-  getContactPropertyGroups(): Promise<HubspotContactPropertyGroups> {
+  getContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v2/groups")
@@ -606,7 +449,7 @@ class HubspotClient {
     });
   }
 
-  getCompanyPropertyGroups(): Promise<HubspotCompanyPropertyGroups> {
+  getCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/properties/v1/companies/groups")
@@ -617,101 +460,114 @@ class HubspotClient {
     });
   }
 
-  getCompanyVids(companyId: string, vidOffset?: string) {
+  postCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
+  }
+
+  postContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
+  }
+
+  updateCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/properties/v1/companies/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
+  }
+
+  updateContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/contacts/v2/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
+  }
+
+  createCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/properties")
+      .send(property)
+      .then(res => res.body);
+  }
+
+  createContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/properties")
+      .send(property)
+      .then(res => res.body);
+  }
+
+  getCompanyById(companyId: string): Promise<*> {
     return this.retryUnauthorized(() => {
       return this.agent
-        .get("/companies/v2/companies/{{companyId}}/vids")
+        .get("/companies/v2/companies/{{companyId}}")
         .tmplVar({
           companyId
         })
-        .query({
-          vidOffset
-        });
+        .then(response => response.body);
     });
   }
 
-  getCompanyVidsStream(companyId: string) {
-    return promiseToReadableStream(push => {
-      const getCompanyVidsPage = (offset?: string) => {
-        return this.getCompanyVids(companyId, offset).then(response => {
-          const vids = response.body.vids || [];
-          if (vids.length > 0) {
-            push(vids);
-          }
-          if (response.body.hasMore) {
-            return getCompanyVidsPage(response.body.vidOffset);
-          }
-          return Promise.resolve();
-        });
-      };
-
-      return getCompanyVidsPage();
-    });
+  getCompanyByDomain(domain: string): Promise<*> {
+    return this.postCompanyDomainSearch(domain).then(response => response.body);
   }
 
-  getRecentlyUpdatedCompanies(
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Promise<HubspotGetAllCompaniesResponse> {
+  getContactByEmail(email: string): Promise<*> {
     return this.retryUnauthorized(() => {
-      return this.agent.get("/companies/v2/companies/recent/modified").query({
-        count,
-        offset
-      });
+      return this.agent
+        .get("/contacts/v1/contact/email/{{email}}/profile")
+        .tmplVar({
+          email
+        })
+        .then(response => response.body);
     });
   }
 
-  getRecentCompaniesStream(
-    lastFetchAt: string,
-    stopFetchAt: string,
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Readable {
-    return promiseToReadableStream(push => {
-      const getRecentCompaniesPage = pageOffset => {
-        return this.getRecentlyUpdatedCompanies(
-          properties,
-          count,
-          pageOffset
-        ).then(response => {
-          const companies = response.body.results.filter(c => {
-            const time = moment(
-              c.properties.hs_lastmodifieddate.value,
-              "x"
-            ).milliseconds(0);
-            return (
-              time.isAfter(lastFetchAt) &&
-              time
-                .subtract(
-                  process.env.HUBSPOT_FETCH_OVERLAP_SEC || 10,
-                  "seconds"
-                )
-                .isBefore(stopFetchAt)
-            );
-          });
-          const hasMore = response.body.hasMore;
-          const newOffset = response.body.offset;
-          // const timeOffset = response.body["time-offset"];
-          if (companies.length > 0) {
-            push(companies);
-          }
-          if (hasMore) {
-            return getRecentCompaniesPage(newOffset);
-          }
-
-          return Promise.resolve();
-        });
-      };
-      return getRecentCompaniesPage(offset);
-    });
-  }
-
-  async getCompany(companyId: string): Promise<HubspotGetCompanyResponse> {
+  getContactById(contactId: string): Promise<*> {
     return this.retryUnauthorized(() => {
-      return this.agent.get(`/companies/v2/companies/${companyId}`);
+      return this.agent
+        .get("/contacts/v1/contact/vid/{{contactId}}/profile")
+        .tmplVar({
+          contactId
+        })
+        .then(response => response.body);
     });
+  }
+
+  getVisitor(utk: string): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent
+        .get("/contacts/v1/contact/utk/{{utk}}/profile")
+        .tmplVar({
+          utk
+        })
+        .then(response => response.body);
+    });
+  }
+
+  sendEvent(event): Promise<*> {
+    return superagent.get("https://track.hubspot.com/v1/event").query(event);
   }
 }
 

@@ -44,8 +44,18 @@ const link = ({ claims, accountClaims }) => [
 ];
 const platformApiCalls = [
   ["GET", "/api/v1/app", {}, {}],
-  ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-  ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+  [
+    "GET",
+    "/api/v1/users_segments?shipId=9993743b22d60dd829001999",
+    { shipId: "9993743b22d60dd829001999" },
+    {}
+  ],
+  [
+    "GET",
+    "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999",
+    { shipId: "9993743b22d60dd829001999" },
+    {}
+  ]
 ];
 
 module.exports = [
@@ -106,8 +116,8 @@ module.exports = [
           accountTraits: [],
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [
@@ -277,8 +287,7 @@ module.exports = [
               }
             }
           ],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -520,8 +529,7 @@ module.exports = [
               }
             }
           ],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -701,8 +709,7 @@ module.exports = [
             }
           ],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -806,8 +813,7 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -887,8 +893,7 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -982,8 +987,7 @@ module.exports = [
           accountTraits: [],
           events: [],
           accountLinks: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [

@@ -11,8 +11,8 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
-  HullEntityName,
-  HullFetchedUser
+  HullFetchedUser,
+  HullEntityName
 } from "hull";
 import { Map } from "immutable";
 
@@ -57,18 +57,23 @@ export type Event = {
 };
 
 export type Payload =
+  | {}
   | {
       query: {},
       params: {},
       cookies: {},
       method: string,
       ip: string,
+      variables: {},
       headers: {
         [string]: string
       },
       body: mixed
     }
-  | HullFetchedUser;
+  | {
+      ...HullFetchedUser,
+      variables: {}
+    };
 
 export type HullAliasOperation = "alias" | "unalias";
 type HullUserClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
@@ -77,45 +82,53 @@ type HullAttributesMap = Map<$Keys<Attributes>, $Values<Attributes>>;
 export type HullAliasOperations = Array<
   Map<HullEntityClaims, HullAliasOperation>
 >;
-export type Result = {
-  logsForLogger: Array<string>,
-  logs: Array<string | any>,
-  errors: Array<string>,
-  userTraits: Map<HullUserClaimsMap, HullAttributesMap>,
-  accountTraits: Map<HullAccountClaimsMap, HullAttributesMap>,
-  userAliases: Map<
-    HullUserClaimsMap,
-    Map<HullUserClaimsMap, HullAliasOperation>
-  >,
+export type IngestionResult = {|
   accountAliases: Map<
     HullAccountClaimsMap,
     Map<HullAccountClaimsMap, HullAliasOperation>
   >,
   accountLinks: Map<HullUserClaimsMap, HullAccountClaimsMap>,
+  accountTraits: Map<HullAccountClaimsMap, HullAttributesMap>,
   events: Array<Event>,
-  claims?: HullEntityClaims,
-  isAsync: boolean,
-  success: boolean
-};
-export type SerializedResult = {
+  userAliases: Map<
+    HullUserClaimsMap,
+    Map<HullUserClaimsMap, HullAliasOperation>
+  >,
+  userTraits: Map<HullUserClaimsMap, HullAttributesMap>,
+  claims?: HullEntityClaims
+|};
+export type SerializedIngestionResult = {|
+  accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
+  accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
+  accountTraits: Array<[HullAccountClaims, Attributes]>,
+  events: Array<Event>,
+  userAliases: Array<[HullUserClaims, HullAliasOperations]>,
+  userTraits: Array<[HullUserClaims, Attributes]>,
+  claims?: HullEntityClaims
+|};
+export type ResultBase = {|
+  data: {},
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Array<[HullUserClaims, Attributes]>,
-  accountTraits: Array<[HullAccountClaims, Attributes]>,
-  userAliases: Array<[HullUserClaims, HullAliasOperations]>,
-  accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
-  events: Array<Event>,
-  accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
-  claims?: HullEntityClaims,
-  isAsync: boolean,
   success: boolean
+|};
+export type Result = {
+  ...$Exact<IngestionResult>,
+  ...$Exact<ResultBase>
 };
+export type SerializedResult = {
+  ...$Exact<SerializedIngestionResult>,
+  ...$Exact<ResultBase>
+};
+
+export type SupportedLanguage = "javascript" | "jsonata";
 
 export type PreviewRequest = {
   payload: Payload,
   entity?: HullEntityName,
-  claims?: {},
+  language?: SupportedLanguage,
+  claims?: HullEntityClaims,
   code: string
 };
 export type PreviewResponse = SerializedResult;
@@ -132,15 +145,18 @@ export type Entry = {
 
 export type ComputeOptions = {
   code: string,
+  language?: SupportedLanguage,
   claims?: HullEntityClaims,
   entity?: HullEntityName,
   preview: boolean,
   source: string,
-  payload: { variables: {} } & (
-    | Payload
-    | HullUserUpdateMessage
-    | HullAccountUpdateMessage
-  )
+  payload:
+    | {}
+    | ({ variables: {} } & (
+        | Payload
+        | HullUserUpdateMessage
+        | HullAccountUpdateMessage
+      ))
 };
 
 type AnyFunction = any => any;

@@ -1,0 +1,86 @@
+{
+  "Lead": [
+    {
+      "service": "Email",
+      "hull_top_level_trait": null,
+      "hull": "email",
+      "type": "string"
+    },
+    {
+      "service": "FirstName",
+      "hull_top_level_trait": "first_name",
+      "hull": "first_name",
+      "type": "string"
+    },
+    {
+      "service": "LastName",
+      "hull_top_level_trait": "last_name",
+      "hull": "last_name",
+      "type": "string"
+    },
+    {
+      "service": "Id",
+      "hull_top_level_trait": null,
+      "hull": "id",
+      "type": "string"
+    },
+    {
+      "service": "ConvertedAccountId",
+      "hull_top_level_trait": null,
+      "hull": "converted_account_id",
+      "type": "string"
+    },
+    {
+      "service": "ConvertedContactId",
+      "hull_top_level_trait": null,
+      "hull": "converted_contact_id",
+      "type": "string"
+    }
+  ],
+  "Contact": [
+    {
+      "service": "Email",
+      "hull_top_level_trait": null,
+      "hull": "email",
+      "type": "string"
+    },
+    {
+      "service": "FirstName",
+      "hull_top_level_trait": "first_name",
+      "hull": "first_name",
+      "type": "string"
+    },
+    {
+      "service": "LastName",
+      "hull_top_level_trait": "last_name",
+      "hull": "last_name",
+      "type": "string"
+    },
+    {
+      "service": "Id",
+      "hull_top_level_trait": null,
+      "hull": "id",
+      "type": "string"
+    },
+    {
+      "service": "AccountId",
+      "hull_top_level_trait": null,
+      "hull": "account_id",
+      "type": "string"
+    }
+  ],
+  "Account": [
+    {
+      "service": "Id",
+      "hull_top_level_trait": null,
+      "hull": "id",
+      "type": "string"
+    },
+    {
+      "service": "Website",
+      "hull_top_level_trait": "domain",
+      "hull": "website",
+      "type": "string"
+    }
+  ]
+}

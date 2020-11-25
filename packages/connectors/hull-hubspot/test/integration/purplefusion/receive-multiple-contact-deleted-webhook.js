@@ -7,10 +7,11 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 it("Receive Webhook - multiple contacts deleted payload", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       rawCustomRoutes: [
@@ -59,7 +60,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,
@@ -75,7 +76,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
             "type": "hubspot_webhook_payload"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
           {
             "data": {
               "eventId": 2,
@@ -96,9 +97,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
       ],
       firehoseEvents: [
         ["traits", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
-        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
-        ["unalias", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "anonymous_id": "hubspot:123" }],
-        ["unalias", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "anonymous_id": "hubspot:124" }]
+        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }]
       ],
       metrics: [
         ["increment", "connector.request", 1,]

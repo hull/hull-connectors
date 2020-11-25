@@ -3,6 +3,7 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 import company from "../fixtures/company.json";
 import company_attributes from "../fixtures/company-attributes.js";
 import person from "../fixtures/person.json";
@@ -42,9 +43,6 @@ describe("Clearbit Reveal Tests", () => {
     externalApiMock: () => {},
     response: {
       flow_control: {
-        in: 5,
-        in_time: 10,
-        size: 10,
         type: "next"
       }
     },
@@ -55,7 +53,7 @@ describe("Clearbit Reveal Tests", () => {
   };
 
   it("should properly reveal users and update account", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
@@ -80,9 +78,6 @@ describe("Clearbit Reveal Tests", () => {
       },
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -94,6 +89,27 @@ describe("Clearbit Reveal Tests", () => {
           {
             action: "reveal",
             params: { ip: "100.0.0.0" }
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: true
+                },
+                revealResult: undefined
+              }
+            ]
           }
         ]
       ],
@@ -136,7 +152,7 @@ describe("Clearbit Reveal Tests", () => {
     })));
 
   it("should properly reveal users and update account if Segment whitelist === 'ALL'", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
@@ -167,9 +183,6 @@ describe("Clearbit Reveal Tests", () => {
       },
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -181,6 +194,27 @@ describe("Clearbit Reveal Tests", () => {
           {
             action: "reveal",
             params: { ip: "100.0.0.0" }
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: true
+                },
+                revealResult: undefined
+              }
+            ]
           }
         ]
       ],
@@ -223,7 +257,7 @@ describe("Clearbit Reveal Tests", () => {
     })));
 
   it("should not reveal users if revealed_at has a value", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -233,11 +267,35 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "revealed_at present"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
   it("should not reveal users if we don't have an IP", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -247,11 +305,35 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "Cannot reveal because missing IP"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
   it("should not reveal users if we have a clearbit company associated at account level", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
@@ -269,20 +351,40 @@ describe("Clearbit Reveal Tests", () => {
       externalApiMock: () => {},
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User not in any Reveal segment whitelist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       firehoseEvents: [],
       metrics: [["increment", "connector.request", 1]],
       platformApiCalls: []
     })));
 
   it("should not reveal users if not in segment whitelist", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -292,11 +394,35 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User not in any Reveal segment whitelist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
   it("should not reveal users if Batch Job", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -307,11 +433,35 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: [{ id: "reveal" }]
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "Reveal doesn't work on Batch updates"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
   it("should not reveal users if in segment whitelist and blacklist ", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -321,6 +471,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: [{ id: "reveal" }, { id: "exclusion" }]
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User in Reveal segment blacklist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 });

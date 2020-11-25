@@ -7,14 +7,18 @@ const HashMap = require('hashmap');
 const jsonata = require("jsonata");
 
 const HullVariableContext = require("./variable-context");
+const { hasVariables } = require("./variable-utils");
 const transformationsShared = require("./transforms-shared");
+const { toTransform } = require("../../src/purplefusion/transform-utils");
+const { performTransformation } = require("../../src/purplefusion/transform-atomic-reaction");
 
 const {
   isUndefinedOrNull,
   removeTraitsPrefix,
   setHullDataType,
   getHullDataType,
-  sameHullDataType
+  sameHullDataType,
+  asyncForEach
 } = require("./utils");
 
 const debug = require("debug")("hull-shared:TransformImpl");
@@ -122,43 +126,14 @@ class TransformImpl {
     return foundPaths;
   }
 
-  toTransform(transform, context, input) {
+  async transform(dispatcher, variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
 
-    if (!_.isPlainObject(transform) || !transform.condition) {
-      return true;
+    if (isUndefinedOrNull(input)) {
+      return input;
     }
-
-    let transformConditions = [];
-    if (!Array.isArray(transform.condition)) {
-      transformConditions.push(transform.condition);
-    } else {
-      transformConditions = transform.condition;
-    }
-
-    for (let i = 0; i < transformConditions.length; i += 1) {
-      let transformCondition = transformConditions[i];
-      if (typeof transformCondition === 'string') {
-        const value = context.get(transformCondition);
-
-        if (isUndefinedOrNull(value)) {
-          return false
-        } else if (typeof value === 'boolean' && !value) {
-          return false;
-        }
-      } else if (typeof transformCondition === 'function') {
-        if (!transformCondition(context, input)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-
-  transform(variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
 
     if (isUndefinedOrNull(desiredOutputClass)) {
-      return variableContext.resolveVariables(input);
+      return input;
     }
 
     const inputClass = getHullDataType(input);
@@ -183,7 +158,7 @@ class TransformImpl {
         return this.transformInput(variableContext, input, unqualifiedTransformations[0]);
       }
 
-      debug(`No Transforms found from: ${inputClass} to ${desiredOutputClass}`);
+      debug(`No Transforms found from: ${JSON.stringify(inputClass)} to ${JSON.stringify(desiredOutputClass)}`);
 
       // TODO not sure if this is right... if we're looking to transform into another object, but can't
       // then maybe we should throw an error or something...
@@ -203,26 +178,41 @@ class TransformImpl {
     // loop through all the transforms to finally get the right data...
     let result = input;
 
-    _.forEach(transforms, transform => {
+    // for (let transformsI = 0; transformsI < transforms.length; transformsI += 1) {
+    await asyncForEach(transforms, async (transform) => {
+      // const transform = transforms[transformsI];
+      let transformsToExecute = [transform];
 
-      // maybe depending on the transformation, break obj into multiple objects for array
-      // or leave as is.... what should be the default?
-      if (Array.isArray(result) && !transform.batchTransform) {
-        result = result.map(obj => {
-          return this.transformInput(variableContext, obj, transform);
-        });
-      } else {
-
-        //if we're batch transforming an array, then we lose trackability here...
-        // unless we go back in and resolve on user_claims (natural keys)
-        // at batch endpoints we lose trackability as well, can't really say success...
-        // unless reading back and can somehow do a natural key (or ordered) lookup/join
-        result = this.transformInput(variableContext, result, transform);
+      if (transform.strategy === "MixedTransforms") {
+        transformsToExecute = transform.transforms;
       }
 
-      // debug("Transform: " + JSON.stringify(result));
+      // for (let transformsToExecuteI = 0; transformsToExecuteI < transformsToExecute.length; transformsToExecuteI += 1) {
+      //   const executeTransform = transformsToExecute[transformsToExecuteI];
+      await asyncForEach(transformsToExecute, async (executeTransform) => {
+
+        // maybe depending on the transformation, break obj into multiple objects for array
+        // or leave as is.... what should be the default?
+        if (Array.isArray(result) && !executeTransform.batchTransform) {
+          const nextResults = [];
+          for (let resultI = 0; resultI < result.length; resultI += 1) {
+            const nextResult = await this.transformInput(dispatcher, variableContext, result[resultI], executeTransform);
+            nextResults.push(nextResult)
+          }
+          result = nextResults;
+        } else {
+
+          //if we're batch transforming an array, then we lose trackability here...
+          // unless we go back in and resolve on user_claims (natural keys)
+          // at batch endpoints we lose trackability as well, can't really say success...
+          // unless reading back and can somehow do a natural key (or ordered) lookup/join
+          result = await this.transformInput(dispatcher, variableContext, result, executeTransform);
+        }
+      });
 
     });
+
+    debug("Transform: " + JSON.stringify(result));
 
     if (!isUndefinedOrNull(result)) {
       setHullDataType(result, desiredOutputClass);
@@ -262,28 +252,31 @@ class TransformImpl {
     return input;
   }
 
-  transformInput(globalContext: HullVariableContext, input: Object, transformation: Object) {
+  async transformInput(dispatcher, globalContext: HullVariableContext, input: Object, transformation: Object) {
     input = this.preAttributeTransform(transformation, input);
 
     const transforms = transformation.transforms;
 
-    if (transformation.strategy === "Jsonata") {
+
+    if (transformation.strategy === "AtomicReaction") {
+      return await performTransformation(dispatcher, globalContext, input, transformation);
+    } else if (transformation.strategy === "Jsonata") {
       let result = input;
 
       _.forEach(transforms, transform => {
 
-        let toTransform = true;
+        let doTransform = true;
         let jsonataExpression = transform;
 
         // TODO this conditional stuff is copy pasted, need to refactor
         // but probably should refactor a lot of this stuff
         // once the transformation abstraction becomes more clear
         if (_.isPlainObject(transform)) {
-          toTransform = this.toTransform(transform, globalContext, input);
+          doTransform = toTransform(transform, globalContext, input);
           jsonataExpression = transform.expression;
         }
 
-        if (toTransform) {
+        if (doTransform) {
           const expression = jsonata(jsonataExpression);
           // flattened context can be expensive, don't do it often...
           result = expression.evaluate(result, globalContext.createFlattenedContext());
@@ -349,6 +342,7 @@ class TransformImpl {
                 context.hull_field_name = key;
                 context.service_field_name = key;
               } else if (typeof value === "string" && isUndefinedOrNull(key)) {
+                // I don't remember why we need this, please comment when you figure it out
                 context.hull_field_name = value;
                 context.service_field_name = value;
               } else {
@@ -367,16 +361,16 @@ class TransformImpl {
                 context.value = _.get(input, context.inputPath);
 
                 // add traits onto the possible field value, see if it resolves...
-                if (isUndefinedOrNull(context.value)) {
+                if (isUndefinedOrNull(context.value) && (transform.allowNull !== true || context.value === undefined)) {
                   const hull_field_name = context.hull_field_name;
                   context.hull_field_name = `traits_${hull_field_name}`;
                   context.inputPath = globalContext.resolveVariables(transform.inputPath);
                   context.value = _.get(input, context.inputPath);
+                }
 
-                  // if no value, then return
-                  if (isUndefinedOrNull(context.value)) {
-                    return;
-                  }
+                // if no value, then return
+                if (isUndefinedOrNull(context.value) && (transform.allowNull !== true || context.value === undefined)) {
+                  return;
                 }
 
                 if (Array.isArray(context.value)) {
@@ -407,7 +401,7 @@ class TransformImpl {
                 throw new Error(`Bad variable replacment on outputPath, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
               }
 
-              if (!this.toTransform(transform, globalContext, input)) {
+              if (!toTransform(transform, globalContext, input)) {
                 return;
               }
 

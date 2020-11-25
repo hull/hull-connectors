@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const _ = require("lodash");
 
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 test("send smart-notifier user update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-get-email.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -29,9 +30,6 @@ test("send smart-notifier user update to outreach", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10
         }
       },
       logs: [
@@ -42,7 +40,7 @@ test("send smart-notifier user update to outreach", () => {
           { jobName: "Outgoing Data", type: "user" }
         ],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.whatever(),
           {
@@ -63,8 +61,7 @@ test("send smart-notifier user update to outreach", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
@@ -93,7 +90,10 @@ test("send smart-notifier user update to outreach", () => {
             },
             subjectType: "user"
           },
-          { "outreach/id": { operation: "set", value: 184816 } }
+          {
+            "outreach/custom1": { operation: "set", value: null },
+            "outreach/id": { operation: "set", value: 184816 }
+          }
         ]
       ],
       metrics: [

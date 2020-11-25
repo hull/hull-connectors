@@ -6,9 +6,10 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("send batch account update to outreach in a batch", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {};
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -70,7 +71,7 @@ test("send batch account update to outreach in a batch", () => {
 
         return scope;
       },
-      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response: {"flow_control": {"type": "next"}},
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}],
@@ -79,11 +80,11 @@ test("send batch account update to outreach in a batch", () => {
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
         ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": expect.whatever(), "request_id": expect.whatever(), "subject_type": "account"}, expect.whatever()],
-        ["info", "incoming.account.success", expect.whatever(), { data: require("../fixtures/api-responses/outgoing-account-bluth-patch.json").data, "type": "Account" }],
+        ["debug", "incoming.account.success", expect.whatever(), { data: require("../fixtures/api-responses/outgoing-account-bluth-patch.json").data, "type": "Account" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "Bluth Company (Sample Lead)"}, "outreach/id": {"operation": "set", "value": 29}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

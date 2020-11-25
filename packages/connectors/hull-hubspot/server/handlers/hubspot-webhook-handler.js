@@ -3,18 +3,10 @@
 import type { HullRequest, HullResponse } from "hull/src/types";
 import getMessage from "hull/src/utils/get-message-from-request";
 
+import BluebirdPromise from "bluebird";
 import incomingWebhooksHandler from "../actions/incoming-webhook";
 
-const {
-  credentialsFromQueryMiddleware,
-  clientMiddleware,
-  fullContextFetchMiddleware,
-  fullContextBodyMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  instrumentationContextMiddleware,
-  httpClientMiddleware
-} = require("hull/src/middlewares");
+const { extendedComposeMiddleware } = require("hull/src/middlewares");
 
 const _ = require("lodash");
 
@@ -43,23 +35,25 @@ function sendResponse(res) {
 async function middleware(request, res) {
   const requestName = "requests-buffer";
   try {
-    // TODO validate middlewares
-    credentialsFromQueryMiddleware()(request, res, () => {});
-    clientMiddleware()(request, res, () => {});
-    timeoutMiddleware()(request, res, () => {});
-    haltOnTimedoutMiddleware()(request, res, () => {});
-    instrumentationContextMiddleware({})(request, res, () => {});
-    fullContextBodyMiddleware({ requestName })(request, res, () => {});
-    await fullContextFetchMiddleware({ requestName })(request, res, () => {});
+    await BluebirdPromise.mapSeries(
+      extendedComposeMiddleware({
+        requestName,
+        handlerName: "webhook",
+        options: {
+          credentialsFromQuery: true,
+          credentialsFromNotification: false,
+          cacheContextFetch: true
+        }
+      }),
+      async mw => mw(request, res, () => {})
+    );
     const { connector } = request.hull;
-    if (!connector) {
+    if (!connector || connector.accept_incoming_webhooks === false) {
       // TODO remove connector config from cache
       return false;
     }
-
-    httpClientMiddleware()(request, res, () => {});
   } catch (err) {
-    console.log(err);
+    console.error("Error in Webhook Handler", err);
     return false;
   }
   return true;
@@ -69,11 +63,12 @@ async function processRequest(request, res, message) {
   try {
     const shouldProcess = await middleware(request, res);
     if (shouldProcess) {
-      incomingWebhooksHandler(request.hull, message);
+      return incomingWebhooksHandler(request.hull, message);
     }
   } catch (err) {
     console.log(err);
   }
+  return Promise.resolve();
 }
 
 async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
@@ -88,13 +83,12 @@ async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
   }
 
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
-    const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
 
-    request.hull = Object.assign(request.hull, { clientCredentials });
+    req.hull = Object.assign(req.hull, { clientCredentials });
 
     // eslint-disable-next-line
-    await processRequest(request, res, message);
+    await processRequest(req, res, message);
   }
   return sendResponse(res);
 }

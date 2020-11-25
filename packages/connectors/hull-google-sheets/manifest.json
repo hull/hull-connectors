@@ -1,0 +1,68 @@
+{
+  "name": "Google Sheets importer",
+  "description": "Import data from your Google Sheets",
+  "tags": ["incoming", "oneColumn", "first-install", "single-install"],
+  "picture": "picture.png",
+  "ui": false,
+  "readme": "readme.md",
+  "version": "0.1.39-monorepo",
+  "json": [
+    {
+      "name": "credentials",
+      "handler": "credentialsHandler",
+      "url": "/credentials",
+      "title": "Authentication Token",
+      "description": "In **the google sheets addon**, go to **Settings** and paste the token below",
+      "format": "credentials",
+      "type": "string"
+    },
+    {
+      "name": "install",
+      "handler": "installHandler",
+      "url": "/install",
+      "title": "Install URL",
+      "description": "Install the addon by opening this link",
+      "format": "credentials",
+      "type": "string"
+    },
+    {
+      "name": "schema",
+      "handler": "schemaHandler",
+      "url": "/schema",
+      "options": {
+        "respondWithError": true
+      }
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "prefix",
+      "title": "Import Prefix",
+      "description": "Import data from google sheets in this named group",
+      "type": "string"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/import",
+      "handler": "importHandler"
+    }
+  ],
+  "html": [],
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "Configure the Google Sheets addon by first installing it on your Google Account by opening the link below, then enter the token in the settings section of the addon inside Google Sheets",
+      "properties": ["json.install", "json.credentials"]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "message_id": "1",
+  "user": {},
+  "segments": [],
+  "account": {
+    "id": "",
+    "anonymous_ids": [],
+    "domain": "",
+    "salesforce/website": "",
+    "external_id": "",
+    "salesforce/id": ""
+  },
+  "account_segments": [],
+  "events": [],
+  "changes": {
+    "user": {},
+    "segments": {},
+    "account": {},
+    "account_segments": {},
+    "is_new": false
+  }
+}

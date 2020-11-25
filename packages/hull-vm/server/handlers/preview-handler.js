@@ -6,9 +6,8 @@ import type {
   HullExternalResponse
 } from "hull";
 
-import { compute } from "hull-vm";
+import compute from "../compute";
 import type { PreviewRequest } from "../../types";
-import serialize from "../serialize";
 
 export default async function computeHandler(
   ctx: HullContext,
@@ -26,7 +25,7 @@ export default async function computeHandler(
   }
 
   // $FlowFixMe
-  const { payload, code, claims, entity }: PreviewRequest = body;
+  const { payload, code, claims, entity, language }: PreviewRequest = body;
   // This condition ensures boot request does work:
   // When loading the page, the connector is client-side so what's passed to remote
   // doesn't have private_settings embedded
@@ -45,6 +44,7 @@ export default async function computeHandler(
     source: "processor",
     preview: true,
     entity,
+    language,
     claims,
     payload,
     code
@@ -59,7 +59,7 @@ export default async function computeHandler(
     }
     return {
       status: 200,
-      data: serialize(result)
+      data: result
     };
   } catch (error) {
     return {

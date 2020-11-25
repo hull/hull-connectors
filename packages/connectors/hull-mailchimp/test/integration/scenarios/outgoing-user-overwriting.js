@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -42,7 +43,7 @@ const usersSegments = [
 
 it("should send matching user to the mailchimp, allowing to control overwriting", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect, minihullPort }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -51,7 +52,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
         const scope = nock("https://mock.api.mailchimp.com/3.0");
         scope.get("/lists/1/webhooks").reply(200, {
           webhooks: [
-            { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+            { url: `https://localhost/mailchimp?organization=localhost%3A${minihullPort}&secret=1234&ship=123456789012345678901234` }
           ]
         });
         scope
@@ -96,9 +97,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
       response: {
         flow_control: {
           type: "next",
-          in: 10,
           in_time: 30000,
-          size: 50
         }
       },
       logs: [

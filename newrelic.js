@@ -22,5 +22,8 @@ exports.config = {
      */
     level: "info"
   },
-  agent_enabled: !!process.env.NEW_RELIC_LICENSE_KEY
+  agent_enabled: !!process.env.NEW_RELIC_LICENSE_KEY,
+  error_collector: {
+    ignore_status_codes: [404, 402]
+  }
 };

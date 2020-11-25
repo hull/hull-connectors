@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const _ = require("lodash");
 
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 test("send batch user update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {};
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -90,7 +91,7 @@ test("send batch user update to outreach", () => {
 
         return scope;
       },
-      response:  {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response:  {"flow_control": {"type": "next"}},
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
@@ -101,13 +102,13 @@ test("send batch user update to outreach", () => {
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "darth@darksideinc.com", "user_id": "5bd329d5e2bcf3eeaf000099"}, expect.objectContaining({"type": "Prospect"})],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": expect.whatever()}, expect.objectContaining({"type": "Prospect"})],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
           "user_email": "darth@darksideinc.com",
           "user_anonymous_id": "outreach:16"
         }, {"data": expect.whatever(), "type": "Prospect"}],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
           "user_email": "darth@darksideinc.com",
@@ -127,6 +128,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",
@@ -144,6 +146,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",

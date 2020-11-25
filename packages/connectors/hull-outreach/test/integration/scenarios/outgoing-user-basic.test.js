@@ -6,10 +6,11 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier user update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-with-array-attribute.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -21,16 +22,13 @@ test("send smart-notifier user update to outreach", () => {
           .get("/api/v2/prospects/?filter[emails]=alberto@close.io")
           .reply(200, require("../fixtures/api-responses/existing-prospect.json"));
         scope
-          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"relationships":{"account":{"data":{"type":"account","id":14}}}, "attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"]}}})
+          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"relationships":{"account":{"data":{"type":"account","id":14}}}, "attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"], "custom10": "[\"Smugglers\"]"}}})
           .reply(200, require("../fixtures/api-responses/existing-prospect-updated.json"));
         return scope;
       },
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       logs: [
@@ -42,8 +40,8 @@ test("send smart-notifier user update to outreach", () => {
           "request_id": expect.whatever(),
           "user_id": "userid",
           "user_email": "alberto@close.io"
-        }, { "data": expect.whatever(), "operation": "patch", "type":"Prospect" }],
-        ["info", "incoming.user.success", {
+        }, { "data": expect.whatever(), "type":"Prospect" }],
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
           "user_email": "alberto@close.io",
@@ -52,7 +50,7 @@ test("send smart-notifier user update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}, "outreach/stage": {"operation": "set", "value": 2 }, "outreach/owner": {"operation": "set", "value": 1 }}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": null}, "outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}, "outreach/stage": {"operation": "set", "value": 2 }, "outreach/owner": {"operation": "set", "value": 1 }, "outreach/personalnote2": {"operation": "set", "value": null }}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:32"}, "asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "account"}, {}]
       ],
       metrics: [

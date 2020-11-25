@@ -1,6 +1,6 @@
 // @flow
 import type { HullContext, HullStatusResponse } from "hull";
-import { check } from "hull-vm";
+import check from "../check";
 
 export default async function statusCheck(
   ctx: HullContext
@@ -50,7 +50,8 @@ export default async function statusCheck(
     events: true,
     segment_ids: true,
     segments: true,
-    user: true
+    user: true,
+    variables: true
   });
   if (lintMessages.length) {
     status = "error";

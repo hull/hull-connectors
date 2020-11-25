@@ -73,13 +73,6 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   }
 
   if (
-    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
-    _.get(connector, "private_settings.mark_deleted_companies", false)
-  ) {
-    checkCachedCredentials(ctx);
-  }
-
-  if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_user_segments", [])
     )
@@ -103,6 +96,17 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     );
   }
 
+  if (
+    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
+    _.get(connector, "private_settings.mark_deleted_companies", false)
+  ) {
+    try {
+      await checkCachedCredentials(ctx);
+    } catch (err) {
+      pushMessage("error", getMessageFromError(err));
+    }
+  }
+
   const syncAgent = new SyncAgent(ctx);
   const promises = [];
   if (_.get(connector, "private_settings.token")) {
@@ -116,8 +120,13 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
               "Hubspot is missing the Hull custom attribute group.  This may be problematic if you wish to create new fields in Hubspot for storing new Hull that don't exist in Hubspot. Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           } else if (
-            !_.find(body.filter(g => g.name === "hull"), g =>
-              _.includes(g.properties.map(p => p.name), "hull_segments")
+            !_.find(
+              body.filter(g => g.name === "hull"),
+              g =>
+                _.includes(
+                  g.properties.map(p => p.name),
+                  "hull_segments"
+                )
             )
           ) {
             pushMessage(

@@ -25,6 +25,7 @@ describe("plain post routes", () => {
   let stopMiddleware;
   let startMiddleware;
   let getMetric;
+  let captureException;
 
   beforeEach(async () => {
     miniHull = new MiniHull();
@@ -35,9 +36,10 @@ describe("plain post routes", () => {
         enrich_segments: ["1"]
       }
     });
-    stopMiddleware = sinon.spy((err, req, res, next) => next(err))
-    startMiddleware = sinon.spy((err, req, res, next) => next(err))
-    getMetric = sinon.spy((err, req, res, next) => next(err))
+    stopMiddleware = sinon.spy((err, req, res, next) => next(err));
+    startMiddleware = sinon.spy((err, req, res, next) => next(err));
+    getMetric = sinon.spy((err, req, res, next) => next(err));
+    captureException = sinon.spy(err => undefined);
     connector = new Hull.Connector({
       port: 9091,
       timeout: "100ms",
@@ -49,7 +51,10 @@ describe("plain post routes", () => {
       instrumentation: {
         startMiddleware: () => startMiddleware,
         stopMiddleware: () => stopMiddleware,
-        getMetric: () => getMetric,
+        getMetric: () => ({
+          captureException: () => captureException
+        }),
+        captureException: () => captureException
       },
       middlewares: [],
       manifest: {
@@ -102,10 +107,10 @@ describe("plain post routes", () => {
           }
         }
       })
-    })
+    });
     await connector.start();
     await miniHull.listen(3000);
-    return true
+    return true;
   });
 
   afterEach(() => {
@@ -121,32 +126,35 @@ describe("plain post routes", () => {
         console.log(err.response.text);
         console.log("++++++++++++");
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("transient error", () => {
-    return miniHull.postConnector(connectorId, "localhost:9091/transientErrorEndpoint")
-      .catch((err) => {
+    return miniHull
+      .postConnector(connectorId, "localhost:9091/transientErrorEndpoint")
+      .catch(err => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("configuration error", () => {
-    return miniHull.postConnector(connectorId, "localhost:9091/configurationErrorEndpoint")
-      .catch((err) => {
+    return miniHull
+      .postConnector(connectorId, "localhost:9091/configurationErrorEndpoint")
+      .catch(err => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("should handle timeout error", function test(done) {
-    miniHull.postConnector(connectorId, "localhost:9091/timeoutErrorEndpoint")
-      .catch((err) => {
+    miniHull
+      .postConnector(connectorId, "localhost:9091/timeoutErrorEndpoint")
+      .catch(err => {
         expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
     setTimeout(() => {
       done();

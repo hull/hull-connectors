@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -33,7 +34,7 @@ const usersSegments = [
 it("should fetch user events on outgoing traffic", () => {
   const email = "mocked@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       const userClaims = expect.objectContaining({
         subject_type: "user",
@@ -47,7 +48,7 @@ it("should fetch user events on outgoing traffic", () => {
           const scope = nock("https://mock.api.mailchimp.com/3.0");
           scope.get("/lists/1/webhooks").reply(200, {
             webhooks: [
-              { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+              { url: `https://localhost/mailchimp?organization=localhost%3A${minihullPort}&secret=1234&ship=123456789012345678901234` }
             ]
           });
           scope
@@ -99,7 +100,7 @@ it("should fetch user events on outgoing traffic", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, in_time: 30000, size: 50, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [
@@ -189,26 +190,22 @@ it("should fetch user events on outgoing traffic", () => {
           ],
           ["debug", "trackEvents", expect.whatever(), expect.whatever()],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "open" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "sent" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "mandrill_send" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "mandrill_open" })
           ]

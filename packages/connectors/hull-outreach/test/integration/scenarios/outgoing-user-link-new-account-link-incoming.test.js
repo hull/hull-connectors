@@ -6,10 +6,11 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier user update to outreach with returning account link", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json"));
     updateMessages.connector.private_settings.link_users_in_hull = true;
     return _.assign(updateMessages, {
@@ -32,9 +33,6 @@ test("send smart-notifier user update to outreach with returning account link", 
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       logs: [
@@ -53,9 +51,8 @@ test("send smart-notifier user update to outreach with returning account link", 
             }
           },
           "type": "Account",
-          "operation": "post"
         } ],
-        ["info", "incoming.account.success", expect.whatever(), {"data": expect.whatever(), "type": "Account" }],
+        ["debug", "incoming.account.success", expect.whatever(), {"data": expect.whatever(), "type": "Account" }],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/18", "vars": {}}],
         ["info", "outgoing.user.success", expect.whatever(), {
           "data": {
@@ -75,15 +72,14 @@ test("send smart-notifier user update to outreach with returning account link", 
               }
             }
           },
-          "type": "Prospect",
-          "operation": "patch"
+          "type": "Prospect"
         }],
-        ["info", "incoming.user.success", expect.whatever(), { "data": expect.whatever(), "type": "Prospect" }],
+        ["debug", "incoming.user.success", expect.whatever(), { "data": expect.whatever(), "type": "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 184796}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 184796}, "name": { "operation": "setIfNull", "value": "AfterLife" }, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom2": { "operation": "set", "value": null }, "outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:184796"}, "asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "account"}, {}]
       ],
       metrics: [

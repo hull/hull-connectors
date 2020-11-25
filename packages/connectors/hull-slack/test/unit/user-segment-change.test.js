@@ -1,378 +1,321 @@
-import getUserChanges from "../../server/util/get-user-changes";
-import _ from "lodash";
+const { getSegmentChanges } = require("../../server/utils/get-segment-changes");
 
-describe("Slack user segment entered test", () => {
-  // segments the user is currently in
-  const userSegmentIds = [
-    "5c460f417b5385471e00002f",
-    "5c50a5737fdb2fd3bc0000ec",
-  ];
+describe("Slack User Entered Segment Tests", () => {
 
-  const notify_segments = [
-    {
-      segment: "",
-      channel: "",
-    },
-  ];
-
-  const notify_events = [
-    {
-      event: "ENTERED_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: "5bffc38f625718d58b000004",
-    },
-    {
-      event: "LEFT_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: "5c460f417b5385471e00002f",
-    },
-  ];
-
-  const notify_events_undefined_segments = [
-    {
-      event: "ENTERED_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: undefined,
-    },
-    {
-      event: "LEFT_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: undefined,
-    },
-  ];
-
-  const notify_events_all_segments = [
-    {
-      event: "ENTERED_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: "ALL",
-    },
-    {
-      event: "LEFT_USER_SEGMENT",
-      channel: "#testing",
-      synchronized_segment: "ALL",
-    },
-  ];
-
-  it("user is not yet in segment and enters it. Segment entered is synchronized in settings", () => {
+  it("User enters whitelisted segment. Should return event", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
+      user: { id: "1" },
       segments: {
         entered: [
           {
-            id: "5bffc38f625718d58b000004",
-            name: "Smugglers",
+            id: "segment_1",
+            name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "users_segment",
-            created_at: "2018-11-29T10:46:39Z",
+            type: "user_segment",
           },
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(changes, notify_segments, notify_events);
+    const event = "ENTERED_USER_SEGMENT";
+    const synchronized_segment = "segment_1";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(entered.length).toBe(1);
-    expect(entered[0]).toBe("#testing");
-
-    expect(left.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Entered segment "Smugglers"');
+    expect(segmentMatches.length).toBe(1);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Entered User Segment"
+        },
+        "segment": {
+          "id": "segment_1",
+          "name": "Segment1",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
   });
 
-  it("user is not yet in segment and enters it. Segment entered is not synchronized in settings", () => {
+  it("User enters 'ALL' whitelisted segment. Should return multiple events", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
+      user: { id: "1" },
       segments: {
         entered: [
           {
-            id: "random-segment",
+            id: "segment_1",
+            name: "Segment1",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
+          },
+          {
+            id: "segment_2",
+            name: "Segment2",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
+          }
+        ],
+      },
+      account_segments: {}
+    };
+
+    const event = "ENTERED_USER_SEGMENT";
+    const synchronized_segment = "ALL";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
+
+    expect(segmentMatches.length).toBe(2);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Entered User Segment"
+        },
+        "segment": {
+          "id": "segment_1",
+          "name": "Segment1",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      },
+      {
+        "event": {
+          "event": "Entered User Segment"
+        },
+        "segment": {
+          "id": "segment_2",
+          "name": "Segment2",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
+  });
+
+  it("User enters 'ALL' segment. Should return event", () => {
+    const changes = {
+      is_new: false,
+      account: {},
+      user: { id: "1" },
+      segments: {
+        entered: [
+          {
+            id: "user_segment_1",
             name: "Smugglers",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "users_segment",
-            created_at: "2018-11-29T10:46:39Z",
+            type: "user_segment",
           },
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(changes, notify_segments, notify_events);
+    const event = "ENTERED_USER_SEGMENT";
+    const synchronized_segment = "ALL";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(left.length).toBe(0);
-    expect(entered.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Entered segment "Smugglers"');
+    expect(segmentMatches.length).toBe(1);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Entered User Segment"
+        },
+        "segment": {
+          "id": "user_segment_1",
+          "name": "Smugglers",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
   });
 
-  it("user is in segment and leaves. Segment left is synchronized in settings", () => {
+  it("User enters non whitelisted segment. Should not return event", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
+      user: { id: "1" },
+      segments: {
+        entered: [
+          {
+            id: "segment_1",
+            name: "Segment1",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
+          },
+        ],
+      },
+      account_segments: {}
+    };
+
+    const event = "ENTERED_USER_SEGMENT";
+    const synchronized_segment = "random";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
+
+    expect(segmentMatches.length).toBe(0);
+    expect(segmentMatches).toEqual([]);
+  });
+});
+
+describe("Slack User Left Segment Tests", () => {
+
+  it("User left whitelisted segment. Should return event", () => {
+    const changes = {
+      is_new: false,
+      account: {},
+      user: { id: "1" },
       segments: {
         left: [
           {
-            id: "5c460f417b5385471e00002f",
-            name: "Named Leads Intercom",
-            updated_at: "2019-04-24T18:41:21Z",
-            type: "users_segment",
-            created_at: "2019-01-21T18:28:17Z",
+            id: "segment_1",
+            name: "Segment1",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
           },
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(changes, notify_segments, notify_events);
+    const event = "LEFT_USER_SEGMENT";
+    const synchronized_segment = "segment_1";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(left.length).toBe(1);
-    expect(left[0]).toBe("#testing");
-
-    expect(entered.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Left segment "Named Leads Intercom"');
+    expect(segmentMatches.length).toBe(1);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Left User Segment"
+        },
+        "segment": {
+          "id": "segment_1",
+          "name": "Segment1",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
   });
 
-  it("user is in segment and leaves. Segment left is not synchronized in settings", () => {
+  it("User leaves 'ALL' whitelisted segment. Should return multiple events", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
+      user: { id: "1" },
       segments: {
         left: [
           {
-            id: "random-segment",
-            name: "Named Leads Intercom",
-            updated_at: "2019-04-24T18:41:21Z",
-            type: "users_segment",
-            created_at: "2019-01-21T18:28:17Z",
-          },
-        ],
-      },
-      account_segments: {},
-    };
-
-    const response = getUserChanges(changes, notify_segments, notify_events);
-
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(left.length).toBe(0);
-    expect(entered.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Left segment "Named Leads Intercom"');
-  });
-
-  it("user is not yet in segment and enters it. Synchronized segments in settings are undefined", () => {
-    const changes = {
-      is_new: false,
-      user: {},
-      account: {},
-      segments: {
-        entered: [
-          {
-            id: "5bffc38f625718d58b000004",
-            name: "Smugglers",
+            id: "segment_1",
+            name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "users_segment",
-            created_at: "2018-11-29T10:46:39Z",
+            type: "user_segment",
           },
+          {
+            id: "segment_2",
+            name: "Segment2",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
+          }
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(
-      changes,
-      notify_segments,
-      notify_events_undefined_segments
-    );
+    const event = "LEFT_USER_SEGMENT";
+    const synchronized_segment = "ALL";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(entered.length).toBe(1);
-    expect(entered[0]).toBe("#testing");
-
-    expect(left.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Entered segment "Smugglers"');
+    expect(segmentMatches.length).toBe(2);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Left User Segment"
+        },
+        "segment": {
+          "id": "segment_1",
+          "name": "Segment1",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      },
+      {
+        "event": {
+          "event": "Left User Segment"
+        },
+        "segment": {
+          "id": "segment_2",
+          "name": "Segment2",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
   });
 
-  it("user is in segment and leaves. Synchronized segments in settings are undefined", () => {
+  it("User leaves 'ALL' segment. Should return event", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
+      user: { id: "1" },
       segments: {
         left: [
           {
-            id: "5c460f417b5385471e00002f",
-            name: "Named Leads Intercom",
-            updated_at: "2019-04-24T18:41:21Z",
-            type: "users_segment",
-            created_at: "2019-01-21T18:28:17Z",
-          },
-        ],
-      },
-      account_segments: {},
-    };
-
-    const response = getUserChanges(
-      changes,
-      notify_segments,
-      notify_events_undefined_segments
-    );
-
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(left.length).toBe(1);
-    expect(left[0]).toBe("#testing");
-
-    expect(entered.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Left segment "Named Leads Intercom"');
-  });
-
-  it("user is not yet in segment and enters it. Synchronized segments in settings are undefined", () => {
-    const changes = {
-      is_new: false,
-      user: {},
-      account: {},
-      segments: {
-        entered: [
-          {
-            id: "5bffc38f625718d58b000004",
+            id: "user_segment_1",
             name: "Smugglers",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "users_segment",
-            created_at: "2018-11-29T10:46:39Z",
+            type: "user_segment",
           },
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(
-      changes,
-      notify_segments,
-      notify_events_undefined_segments
-    );
+    const event = "LEFT_USER_SEGMENT";
+    const synchronized_segment = "ALL";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(entered.length).toBe(1);
-    expect(entered[0]).toBe("#testing");
-
-    expect(left.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Entered segment "Smugglers"');
+    expect(segmentMatches.length).toBe(1);
+    expect(segmentMatches).toEqual([
+      {
+        "event": {
+          "event": "Left User Segment"
+        },
+        "segment": {
+          "id": "user_segment_1",
+          "name": "Smugglers",
+          "updated_at": "2019-04-24T17:54:46Z",
+          "type": "user_segment"
+        }
+      }
+    ]);
   });
 
-  it("user is not yet in segment and enters it. Synchronized segments in settings are ['ALL']", () => {
+  it("User leaves non whitelisted segment. Should not return event", () => {
     const changes = {
       is_new: false,
-      user: {},
       account: {},
-      segments: {
-        entered: [
-          {
-            id: "5bffc38f625718d58b000004",
-            name: "Smugglers",
-            updated_at: "2019-04-24T17:54:46Z",
-            type: "users_segment",
-            created_at: "2018-11-29T10:46:39Z",
-          },
-        ],
-      },
-      account_segments: {},
-    };
-
-    const response = getUserChanges(
-      changes,
-      notify_segments,
-      notify_events_all_segments
-    );
-
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(entered.length).toBe(1);
-    expect(entered[0]).toBe("#testing");
-
-    expect(left.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Entered segment "Smugglers"');
-  });
-
-  it("user is in segment and leaves. Synchronized segments in settings are ['ALL']", () => {
-    const changes = {
-      is_new: false,
-      user: {},
-      account: {},
+      user: { id: "1" },
       segments: {
         left: [
           {
-            id: "5c460f417b5385471e00002f",
-            name: "Named Leads Intercom",
-            updated_at: "2019-04-24T18:41:21Z",
-            type: "users_segment",
-            created_at: "2019-01-21T18:28:17Z",
+            id: "segment_1",
+            name: "Segment1",
+            updated_at: "2019-04-24T17:54:46Z",
+            type: "user_segment",
           },
         ],
       },
-      account_segments: {},
+      account_segments: {}
     };
 
-    const response = getUserChanges(
-      changes,
-      notify_segments,
-      notify_events_all_segments
-    );
+    const event = "LEFT_USER_SEGMENT";
+    const synchronized_segment = "random";
+    const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
-    const entered = _.get(response, "entered");
-    const left = _.get(response, "left");
-    const messages = _.get(response, "messages");
-
-    expect(left.length).toBe(1);
-    expect(left[0]).toBe("#testing");
-
-    expect(entered.length).toBe(0);
-
-    expect(messages.length).toBe(1);
-    expect(messages[0]).toBe('Left segment "Named Leads Intercom"');
+    expect(segmentMatches.length).toBe(0);
+    expect(segmentMatches).toEqual([]);
   });
 });

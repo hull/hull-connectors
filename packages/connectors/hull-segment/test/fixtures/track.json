@@ -1,0 +1,83 @@
+{
+  "anonymous_id": "d765ba53-51aa-5527-8cd1-30c96a636a78",
+  "channel": "server",
+  "context": {
+    "campaign": {
+      "content": "image-link",
+      "source": "Newsletter",
+      "medium": "email",
+      "term": "tps reports",
+      "name": "paldava"
+    },
+    "device": {
+      "manufacturer": "vivo",
+      "model": "vivo X3L",
+      "type": "android",
+      "advertising_id": "nab",
+      "name": "cu",
+      "id": "75230e3e-5eb3-55ad-965f-ea5dfd3f503b",
+      "ad_tracking_enabled": true
+    },
+    "network": {
+      "bluetooth": false,
+      "cellular": false
+    },
+    "os": {
+      "name": "android"
+    },
+    "page": {
+      "path": "sapom",
+      "referrer": "mekecwiw",
+      "url": "http://sikec.com/ateseoki"
+    },
+    "location": {
+      "city": "San Francisco",
+      "country": "United States",
+      "latitude": 40.2964197,
+      "longitude": -76.9411617,
+      "speed": 0
+    },
+    "referrer": {
+      "link": "vurejapi"
+    },
+    "screen": {
+      "density": -4905282320728064,
+      "height": 288742692618.24,
+      "width": -7306000595943424
+    },
+    "traits": {
+      "age": 63,
+      "birthday": "1956-02-02T02:19:01.276Z",
+      "description": "Kevi bihej etma tulvitiha ela weslu ijtuh mi icu ibrin cadowo dipitibew noom huccuhge ras li kob.",
+      "first_name": "Chris",
+      "last_name": "Kennedy",
+      "name": "Lina Gilbert",
+      "title": "Developer",
+      "gender": "Male",
+      "address": {
+        "city": "Cezothog",
+        "country": "Namibia",
+        "postal_code": "19685",
+        "state": "Muhesebiv",
+        "street": "1125 Cozge Heights"
+      },
+      "email": "ap@siutasap.net",
+      "phone": "(405) 447-4982",
+      "website": "http://lomabbov.gov/kezuv"
+    }
+  },
+  "integrations": {},
+  "message_id": "f6957502-c056-50ec-a74f-50c9a731b872",
+  "project_id": "c3b9ad3d",
+  "received_at": "2016-04-12T14:04:57.770Z",
+  "sent_at": "2016-04-12T14:03:57.770Z",
+  "timestamp": "2016-04-12T14:03:57.770Z",
+  "type": "track",
+  "user_id": "1ff84aef",
+  "version": "2.0.0",
+  "properties": {
+    "name": "zedwel",
+    "value": 401861146732.1344
+  },
+  "event": "Viewed Checkout Step"
+}

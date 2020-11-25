@@ -1,6 +1,16 @@
 // @flow
 import type { HullContext } from "../../types";
 
+type QueueAdapterOptions = {
+  ttl?: number,
+  delay?: number,
+  priority: "string",
+  attempts?: number,
+  backoff?:
+    | boolean
+    | { delay: number, type: "fixed" | "exponential" }
+    | ((number, number) => number)
+};
 /**
  * @deprecated internal connector queue is considered an antipattern, this function is kept only for backward compatiblity
  * @name enqueue
@@ -25,12 +35,12 @@ import type { HullContext } from "../../types";
  *     });
  * });
  */
-module.exports = function enqueue(
+module.exports = async function enqueue(
   queueAdapter: Object,
   ctx: HullContext,
   jobName: string,
   jobPayload?: Object,
-  options?: Object = {}
+  options?: QueueAdapterOptions = {}
 ): Promise<*> {
   if (ctx.client === undefined) {
     throw new Error(
@@ -47,8 +57,8 @@ module.exports = function enqueue(
     }
   };
   const queueName = options.queueName || "queueApp";
-
   return queueAdapter.create(
+    ctx,
     queueName,
     {
       name: jobName,

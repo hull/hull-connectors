@@ -7,7 +7,7 @@ import type {
   HullContext
 } from "hull";
 import Client from "./client";
-import { isInSegments, getDomain } from "../lib/utils";
+import { isInSegments, getDomain, getEmail } from "../lib/utils";
 
 import { saveAccount, saveUser } from "../lib/side-effects";
 
@@ -24,9 +24,11 @@ import type {
  * @return {Boolean}
  */
 function lookupIsPending(entity) {
-  const fetched_at = entity["clearbit/fetched_at"];
+  // $FlowFixMe
+  const enriched_at: string = entity["clearbit/enriched_at"];
+
   const one_hour_ago = moment().subtract(1, "hours");
-  return fetched_at && moment(fetched_at).isAfter(one_hour_ago);
+  return enriched_at && moment(enriched_at).isAfter(one_hour_ago);
 }
 
 export const shouldEnrichUser = (
@@ -41,7 +43,7 @@ export const shouldEnrichUser = (
     enrich_refresh
   } = settings;
 
-  if (_.isEmpty(user.email)) {
+  if (!getEmail(user, settings)) {
     return {
       should: false,
       message: "Cannot Enrich because missing email"
@@ -68,20 +70,24 @@ export const shouldEnrichUser = (
         message: "User is in Enrichment blacklist"
       };
     }
+
     // Skip if we are waiting for the webhook
     if (lookupIsPending(user)) {
       return { should: false, message: "Waiting for webhook" };
     }
 
     // Skip if we have a Clearbit ID already
-    // Disable so we can rely on Audience Segments
-    // const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
-    // if (clearbit_id) {
-    //   return { should: false, message: "Clearbit ID present" };
-    // }
+    const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
+    if (!enrich_refresh && clearbit_id) {
+      return { should: false, message: "Clearbit ID present" };
+    }
+
     // Skip if we have already tried enriching and we aren't on auto-refresh mode.
     if (!enrich_refresh && user["clearbit/enriched_at"]) {
-      return { should: false, message: "enriched_at present" };
+      return {
+        should: false,
+        message: "enriched_at present and refresh disabled"
+      };
     }
   }
 
@@ -100,6 +106,7 @@ export function shouldEnrichAccount(
 ): ShouldAction {
   const { account, account_segments = [] } = message;
   const {
+    enrich_refresh,
     enrich_account_segments = [],
     enrich_account_segments_exclusion = []
   } = settings;
@@ -145,12 +152,13 @@ export function shouldEnrichAccount(
       "clearbit",
       account
     );
-    if (clearbit_id) {
+
+    if (!enrich_refresh && clearbit_id) {
       return { should: false, message: "Clearbit ID present" };
     }
 
     // Skip if we have already tried enriching
-    if (account["clearbit/enriched_at"]) {
+    if (!enrich_refresh && account["clearbit/enriched_at"]) {
       return { should: false, message: "enriched_at present" };
     }
   }
@@ -172,28 +180,28 @@ export async function performEnrich({
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 }) {
-  const { user = {}, account } = message;
-  const domain = getDomain(account, settings);
+  const { user, account = {} } = message;
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { enrich_refresh } = private_settings;
-  const id = user.id || account.id;
-  const payload = _.size(user)
-    ? {
-        email: user.email,
-        given_name: user.first_name,
-        family_name: user.last_name,
-        webhook_url: undefined,
-        webhook_id: id,
-        subscribe: !!enrich_refresh
-      }
-    : {
-        domain: domain || user.domain,
-        company_name: account.name,
-        webhook_url: undefined,
-        webhook_id: id,
-        subscribe: !!enrich_refresh
-      };
+  const id = `${_.get(user, "id", "")}:${_.get(account, "id", "")}`;
+  const payload =
+    user && _.size(user)
+      ? {
+          email: getEmail(user, settings),
+          given_name: user.first_name,
+          family_name: user.last_name,
+          webhook_url: undefined,
+          webhook_id: id,
+          subscribe: !!enrich_refresh
+        }
+      : {
+          domain: getDomain(account, settings),
+          company_name: account.name,
+          webhook_url: undefined,
+          webhook_id: id,
+          subscribe: !!enrich_refresh
+        };
 
   payload.webhook_url = `https://${hostname}/clearbit-enrich?token=${token}`;
   const enrich = await new Client(ctx).enrich(payload);
@@ -205,35 +213,25 @@ export const enrich = async (
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 ): Promise<void | ClearbitResult> => {
   const { user, account } = message;
-  const { hostname, metric, client, clientCredentialsEncryptedToken } = ctx;
+  const { hostname, metric, clientCredentialsEncryptedToken } = ctx;
   const { connector } = ctx;
   const { private_settings } = connector;
-  try {
-    metric.increment("enrich");
-    const { person, company } = await performEnrich({
-      ctx,
-      settings: private_settings,
-      token: clientCredentialsEncryptedToken,
-      subscribe: true,
-      hostname,
-      message
-    });
-    if (!person && !company) {
-      return undefined;
-    }
-    // if (!response || !response.source) return undefined;
-    // const { person, company } = enrichment;
-    await Promise.all([
-      user && saveUser(ctx, { user, person, source: "enrich" }),
-      account &&
-        saveAccount(ctx, { user, person, account, company, source: "enrich" })
-    ]);
-  } catch (err) {
-    client.asUser(user).logger.info("outgoing.user.error", {
-      errors: _.get(err, "body.error") || err.message || err,
-      method: "enrichUser"
-    });
-    throw err;
-  }
+  metric.increment("enrich");
+  const { person, company } = await performEnrich({
+    ctx,
+    settings: private_settings,
+    token: clientCredentialsEncryptedToken,
+    subscribe: true,
+    hostname,
+    message
+  });
+  // if (!response || !response.source) return undefined;
+  // const { person, company } = enrichment;
+
+  const source = "enrich";
+  await Promise.all([
+    user && saveUser(ctx, { user, person, source }),
+    account && saveAccount(ctx, { user, person, account, company, source })
+  ]);
   return undefined;
 };

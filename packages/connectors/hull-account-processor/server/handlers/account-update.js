@@ -8,16 +8,16 @@ import _ from "lodash";
 import { asyncComputeAndIngest, getClaims, varsFromSettings } from "hull-vm";
 
 type FlowControl = {
-  flow_size?: number,
-  flow_in?: number
+  flow_size: number,
+  flow_in: number
 };
-const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
+const update = ({ flow_size, flow_in }: FlowControl) => async (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
 ): HullNotificationResponse => {
   const { connector, client } = ctx;
   const { private_settings = {} } = connector;
-  const { code = "" } = private_settings;
+  const { code = "", language = "javascript" } = private_settings;
   const { group } = client.utils.traits;
 
   // const user_ids = _.map(messages, "user.id");
@@ -27,6 +27,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
         asyncComputeAndIngest(ctx, {
           payload: _.omitBy(
             {
+              changes: {},
               ...payload,
               variables: varsFromSettings(ctx),
               account: group(payload.account)
@@ -34,6 +35,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
             _.isUndefined
           ),
           source: "processor",
+          language,
           code,
           claims: getClaims("account", payload),
           entity: "account",

@@ -2,7 +2,7 @@
   "name": "Slack",
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": ["kraken"],
   "private_settings": [
     {
@@ -232,7 +232,12 @@
   "json": [
     {
       "url": "/fetch-destinations",
-      "handler": "fetchDestination"
+      "handler": "fetchDestination",
+      "options": {
+        "cache": {
+          "key": false
+        }
+      }
     }
   ],
   "status": {

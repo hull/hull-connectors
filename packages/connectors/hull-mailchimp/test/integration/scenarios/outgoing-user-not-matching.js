@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -37,7 +38,7 @@ const usersSegments = [
 it("should skip user who doesn't match the filter", () => {
   const email = "test@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -47,7 +48,7 @@ it("should skip user who doesn't match the filter", () => {
           const scope = nock("https://mock.api.mailchimp.com/3.0");
           scope.get("/lists/1/webhooks").reply(200, {
             webhooks: [
-              { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+              { url: `https://localhost/mailchimp?organization=localhost%3A${minihullPort}&secret=1234&ship=123456789012345678901234` }
             ]
           });
           return scope;
@@ -64,7 +65,7 @@ it("should skip user who doesn't match the filter", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, in_time: 30000, size: 50, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [
@@ -77,9 +78,7 @@ it("should skip user who doesn't match the filter", () => {
             { changes: {}, events: [], segments: ["otherTestSegment"] }
           ],
           ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-          [
-            "info",
-            "outgoing.user.skip",
+          ["debug", "outgoing.user.skip",
             expect.objectContaining({
               subject_type: "user",
               user_email: email

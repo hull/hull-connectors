@@ -1,0 +1,21 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": 6
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    "dynamic-import-node-babel-7",
+    "@babel/plugin-syntax-export-default-from",
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-transform-regenerator",
+    "@babel/plugin-transform-flow-strip-types",
+    "@babel/plugin-syntax-object-rest-spread",
+    "@babel/plugin-proposal-class-properties"
+  ]
+}

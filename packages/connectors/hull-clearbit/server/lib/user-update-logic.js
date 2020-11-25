@@ -10,11 +10,18 @@ import { enrich, shouldEnrichUser } from "../clearbit/enrich";
 
 const debug = require("debug")("hull-clearbit:user-update-logic");
 
+type UserUpdateResponse = {
+  revealAction: {},
+  enrichAction: {},
+  user_id: string,
+  revealResult?: any,
+  enrichResult?: any
+};
 export default function userUpdateLogic(ctx: HullContext) {
   const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
   return async function updateLogic(
     message: HullUserUpdateMessage
-  ): Promise<Array<{ action: string, msg: string }>> {
+  ): Promise<UserUpdateResponse> {
     const actions = await Promise.all([
       shouldReveal(ctx, settings, message),
       shouldEnrichUser(ctx, settings, message)
@@ -28,13 +35,12 @@ export default function userUpdateLogic(ctx: HullContext) {
       revealAction.should && reveal(ctx, message),
       enrichAction.should && enrich(ctx, message)
     ]);
-
-    return actions
-      .filter(s => s.should)
-      .map(({ message: msg }) => ({
-        action: "skip",
-        message: msg
-      }))
-      .concat(results);
+    return {
+      user_id: message.user.id,
+      revealAction,
+      enrichAction,
+      revealResult: results[0],
+      enrichResult: results[1]
+    };
   };
 }

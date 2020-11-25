@@ -1,0 +1,83 @@
+{
+  "data": [
+    {
+      "type": "event",
+      "id": 186228,
+      "attributes": {
+        "body": null,
+        "createdAt": "2019-12-04T13:57:13.000Z",
+        "eventAt": "2019-12-04T13:57:13.000Z",
+        "externalUrl": null,
+        "mailingId": null,
+        "name": "prospect_stage_changed",
+        "payload": null,
+        "requestCity": null,
+        "requestDevice": null,
+        "requestHost": null,
+        "requestProxied": false,
+        "requestRegion": null
+      },
+      "relationships": {
+        "mailing": {
+          "data": null
+        },
+        "prospect": {
+          "data": {
+            "type": "prospect",
+            "id": 3
+          }
+        },
+        "user": {
+          "data": {
+            "type": "user",
+            "id": 1
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.outreach.io/api/v2/events/186228"
+      }
+    },
+    {
+      "type": "event",
+      "id": 186229,
+      "attributes": {
+        "body": null,
+        "createdAt": "2019-12-04T13:58:13.000Z",
+        "eventAt": "2019-12-04T13:58:13.000Z",
+        "externalUrl": null,
+        "mailingId": null,
+        "name": "message_opened",
+        "payload": null,
+        "requestCity": null,
+        "requestDevice": null,
+        "requestHost": null,
+        "requestProxied": false,
+        "requestRegion": null
+      },
+      "relationships": {
+        "mailing": {
+          "data": null
+        },
+        "prospect": {
+          "data": {
+            "type": "prospect",
+            "id": 3
+          }
+        },
+        "user": {
+          "data": {
+            "type": "user",
+            "id": 1
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.outreach.io/api/v2/events/186229"
+      }
+    }
+  ],
+  "meta": {
+    "count": 1
+  }
+}

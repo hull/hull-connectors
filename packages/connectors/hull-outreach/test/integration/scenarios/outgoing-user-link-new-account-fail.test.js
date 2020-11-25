@@ -7,10 +7,11 @@ process.env.CLIENT_SECRET = "1234";
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier user update to outreach and link account", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json"));
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -24,6 +25,12 @@ test("send smart-notifier user update to outreach and link account", () => {
         scope
           .post("/api/v2/accounts/", {"data":{"type":"account","attributes":{"domain":"afterlife.com","custom20":"very hot","name":"afterlife.com"}}})
           .reply(422);
+        // scope
+        //   .get("/api/v2/users/")
+        //   .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        // scope
+        //   .get("/api/v2/stages/")
+        //   .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
         scope
           .intercept('/api/v2/prospects/18', 'PATCH', {"data":{"type":"prospect","id":18,"attributes":{"custom20":"in the afterlife"}}})
           .reply(200, require("../fixtures/api-responses/outgoing-user-link-patch-user.json"));
@@ -32,23 +39,20 @@ test("send smart-notifier user update to outreach and link account", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call",expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 422, "url": "/accounts/", "vars": {}}],
-        ["error", "outgoing.account.skip", {"account_domain": "afterlife.com", "account_id": "5c0fd68ad884b4373800011a", "request_id": expect.whatever(), "subject_type": "account"}, { "data": expect.whatever(), operation: "post", "type": "Account", "error": "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is correct, please contact Hull support"}],
+        ["error", "outgoing.account.error", {"account_domain": "afterlife.com", "account_id": "5c0fd68ad884b4373800011a", "request_id": expect.whatever(), "subject_type": "account"}, { "data": expect.whatever(), "type": "Account", "error": "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is correct, please contact Hull support"}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/18", "vars": {}}],
-        ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": "5bd329d5e2bcf3eeaf00009f"}, {"data": {"data": {"attributes": {"custom20": "in the afterlife"}, "id": 18, "type": "prospect"}}, "operation": "patch", "type": "Prospect"}],
-        ["info", "incoming.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_anonymous_id": "outreach:18" }, { "data": expect.whatever(), type: "Prospect" }],
+        ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": "5bd329d5e2bcf3eeaf00009f"}, {"data": {"data": {"attributes": {"custom20": "in the afterlife"}, "id": 18, "type": "prospect"}}, "type": "Prospect"}],
+        ["debug", "incoming.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_anonymous_id": "outreach:18" }, { "data": expect.whatever(), type: "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}]
+        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/custom2": {"operation": "set", "value": null}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

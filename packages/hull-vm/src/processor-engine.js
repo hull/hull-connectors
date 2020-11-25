@@ -17,8 +17,14 @@ export default class ProcessorEngine extends Engine {
   constructor() {
     super();
     this.state.search = this.getSearchCache();
+    this.initialize();
     this.fetchEntry(this.state);
   }
+
+  initialize = async () => {
+    await this.fetchConfig();
+    await this.fetchEntry(this.state);
+  };
 
   getSearchCache = (): string =>
     localStorage.getItem(`search-${this.state.config.id}`);
@@ -54,6 +60,7 @@ export default class ProcessorEngine extends Engine {
     const { entity } = this.state;
     const current = {
       ...entry,
+      language: this.state.language,
       code: newCode,
       editable: true,
       claims,

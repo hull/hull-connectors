@@ -43,6 +43,7 @@ const connector = new Hull.Connector({
   clientConfig: {
     protocol: "http"
   },
+  manifest: {},
   notificationValidatorHttpClient: mockHttpClient
 });
 connector.setupApp(app);

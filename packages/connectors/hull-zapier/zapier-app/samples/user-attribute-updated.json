@@ -1,0 +1,17 @@
+{
+  "user": {
+    "id": "124123"
+  },
+  "changes": {
+    "is_new": false,
+    "user": {},
+    "account": {},
+    "segments": {},
+    "account_segments": {}
+  },
+  "account": {},
+  "segments": [],
+  "events": [],
+  "account_segments": [],
+  "message_id": "cdc8ddfa05056c0d7317db7bf66e1730012aa357"
+}

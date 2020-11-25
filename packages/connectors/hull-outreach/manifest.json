@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -37,7 +37,13 @@
             "prospects.all",
             "create_accounts",
             "accounts.all",
-            "webhooks.all"
+            "webhooks.all",
+            "users.read",
+            "stages.read",
+            "events.all",
+            "mailings.read",
+            "sequences.read",
+            "sequenceSteps.read"
           ]
         }
       }
@@ -82,19 +88,20 @@
         "properties": {
           "service": {
             "title": "Prospect Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-outreach-prospect-in"
-            }
+            "enum": [
+              "emails",
+              "firstName",
+              "githubUsername",
+              "lastName",
+              "linkedInId",
+              "stackOverflowId",
+              "title",
+              "twitterUsername"
+            ]
           },
           "hull": {
             "title": "Hull User Ident",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["external_id", "email"]
           }
         }
       },
@@ -141,6 +148,30 @@
       }
     },
     {
+      "name": "prospect_outgoing_user_segments",
+      "title": "Prospect Outgoing User Segments",
+      "description": "Select a Prospect attribute where Hull will push a list of concatenated User Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
+      "name": "prospect_outgoing_account_segments",
+      "title": "Prospect Outgoing Account Segments",
+      "description": "Select a Prospect attribute where Hull will push a list of concatenated Account Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
       "name": "account_claims",
       "title": "Fields to match for Account Identity Resolution",
       "type": "array",
@@ -150,19 +181,11 @@
         "properties": {
           "service": {
             "title": "Account Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-outreach-account-in"
-            }
+            "enum": ["domain", "customId", "name"]
           },
           "hull": {
             "title": "Hull Account",
-            "enum": [
-              "external_id",
-              "domain"
-            ]
+            "enum": ["external_id", "domain"]
           }
         }
       },
@@ -222,11 +245,62 @@
       ]
     },
     {
+      "name": "outgoing_account_segments",
+      "title": "Outgoing Account Segments",
+      "description": "Select an Outreach Account attribute where Hull will push a list of concatenated Account Segments from a given Hull Account",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-account-out"
+      }
+    },
+    {
       "name": "link_users_in_service",
       "title": "Link Prospects to Accounts in Outreach",
       "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
       "type": "boolean",
       "default": false
+    },
+    {
+      "default": [],
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "bounced_message",
+          "emails_opt_out",
+          "inbound_call_completed",
+          "inbound_call_no_answer",
+          "inbound_message",
+          "message_clicked",
+          "message_opened",
+          "message_opened_sender",
+          "outbound_call_completed",
+          "outbound_call_no_answer",
+          "outbound_message",
+          "prospect_stage_changed"
+        ],
+        "enumNames": [
+          "Bounced Message",
+          "Emails Opt Out",
+          "Inbound Call Completed",
+          "Inbound Call No Answer",
+          "Inbound Message",
+          "Message Clicked",
+          "Message Opened",
+          "Message Opened Sender",
+          "Outbound Call Completed",
+          "Outbound Call No Answer",
+          "Outbound Message",
+          "Prospect Stage Changed"
+        ]
+      },
+      "title": "Events To Fetch From Outreach",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
     }
   ],
   "settings": [],
@@ -280,6 +354,17 @@
       ]
     }
   ],
+  "schedules": [
+    {
+      "url": "/fetch-recent-events",
+      "type": "interval",
+      "value": "5",
+      "handler": "eventsFetchRecent",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
   "json": [
     {
       "url": "/fetch",
@@ -323,6 +408,23 @@
           "text": "You are about to pull all users from Outreach into Hull.  Please make sure you've configured your user identity properly, and that you have the attributes you'd like pulled configured.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
           "button": "Start Fetching Users",
           "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetch-all-events",
+      "handler": "eventsFetchAll",
+      "format": "action",
+      "title": "Fetch Historical Events",
+      "name": "fetch_all_events",
+      "description": "Due to Outreach API limitations, this operation won't fetch historical \"Prospect Stage Changed\" events. If you have whitelisted this event above you will only get new occurrences going forward.",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all events from Outreach into Hull.  Please make sure you've configured your user identity properly, and that you have selected the type of events you'd like to pull.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as events are ingested",
+          "button": "Start Fetching Events",
+          "entity": "events"
         }
       }
     },
@@ -371,16 +473,12 @@
       "title": "Connect with Outreach",
       "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "User - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "User - Fetching from Outreach",
@@ -397,15 +495,15 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
+        "private_settings.prospect_outgoing_user_segments",
+        "private_settings.prospect_outgoing_account_segments",
         "private_settings.link_users_in_service"
       ]
     },
     {
       "title": "Account - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for account identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /><b>Please be aware that Outreach will reject accounts sent without a name</b>",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Account - Fetching from Outreach",
@@ -420,7 +518,16 @@
       "description": "Configuring this section will result in automated data flows which will update your accounts in Outreach.  That's why we provide fine grain control over the updates that you send to Outreach.  First configure a \"Segment\" as an account filter to control which accounts get sent to Outreach.  Then configure the attributes you want synchronized.  You may always go to an account page and click \"Send to\" in order to override the filter and send specific accounts manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
         "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_account_attributes"
+        "private_settings.outgoing_account_attributes",
+        "private_settings.outgoing_account_segments"
+      ]
+    },
+    {
+      "title": "Events - Fetching from Outreach",
+      "description": "This section configures and activates the ongoing fetch of Outreach Events. Start by picking which events you would like to fetch in the dropdown below. Then use the button to optionally fetch some historical events (see further explanation below).\nIncoming events are identified by Outreach Prospect ID only, so the best practice is to fetch all Prospects before fetching Events, otherwise empty User profiles without attributes and other identifiers may be created.",
+      "properties": [
+        "private_settings.events_to_fetch",
+        "json.fetch_all_events"
       ]
     }
   ]

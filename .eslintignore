@@ -1,6 +1,8 @@
 /dist
 /node_modules
 /scripts
+/webpack
+/flow-typed
 
 */node_modules
 **/node_modules
@@ -13,11 +15,33 @@ packages/hull-client/*
 packages/hull/*
 !packages/hull/src
 
-
 packages/connectors/hull-outreach
 packages/connectors/hull-warehouse
 packages/connectors/hull-marketo
+packages/connectors/hull-zapier
 packages/connectors/hull-hubspot-deals
 packages/connectors/hull-hubspot-events
+packages/connectors/hull-pipedrive
+packages/connectors/hull-coppercrm
+packages/connectors/hull-slack
+packages/connectors/hull-intercom
+packages/connectors/hull-intercom-legacy
+packages/connectors/hull-bigquery
+
+packages/connectors/hull-snowflake-importer
+packages/connectors/hull-bigquery-importer
+packages/connectors/hull-redshift-importer
+packages/connectors/hull-postgresql-importer
+packages/connectors/hull-mysql-importer
+packages/connectors/hull-mssql-importer
+
+packages/connectors/hull-canary
 packages/connectors/hull-hubspot/server/purplefusion
+packages/connectors/hull-salesforce/server/purplefusion
 packages/hull-connector-framework
+packages/hull-sql
+
+packages/connectors/hull-facebook-audiences/src/ship.js
+packages/connectors/hull-google-ads/src/ship.js
+packages/connectors/hull-hubspot/src/ship.js
+packages/connectors/hull-intercom/src/ship.js

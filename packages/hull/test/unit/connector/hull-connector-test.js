@@ -2,7 +2,7 @@
 const { expect } = require("chai");
 const sinon = require("sinon");
 
-const HullConnector = require("../../../src/connector/hull-connector");
+import HullConnector from "../../../src/connector/hull-connector";
 const getConfig = require("../../support/connector-config");
 
 describe("HullConnector", () => {
@@ -44,6 +44,9 @@ describe("HullConnector", () => {
   it("should wrap express application with setupApp", () => {
     const expressMock = {
       use: () => {
+        return this;
+      },
+      disable: () => {
         return this;
       },
       engine: () => {
@@ -88,6 +91,7 @@ describe("HullConnector", () => {
   it("should allow to setup custom middleware at the end of pre-handler middleware stack", () => {
     const appStub = {
       use: () => {},
+      disable: () => {},
       engine: () => {},
       set: () => {}
     };

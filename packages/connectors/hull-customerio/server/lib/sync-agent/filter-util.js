@@ -159,6 +159,16 @@ class FilterUtil {
         return results.toSkip.push(envelope);
       }
 
+      const userSuppressed = _.get(
+        envelope,
+        "message.user.customerio/suppressed_at"
+      );
+      if (!_.isNil(userSuppressed)) {
+        envelope.skipReason = "User has been suppressed";
+        envelope.opsResult = "skip";
+        return results.toSkip.push(envelope);
+      }
+
       if (
         _.isNil(
           _.get(envelope, `message.user.${this.userAttributeServiceId}`, null)
@@ -267,7 +277,10 @@ class FilterUtil {
     };
 
     events.forEach((e: ICustomerIoEvent) => {
-      if (!_.includes(this.synchronizedEvents, e.name)) {
+      if (
+        (e.type !== "page" && !_.includes(this.synchronizedEvents, e.name)) ||
+        (e.type === "page" && !_.includes(this.synchronizedEvents, e.type))
+      ) {
         return results.toSkip.push(e);
       }
       return results.toInsert.push(e);

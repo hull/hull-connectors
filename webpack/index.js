@@ -1,25 +1,30 @@
 const _ = require("lodash");
 const glob = require("glob");
 const configBuilder = require("./webpack.config");
+const minimist = require("minimist");
+const path = require("path");
 
-module.exports = function buildConfig() {
-  const sourceFolder = `${__dirname}/../packages/connectors`;
-  const destinationFolder = `${__dirname}/../dist/connectors`;
-  const configurations = _.compact(
-    glob.sync(`${sourceFolder}/*`).reduce((configs, c) => {
-      const name = c.split("/").pop();
-      const conf = configBuilder({
-        assets: `${sourceFolder}/${name}/assets`,
-        source: `${sourceFolder}/${name}/src`,
-        destination: `${destinationFolder}/${name}/dist`
-      });
-      if (conf) {
-        console.log(`=> Detected client files for ${name}`);
-        console.log(_.values(conf.entry));
-        configs.push({ ...conf, name });
-      }
-      return configs;
-    }, [])
+module.exports = () => {
+  const { env } = minimist(process.argv);
+  const sourceFolder = path.join(process.cwd(), env);
+  const destinationFolder = path.join(
+    process.cwd(),
+    "dist",
+    "connectors",
+    path.basename(env)
   );
-  return configurations;
+  console.log(`Webpack
+from [${sourceFolder}]
+to   [${destinationFolder}]`);
+  const conf = configBuilder({
+    source: `${sourceFolder}/src`,
+    destination: `${destinationFolder}/dist`
+  });
+  if (conf) {
+    console.log(`=> Detected client files for ${env}`);
+    console.log(_.values(conf.entry));
+    return [conf];
+  } else {
+    return [];
+  }
 };

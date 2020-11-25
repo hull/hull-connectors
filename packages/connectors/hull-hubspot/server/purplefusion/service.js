@@ -9,7 +9,8 @@ const _ = require("lodash");
 const MESSAGES = require("./messages");
 const {
   ConfigurationError,
-  RateLimitError
+  RateLimitError,
+  SkippableError
 } = require("hull/src/errors");
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
@@ -61,7 +62,7 @@ const service: RawRestApi = {
     getAllEmailEvents: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}",
+      query: "limit=${limit}&excludeFilteredEvents=true",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -69,7 +70,7 @@ const service: RawRestApi = {
     getAllEmailEventsWithOffset: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&offset=${offset}",
+      query: "limit=${limit}&excludeFilteredEvents=true&offset=${offset}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -77,7 +78,7 @@ const service: RawRestApi = {
     getRecentEmailEvents: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&startTimestamp=${startTimestamp}",
+      query: "limit=${limit}&excludeFilteredEvents=true&startTimestamp=${startTimestamp}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -85,7 +86,7 @@ const service: RawRestApi = {
     getRecentEmailEventsWithOffset: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&startTimestamp=${startTimestamp}&offset=${offset}",
+      query: "limit=${limit}&excludeFilteredEvents=true&startTimestamp=${startTimestamp}&offset=${offset}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -101,7 +102,21 @@ const service: RawRestApi = {
     getRecentContactsPage: {
       url: "/contacts/v1/lists/recently_updated/contacts/recent",
       operation: "get",
-      query: "vidOffset=${vidOffset}&timeOffset=${timeOffset}&property=${properties}&count=100"
+      query: {
+        vidOffset: "${vidOffset}",
+        timeOffset: "${timeOffset}",
+        property: "${properties}",
+        count: 100
+      }
+    },
+    getRecentCompaniesPage: {
+      url: "/companies/v2/companies/recent/modified",
+      operation: "get",
+      query: {
+        since: "${lastFetchAt}",
+        offset: "${offset}",
+        count: 100
+      }
     }
   },
   superagent: {
@@ -149,17 +164,24 @@ const service: RawRestApi = {
 
     templates: [
       {
+        truthy: { status: 400 },
+        errorType: ConfigurationError,
+        message: (error) => {
+          return { message: error.message };
+        }
+      },
+      {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.token"),
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND,
+        message: "Unauthorized. Missing Access token.",
         recoveryroute: "refreshToken"
       },
       {
         truthy: { status: 401 },
         condition: notNull("connector.private_settings.token"),
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
+        message: "Unauthorized.",
         recoveryroute: "refreshToken"
       },
       {

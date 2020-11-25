@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const _ = require("lodash");
 
@@ -9,7 +10,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 test("send smart-notifier user update to outreach and link account", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(
       require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json")
     );
@@ -51,9 +52,6 @@ test("send smart-notifier user update to outreach and link account", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10
         }
       },
       logs: [
@@ -89,7 +87,7 @@ test("send smart-notifier user update to outreach and link account", () => {
         ],
         [
           "error",
-          "outgoing.account.skip",
+          "outgoing.account.error",
           {
             account_domain: "afterlife.com",
             account_id: "5c0fd68ad884b4373800011a",
@@ -98,7 +96,6 @@ test("send smart-notifier user update to outreach and link account", () => {
           },
           {
             data: expect.whatever(),
-            operation: "post",
             type: "Account",
             error:
               "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is correct, please contact Hull support"
@@ -133,13 +130,11 @@ test("send smart-notifier user update to outreach and link account", () => {
                 type: "prospect"
               }
             },
-            operation: "patch",
             type: "Prospect"
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
@@ -174,6 +169,7 @@ test("send smart-notifier user update to outreach and link account", () => {
               operation: "set",
               value: "probably is a smuggler too"
             },
+            "outreach/custom2": { operation: "set", value: null },
             "outreach/id": { operation: "set", value: 18 },
             "outreach/personalnote2": {
               operation: "set",

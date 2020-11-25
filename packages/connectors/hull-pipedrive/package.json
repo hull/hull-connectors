@@ -1,0 +1,13 @@
+{
+  "name": "hull-pipedrive",
+  "version": "0.1.39-monorepo",
+  "description": "Sync persons and organizations with Hull",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "passport-pipedrive": "^0.1.1"
+  },
+  "devDependencies": {}
+}

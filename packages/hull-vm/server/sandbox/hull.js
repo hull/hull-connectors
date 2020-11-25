@@ -2,12 +2,14 @@
 import type {
   HullAccountClaims,
   HullUserClaims,
+  HullEntityName,
   HullClient,
   HullAttributeContext,
   HullEventProperties,
   HullEventContext
 } from "hull";
 import { Map } from "immutable";
+import _ from "lodash";
 import type {
   HullAliasOperation,
   Attributes,
@@ -24,18 +26,27 @@ import {
 const { applyContext } = require("hull-client/src/utils/traits");
 const { filterEntityClaims } = require("hull-client/src/lib/filter-claims");
 
-const buildHullContext = (
+const buildHullContext = ({
+  client,
+  result,
+  source,
+  claims: scopedClaims,
+  entity
+}: {
   client: HullClient,
   result: Result,
-  eventsource?: string
-) => {
+  source?: string,
+  claims?: HullUserClaims | HullAccountClaims,
+  entity?: HullEntityName
+}) => {
+  const hasScopedClaims = scopedClaims && _.size(scopedClaims) && !!entity;
   const errorLogger = (message, method, validation) => {
-    client.logger.info(`incoming.${message}.skip`, {
+    client.logger.debug(`incoming.${message}.skip`, {
       method,
       validation
     });
     result.errors.push(
-      `Error validating claims for ${method}  ${JSON.stringify(validation)}`
+      `Error validating claims for ${method} ${JSON.stringify(validation)}`
     );
   };
 
@@ -52,7 +63,7 @@ const buildHullContext = (
       event: {
         eventName,
         properties,
-        context: { source: eventsource, ...context }
+        context: { source, ...context }
       }
     });
   };
@@ -61,7 +72,19 @@ const buildHullContext = (
     operation: HullAliasOperation,
     target: "userAliases" | "accountAliases"
   ) => (alias: ClaimType) => {
-    // sets the rigth operation for the claim and the given alias.
+    if (
+      (!_.isEmpty(alias) &&
+        (_.isString(alias) || !_.has(alias, "anonymous_id"))) ||
+      _.isObject(alias.anonymous_id)
+    ) {
+      deprecationLogger(
+        `Incorrect alias format '${JSON.stringify(
+          alias
+        )}'. Please use '.alias({ anonymous_id: "..." })'`
+      );
+    }
+
+    // sets the right operation for the claim and the given alias.
     // perform deep value equality checks.
     result[target] = result[target].setIn(
       [
@@ -80,7 +103,12 @@ const buildHullContext = (
   const identifyFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
     claims: ClaimType,
     target: "userTraits" | "accountTraits"
-  ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
+  ) => (attributes: Attributes = {}, context?: HullAttributeContext = {}) => {
+    if (attributes.anonymous_id !== undefined) {
+      deprecationLogger(
+        "You are setting an anonymous_id as an attribute value, which is invalid. Please send it in `hull.asUser({ anonymous_id: xxx })`, `hull.asAccount({ anonymous_id: xxx })` or hull.alias({ anonymous_id: xxx })"
+      );
+    }
     // ensures the claims and calls are properly collapsed and aggregated
     result[target] = result[target].withMutations(map => {
       map.mergeDeepIn(
@@ -121,6 +149,11 @@ const buildHullContext = (
     if (!account.traits) {
       return {};
     }
+    if (hasScopedClaims && !_.isEqual(claims, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asAccount() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current account, please use hull.traits() and hull.track() instead"
+      );
+    }
     result.accountLinks = result.accountLinks.set(
       Map(filterEntityClaims("user", claims)),
       Map(filterEntityClaims("account", accountClaims))
@@ -138,6 +171,11 @@ const buildHullContext = (
       return {};
     }
     deprecationLogger(message);
+    if (hasScopedClaims && !_.isEqual(claims, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asUser() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current user, please use hull.traits() and hull.track() instead"
+      );
+    }
     const track = trackFactory(claims, "events");
     const alias = aliasFactory(claims, "alias", "userAliases");
     const unalias = aliasFactory(claims, "unalias", "userAliases");
@@ -153,13 +191,26 @@ const buildHullContext = (
     };
   }
 
-  return {
+  const hull = {
     /* Deprecated Syntax */
     user: asUser,
     account: asAccount,
     /* Proper Syntax */
     asUser,
     asAccount
+  };
+  if (!hasScopedClaims) {
+    return hull;
+  }
+  if (entity === "account") {
+    return {
+      ...hull,
+      ...hull.asAccount(scopedClaims)
+    };
+  }
+  return {
+    ...hull,
+    ...hull.asUser(scopedClaims)
   };
 };
 

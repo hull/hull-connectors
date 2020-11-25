@@ -86,6 +86,8 @@ function doStringVariableReplacement(context: HullVariableContext, value: string
     let variableValue = context.get(variableName);
 
     if (variableValue === undefined || variableValue === null) {
+      // TODO a null value might be OK...
+      // bug undefined should maybe throw an error
       debug(`Couldn't find variable in context: ${variableName}`);
       // don't need to push an empty string because join removes undefined/null when joining with ""
     }
@@ -129,5 +131,6 @@ function doVariableReplacement(context: HullVariableContext, value: any): any {
 
 module.exports = {
   doVariableReplacement,
-  doStringVariableReplacement
+  doStringVariableReplacement,
+  hasVariables
 };

@@ -1,37 +1,53 @@
 // @flow
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
-process.env.CLIENT_ID = "123",
+process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should send out a new hull user to hubspot - user basic", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, [
+          {
+            "name": "contactinformation",
+            "displayName": "Contact Information",
+            "properties": [
+              {
+                "name": "email",
+                "label": "Email",
+                "description": "A contact's email address",
+                "groupName": "contactinformation",
+                "type": "string",
+                "fieldType": "text",
+                "readOnlyValue": false
+              }
+            ]
+          }
+        ]);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
@@ -58,7 +74,7 @@ it("should send out a new hull user to hubspot - user basic", () => {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {},
@@ -80,9 +96,6 @@ it("should send out a new hull user to hubspot - user basic", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -123,8 +136,10 @@ it("should send out a new hull user to hubspot - user basic", () => {
             user_email: "email@email.com"
           }),
           {
-            email: "email@email.com",
-            properties: [{ property: "hull_segments", value: "testSegment" }]
+            hubspotWriteContact: {
+              email: "email@email.com",
+              properties: [{ property: "hull_segments", value: "testSegment" }]
+            }
           }
         ]
       ],
@@ -138,10 +153,7 @@ it("should send out a new hull user to hubspot - user basic", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

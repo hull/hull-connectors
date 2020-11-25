@@ -36,14 +36,14 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
     const isAuthorized = await shipApp.syncAgent.isAuthorized();
     if (isAuthorized === false) {
       status = "error";
-      messages.push("External service credentials aren’t valid.");
+      messages.push("External service credentials aren't valid.");
     }
 
     const isListPresent = shipApp.syncAgent.isListPresent();
     if (isListPresent === false) {
       status = "error";
       messages.push(
-        `Selected Mailchimp list: ${mailchimp_list_name} does not exists.`
+        `Selected Mailchimp list: ${mailchimp_list_name} does not exist.`
       );
     }
 
@@ -111,13 +111,9 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
       audit
     };
   } catch (error) {
-    status = "error";
-    messages.push(
-      `Error when trying to get test payload from Mailchimp API: ${error.message}`
-    );
     return {
-      status,
-      messages
+      status: "error",
+      messages: [error.message]
     };
   }
 }

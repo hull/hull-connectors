@@ -306,7 +306,7 @@ class SyncAgent {
       filteredEnvelopes.toSkip.forEach((envelope: TUserUpdateEnvelope) => {
         this.client
           .asUser(envelope.message.user)
-          .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+          .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
       });
 
       try {
@@ -342,7 +342,14 @@ class SyncAgent {
   }
 
   updateUserEnvelope(envelope: TUserUpdateEnvelope): Promise<*> {
-    const userScopedClient = this.client.asUser(envelope.message.user);
+    const hullUser = envelope.message.user;
+    const userAttributeServiceId = this.mappingUtil.userAttributeServiceId;
+    const identObj =
+      userAttributeServiceId === "external_id" && _.has(hullUser, "external_id")
+        ? _.pick(hullUser, "external_id")
+        : hullUser;
+
+    const userScopedClient = this.client.asUser(identObj);
     const validationResult = this.validationUtil.validateCustomer(
       envelope.customer
     );
@@ -523,7 +530,7 @@ class SyncAgent {
         event.properties,
         event.context
       );
-      return userScopedClient.logger.info("incoming.event.success", {
+      return userScopedClient.logger.debug("incoming.event.success", {
         event
       });
     } catch (err) {

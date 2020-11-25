@@ -5,18 +5,13 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier account update to outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-account-changes.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -57,16 +52,13 @@ test("send smart-notifier account update to outreach", () => {
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}],
-        ["info", "outgoing.account.skip", {"account_domain": "close.io", "account_id": "5bd329d4e2bcf3eeaf000071", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"}],
-        ["info", "outgoing.account.skip", {"account_external_id": "Oct242018_338ExternalId", "account_id": "5bd36d8de3d21792360001fd", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment"}],
+        ["debug", "outgoing.account.skip", {"account_domain": "close.io", "account_id": "5bd329d4e2bcf3eeaf000071", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"}],
+        ["debug", "outgoing.account.skip", {"account_external_id": "Oct242018_338ExternalId", "account_id": "5bd36d8de3d21792360001fd", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment"}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "https://api.outreach.io/oauth/token", "vars": {}}],
@@ -74,15 +66,15 @@ test("send smart-notifier account update to outreach", () => {
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/28", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
-        ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "operation": "patch", "type": "Account"}],
-        ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "operation": "patch", "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "type": "Account"}],
+        ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "type": "Account"}],
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "bluth.com",
           "account_anonymous_id": "outreach:29"
         }, {"data": expect.whatever(), "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "wayneenterprises.com",
@@ -91,8 +83,8 @@ test("send smart-notifier account update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}, "name": { "operation": "setIfNull", "value": "Wayne Enterprises (Sample Lead)" }, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}, "name": { "operation": "setIfNull", "value": "Bluth Company (Sample Lead)" },"outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

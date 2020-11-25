@@ -1,33 +1,28 @@
 // @flow
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "123";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should send out a new hull user to hubspot via batch", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -73,7 +68,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "segments": [
             {
               "id": "hullSegmentId",
-              "name": "",
+              "name": "testSegment",
               "updated_at": "2018-12-06T15:30:50Z",
               "type": "users_segment",
               "created_at": "2018-11-29T10:46:39Z"
@@ -87,7 +82,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "segments": [
             {
               "id": "hullSegmentId",
-              "name": "",
+              "name": "testSegment",
               "updated_at": "2018-12-06T15:30:50Z",
               "type": "users_segment",
               "created_at": "2018-11-29T10:46:39Z"
@@ -95,7 +90,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           ]
         }
       ],
-      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response: {"flow_control": {"type": "next"}},
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -124,7 +119,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          { hubspotWriteContact: {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}}
         ]
       ],
       firehoseEvents: [],
@@ -140,10 +135,7 @@ it("should send out a new hull user to hubspot via batch", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

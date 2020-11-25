@@ -34,6 +34,15 @@ const queryParams = (): Config =>
       return q;
     }, {});
 
+type FetchConfigResponse = {
+  error?: string,
+  token?: string,
+  hostname?: string,
+  computing?: boolean,
+  initialized?: boolean,
+  [string]: any
+};
+
 export default class Engine extends EventEmitter {
   state: any;
 
@@ -45,32 +54,33 @@ export default class Engine extends EventEmitter {
     const config = queryParams();
     super();
     this.setState({ ...DEFAULT_STATE, config });
-    this.fetchConfig();
   }
 
-  fetchConfig = async () => {
+  initialize = async () => {
+    await this.fetchConfig();
+  };
+
+  fetchConfig = async (): FetchConfigResponse => {
     this.setState({ computing: true });
     try {
-      const response = await this.request({
+      const config = await this.request({
         url: "config",
         method: "get"
       });
-      this.saveConfig(response);
-      return true;
+      return this.saveConfig(config);
     } catch (err) {
-      this.setState({
+      return this.saveConfig({
         error: err.message,
         token: "",
         hostname: "",
         computing: false,
         initialized: false
       });
-      return false;
     }
   };
 
   // This methods finishes the init Sequence
-  saveConfig = response => {
+  saveConfig = (response: FetchConfigResponse) => {
     this.setState({
       error: undefined,
       initialized: true,
@@ -97,9 +107,9 @@ export default class Engine extends EventEmitter {
   updateParent = (code: string) => updateParent({ private_settings: { code } });
 
   updateCode = (code: string) => {
-    const { current: old } = this.state;
+    const { current: old, language } = this.state;
     if (!old) return;
-    const current = { ...old, code, editable: true };
+    const current = { ...old, code, language, editable: true };
     this.updateParent(code);
     this.setState({ current });
     this.fetchPreview(current);
@@ -116,26 +126,22 @@ export default class Engine extends EventEmitter {
     data?: {},
     headers?: {}
   }): Promise<any> => {
-    try {
-      const { config } = this.state;
-      if (!config) {
-        throw new Error("Can't find a proper config, please reload page");
-      }
-      const response = await fetch(`${url}?${this.getQueryString()}`, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          ...headers
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      return response.json();
-    } catch (err) {
-      throw err;
+    const { config } = this.state;
+    if (!config) {
+      throw new Error("Can't find a proper config, please reload page");
     }
+    const response = await fetch(`${url}?${this.getQueryString()}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response.json();
   };
 
   getQueryString = () => {
@@ -144,13 +150,13 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async ({ code, payload, claims, entity }: PreviewRequest) => {
+    async ({ language, code, payload, claims, entity }: PreviewRequest) => {
       this.setState({ computing: true });
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { code, payload, claims, entity }
+          data: { language, code, payload, claims, entity }
         });
         const state = this.getState();
         this.setState({

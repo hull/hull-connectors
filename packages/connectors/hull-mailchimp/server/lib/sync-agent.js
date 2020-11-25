@@ -61,6 +61,11 @@ class SyncAgent {
     this.hostname = ctx.hostname;
     this.segments = ctx.usersSegments;
     this.listId = _.get(ctx.connector, "private_settings.mailchimp_list_id");
+    this.ignoreArchivedUsers = _.get(
+      ctx.connector,
+      "private_settings.ignore_archived_users",
+      true
+    );
     this.synchronizedSegments = (
       ctx.connector.private_settings.synchronized_user_segments ||
       ctx.connector.private_settings.synchronized_segments ||
@@ -213,6 +218,12 @@ class SyncAgent {
     messages: Array<HullUserUpdateMessage>,
     { useSegments = false, ignoreFilter = false }: Object = {}
   ): Promise<*> {
+    if (!this.isConfigured()) {
+      this.client.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve();
+    }
     const startTime = process.hrtime();
     this.client.logger.debug("outgoing.job.start", {
       messages: messages.length
@@ -222,13 +233,21 @@ class SyncAgent {
         if (!_.isEmpty(message.user.email)) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't have an email address"
         });
         return false;
       })
       .filter(message => {
-        // TODO: extract to filter-util
+        if (
+          _.get(message, "user.mailchimp/archived", false) &&
+          this.ignoreArchivedUsers
+        ) {
+          this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+            reason: "User is archived in mailchimp. Will not send"
+          });
+          return false;
+        }
         if (
           ignoreFilter ||
           this.synchronizedSegments.length === 0 ||
@@ -242,7 +261,7 @@ class SyncAgent {
         ) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't match whitelist"
         });
         return false;
@@ -311,6 +330,7 @@ class SyncAgent {
           if (_.get(envelope, "mailchimpCurrentMember.status")) {
             const asUser = this.client.asUser(envelope.message.user);
             return asUser.traits({
+              "mailchimp/archived": false,
               "mailchimp/status": _.get(
                 envelope,
                 "mailchimpCurrentMember.status"
@@ -336,17 +356,20 @@ class SyncAgent {
             const asUser = this.client.asUser(envelope.message.user);
             if (envelope.warning) {
               asUser.logger.warning("outgoing.user.warning", {
-                warning: envelope.warning
+                warning: envelope.warning,
+                member: envelope.mailchimpNewMember
               });
             }
             if (envelope.permanentError) {
               asUser.logger.error("outgoing.user.error", {
-                error: envelope.permanentError
+                error: envelope.permanentError,
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else if (envelope.temporaryError) {
               asUser.logger.error("outgoing.user.error", {
-                error: envelope.temporaryError
+                error: envelope.temporaryError,
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else {

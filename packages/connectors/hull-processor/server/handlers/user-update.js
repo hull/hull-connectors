@@ -17,16 +17,19 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
 ): HullNotificationResponse => {
   const { connector, client } = ctx;
   const { private_settings = {} } = connector;
-  const { code = "" } = private_settings;
+  const { code = "", language = "javascript" } = private_settings;
   const { group } = client.utils.traits;
 
   // const user_ids = _.map(messages, "user.id");
   try {
-    await Promise.all(
-      messages.map(payload =>
+    await _.reduce(
+      messages,
+      async (promise, payload, _key) =>
         asyncComputeAndIngest(ctx, {
           payload: _.omitBy(
             {
+              changes: {},
+              events: [],
               ...payload,
               variables: varsFromSettings(ctx),
               user: group(payload.user),
@@ -35,12 +38,13 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
             _.isUndefined
           ),
           source: "processor",
+          language,
           code,
           claims: getClaims("user", payload),
           entity: "user",
           preview: false
-        })
-      )
+        }),
+      Promise.resolve()
     );
     return {
       flow_control: {

@@ -7,6 +7,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -14,12 +15,14 @@ const connector = {
   private_settings: {
     token: "hubToken",
     token_fetched_at: 1419967066626,
-    expires_in: 10
+    expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it("Should return the no OAuth credentials error when calling the connector's API without a refresh token", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

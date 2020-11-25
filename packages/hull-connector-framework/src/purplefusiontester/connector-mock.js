@@ -1,3 +1,6 @@
+const _ = require("lodash");
+const hasMatchingTriggers = require("hull/src/helpers/has-matching-triggers");
+
 const { ClientMock } = require("./client-mock");
 
 class ConnectorMock {
@@ -10,27 +13,50 @@ class ConnectorMock {
 
 class ContextMock {
   constructor(configuration) {
-    const { id, hostname, private_settings, accept_incoming_webhooks = true } = configuration;
+    const {
+      id,
+      hostname,
+      private_settings,
+      accept_incoming_webhooks = true,
+      clientCredentialsEncryptedToken = "shhhclientCredentialsEncryptedToken",
+    } = configuration;
     this.hostname = hostname;
     this.ship = new ConnectorMock(id, private_settings);
     this.connector = new ConnectorMock(id, private_settings);
     this.client = new ClientMock(configuration);
+    this.clientCredentialsEncryptedToken = clientCredentialsEncryptedToken;
+
+    this.helpers = {
+      hasMatchingTriggers: hasMatchingTriggers({ isBatch: false }),
+      settingsUpdate: this.client.utils.settings.update
+    }
+
     this.metric = {
       increment: jest.fn((name, value) => console.log(name, value)),
       value: jest.fn((name, value) => console.log(name, value))
     };
     this.notification = {};
+    this.cacheStore = {};
     this.cache = {
       wrap: jest.fn((key, cb) => {
-        return Promise.resolve(cb());
+        if (this.cacheStore[key]) {
+          return this.cacheStore[key];
+        } else {
+          const promise = cb();
+          this.cacheStore[key] = promise;
+          return promise;
+        }
+        // return Promise.resolve(cb());
       }),
-      get: jest.fn(() => {
+      get: jest.fn((key) => {
+        return Promise.resolve(this.cacheStore[key]);
+      }),
+      set: jest.fn((key, value) => {
+        this.cacheStore[key] = value;
         return Promise.resolve();
       }),
-      set: jest.fn(() => {
-        return Promise.resolve();
-      }),
-      del: jest.fn(() => {
+      del: jest.fn((key) => {
+        _.unset(this.cacheStore, key);
         return Promise.resolve();
       })
     };

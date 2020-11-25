@@ -259,6 +259,16 @@ const accountFields = [
     readOnly: false
   },
   {
+    name: "owner",
+    display: "Owner Id",
+    readOnly: true
+  },
+  {
+    name: "ownerEmail",
+    display: "Owner Email",
+    readOnly: true
+  },
+  {
     name: "tags",
     display: "Tags",
     readOnly: false
@@ -522,6 +532,106 @@ const prospectFields = [
     readOnly: false
   },
   {
+    name: "custom36",
+    display: "Custom36",
+    readOnly: false
+  },
+  {
+    name: "custom37",
+    display: "Custom37",
+    readOnly: false
+  },
+  {
+    name: "custom38",
+    display: "Custom38",
+    readOnly: false
+  },
+  {
+    name: "custom39",
+    display: "Custom39",
+    readOnly: false
+  },
+  {
+    name: "custom40",
+    display: "Custom40",
+    readOnly: false
+  },
+  {
+    name: "custom41",
+    display: "Custom41",
+    readOnly: false
+  },
+  {
+    name: "custom42",
+    display: "Custom42",
+    readOnly: false
+  },
+  {
+    name: "custom43",
+    display: "Custom43",
+    readOnly: false
+  },
+  {
+    name: "custom44",
+    display: "Custom44",
+    readOnly: false
+  },
+  {
+    name: "custom45",
+    display: "Custom45",
+    readOnly: false
+  },
+  {
+    name: "custom46",
+    display: "Custom46",
+    readOnly: false
+  },
+  {
+    name: "custom47",
+    display: "Custom47",
+    readOnly: false
+  },
+  {
+    name: "custom48",
+    display: "Custom48",
+    readOnly: false
+  },
+  {
+    name: "custom49",
+    display: "Custom49",
+    readOnly: false
+  },
+  {
+    name: "custom50",
+    display: "Custom50",
+    readOnly: false
+  },
+  {
+    name: "custom51",
+    display: "Custom51",
+    readOnly: false
+  },
+  {
+    name: "custom52",
+    display: "Custom52",
+    readOnly: false
+  },
+  {
+    name: "custom53",
+    display: "Custom53",
+    readOnly: false
+  },
+  {
+    name: "custom54",
+    display: "Custom54",
+    readOnly: false
+  },
+  {
+    name: "custom55",
+    display: "Custom55",
+    readOnly: false
+  },
+  {
     name: "dateOfBirth",
     display: "Date Of Birth",
     readOnly: false,
@@ -703,6 +813,11 @@ const prospectFields = [
     readOnly: false
   },
   {
+    name: "ownerEmail",
+    display: "Owner Email",
+    readOnly: false
+  },
+  {
     name: "personalNote1",
     display: "Personal Note1",
     readOnly: false
@@ -774,6 +889,11 @@ const prospectFields = [
     name: "stage",
     display: "Stage",
     readOnly: false
+  },
+  {
+    name: "stageName",
+    display: "Stage Name",
+    readOnly: true
   },
   {
     name: "tags",

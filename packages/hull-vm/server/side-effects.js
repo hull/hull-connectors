@@ -2,6 +2,7 @@
 import type { HullUser, HullAccount, HullClient, HullContext } from "hull";
 import _ from "lodash";
 import { Map } from "immutable";
+import moment from "moment";
 import type { Result, Event } from "../types";
 
 type TraitsSignature =
@@ -46,10 +47,11 @@ type EventSignature = {
 const logIfNested = (client, attrs) => {
   _.map(attrs, (v, k: string) => {
     if (
-      _.isObject(v) &&
-      !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
+      (_.isPlainObject(v) &&
+        !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])) ||
+      (_.isArray(v) && _.some(v, vv => _.isObject(vv)))
     ) {
-      client.logger.info(`Nested object found in key "${k}"`, v);
+      client.logger.debug(`Nested object found in key "${k}"`, v);
     }
   });
 };
@@ -64,9 +66,7 @@ export const callTraits = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.toArray().map(async ([claimsMap, attrsMap]) => {
-        const claims = claimsMap.toObject();
-        const attrs = attrsMap.toObject();
+      data.map(async ([claims, attrs]) => {
         const client = hullClient(claims);
         try {
           logIfNested(client, attrs);
@@ -82,23 +82,33 @@ export const callTraits = async ({
               no_ops[k] = "identical value";
               return true;
             }
+            if (
+              // $FlowFixMe
+              (k.endsWith("_date") || k.endsWith("_at")) &&
+              moment(previous).isSame(moment(v))
+            ) {
+              no_ops[k] = "identical date";
+              return true;
+            }
             return false;
           });
           if (_.size(attributes)) {
             await client.traits(attributes);
           }
           successful += 1;
-          return client.logger.info(`incoming.${entity}.success`, {
+          client.logger.debug(`incoming.${entity}.success`, {
             attributes,
             no_ops
           });
+          return undefined;
         } catch (err) {
-          return client.logger.error(`incoming.${entity}.error`, {
+          client.logger.error(`incoming.${entity}.error`, {
             hull_summary: `Error saving Attributes: ${err.message ||
               "Unexpected error"}`,
             [entity]: claims,
             errors: err
           });
+          return undefined;
         }
       })
     );
@@ -128,18 +138,20 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return client.logger.info("incoming.event.success", {
+          client.logger.debug("incoming.event.success", {
             eventName,
             properties
           });
+          return undefined;
         } catch (err) {
-          return client.logger.error("incoming.event.error", {
+          client.logger.error("incoming.event.error", {
             hull_summary: `Error processing Event: ${err.message ||
               "Unexpected error"}`,
             user: claims,
             errors: err,
             event
           });
+          return undefined;
         }
       })
     );
@@ -164,25 +176,25 @@ export const callLinks = async ({
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.toArray().map(async ([userClaimsMap, accountClaimsMap]) => {
-        const accountClaims = accountClaimsMap.toObject();
-        const userClaims = userClaimsMap.toObject();
+      data.map(async ([userClaims, accountClaims]) => {
         const client = hullClient(userClaims);
         try {
           successful += 1;
           await client.account(accountClaims).traits({});
-          return client.logger.info(`incoming.${entity}.link.success`, {
+          client.logger.debug(`incoming.${entity}.link.success`, {
             accountClaims,
             userClaims
           });
+          return undefined;
         } catch (err) {
-          return client.logger.error(`incoming.${entity}.link.error`, {
+          client.logger.error(`incoming.${entity}.link.error`, {
             hull_summary: `Error Linking User and account: ${err.message ||
               "Unexpected error"}`,
             user: userClaims,
             account: accountClaims,
             errors: err
           });
+          return undefined;
         }
       })
     );
@@ -204,13 +216,11 @@ export const callAlias = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.toArray().map(async ([claimsMap, operations]) => {
-        const claims = claimsMap.toObject();
+      data.map(async ([claims, operations]) => {
         const client = hullClient(claims);
         try {
           const opLog = await Promise.all(
-            operations.toArray().map(async ([aliasClaims, operation]) => {
-              const a = aliasClaims.toObject();
+            operations.map(async ([a, operation]) => {
               const { anonymous_id } = a;
               if (
                 payload &&
@@ -227,16 +237,19 @@ export const callAlias = async ({
               return [a, operation];
             })
           );
-          return client.logger.info(`incoming.${entity}.alias.success`, {
-            claims,
-            operations: opLog
-          });
+          if (successful) {
+            client.logger.debug(`incoming.${entity}.alias.success`, {
+              claims,
+              operations: opLog
+            });
+          }
+          return undefined;
         } catch (err) {
-          console.log(err);
-          return client.logger.info(`incoming.${entity}.alias.error`, {
+          client.logger.error(`incoming.${entity}.alias.error`, {
             claims,
-            aliases: operations.toJS()
+            aliases: operations
           });
+          return undefined;
         }
       })
     );

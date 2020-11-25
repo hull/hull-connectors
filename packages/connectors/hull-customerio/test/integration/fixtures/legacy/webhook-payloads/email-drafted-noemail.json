@@ -1,0 +1,16 @@
+{
+    "data": {
+        "campaign_id": "1000015",
+        "campaign_name": "Customers in staging (1 month campaign)",
+        "customer_id": "9700bbc8-9157-4124-8e7a-490ee36ff6b2",
+        "email_address": null,
+        "email_id": "ZJvQAQABYodfgvq9o7L5aNbWpc1t",
+        "message_id": "1000025",
+        "message_name": "Cheers to us!",
+        "subject": null,
+        "template_id": "384381"
+    },
+    "event_id": "01CA3NZ1MPRDZ37Y7F9KM41F6T",
+    "event_type": "email_drafted",
+    "timestamp": 1522689606
+}

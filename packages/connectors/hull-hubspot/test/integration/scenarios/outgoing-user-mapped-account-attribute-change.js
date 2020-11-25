@@ -1,6 +1,7 @@
 // @flow
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -18,22 +19,22 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       { hull: "traits_outreach/title", service: "jobtitle" },
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
+      { hull: "account.id", service: "hull_custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "hull_custom_hubspot_account_domain", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should allow through with mapped account attribute changes", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -44,9 +45,25 @@ it("should allow through with mapped account attribute changes", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
-        ).reply(202);
+        scope
+          .post("/companies/v2/domains/doe.com/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, { "results": [] });
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
+          {
+            "properties": [
+              { "property": "jobtitle", "value": "sometitle" },
+              { "property":"hull_custom_hubspot_account_id","value":"acc123" },
+              { "property":"hull_custom_hubspot_account_domain","value":"doe.com" },
+              { "property":"hull_segments","value":"testSegment" }
+            ],
+            "email":"email@email.com",
+            "vid": 5677
+          }
+        ]).reply(202);
         return scope;
       },
       connector,
@@ -87,7 +104,7 @@ it("should allow through with mapped account attribute changes", () => {
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             "is_new": false,
             "user": {
@@ -109,13 +126,11 @@ it("should allow through with mapped account attribute changes", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
       logs: [
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
@@ -125,17 +140,16 @@ it("should allow through with mapped account attribute changes", () => {
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "properties": [{
-              "property": "hull_custom_hubspot_account_id",
-              "value": "acc123"
-            }, {
-              "property": "hull_custom_hubspot_account_domain",
-              "value": "doe.com"
-            }, {
-              "property": "hull_segments",
-              "value": "testSegment",
-            }]
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "vid": 5677,
+              "properties": [
+                { "property": "jobtitle", "value": "sometitle" },
+                { "property": "hull_custom_hubspot_account_id", "value": "acc123" },
+                { "property": "hull_custom_hubspot_account_domain", "value": "doe.com" },
+                { "property": "hull_segments", "value": "testSegment", }
+              ]
+            }
           }
         ]
       ],
@@ -147,12 +161,11 @@ it("should allow through with mapped account attribute changes", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
+        ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

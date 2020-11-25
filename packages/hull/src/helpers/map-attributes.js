@@ -3,40 +3,82 @@
 import _ from "lodash";
 import type {
   HullContext,
-  HullEntityAttributes,
-  HullAttributeMapping
+  HullAttributeMapping,
+  HullJsonataType,
+  HullEntityAttributes
 } from "hull";
+
 import jsonata from "jsonata";
 
+const cast = (type?: HullJsonataType) => (value: any) => {
+  if (!type) return value;
+  if (type === "array") return `${value}[]`;
+  if (type === "number") return `$number(${value})`;
+  if (type === "string") return `${value}&""`;
+  if (type === "stringifiedArray") return `${value}[]&""`;
+  return value;
+};
+
+// TODO clear up the rules for attribute names - how to
+// differentiate between a jsonata expression and a raw
+// attribute name
+const rawHullTraitRegex = /^(account\.)?([\w\s\-()/]+)$/g;
+const noDotInPath = str => str.indexOf(".") === -1;
+const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
-  entity,
-  type,
+  payload,
   mapping,
-  direction
+  entity = "user",
+  direction = "incoming",
+  serviceSchema = {},
+  attributeFormatter = v => v
 }: {
-  entity: {},
-  mapping: string,
-  type: string,
-  direction: string
+  payload: {},
+  entity?: "user" | "account",
+  direction?: "incoming" | "outgoing",
+  mapping: Array<HullAttributeMapping>,
+  attributeFormatter: any
 }): HullEntityAttributes => {
-  const { connectorConfig, helpers, connector } = ctx;
+  const { helpers } = ctx;
   const { operations } = helpers;
-  // manifest from ConnectorConfig is the one committed with the repository
-  const { manifest } = connectorConfig;
   const { setIfNull } = operations;
-  const mappings: {
-    top_level?: Array<HullAttributeMapping>
-  } = _.get(manifest, ["mappings", type, direction]);
-  const settings =
-    connector.private_settings[mapping] || connector.settings[mapping];
-  const { top_level = [] } = mappings;
+
   const transform = _.reduce(
-    [...settings, ...top_level],
-    (m, { service, hull, overwrite }) => {
+    mapping,
+    (m, { service, hull, overwrite, castAs }) => {
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return m;
+      }
+      const casted = cast(castAs);
+      const isRawHullTrait = isRawTrait(hull);
+      const hullExpression = isRawHullTrait
+        ? hull.replace(rawHullTraitRegex, "$1'$2'")
+        : hull;
+      if (
+        !isRawHullTrait &&
+        !_.startsWith(hullExpression, "'") &&
+        !_.startsWith(hullExpression, "account.'") &&
+        !hull.includes("segment") &&
+        !hull.includes("[") &&
+        !hull.startsWith("`")
+      ) {
+        console.log(`verify trait: "${hull}" -> "${hullExpression}"`);
+      }
+      const { source, target } =
+        direction === "incoming"
+          ? { target: hull, source: service }
+          : {
+              target: service,
+              source: noDotInPath(hull)
+                ? `${entity}.${hullExpression}`
+                : hullExpression
+            };
       _.set(
         m,
-        hull,
-        overwrite ? `_{{${service}}}_` : setIfNull(`_{{${service}}}_`)
+        target,
+        direction === "outgoing" || _.isNil(overwrite) || overwrite
+          ? `_{{${casted(source)}}}_`
+          : setIfNull(`_{{${casted(source)}}}_`)
       );
       return m;
     },
@@ -44,8 +86,18 @@ const mapAttributes = (ctx: HullContext) => ({
   );
 
   const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
-  const response = jsonata(transformed).evaluate(entity);
-  return response;
+  const response = jsonata(transformed).evaluate(payload);
+
+  return _.reduce(
+    response,
+    (r, val, attribute) => {
+      const schema = _.get(serviceSchema, attribute, {});
+      const { formatter = attributeFormatter } = schema;
+      r[attribute] = formatter(val);
+      return r;
+    },
+    {}
+  );
 };
 
 module.exports = mapAttributes;

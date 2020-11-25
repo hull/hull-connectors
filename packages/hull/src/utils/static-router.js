@@ -1,11 +1,5 @@
-const path = require("path");
+// @flow
 const express = require("express");
-
-function manifestRouteFactory(dirname) {
-  return function manifestRoute(req, res) {
-    return res.sendFile(path.resolve(dirname, "manifest.json"));
-  };
-}
 
 function readmeRoute(req, res) {
   return res.redirect(
@@ -13,16 +7,14 @@ function readmeRoute(req, res) {
   );
 }
 
-function staticRouter() {
-  const applicationDirectory = path.dirname(
-    path.join(require.main.filename, "..")
-  );
+function staticRouter({ path, manifest }) {
+  const { readme = "readme.md" } = manifest;
   const router = express.Router();
+  router.use(express.static(`${path}/dist`));
+  router.use(express.static(`${path}/assets`));
 
-  router.use(express.static(`${applicationDirectory}/dist`));
-  router.use(express.static(`${applicationDirectory}/assets`));
-
-  router.get("/manifest.json", manifestRouteFactory(applicationDirectory));
+  router.get("/readme.md", (_req, res) => res.render(readme));
+  router.get("/manifest.json", (req, res) => res.send(manifest));
   router.get("/", readmeRoute);
   router.get("/readme", readmeRoute);
 

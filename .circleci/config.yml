@@ -1,10 +1,24 @@
 version: 2
 jobs:
   build:
+    machine:
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Build docker image
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker build . -t hull/hull-connectors:$CIRCLE_SHA1
+      - run:
+          name: Publish to docker
+          command: |
+            docker push hull/hull-connectors:$CIRCLE_SHA1
+  test:
     docker:
-      - image: circleci/node:10.15
-      - image: circleci/mongo:3.6.12
+      - image: circleci/node:12.12.0
       - image: circleci/redis:5.0.4
+      - image: circleci/mongo:3.6.12
     steps:
       - checkout
       - run:
@@ -16,7 +30,7 @@ jobs:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
-          command: yarn
+          command: yarn install --frozen-lockfile --verbose
       - save_cache:
           name: Save Yarn Package cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
@@ -25,12 +39,25 @@ jobs:
       - run:
           name: Run tests
           command: yarn test:ci
-      # - setup_remote_docker
-      # - run:
-      #     name: Deploy all connectors
-      #     command: |
-      #       echo $DEPLOYMENT_CONFIG_JS | base64 -d > deployment.config.js
-      #       CONNECTORS=`BRANCH=$CIRCLE_BRANCH sh scripts/get-connectors-to-deploy.sh`
-      #       docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-      #       echo $CONNECTORS
-      #       echo "$CONNECTORS" | while IFS= read -r C ; do CONNECTOR=$C BRANCH=$CIRCLE_BRANCH sh scripts/deploy-to-heroku.sh; done
+  deploy:
+    docker:
+      - image: hull/dcos-deploy:latest
+    steps:
+      - run:
+          name: Push Docker Image & Deploy to Marathon
+          command: |
+            DOCKER_IMAGE=hull/hull-connectors:$CIRCLE_SHA1
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              APP_ENV="production"
+            else
+              APP_ENV="staging"
+            fi
+
+            ci-login-to-dcos $DCOS_CLUSTER_URL
+            marathon-deploy-group /$APP_ENV/connectors $DOCKER_IMAGE
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test

@@ -11,8 +11,10 @@ const MailchimpBatchAgent = require("./batch-agent");
 class MailchimpAgent {
   constructor(mailchimpClient, ctx) {
     this.mailchimpClient = mailchimpClient;
+    this.private_settings = ctx.connector.private_settings;
+    this.settingsUpdate = ctx.helpers.settingsUpdate;
     this.client = ctx.client;
-    this.ship = ctx.ship;
+    this.ship = ctx.connector;
     this.cache = ctx.cache;
     this.listId = _.get(ctx.connector, "private_settings.mailchimp_list_id");
 
@@ -29,31 +31,13 @@ class MailchimpAgent {
     );
   }
 
-  getWebhook({ hostname, client }) {
-    const ship = _.get(client.configuration(), "id");
+  getWebhooks() {
     return this.mailchimpClient
       .get("/lists/{{listId}}/webhooks")
-      .then(response => {
-        const { body } = response;
-        const { webhooks = [] } = body;
-        return _.find(webhooks, ({ url = "" }) => {
-          return url && url.includes(ship) && url.includes(hostname);
-        });
-      });
+      .then(response => response.body.webhooks);
   }
 
-  createWebhook(ctx) {
-    const { hostname } = ctx;
-    const { organization, id, secret } = ctx.client.configuration();
-    const search = {
-      organization,
-      secret,
-      ship: id
-    };
-    const url = uri(`https://${hostname}/mailchimp`)
-      .search(search)
-      .toString();
-
+  createWebhook(url) {
     const hook = {
       url,
       sources: { user: true, admin: true, api: true },
@@ -72,14 +56,62 @@ class MailchimpAgent {
       .then(({ body }) => body);
   }
 
+  deleteWebhook(id) {
+    return this.mailchimpClient
+      .delete(`/lists/{{listId}}/webhooks/${id}`)
+      .then(res => res.body)
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  /*
+      1. Create webhook url template and organization url
+      2. Get all webhooks in a list
+          If none of them matches the url template, add webhook
+      3. Iterate over all webhooks
+          If elem isn't equal to url template and includes organization url, delete
+   */
   ensureWebhookSubscription(req) {
     if (!this.listId) {
       return Promise.reject(new Error("Missing listId"));
     }
+    const webhook_id = _.get(this.private_settings, "webhook_id");
+
+    if (webhook_id) {
+      return Promise.resolve({ webhook_id });
+    }
     return this.cache
-      .wrap("webhook", () => this.getWebhook(req))
-      .then(hook => {
-        return hook || this.createWebhook(req);
+      .wrap("webhook", () => this.getWebhooks(req))
+      .then(async webhooks => {
+        const promises = [];
+        const { organization, id, secret } = req.client.configuration();
+        const { hostname } = req;
+        const search = {
+          organization,
+          secret,
+          ship: id
+        };
+        const webhookUrl = uri(`https://${hostname}/mailchimp`)
+          .search(search)
+          .toString();
+        if (_.filter(webhooks, { url: webhookUrl }) <= 0) {
+          try {
+            const webhook = await this.createWebhook(webhookUrl);
+            this.settingsUpdate({ webhook_id: webhook.id });
+          } catch (error) {
+            this.client.logger.warn("webhook.error", {
+              errors: error.message,
+              message: "Unable to create webhook"
+            });
+          }
+        }
+        _.forEach(webhooks, wh => {
+          if (wh.url !== webhookUrl && wh.url.includes(organization)) {
+            promises.push(this.deleteWebhook(wh.id));
+          }
+        });
+        return Promise.all(promises);
       })
       .catch(err => {
         this.client.logger.warn("webhook.error", {

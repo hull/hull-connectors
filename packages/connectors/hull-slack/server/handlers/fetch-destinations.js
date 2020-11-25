@@ -10,10 +10,8 @@ const formatList = (list, prefix = "") =>
 const fetchDestinations = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext
 ): HullExternalResponse => {
-  const {
-    teamMembers = undefined,
-    teamChannels = undefined
-  } = await connectSlack(ctx);
+  const { getChannels } = await connectSlack(ctx);
+  const { teamChannels, teamMembers } = await getChannels();
   if (!teamMembers || !teamChannels) {
     return {
       status: 200,

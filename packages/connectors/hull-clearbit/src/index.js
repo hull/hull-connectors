@@ -76,12 +76,17 @@ export default function boot() {
     const $btn_import = $("button#import");
     const $domains = $("#domains");
     const $titles = $("#titles");
-    const $role = $("#role");
-    const $seniority = $("#seniority");
+    const $cities = $("#cities");
+    const $states = $("#states");
+
+    const $roles = $("#roles");
+    const $seniorities = $("#seniorities");
     // const $limit = $("#limit");
     updateImportButtonStatus($btn_import, 0);
 
     const container = $("#results");
+    const errorContainer = $("#errors");
+    errorContainer.hide();
 
     $btn_import.prop("disabled", true).on("click", onImport(container));
 
@@ -101,34 +106,35 @@ export default function boot() {
 
     const updateState = () => {
       const data = {};
-      const titles = $titles
+      data.titles = $titles
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      const domains = $domains
+      data.domains = $domains
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      ["role", "seniority", "limit"].forEach(k => {
+      ["roles", "seniorities", "cities", "states", "limit"].forEach(k => {
         const val = $(`#${k}`).val();
         if (val && val.length > 0) {
           data[k] = val;
         }
       });
-      if (titles.length && domains.length) {
+      if (data.titles.length && data.domains.length) {
         enableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       } else {
         disableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       }
-      return { domains, titles };
+      return data;
     };
 
-    $role
+    $roles
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
-    $seniority
+    $seniorities
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
+
     $domains
       .select2({
         theme: "bootstrap",
@@ -146,6 +152,22 @@ export default function boot() {
         closeOnSelect: true
       })
       .on("change", updateState);
+    $states
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.STATES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $cities
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.CITIES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
 
     updateState();
 
@@ -153,11 +175,13 @@ export default function boot() {
       evt.preventDefault();
       const data = updateState();
       disableButton(STRINGS.BTN_LOADING, $btn_prospect);
+      errorContainer.hide();
       const { error, prospects } = await request({ url: "/prospect", data });
       if (error) {
-        $("#results").html(renderError(error));
+        errorContainer.html(renderError(error)).show();
       }
       if (prospects && prospects.length) {
+        errorContainer.empty().hide();
         $btn_prospect.show();
         renderResults({ container, data: prospects });
       }

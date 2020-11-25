@@ -103,14 +103,14 @@ module.exports = [
           entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.success",
         {
           subject_type: "user",
@@ -212,6 +212,7 @@ module.exports = [
               { "my-group/foo": "321" }
             ]
           ],
+          data: {},
           accountTraits: [
             [
               {
@@ -251,12 +252,11 @@ module.exports = [
           accountAliases: [],
           userAliases: [],
           accountLinks: [[{ id: "123" }, { external_id: "external" }]],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.success",
         {
           subject_type: "user",
@@ -270,7 +270,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -284,7 +284,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -298,7 +298,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.event.success",
         {
           subject_type: "user",
@@ -312,7 +312,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.link.success",
         {
           subject_type: "user",
@@ -432,6 +432,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -488,12 +489,11 @@ module.exports = [
               }
             ]
           ],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.success",
         {
           subject_type: "user",
@@ -507,7 +507,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -521,7 +521,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -535,7 +535,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.event.success",
         {
           subject_type: "user",
@@ -549,7 +549,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.link.success",
         {
           subject_type: "user",
@@ -643,6 +643,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -675,12 +676,11 @@ module.exports = [
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.success",
         {
           subject_type: "user",
@@ -694,7 +694,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.event.success",
         {
           subject_type: "user",
@@ -768,6 +768,7 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [
             [
               {
@@ -782,12 +783,11 @@ module.exports = [
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -864,13 +864,13 @@ module.exports = [
           events: [],
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -941,14 +941,14 @@ module.exports = [
           entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.success",
         {
           subject_type: "user",
@@ -1001,10 +1001,14 @@ module.exports = [
         "compute.debug",
         {},
         {
-          logs: [],
+          logs: [
+            'Warning: Incorrect alias format \'{"external_id":"123"}\'. Please use \'.alias({ anonymous_id: "..." })\'',
+            'Warning: Incorrect alias format \'{"email":"foo@bar.com"}\'. Please use \'.alias({ anonymous_id: "..." })\''
+          ],
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [],
           claims: undefined,
           entity: undefined,
@@ -1020,12 +1024,11 @@ module.exports = [
           ],
           userAliases: [[{ id: "123" }, [[{ email: "foo@bar.com" }, "alias"]]]],
           events: [],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.alias.success",
         {
           subject_type: "user",
@@ -1037,7 +1040,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.alias.success",
         {
           subject_type: "account",

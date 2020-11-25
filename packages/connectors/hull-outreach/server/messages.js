@@ -101,6 +101,16 @@ const MESSAGES = {
       category: "DataFlow"
     };
   },
+  BAD_RESOURCE_REQUEST_ERROR: () => {
+    return {
+      id: "ResourceRequestError",
+      message:
+        "Outreach has rejected the objects being sent, please review the object for any old relationships that may not exist anymore. If you think this is correct, please contact Hull support",
+      level: "Error",
+      channel: "Operation",
+      category: "DataFlow"
+    };
+  },
   SERVICE_PROSPECT_IS_OWNER_ERROR: () => {
     return {
       id: "ServiceValidationError",
@@ -139,6 +149,15 @@ const MESSAGES = {
       channel: "Operation",
       category: "Unknown"
     };
+  },
+  OPERATION_EXCEEDED_RATE_LIMIT: () => {
+    return {
+      id: "OperationExceededRateLimit",
+      message: "Connector has exceeded the rate limit",
+      level: "Information",
+      channel: "Operation",
+      category: "DataFlow"
+    }
   }
 };
 
