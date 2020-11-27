@@ -1,7 +1,7 @@
 {
   "name": "Madkudu",
   "description": "Enrich Accounts with Madkudu",
-  "tags": ["incoming", "outgoing", "batch-accounts", "oneColumn", "smart-notifier"],
+  "tags": ["batch", "batch-accounts", "smart-notifier", "kraken-exports"],
   "ui": false,
   "source": "madkudu",
   "logo": "logo.png",
@@ -17,14 +17,7 @@
       "default": "",
       "title": "Madkudu API Key"
     },
-    {
-      "name": "synchronized_account_segments",
-      "title": "Account Filter",
-      "description": "Send to Madkudu when accounts match these segments",
-      "default": [],
-      "type": "array",
-      "format": "accountSegment"
-    },
+
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
@@ -32,15 +25,327 @@
       "default": [],
       "type": "array",
       "format": "segment"
+    },
+    {
+      "name": "synchronized_user_segments_exclusion",
+      "title": "User Exclusion list",
+      "description": "Do NOT send to Madkudu when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "synchronized_user_events",
+      "title": "Event Filter",
+      "description": "Send the listed events to Madkudu",
+      "type": "array",
+      "format": "event",
+      "default": ["ALL"],
+      "options": {
+        "standard": {
+          "all_events": "All Events"
+        }
+      }
+    },
+    {
+      "name": "synchronized_user_attributes",
+      "title": "Outgoing User Attribute Mapping",
+      "description": "Define which Hull User attributes are sent to Madkudu",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "allowExpression": true,
+        "autoFill": true,
+        "showOverwriteToggle": false,
+        "placeholder": "Madkudu Attribute",
+        "allowCreate": true
+      },
+      "default": [
+        {
+          "hull": "segments.name[]",
+          "service": "hull_segments",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "name": "synchronized_account_attributes",
+      "title": "Outgoing Account Attribute Mapping",
+      "description": "Define which Hull Account attributes are sent to Madkudu",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "allowExpression": true,
+        "autoFill": true,
+        "showOverwriteToggle": false,
+        "placeholder": "Madkudu Attribute",
+        "allowCreate": true
+      },
+      "default": [
+        {
+          "hull": "account_segments.name[]",
+          "service": "hull_segments",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ]
+    },
+
+    {
+      "name": "enriched_account_segments",
+      "title": "Account Filter",
+      "description": "Enrich with Madkudu when accounts match these segments",
+      "default": [],
+      "type": "array",
+      "format": "accountSegment"
+    },
+    {
+      "name": "enriched_account_segments_exclusion",
+      "title": "Account Exclusion list",
+      "description": "Do NOT enrich with Madkudu when accounts match these segments",
+      "default": [],
+      "type": "array",
+      "format": "accountSegment"
+    },
+
+    {
+      "name": "enriched_user_segments",
+      "title": "User Filter",
+      "description": "Enrich with Madkudu when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "enriched_user_segments_exclusion",
+      "title": "User Exclusion list",
+      "description": "Do NOT enrich with Madkudu when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "madkudu_person_attributes",
+      "title": "Madkudu Person Mapping",
+      "description": "Define how to map Madkudu Persons to Hull Users",
+      "type": "array",
+      "url": "/attributes/person",
+      "handler": "personAttributes",
+      "format": "traitMapping",
+      "options": {
+        "loadOptions": "/attributes/person",
+        "direction": "incoming",
+        "source": "madkudu",
+        "allowExpression": true,
+        "showOverwriteToggle": false,
+        "placeholder": "Madkudu Attribute",
+        "allowCreate": true
+      },
+      "default": [
+        {
+          "service": "properties.first_name",
+          "hull": "madkudu/first_name"
+        },
+        {
+          "service": "properties.last_name",
+          "hull": "madkudu/last_name"
+        },
+        {
+          "service": "properties.domain",
+          "hull": "madkudu/domain"
+        },
+        {
+          "service": "properties.is_student",
+          "hull": "madkudu/is_student"
+        },
+        {
+          "service": "properties.is_spam",
+          "hull": "madkudu/is_spam"
+        },
+        {
+          "service": "properties.is_personal_email",
+          "hull": "madkudu/is_personal_email"
+        },
+        {
+          "service": "properties.customer_fit.segment",
+          "hull": "madkudu/customer_fit_segment"
+        },
+        {
+          "service": "properties.customer_fit.score",
+          "hull": "madkudu/customer_fit_score"
+        },
+        {
+          "service": "properties.customer_fit.top_signals",
+          "hull": "madkudu/customer_fit_top_signals"
+        },
+        {
+          "service": "properties.customer_fit.top_signals[type='positive'].name",
+          "hull": "madkudu/customer_fit_top_signals_positive"
+        },
+        {
+          "service": "properties.customer_fit.top_signals[type='negative'].name",
+          "hull": "madkudu/customer_fit_top_signals_negative"
+        }
+      ]
+    },
+
+    {
+      "name": "madkudu_company_attributes",
+      "title": "Madkudu Company Mapping",
+      "description": "Define how to map Madkudu Companies to Hull Accounts",
+      "type": "array",
+      "url": "/attributes/company",
+      "handler": "companyAttributes",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "allowExpression": true,
+        "showOverwriteToggle": false,
+        "source": "madkudu",
+        "loadOptions": "/attributes/company",
+        "placeholder": "Madkudu Attribute",
+        "allowCreate": true
+      },
+      "default": [
+        {
+          "service": "properties.name",
+          "hull": "madkudu/name"
+        },
+        {
+          "service": "properties.domain",
+          "hull": "madkudu/domain"
+        },
+        {
+          "service": "properties.number_of_employees",
+          "hull": "madkudu/number_of_employees"
+        },
+        {
+          "service": "properties.industry",
+          "hull": "madkudu/industry"
+        },
+
+        {
+          "service": "properties.location.state",
+          "hull": "madkudu/location_state"
+        },
+        {
+          "service": "properties.location.state_code",
+          "hull": "madkudu/location_state_code"
+        },
+        {
+          "service": "properties.location.country",
+          "hull": "madkudu/country"
+        },
+        {
+          "service": "properties.location.country_code",
+          "hull": "madkudu/country_code"
+        },
+        {
+          "service": "properties.location.tags",
+          "hull": "madkudu/location_tags"
+        },
+        {
+          "service": "properties.customer_fit.segment",
+          "hull": "madkudu/customer_fit_segment"
+        },
+        {
+          "service": "properties.customer_fit.top_signals_formated",
+          "hull": "madkudu/customer_fit_top_signals_formated"
+        },
+        {
+          "service": "properties.customer_fit.top_signals",
+          "hull": "madkudu/customer_fit_top_signals"
+        },
+        {
+          "service": "properties.customer_fit.top_signals[type='positive'].name",
+          "hull": "madkudu/customer_fit_top_signals_positive"
+        },
+        {
+          "service": "properties.customer_fit.top_signals[type='negative'].name",
+          "hull": "madkudu/customer_fit_top_signals_negative"
+        }
+      ]
     }
   ],
+  "settings_sections": [
+    {
+      "title": "Setup",
+      "step": "credentials",
+      "description": "Madkudu API Key",
+      "properties": ["private_settings.api_key"]
+    },
+    {
+      "title": "Sending data to Madkudu",
+      "description": "Configure the way data is sent to Madkudu",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.synchronized_user_segments_exclusion",
+        "private_settings.synchronized_user_attributes",
+        "private_settings.synchronized_user_events",
+        "private_settings.synchronized_account_attributes"
+      ]
+    },
+    {
+      "title": "Enrich Users with Madkudu Data",
+      "description": "Configure how Users are enriched with Madkudu",
+      "properties": [
+        "private_settings.enriched_user_segments",
+        "private_settings.enriched_user_segments_exclusion",
+        "private_settings.madkudu_person_attributes"
+      ]
+    },
+    {
+      "title": "Enrich Accounts with Madkudu Data",
+      "description": "Configure how Accounts are enriched with Madkudu",
+      "properties": [
+        "private_settings.enriched_account_segments",
+        "private_settings.enriched_account_segments_exclusion",
+        "private_settings.madkudu_company_attributes"
+      ]
+    }
+  ],
+
   "settings": [],
   "resources": [],
-  "subscriptions": [{ "url": "/smart-notifier" }],
-  "schedules" : [
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "only": ["user:update", "account:update"],
+        "conditions": {
+          "segments": {
+            "user:update": ["private_settings.synchronized_user_segments"],
+            "account:update": ["private_settings.synchronized_account_segments"]
+          }
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "status": {
+    "url": "/status",
+    "initial_value": "setupRequired",
+    "type": "interval",
+    "handler": "statusHandler",
+    "value": "5"
+  },
+  "statuses": [
     {
       "url": "/status",
       "type": "interval",
+      "handler": "statusHandler",
       "value": "5"
     }
   ]

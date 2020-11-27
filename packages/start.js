@@ -25,7 +25,6 @@ import path from "path";
       `${connectorPath}/manifest.json`
     );
     const { type } = manifest;
-    // console.log({manifest, connectorPath})
     if (type) {
       Lightweight({ path: connectorPath, type, manifest });
     } else {

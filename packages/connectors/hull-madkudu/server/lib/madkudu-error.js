@@ -1,7 +1,8 @@
 /* @flow */
-import type { TMadkuduMethod, TMadkuduAnalyticsCallType } from "../types";
 
-const { TransientError } = require("hull/lib/errors");
+import { TransientError } from "hull/src/errors";
+
+import type { TMadkuduMethod, TMadkuduAnalyticsCallType } from "./types";
 
 class MadkuduError extends TransientError {
   /**
@@ -27,7 +28,11 @@ class MadkuduError extends TransientError {
    * @param {...any[]} params Default arguments.
    * @memberof MadkuduError
    */
-  constructor(method: TMadkuduMethod | TMadkuduAnalyticsCallType, innerException: Error, ...params: any[]) {
+  constructor(
+    method: TMadkuduMethod | TMadkuduAnalyticsCallType,
+    innerException: Error,
+    ...params: any[]
+  ) {
     // Pass remaining arguments (including vendor specific ones) to parent constructor
     super(...params);
 

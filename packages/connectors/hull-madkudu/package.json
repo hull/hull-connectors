@@ -1,89 +1,23 @@
 {
   "name": "hull-madkudu",
-  "version": "1.0.3",
   "description": "Enrich Accounts with Madkudu",
-  "main": "index.js",
+  "version": "0.1.39-monorepo",
   "license": "MIT",
-  "homepage": "https://github.com/hull-ships",
+  "homepage": "https://github.com/hull/hull-connectors",
   "keywords": [
     "hull",
     "ship",
-    "hull-ship"
+    "hull-ship",
+    "madkudu",
+    "enrichment",
+    "sync"
   ],
-  "author": {
-    "name": "Hull",
-    "email": "contact@hull.io",
-    "url": "https://github.com/hull-ships/hull-madkudu"
-  },
-  "engines": {
-    "node": "8.11.x",
-    "npm": "5.6.x",
-    "yarn": "1.6.x"
-  },
   "scripts": {
-    "build": "yarn run clean && yarn run build:server",
-    "build:server": "babel server -d build",
-    "clean": "rimraf dist; rimraf build",
-    "postinstall": "yarn run build",
-    "test:lint": "eslint server",
-    "test:combined": "NODE_ENV=test jest ./test",
-    "start": "NODE_ENV=production node -r newrelic build",
-    "start:dev": "NODE_ENV=development LOG_LEVEL=debug babel-watch -L server",
-    "ngrok": "ngrok http 8082 --region eu --subdomain madkudu",
-    "test": "yarn run test:lint && yarn run test:combined"
+    "test": "yarn run test:integration",
+    "test:intgration": "NODE_ENV=test jest ./test"
   },
   "dependencies": {
-    "@segment/loosely-validate-event": "^1.1.2",
-    "analytics-node": "^3.1.1",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "bluebird": "^3.5.1",
-    "crypto-token": "^1.0.1",
-    "css": "^2.2.1",
-    "express": "^4.16.2",
-    "hull": "0.13.16",
-    "lodash": "^4.17.4",
-    "newrelic": "^2.4.1",
-    "object-mapper": "^4.2.0",
-    "react": "^16.1.1",
-    "rimraf": "^2.6.1",
-    "superagent": "^3.8.2",
-    "superagent-prefix": "^0.0.2"
+    "@segment/loosely-validate-event": "^1.1.2"
   },
-  "devDependencies": {
-    "babel-eslint": "^8.2.2",
-    "babel-jest": "^22.4.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-register": "^6.26.0",
-    "babel-watch": "^2.0.7",
-    "eslint": "^4.19.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-flowtype": "^2.46.1",
-    "eslint-plugin-flowtype-errors": "^3.5.1",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-jest": "^21.15.0",
-    "flow-bin": "^0.68.0",
-    "jest": "^22.4.2",
-    "jsonlint": "^1.6.3",
-    "nock": "^9.2.3"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "coverageThreshold": {
-      "global": {
-        "branches": 10,
-        "functions": 10,
-        "lines": 10,
-        "statements": 10
-      }
-    },
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/test/"
-    ],
-    "transform": {
-      "^.+\\.js?$": "babel-jest"
-    }
-  }
+  "devDependencies": {}
 }
