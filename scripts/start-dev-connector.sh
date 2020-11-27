@@ -10,4 +10,4 @@ if [ -f $PATH_TO_CONNECTOR/.env ]; then
 fi
 
 echo "Starting $PATH_TO_CONNECTOR on PORT $PORT";
-WEB_CONCURRENCY=1 PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR nodemon --exec babel-node --inspect packages/start.js
+NODE_HEAPDUMP_OPTIONS=nosignal WEB_CONCURRENCY=1 PATH_TO_CONNECTOR=$PATH_TO_CONNECTOR nodemon --inspect -r ./root-babel-register packages/start.js
