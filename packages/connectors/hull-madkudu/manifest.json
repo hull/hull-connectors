@@ -43,7 +43,7 @@
       "default": ["ALL"],
       "options": {
         "standard": {
-          "all_events": "All Events"
+          "ALL": "All Events"
         }
       }
     },
@@ -283,8 +283,8 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.synchronized_user_segments_exclusion",
-        "private_settings.synchronized_user_attributes",
         "private_settings.synchronized_user_events",
+        "private_settings.synchronized_user_attributes",
         "private_settings.synchronized_account_attributes"
       ]
     },
