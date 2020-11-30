@@ -246,7 +246,7 @@ const glue = {
   Task Handling
    */
   fetchRecentTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
-    set("fetchType", "Task"),
+    set("service_type", "Task"),
     route("getFetchFields"),
     set("lastFetchedAt", settings("events_last_fetched_timestamp")),
     ifL(cond("isEmpty", "${lastFetchedAt}"), [
@@ -260,7 +260,7 @@ const glue = {
     set(
       "soqlQuery",
       salesforceSyncAgent("getFetchSoqlQuery", {
-        sfType: "${fetchType}",
+        sfType: "${service_type}",
         fields: "${fetchFields}",
         fetchDaysBack: "${fetchDaysBack}",
         lastFetchedAt: "${lastFetchedAt}"
@@ -269,14 +269,14 @@ const glue = {
     route("fetchTasks")
   ]),
   fetchAllTasks: [
-    set("fetchType", "Task"),
+    set("service_type", "Task"),
     route("getFetchFields"),
     set("stopFetchAt", ex(moment(), "valueOf")),
     settingsUpdate({ events_last_fetched_timestamp: "${stopFetchAt}" }),
     set(
       "soqlQuery",
       salesforceSyncAgent("getFetchSoqlQuery", {
-        sfType: "${fetchType}",
+        sfType: "${service_type}",
         fields: "${fetchFields}"
       })
     ),
@@ -297,25 +297,32 @@ const glue = {
 
       iterateL("${records}", { key: "record", async: true }, [
         ifL(
-          cond("isEqual", "${record.IsDeleted}", true),
-          set("deletedPrefix", "DELETED - ")
-        ),
-        ifL(cond("notEmpty", "${record.Type}"), {
-          do: set("eventName", "Salesforce Task:${record.Type}"),
-          eldo: set("eventName", "Salesforce Task")
-        }),
-        set("identityPrefix", ld("toLower", "salesforce-${record.Who.Type}")),
-        hull("asUser", {
-          ident: {
-            anonymous_id: "${identityPrefix}:${record.WhoId}"
-          },
-          events: [
-            transformTo(
-              HullIncomingEvent,
-              cast(SalesforceTaskRead, "${record}")
-            )
+          [
+            cond("notEmpty", "${record.WhoId}"),
+            cond("notEmpty", "${record.Who.Type}")
+          ],
+          [
+            ifL(cond("notEmpty", "${record.Type}"), {
+              do: set("eventName", "Salesforce Task:${record.Type}"),
+              eldo: set("eventName", "Salesforce Task")
+            }),
+            set(
+              "identityPrefix",
+              ld("toLower", "salesforce-${record.Who.Type}")
+            ),
+            hull("asUser", {
+              ident: {
+                anonymous_id: "${identityPrefix}:${record.WhoId}"
+              },
+              events: [
+                transformTo(
+                  HullIncomingEvent,
+                  cast(SalesforceTaskRead, "${record}")
+                )
+              ]
+            })
           ]
-        })
+        )
       ]),
       ifL(cond("isEqual", "${done}", true), loopEndL())
     ])
@@ -472,58 +479,75 @@ const glue = {
     set(
       "deletedRecords",
       salesforceSyncAgent("getDeletedRecords", {
-        sfType: "${fetchType}",
+        sfType: "${service_type}",
         fetchStart: "${fetchStart}",
         fetchEnd: "${fetchEnd}"
       })
     )
   ],
   fetchRecentDeletedTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
-    set("fetchType", "Task"),
+    set("service_type", "Task"),
     route("getDeletedRecords"),
     route("getFetchFields"),
     set("deletedIds", ld("map", "${deletedRecords}", "id")),
-    set(
-      "records",
-      salesforceSyncAgent("queryAllById", {
-        sfType: "${fetchType}",
-        ids: "${deletedIds}",
-        fields: "${fetchFields}"
-      })
-    ),
-    iterateL("${records}", { key: "record", async: true }, [
-      set("identityPrefix", ld("toLower", "salesforce-${record.Who.Type}")),
-      ifL(
-        cond("isEqual", "${record.IsDeleted}", true),
-        set("deletedPrefix", "DELETED - ")
+    ifL(cond("notEmpty", "${deletedIds}"), [
+      set(
+        "records",
+        salesforceSyncAgent("queryAllById", {
+          sfType: "${service_type}",
+          ids: "${deletedIds}",
+          fields: "${fetchFields}"
+        })
       ),
-      ifL(cond("notEmpty", "${record.Type}"), {
-        do: set("eventName", "Salesforce Task:${record.Type}"),
-        eldo: set("eventName", "Salesforce Task")
-      }),
-      ifL(
-        cond("notEmpty", "${deletedPrefix}"),
-        set("eventName", "${deletedPrefix}${eventName}")
-      ),
+      iterateL("${records}", { key: "record", async: true }, [
+        ifL(
+          [
+            cond("notEmpty", "${record.WhoId}"),
+            cond("notEmpty", "${record.Who.Type}")
+          ],
+          [
+            set(
+              "identityPrefix",
+              ld("toLower", "salesforce-${record.Who.Type}")
+            ),
+            ifL(
+              cond("isEqual", "${record.IsDeleted}", true),
+              set("deletedPrefix", "DELETED - ")
+            ),
+            ifL(cond("notEmpty", "${record.Type}"), {
+              do: set("eventName", "Salesforce Task:${record.Type}"),
+              eldo: set("eventName", "Salesforce Task")
+            }),
+            ifL(
+              cond("notEmpty", "${deletedPrefix}"),
+              set("eventName", "${deletedPrefix}${eventName}")
+            ),
 
-      hull("asUser", {
-        ident: {
-          anonymous_id: "${identityPrefix}:${record.WhoId}"
-        },
-        events: [
-          transformTo(HullIncomingEvent, cast(SalesforceTaskRead, "${record}"))
-        ]
-      })
+            hull("asUser", {
+              ident: {
+                anonymous_id: "${identityPrefix}:${record.WhoId}"
+              },
+              events: [
+                transformTo(
+                  HullIncomingEvent,
+                  cast(SalesforceTaskRead, "${record}")
+                )
+              ]
+            })
+          ]
+        )
+      ])
     ])
   ]),
   fetchRecentDeletedEntities: [
     route("getDeletedRecords"),
     ifL(cond("notEmpty", "${deletedRecords}"), [
       route("importDeletedEntities"),
-      route("handleMergedSfObjects")
+      ifL(settings("handle_merges"), route("handleMergedSfObjects"))
     ])
   ],
   importDeletedEntities: [
+    // TODO only import as deleted if MasterRecord identity != deleted record identity
     iterateL(
       "${deletedRecords}",
       "deletedRecord",
@@ -547,17 +571,20 @@ const glue = {
     set(
       "deletedRawRecords",
       salesforceSyncAgent("queryAllById", {
-        sfType: "${fetchType}",
+        sfType: "${service_type}",
         ids: "${deletedIds}",
         fields: ["MasterRecordId"]
       })
     ),
-    set("masterRecordIds", ld("map", "${deletedRawRecords}", "MasterRecordId")),
+    set(
+      "masterRecordIds",
+      ld("compact", ld("map", "${deletedRawRecords}", "MasterRecordId"))
+    ),
     ifL(cond("notEmpty", "${masterRecordIds}"), [
       set(
         "masterRecords",
         salesforceSyncAgent("queryExistingById", {
-          sfType: "${fetchType}",
+          sfType: "${service_type}",
           ids: "${masterRecordIds}",
           fields: ["Id", "IsDeleted"]
         })
@@ -595,14 +622,14 @@ const glue = {
     [
       set("service_name", "salesforce_contact"),
       set("anon_id_prefix", "salesforce-contact"),
-      set("fetchType", "contact"),
+      set("service_type", "contact"),
       route("fetchRecentDeletedUsers")
     ]
   ),
   fetchRecentDeletedLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
     set("service_name", "salesforce_lead"),
     set("anon_id_prefix", "salesforce-lead"),
-    set("fetchType", "lead"),
+    set("service_type", "lead"),
     route("fetchRecentDeletedUsers")
   ]),
   fetchRecentDeletedUsers: [
@@ -619,7 +646,7 @@ const glue = {
       set("incoming_type", HullIncomingAccount),
       set("service_name", "salesforce"),
       set("anon_id_prefix", "salesforce"),
-      set("fetchType", "account"),
+      set("service_type", "account"),
       route("fetchRecentDeletedEntities")
     ]
   )
