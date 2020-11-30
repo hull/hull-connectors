@@ -122,21 +122,32 @@
       "default": false
     },
     {
-      "name": "built_in_scripts",
-      "title": "Third Party Scripts",
-      "description": "Enable built in third party scripts to be executed with Hull.js",
-      "type": "array",
-      "format": "select",
-      "uniqueItems": true,
-      "items": {
-        "type": "string",
-        "enum": [
-          "https://intercom.hullapp.com/ship.js",
-          "https://hubspot.hullapp.com/ship.js",
-          "https://google-ads.hullapp.com/ship.js",
-          "https://facebook-audiences.hullapp.com/ship.js"
-        ]
-      }
+      "name": "facebook_alias",
+      "title": "Enable Facebook Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "intercom_alias",
+      "title": "Enable Intercom Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "google_analytics_alias",
+      "title": "Enable Google Analytics Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "hubspot_utk_alias",
+      "title": "Enable Hubspot UTK Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
     }
   ],
   "json": [
@@ -174,9 +185,18 @@
       "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Check documentation to find urls to paste here.<br />All custom scripts will be injected and executed on every page load wherver the Hull Website tag is installed.",
       "properties": [
         "private_settings.script_enabled",
-        "private_settings.built_in_scripts",
         "settings.load_scripts",
         "settings.init_script"
+      ]
+    },
+    {
+      "title": "Aliasing",
+      "description": "Alias a user in Hull with its third party tracking id",
+      "properties": [
+        "private_settings.facebook_alias",
+        "private_settings.google_analytics_alias",
+        "private_settings.intercom_alias",
+        "private_settings.hubspot_utk_alias"
       ]
     }
   ],
@@ -196,5 +216,16 @@
       "handler": "statusHandler"
     }
   ],
-  "subscriptions": []
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions" : {},
+      "channels": [
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ]
+    }
+  ]
 }

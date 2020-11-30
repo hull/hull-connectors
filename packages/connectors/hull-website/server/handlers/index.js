@@ -11,6 +11,7 @@ import socketIOredis from "socket.io-redis";
 import Store from "../lib/store";
 import statusHandlerFactory from "./status";
 import userUpdateFactory from "./user-update";
+import shipUpdate from "./ship-update";
 import connectorUpdateFactory from "./connector-update";
 import onConnectionFactory from "../lib/on-connection";
 import sendPayloadFactory from "../lib/send-payload";
@@ -58,7 +59,8 @@ const handlers = ({
     },
     subscriptions: {
       connectorUpdate,
-      userUpdate
+      userUpdate,
+      shipUpdate
     },
     json: {
       credentialsHandler: credentialsHandler(REMOTE_DOMAIN)
