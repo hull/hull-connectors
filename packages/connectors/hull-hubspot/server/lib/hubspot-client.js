@@ -153,7 +153,7 @@ class HubspotClient {
   }
 
   sendRequest(promise: () => Promise<mixed>): Promise<*> {
-    return promise().catch(err => {
+    return promise().catch(async err => {
       const errorHandler = ERRORS[err.status];
       if (!errorHandler) {
         return Promise.reject(err);
@@ -162,7 +162,7 @@ class HubspotClient {
       if (errorHandler.message === "UNAUTHORIZED") {
         return this.checkToken({
           force: true
-        });
+        }).then(() => this.sendRequest(promise));
       }
 
       if (errorHandler.retry > 0) {
