@@ -6,8 +6,8 @@
   "scripts": {
     "test": "exit 0; echo 'No Tests here' Sad Panda",
     "testx": "yarn test:unit && yarn test:integration",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+    "test:unit": "NODE_ENV=test nyc mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test nyc mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
     "domready": "^1.0.8",

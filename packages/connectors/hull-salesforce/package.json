@@ -4,8 +4,8 @@
   "description": "Hull Salesforce integration",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js",
+    "test:unit": "NODE_ENV=test nyc mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test nyc mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js",
     "documentation": "exit 0"
   },
   "dependencies": {
