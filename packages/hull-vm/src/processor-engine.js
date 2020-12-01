@@ -18,7 +18,6 @@ export default class ProcessorEngine extends Engine {
     super();
     this.state.search = this.getSearchCache();
     this.initialize();
-    this.fetchEntry(this.state);
   }
 
   initialize = async () => {

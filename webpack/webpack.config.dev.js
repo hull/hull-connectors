@@ -48,7 +48,11 @@ function devMode({ source, destination }) {
       ? _.reduce(
           config.entry,
           (m, v, k) => {
-            m[k] = ["webpack-dev-server/client?http://0.0.0.0", v];
+            m[k] = [
+              "react-hot-loader/patch",
+              "webpack-dev-server/client?http://0.0.0.0",
+              v
+            ];
             return m;
           },
           {}
@@ -66,4 +70,3 @@ module.exports = devMode({
   source: `${CONNECTOR}/src`,
   destination: `${CONNECTOR}/dist`
 });
-
