@@ -135,6 +135,7 @@ class HubspotClient {
               return reject(error);
             }
 
+            // TODO fix - unauthorized error will use up retries
             if (errorHandler.message === "UNAUTHORIZED") {
               await this.checkToken({
                 force: true
@@ -155,20 +156,18 @@ class HubspotClient {
   sendRequest(promise: () => Promise<mixed>): Promise<*> {
     return promise().catch(async err => {
       const errorHandler = ERRORS[err.status];
-      if (!errorHandler) {
+      if (!errorHandler || !errorHandler.retry) {
         return Promise.reject(err);
       }
 
       if (errorHandler.message === "UNAUTHORIZED") {
-        return this.checkToken({
+        await this.checkToken({
           force: true
-        }).then(() => this.sendRequest(promise));
+        });
+        return this.retryRequest(errorHandler.retry - 1, 0, promise);
       }
 
-      if (errorHandler.retry > 0) {
-        return this.retryRequest(errorHandler.retry - 1, 1000, promise);
-      }
-      return Promise.reject(err);
+      return this.retryRequest(errorHandler.retry - 1, 1000, promise);
     });
   }
 
