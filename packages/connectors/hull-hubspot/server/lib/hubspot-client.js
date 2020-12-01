@@ -126,10 +126,22 @@ class HubspotClient {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(
-          promise().catch(error => {
+          promise().catch(async error => {
             if (retryAttempts === 0) {
               return Promise.reject(error);
             }
+
+            const errorHandler = ERRORS[error.status];
+            if (!errorHandler) {
+              return Promise.reject(error);
+            }
+
+            if (errorHandler.message === "UNAUTHORIZED") {
+              await this.checkToken({
+                force: true
+              });
+            }
+
             return this.retrySendingData(
               retryAttempts - 1,
               backoff * 2,
@@ -161,22 +173,25 @@ class HubspotClient {
           });
       }
 
-      if (errorHandler.retry > 0) {
-        return this.retryRequest(errorHandler.retry - 1, 1000, promise).catch(
-          retryError => {
-            errorHandler = ERRORS[retryError.status];
+      if (errorHandler.retry) {
+        const retries =
+          errorHandler.message === "RATE_LIMIT" &&
+          this.connector.private_settings.rate_limit_retry
+            ? this.connector.private_settings.rate_limit_retry
+            : errorHandler.retry - 1;
+        return this.retryRequest(retries, 1000, promise).catch(retryError => {
+          errorHandler = ERRORS[retryError.status];
 
-            if (!errorHandler) {
-              return Promise.reject(err);
-            }
-
-            if (errorHandler.message === "RATE_LIMIT") {
-              throw new RateLimitError("Rate limit error");
-            }
-
+          if (!errorHandler) {
             return Promise.reject(err);
           }
-        );
+
+          if (errorHandler.message === "RATE_LIMIT") {
+            throw new RateLimitError("Rate limit error");
+          }
+
+          return Promise.reject(err);
+        });
       }
       return Promise.reject(err);
     });
