@@ -1,14 +1,14 @@
 // @flow
 
 import _ from "lodash";
-import type { Config, Entry, RecentEngineState } from "hull-vm";
+import type { Entry, RecentEngineState } from "hull-vm";
 import Engine from "./engine";
 
 export default class RecentEntriesEngine extends Engine {
   state: RecentEngineState;
 
-  constructor(config: Config) {
-    super(config);
+  constructor() {
+    super();
     this.initialize();
   }
 

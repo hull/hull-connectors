@@ -47,6 +47,7 @@ describe("Fetch Contacts Tests", () => {
           connector: {
             private_settings: {
               ...private_settings,
+              handle_merges: true,
               lead_synchronized_segments: ["5a0c1f07b4d8644425002c65"],
               lead_attributes_outbound: [
                 {
