@@ -160,7 +160,13 @@ const transformsToHull: ServiceTransforms = [
       {
         operateOn: { component: "input", select: "attributes.primaryEmail" },
         writeTo: {
-          pat
+          path: "emails",
+          format: [
+            {
+              email: "mycontact_1233@noemail.com",
+              category: "other"
+            }
+          ]
         }
       },
       {
