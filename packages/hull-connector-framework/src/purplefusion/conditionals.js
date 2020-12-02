@@ -34,6 +34,14 @@ function varNull(param: string) {
   };
 }
 
+function varEmpty(param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return _.isNil(contextVariable) ||
+      ((typeof contextVariable !== 'number') && _.isEmpty(contextVariable));
+  };
+}
+
 function varUndefinedOrNull(param: string) {
   return (context) => {
     const contextVariable = context.get(param);
@@ -213,6 +221,7 @@ module.exports = {
   resolveIndexOf,
   varUndefined,
   varNull,
+  varEmpty,
   varUndefinedOrNull,
   varEqual,
   varEqualVar,
