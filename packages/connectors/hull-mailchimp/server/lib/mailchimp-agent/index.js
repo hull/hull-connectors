@@ -98,7 +98,9 @@ class MailchimpAgent {
         if (_.filter(webhooks, { url: webhookUrl }) <= 0) {
           try {
             const webhook = await this.createWebhook(webhookUrl);
-            this.settingsUpdate({ webhook_id: webhook.id });
+            if (webhook.id) {
+              await this.settingsUpdate({ webhook_id: webhook.id });
+            }
           } catch (error) {
             this.client.logger.warn("webhook.error", {
               errors: error.message,
