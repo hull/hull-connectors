@@ -1191,7 +1191,8 @@ class SyncAgent {
           return this.hullClient
             .asUser(user)
             .logger.error("incoming.user.error", {
-              message: "Unable to retrieve visitor"
+              message: "Unable to retrieve visitor",
+              error: error.message
             });
         }
       });
