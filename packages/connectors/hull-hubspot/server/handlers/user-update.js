@@ -21,11 +21,12 @@ export default async (
       return Promise.resolve();
     }
 
-    await Promise.all([
-      syncAgent.fetchVisitors(messages),
-      syncAgent.sendUserUpdateMessages(messages)
-    ]);
-    return {};
+    try {
+      await Promise.resolve(syncAgent.fetchVisitors(messages));
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
+
+    return syncAgent.sendUserUpdateMessages(messages);
   } catch (err) {
     return {
       flow_control: { type: "retry" }
