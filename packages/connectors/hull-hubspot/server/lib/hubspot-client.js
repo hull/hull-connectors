@@ -142,11 +142,7 @@ class HubspotClient {
               });
             }
 
-            return this.retryRequest(
-              retryAttempts - 1,
-              backoff * 2,
-              promise
-            );
+            return this.retryRequest(retryAttempts - 1, backoff * 2, promise);
           })
         );
       }, backoff);
