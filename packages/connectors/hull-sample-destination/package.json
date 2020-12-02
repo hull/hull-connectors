@@ -1,0 +1,11 @@
+{
+  "name": "hull-sample-destination",
+  "description": "SAMPLE",
+  "version": "0.1.39-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

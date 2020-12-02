@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
@@ -32,7 +33,7 @@ const usersSegments = [
 ];
 
 it("Performing sync", () => {
-  const email = "";
+  /*const email = "";
   return testScenario(
     {
       connectorConfig: () => ({
@@ -403,5 +404,5 @@ it("Performing sync", () => {
         ]
       };
     }
-  );
+  );*/
 });

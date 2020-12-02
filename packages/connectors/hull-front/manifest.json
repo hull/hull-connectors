@@ -1,14 +1,11 @@
 {
   "name": "FrontApp",
   "description": "Capture FrontApp Events",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.39-monorepo",
   "private_settings": [
     {
       "title": "API Key",
@@ -25,10 +22,7 @@
       "title": "Webhook URL",
       "description": "Setup your Front Connector by pasting your Front API Key AND by setting up webhooks",
       "step": "credentials",
-      "properties": [
-        "private_settings.api_key",
-        "json.credentials"
-      ]
+      "properties": ["private_settings.api_key", "json.credentials"]
     }
   ],
   "json": [

@@ -6,10 +6,10 @@ const SalesforceClient = require("../service-client");
 
 function getFieldsSchema(
   salesforceClient: SalesforceClient,
-  mappings: Object
+  sfTypes: Array<string>
 ): Object {
   return Promise.all(
-    _.map(mappings, ({ type }) => {
+    _.map(sfTypes, type => {
       return salesforceClient.fetchFieldsList(type).then(fields => {
         return { type: type.toLowerCase(), fields };
       });

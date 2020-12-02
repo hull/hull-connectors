@@ -60,7 +60,14 @@ class HullVariableContext {
     return hullValue;
   }
 
-  logBadBehavior(context, value, rootKey, fullKey, foundRootObject, index) {
+  logBadBehavior = (
+    context,
+    value,
+    rootKey,
+    fullKey,
+    foundRootObject,
+    index
+  ) => {
     try {
       if (!isUndefinedOrNull(rootKey)) {
         const keys = Object.keys(context);
@@ -81,7 +88,7 @@ class HullVariableContext {
       }
     } catch (err) {}
     return false;
-  }
+  };
 
   set(key: string, value: any) {
     if (_.isEmpty(this.localContext)) {
@@ -94,15 +101,15 @@ class HullVariableContext {
   setOnHullContext = (key: string, value: any) =>
     _.set(this.hullContext, key, value);
 
-  reqContext() {
-    return this.hullContext;
-  }
+  reqContext = () => this.hullContext;
 
   createFlattenedContext() {
     return _.assign({}, this.hullContext, ...this.localContext);
   }
 
-  cloneLocalContext = () => _.cloneDeep(this.localContext);
+  cloneLocalContext() {
+    return _.cloneDeep(this.localContext);
+  }
 
   shallowCloneContext() {
     const shallowClone = new HullVariableContext(this.hullContext);

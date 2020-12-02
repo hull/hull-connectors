@@ -57,6 +57,7 @@ export type Event = {
 };
 
 export type Payload =
+  | {}
   | {
       query: {},
       params: {},
@@ -110,7 +111,6 @@ export type ResultBase = {|
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  isAsync: boolean,
   success: boolean
 |};
 export type Result = {

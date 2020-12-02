@@ -735,7 +735,7 @@ select[size] {
 }
 
 select[multiple]:disabled
-select[size]: disabled {
+select[size]:disabled {
   background: #fff;
   opacity: 1;
 }

@@ -23,7 +23,6 @@ const {
 // and maps the data back to account and traits calls....
 
 class HullSdk {
-
   client: Client;
   api: CustomApi;
   entities: Object;
@@ -43,7 +42,6 @@ class HullSdk {
   }
 
   async dispatch(endpointName: string, params: any) {
-
     //TODO make this method generic across all sdks
     // use method if it exists, if not, just call use endpoint name
     // the endpoint definition in the service should only be used to augment the endpoint
@@ -57,7 +55,11 @@ class HullSdk {
     }
   }
 
-  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, upsertEntity: any, asEntity: any) {
+  detachEntityFromService(
+    entity: HullIncomingUser | HullIncomingAccount,
+    upsertEntity: any,
+    asEntity: any
+  ) {
     const service_name = this.globalContext.get("service_name");
 
     if (_.isNil(service_name)) {
@@ -82,15 +84,22 @@ class HullSdk {
   }
 
   detachHullUserFromService(user: HullIncomingUser) {
-    return this.detachEntityFromService(user, this.upsertHullUser, this.client.asUser);
+    return this.detachEntityFromService(
+      user,
+      this.upsertHullUser,
+      this.client.asUser
+    );
   }
 
   detachHullAccountFromService(account: HullIncomingAccount) {
-    return this.detachEntityFromService(account, this.upsertHullAccount, this.client.asAccount);
+    return this.detachEntityFromService(
+      account,
+      this.upsertHullAccount,
+      this.client.asAccount
+    );
   }
 
   upsertHullUser(user: HullIncomingUser) {
-
     const identity = _.cloneDeep(user.ident);
     const hullUserId = this.globalContext.get("hullUserId");
     if (hullUserId) {
@@ -125,9 +134,11 @@ class HullSdk {
     // Not the tightest code in the world, but preserves the old behavior for now
     // which was to do a traits call no matter what
     if (user.events) {
-      userPromise = Promise.all(user.events.map( event => {
-        return asUser.track(event.eventName, event.properties, event.context);
-      }));
+      userPromise = Promise.all(
+        user.events.map(event => {
+          return asUser.track(event.eventName, event.properties, event.context);
+        })
+      );
 
       if (!_.isEmpty(user.attributes)) {
         userPromise = userPromise.then(() => {
@@ -135,7 +146,6 @@ class HullSdk {
         });
       }
     } else {
-
       //need to call traits in all cases in case it's a new user
       // but still would need to validate identity values
       userPromise = asUser.traits(user.attributes);
@@ -143,7 +153,9 @@ class HullSdk {
 
     if (!_.isEmpty(user.accountIdent)) {
       userPromise = userPromise.then(() => {
-        return asUser.account(user.accountIdent).traits({})
+        return asUser
+          .account(user.accountIdent)
+          .traits(user.accountAttributes || {});
       });
     }
 
@@ -151,7 +163,6 @@ class HullSdk {
   }
 
   outgoingSkip(messages: any) {
-
     let entities = messages;
     if (!Array.isArray(messages)) {
       entities = [messages];
@@ -160,7 +171,9 @@ class HullSdk {
       if (entity.user) {
         this.client.asUser(entity.user).logger.debug("outgoing.user.skip");
       } else if (entity.account) {
-        this.client.asAccount(entity.account).logger.debug("outgoing.account.skip");
+        this.client
+          .asAccount(entity.account)
+          .logger.debug("outgoing.account.skip");
       } else {
         this.client.logger.info("outgoing.entity.skip", { data: entity });
       }
@@ -177,12 +190,16 @@ class HullSdk {
     if (!_.isEmpty(opportunity.attributes)) {
       if (!_.isEmpty(opportunity.accountIdent)) {
         opportunityPromise = opportunityPromise.then(() => {
-          return this.client.asAccount(opportunity.accountIdent).traits(opportunity.attributes)
+          return this.client
+            .asAccount(opportunity.accountIdent)
+            .traits(opportunity.attributes);
         });
       }
       if (!_.isEmpty(opportunity.userIdent)) {
         opportunityPromise = opportunityPromise.then(() => {
-          return this.client.asUser(opportunity.userIdent).traits(opportunity.attributes)
+          return this.client
+            .asUser(opportunity.userIdent)
+            .traits(opportunity.attributes);
         });
       }
     }
@@ -195,48 +212,48 @@ class HullSdk {
   }
 
   getUser(claims: any) {
-    return this.entities.users.get({ claims }).then((response) => {
+    return this.entities.users.get({ claims }).then(response => {
       return _.get(response, "data[0]", []);
     });
   }
 
   getAccount(claims: any) {
-    return this.entities.accounts.get({ claims }).then((response) => {
+    return this.entities.accounts.get({ claims }).then(response => {
       return _.get(response, "data[0]", []);
     });
   }
 
   // TODO use entities.users.getSchema
   getUserAttributes() {
-    return this.client.get("/users/schema").then((response) => {
+    return this.client.get("/users/schema").then(response => {
       return response;
     });
   }
 
   // TODO use entities.accounts.getSchema
   getAccountAttributes() {
-    return this.client.get("/accounts/schema").then((response) => {
+    return this.client.get("/accounts/schema").then(response => {
       return response;
     });
   }
 
   // TODO use entities.users.getSegments
   getUserSegments() {
-    return this.client.get("/users_segments").then((response) => {
+    return this.client.get("/users_segments").then(response => {
       return response;
     });
   }
 
   // TODO use entities.accounts.getSegments
   getAccountSegments() {
-    return this.client.get("/accounts_segments").then((response) => {
+    return this.client.get("/accounts_segments").then(response => {
       return response;
     });
   }
 
   // TODO use entities.events.getSchema
   getUserEvents() {
-    return this.client.get("/search/event/bootstrap").then((response) => {
+    return this.client.get("/search/event/bootstrap").then(response => {
       return response;
     });
   }
@@ -326,7 +343,6 @@ const hullService: CustomApi = {
       input: HullIncomingUser,
       suppressLog: true
     }
-
   }
 };
 

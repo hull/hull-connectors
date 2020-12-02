@@ -4,7 +4,7 @@ const _ = require("lodash");
 
 const { DEFAULT_MAPPING } = require("./mappings");
 
-export type RecordType = "Account" | "Lead" | "Contact" | "Task";
+export type RecordType = "Account" | "Lead" | "Contact";
 
 type Mapping = {
   type: RecordType,
@@ -23,7 +23,7 @@ type Field = {
   defaultValue?: any
 };
 
-const getTypes = (): Array<RecordType> => _.keys(DEFAULT_MAPPING)
+const getTypes = (): Array<RecordType> => _.keys(DEFAULT_MAPPING);
 
 /**
  * Returns a mapping between Salesforce attributes and Hull top level

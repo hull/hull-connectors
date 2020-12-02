@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
@@ -33,6 +34,7 @@ const usersSegments = [{
 it("should send all user fields correctly", () => {
   return testScenario(
     {
+      manifest,
       connectorConfig: () => ({
         ...connectorConfig(),
         queueConfig: undefined

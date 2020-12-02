@@ -1,6 +1,6 @@
 {
   "name": "hull-intercom-legacy",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.39-monorepo",
   "description": "Hull Intercom Legacy Integration",
   "scripts": {
     "test": "yarn run test:integration",
@@ -9,8 +9,7 @@
   "dependencies": {
     "passport-intercom": "0.0.4",
     "rosie": "2.0.1",
-    "superagent-prefix": "0.0.2",
-    "superagent-throttle": "1.0.1"
+    "superagent-prefix": "0.0.2"
   },
   "devDependencies": {}
 }

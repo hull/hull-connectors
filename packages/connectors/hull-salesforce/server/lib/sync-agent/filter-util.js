@@ -1,14 +1,19 @@
 /* @flow */
 import type {
+  HullAccountUpdateMessage,
+  HullEntityName,
+  HullUserUpdateMessage
+} from "hull";
+import type {
   TFilterResults,
   IUserUpdateEnvelope,
   IAccountUpdateEnvelope,
-  IFilterUtil
+  IFilterUtil,
+  TResourceType
 } from "../types";
 
 const _ = require("lodash");
 const MatchUtil = require("./match-util");
-const { TResourceType } = require("../types");
 
 class FilterUtil implements IFilterUtil {
   contactSynchronizedSegments: Array<string>;
@@ -19,7 +24,9 @@ class FilterUtil implements IFilterUtil {
 
   requireEmail: boolean;
 
-  requireEntityChanges: boolean;
+  requireUserChanges: boolean;
+
+  requireAccountChanges: boolean;
 
   sendDeletedObjects: boolean;
 
@@ -60,9 +67,14 @@ class FilterUtil implements IFilterUtil {
       "ignore_users_withoutemail",
       false
     );
-    this.requireEntityChanges = _.get(
+    this.requireUserChanges = _.get(
       privateSettings,
       "ignore_users_withoutchanges",
+      false
+    );
+    this.requireAccountChanges = _.get(
+      privateSettings,
+      "ignore_accounts_withoutchanges",
       false
     );
     this.sendDeletedObjects = !_.get(
@@ -232,8 +244,13 @@ class FilterUtil implements IFilterUtil {
 
   filterEnvelopes(
     envelopes: Array<IUserUpdateEnvelope>,
-    resourceType: TResourceType
+    resourceType: TResourceType,
+    isBatch: boolean = false
   ): TFilterResults {
+    if (_.toLower(resourceType) === "account") {
+      return this.filterAccountEnvelopes(envelopes, isBatch);
+    }
+
     const traitGroup = `salesforce_${_.toLower(resourceType)}`;
     const results: TFilterResults = {
       toSkip: [],
@@ -397,6 +414,31 @@ class FilterUtil implements IFilterUtil {
     );
   }
 
+  filterLeads(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return this.matchesLeadSynchronizedSegments({
+        message
+      });
+    });
+  }
+
+  filterContacts(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return (
+        this.matchesContactSynchronizedSegments({
+          message
+        }) &&
+        !this.matchesLeadSynchronizedSegments({
+          message
+        })
+      );
+    });
+  }
+
   matchesContactSynchronizedSegments(envelope: IUserUpdateEnvelope): boolean {
     const messageSegmentIds = _.compact(envelope.message.segments).map(
       s => s.id
@@ -430,146 +472,69 @@ class FilterUtil implements IFilterUtil {
   }
 
   /**
-   * Filters out messages which we don't want to process
+   * Filters out messages which we should not be processed
    */
-  filterFindableMessages(
-    hullEntityType: string,
-    messages: Array<Object>,
+  filterMessages(
+    sfType: TResourceType,
+    messages: Array<HullUserUpdateMessage | HullAccountUpdateMessage>,
     isBatch: boolean = false
   ): Array<Object> {
-    if (hullEntityType === "user") {
-      return messages.filter(message => {
-        const envelope = { message };
-        if (
-          this.requireEmail &&
-          _.get(message, "user.email", "n/a") === "n/a"
-        ) {
-          return false;
-        }
+    const hullType = _.toLower(sfType) === "account" ? "account" : "user";
+    return messages.filter(message => {
+      if (
+        hullType === "user" &&
+        this.requireEmail &&
+        _.get(message, "user.email", "n/a") === "n/a"
+      ) {
+        return false;
+      }
+      if (this[`require${_.upperFirst(hullType)}Changes`] && !isBatch) {
+        return this.hasChangedWhitelistedAttributes(
+          hullType,
+          message,
+          this[`${_.toLower(sfType)}AttributesOutbound`]
+        );
+      }
+      return true;
+    });
+  }
 
-        if (
-          !this.matchesContactSynchronizedSegments(envelope) &&
-          !this.matchesLeadSynchronizedSegments(envelope)
-        ) {
-          return false;
-        }
-
-        if (this.requireEntityChanges && !isBatch) {
-          return this.hasSyncedHullAttributesWithChanges(message);
-        }
-        return true;
+  hasChangedWhitelistedAttributes(
+    hullType: HullEntityName,
+    message: Object,
+    outgoingHullAttributes: Array<string>
+  ): boolean {
+    const entityAttributeChanges = _.get(message.changes, hullType, {});
+    if (hullType === "user") {
+      const accountChanges = _.get(message, "changes.account", {});
+      _.forEach(accountChanges, (value, key) => {
+        entityAttributeChanges[`account.${key}`] = value;
       });
     }
-    if (hullEntityType === "account") {
-      return this.filterFindableAccountMessages(messages, isBatch);
+
+    if (!_.isEmpty(entityAttributeChanges)) {
+      const changedAttributes = _.reduce(
+        entityAttributeChanges,
+        (changeList, value, key) => {
+          changeList.push(this.standardizeAttributeName(key));
+          return changeList;
+        },
+        []
+      );
+
+      return !_.isEmpty(
+        _.intersection(outgoingHullAttributes, changedAttributes)
+      );
     }
-    return [];
+    return false;
   }
 
-  filterFindableAccountMessages(
-    messages: Array<Object>,
-    isBatch: boolean = false
-  ): Array<Object> {
-    return messages.filter(message => {
-      const envelope = { message };
-      const matchFilter = this.matchesAccountSynchronizedSegments(envelope);
-
-      if (isBatch) {
-        return true;
-      }
-
-      if (this.requireEntityChanges) {
-        return matchFilter && this.hasSyncedHullAttributesWithChanges(message);
-      }
-
-      return matchFilter;
-    });
-  }
-
-  filterDuplicateMessages(
-    messages: Array<Object>,
-    entity: string
-  ): Array<Object> {
-    if (!messages || !_.isArray(messages) || messages.length === 0) {
-      return [];
+  standardizeAttributeName(attributeName: string): string {
+    if (/\[\d+\]$/.test(attributeName)) {
+      return attributeName.substr(0, attributeName.lastIndexOf("["));
     }
 
-    return _.chain(messages)
-      .groupBy(`${entity}.id`)
-      .map(val => {
-        return _.last(_.sortBy(val, [`${entity}.indexed_at`]));
-      })
-      .value();
-  }
-
-  hasSyncedHullAttributesWithChanges(message: Object): boolean {
-    const changedUserAttributes = _.keys(_.get(message, "changes.user", {}));
-    const standardizedUserAttributes = this.standardizeAttributeNames(
-      changedUserAttributes
-    );
-
-    const changedAccountAttributes = _.keys(
-      _.get(message, "changes.account", {})
-    );
-    const standardizedAccountAttributes = this.standardizeAttributeNames(
-      changedAccountAttributes
-    );
-
-    const contactAccountAttributesOutbound = _.map(
-      _.filter(this.contactAttributesOutbound, v => {
-        return _.startsWith(v, "account.");
-      }),
-      v => {
-        return v.replace("account.", "");
-      }
-    );
-    const leadAccountAttributesOutbound = _.map(
-      _.filter(this.leadAttributesOutbound, v => {
-        return _.startsWith(v, "account.");
-      }),
-      v => {
-        return v.replace("account.", "");
-      }
-    );
-
-    return (
-      _.intersection(
-        leadAccountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0 ||
-      _.intersection(
-        contactAccountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0 ||
-      _.intersection(this.leadAttributesOutbound, standardizedUserAttributes)
-        .length > 0 ||
-      _.intersection(this.contactAttributesOutbound, standardizedUserAttributes)
-        .length > 0 ||
-      _.intersection(
-        this.accountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0
-    );
-  }
-
-  standardizeAttributeNames(attributeNames: Array<string>): Array<string> {
-    const standardizedNames = [];
-
-    _.forEach(attributeNames, attributeName => {
-      if (/\[\d+\]$/.test(attributeName)) {
-        const trimmedArrayName = attributeName.substr(
-          0,
-          attributeName.lastIndexOf("[")
-        );
-        if (standardizedNames.indexOf(trimmedArrayName) < 0) {
-          standardizedNames.push(trimmedArrayName);
-        }
-      } else {
-        standardizedNames.push(attributeName);
-      }
-    });
-
-    return standardizedNames;
+    return attributeName;
   }
 }
 

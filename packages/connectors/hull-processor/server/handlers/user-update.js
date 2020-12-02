@@ -22,8 +22,9 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
 
   // const user_ids = _.map(messages, "user.id");
   try {
-    await Promise.all(
-      messages.map(payload =>
+    await _.reduce(
+      messages,
+      async (promise, payload, _key) =>
         asyncComputeAndIngest(ctx, {
           payload: _.omitBy(
             {
@@ -42,8 +43,8 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
           claims: getClaims("user", payload),
           entity: "user",
           preview: false
-        })
-      )
+        }),
+      Promise.resolve()
     );
     return {
       flow_control: {

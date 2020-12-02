@@ -6,7 +6,10 @@ const Queue = require("bull");
 class BullAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = new Queue("main", options);
+    const { name, url, settings } = options;
+    this.queue = new Queue(name, url, {
+      settings
+    });
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);
     });
@@ -66,22 +69,27 @@ class BullAdapter {
   }
 
   setupUiRouter(router) {
-    // eslint-disable-line class-methods-use-this
-    // due to problems in arena configuration it's disabled right now
-    // and removed from the package.json
-    //
-    // const arenaConfig = {
-    //   queues: [{
-    //     name: "main",
-    //     port: this.queue.client.options.port,
-    //     host: this.queue.client.options.host,
-    //     hostId: "main",
-    //     db: this.queue.client.options.db,
-    //     password: this.queue.client.options.password,
-    //     prefix: this.options.prefix
-    //   }]
-    // };
-    // router.use('/', arena(arenaConfig));
+    // eslint-disable-next-line global-require
+    const Arena = require("bull-arena");
+    router.use(
+      "/",
+      Arena(
+        {
+          Bull: Queue,
+          queues: [
+            {
+              name: this.options.name,
+              url: this.options.url,
+              hostId: "Queue Server 1"
+            }
+          ]
+        },
+        {
+          basePath: "/",
+          disableListen: true
+        }
+      )
+    );
     return router;
   }
 

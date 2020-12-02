@@ -4,6 +4,7 @@ import testScenario from "hull-connector-framework/src/test-scenario";
 import _ from "lodash";
 import { encrypt } from "hull/src/utils/crypto";
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 import TESTS from "../../tests";
 
 const shipID = "9993743b22d60dd829001999";

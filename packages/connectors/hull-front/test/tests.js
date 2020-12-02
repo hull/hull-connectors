@@ -101,9 +101,8 @@ module.exports = [
           accountTraits: [],
           events: [],
           accountLinks: [],
-          data:{},
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [
@@ -240,10 +239,9 @@ module.exports = [
               }
             }
           ],
-          data:{},
+          data: {},
           accountLinks: [[{ id: "123" }, { external_id: "external" }]],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -408,7 +406,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
-          data:{},
+          data: {},
           userTraits: [
             [
               {
@@ -459,8 +457,7 @@ module.exports = [
               }
             ]
           ],
-          success: true,
-          isAsync: false
+          success: true
         }
       ],
       [
@@ -629,9 +626,8 @@ module.exports = [
             }
           ],
           accountLinks: [],
-          data:{},
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [
@@ -729,9 +725,8 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
-          data:{},
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [
@@ -808,9 +803,8 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
-          data:{},
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [
@@ -882,9 +876,8 @@ module.exports = [
           accountTraits: [],
           events: [],
           accountLinks: [],
-          data:{},
-          success: true,
-          isAsync: false
+          data: {},
+          success: true
         }
       ],
       [

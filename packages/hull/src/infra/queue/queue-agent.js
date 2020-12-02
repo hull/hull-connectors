@@ -3,6 +3,7 @@
 import _ from "lodash";
 import type { HullContext, HullQueueConfig } from "../../types";
 
+const debug = require("debug")("hull:queue-agent");
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
 // const KueAdapter = require("./adapter/kue");
@@ -68,6 +69,7 @@ class QueueAgent {
   constructor(config: HullQueueConfig) {
     const { store } = config;
     const missing = missingKeys(config);
+    debug("New Queue", { config });
     if (store === "sqs") {
       missing(SQS_REQUIRED_KEYS);
       this.adapter = new SQSAdapter(_.pick(config, SQS_REQUIRED_KEYS));

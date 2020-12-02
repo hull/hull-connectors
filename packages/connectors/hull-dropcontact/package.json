@@ -1,0 +1,14 @@
+{
+  "name": "hull-dropcontact",
+  "description": "Find and validate emails through Dropcontact",
+  "version": "0.1.39-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'"
+  },
+  "dependencies": {
+    "domready": "^1.0.8",
+    "mongoose": "5.4.16"
+  },
+  "devDependencies": {}
+}

@@ -9,7 +9,12 @@ const ui = require("kue-ui");
 class KueAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = kue.createQueue(options);
+    const { name, url, settings } = options;
+    this.queue = kue.createQueue({
+      ...settings,
+      prefix: name,
+      redis: url
+    });
     this.queue.watchStuckJobs();
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);
@@ -22,8 +27,10 @@ class KueAdapter {
       "completeCount",
       "failedCount",
       "delayedCount"
-    ].forEach(name => {
-      this[name] = Promise.promisify(this.queue[name]).bind(this.queue);
+    ].forEach(queueName => {
+      this[queueName] = Promise.promisify(this.queue[queueName]).bind(
+        this.queue
+      );
     });
   }
 

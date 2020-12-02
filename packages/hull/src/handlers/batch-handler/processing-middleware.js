@@ -1,6 +1,7 @@
 // @flow
 import type { NextFunction } from "express";
 import type {
+  HullEntityName,
   HullRequest,
   HullResponse,
   HullBatchHandlersConfiguration
@@ -8,6 +9,12 @@ import type {
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:batch-handler");
+
+type BatchBody = {
+  url: string,
+  format: string,
+  object_type: HullEntityName
+};
 
 const {
   extractStream,
@@ -32,7 +39,8 @@ function batchExtractProcessingMiddlewareFactory(
     }
 
     const { body = {} } = req;
-    const { url, format, object_type = "user" } = body;
+    // $FlowFixMe
+    const { url, format, object_type = "user" }: BatchBody = body;
     const entityType = object_type.replace("_report", "");
     const channel = `${entityType}:update`;
     const handlers = _.filter(configuration, { channel });
@@ -54,12 +62,14 @@ function batchExtractProcessingMiddlewareFactory(
           url,
           format,
           batchSize: options.maxSize || 100,
-          onResponse: () => res.end("ok"),
+          onResponse: () => {
+            res.end("ok");
+          },
           onError: err => {
             client.logger.error("connector.batch.error", err.stack);
             res.sendStatus(400);
           },
-          onData: entities => {
+          onData: async entities => {
             const segmentId = (req.query && req.query.segment_id) || null;
 
             const segmentsList = req.hull[`${entityType}sSegments`].map(s =>

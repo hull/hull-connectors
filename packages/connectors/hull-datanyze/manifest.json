@@ -13,8 +13,8 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
-  "readme" : "readme.md",
-  "version": "0.1.37-monorepo",
+  "readme": "readme.md",
+  "version": "0.1.39-monorepo",
   "admin": "/admin",
   "tabs": [
     {
@@ -33,16 +33,16 @@
       "title": "Authentication"
     },
     {
-      "name":"username",
+      "name": "username",
       "title": "Datanyze Username",
-      "description":"Datanyze Username or Email",
+      "description": "Datanyze Username or Email",
       "type": "string",
       "format": "text"
     },
     {
-      "name":"token",
+      "name": "token",
       "title": "Datanyze API Token",
-      "description":"You can find your personal API Token at https://www.datanyze.com/settings/?tab=api",
+      "description": "You can find your personal API Token at https://www.datanyze.com/settings/?tab=api",
       "type": "string",
       "format": "text"
     },
@@ -67,19 +67,19 @@
       "description": "The connector will use the value of this attribute as domain when fetching people from Datanyze.",
       "type": "string",
       "format": "trait",
-      "default" : "domain"
+      "default": "domain"
     },
     {
-      "name":"excluded_domains",
+      "name": "excluded_domains",
       "title": "Excluded the following domains from Enrichment",
-      "description":"Please specify domain values as comma-separated list. The above list of domains is a blacklist. You need to *explicitely specify one or more domains* for which enrichment shall be skipped. If you do not specify any domain, the connector will perform a call to the Datanyze API for every user matching one of the whitelisted segments. Please note that each call will count towards your monthly rate limit.",
+      "description": "Please specify domain values as comma-separated list. The above list of domains is a blacklist. You need to *explicitely specify one or more domains* for which enrichment shall be skipped. If you do not specify any domain, the connector will perform a call to the Datanyze API for every user matching one of the whitelisted segments. Please note that each call will count towards your monthly rate limit.",
       "type": "string",
       "format": "text"
     },
     {
-      "name":"handle_accounts",
+      "name": "handle_accounts",
       "title": "Handle Accounts",
-      "description":"If active, Data will be written at Account level. The Account Domain field will be used to query Datanyze",
+      "description": "If active, Data will be written at Account level. The Account Domain field will be used to query Datanyze",
       "type": "boolean",
       "default": false,
       "format": "checkbox"
@@ -102,16 +102,13 @@
     "method": "all",
     "handler": "status"
   },
-  "schedules" : [],
+  "schedules": [],
   "json": [],
   "html": [],
   "settings_sections": [
     {
       "title": "Datanyze Credentials",
-      "properties": [
-        "private_settings.username",
-        "private_settings.token"
-      ]
+      "properties": ["private_settings.username", "private_settings.token"]
     },
     {
       "title": "Outgoing Data",
@@ -126,7 +123,7 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
+      "conditions": {
         "segments": {
           "user:update": ["private_settings.synchronized_segments"]
         }

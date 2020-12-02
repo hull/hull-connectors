@@ -1,6 +1,6 @@
 {
   "name": "hull-warehouse",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.39-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
@@ -13,7 +13,6 @@
     "sequelize": "^5.2.15",
     "ssh2": "^0.8.7",
     "superagent-prefix": "^0.0.2",
-    "superagent-throttle": "^0.2.5",
     "urijs": "^1.18.0"
   },
   "devDependencies": {}

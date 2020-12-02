@@ -17,44 +17,82 @@ const {
   IntercomDeletedUserRead
 } = require("./service-objects");
 
+const EVENT_ACTION = {
+  TRAITS: "traits",
+  TRACK: "track"
+};
+
+const ENTITY_CLAIM = {
+  USER: "asUser",
+  ACCOUNT: "asAccount"
+};
+
 const EVENT_MAPPING = {
   "company.created": {
-    "action": "traits",
-    "asEntity": "asAccount",
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.ACCOUNT,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookCompanyRead,
     "transformTo": IntercomCompanyRead
   },
   "contact.created": {
-    "action": "traits",
-    "asEntity": "asUser",
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookLeadRead,
     "transformTo": IntercomLeadRead
   },
   "contact.signed_up": {
-    "action": "traits",
-    "asEntity": "asUser",
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookUserRead,
     "transformTo": IntercomUserRead
   },
+  "user.tag.created": {
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
+    "pathToEntity": "data.item.user",
+    "webhookType": IntercomWebhookUserRead,
+    "transformTo": IntercomUserRead
+  },
+  "user.tag.deleted": {
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
+    "pathToEntity": "data.item.user",
+    "webhookType": IntercomWebhookUserRead,
+    "transformTo": IntercomUserRead
+  },
+  "contact.tag.created": {
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
+    "pathToEntity": "data.item.contact",
+    "webhookType": IntercomWebhookLeadRead,
+    "transformTo": IntercomLeadRead
+  },
+  "contact.tag.deleted": {
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
+    "pathToEntity": "data.item.contact",
+    "webhookType": IntercomWebhookLeadRead,
+    "transformTo": IntercomLeadRead
+  },
   "user.created": {
-    "action": "traits",
-    "asEntity": "asUser",
+    "action": EVENT_ACTION.TRAITS,
+    "asEntity": ENTITY_CLAIM.USER,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookUserRead,
     "transformTo": IntercomUserRead
   },
   "user.deleted": {
-    "action": "traits",
+    "action": EVENT_ACTION.TRAITS,
     "asEntity": "userDeletedInService",
     "webhookType": IntercomDeletedUserRead,
     "transformTo": HullIncomingUser
   },
   // TODO write test for
   "conversation.user.created": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "User started conversation",
@@ -73,7 +111,7 @@ const EVENT_MAPPING = {
   },
   // TODO write test for
   "conversation.user.replied": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "User replied to conversation",
@@ -92,7 +130,7 @@ const EVENT_MAPPING = {
   },
   // TODO write test for
   "user.unsubscribed": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookUserEventRead,
     "eventName": "Unsubscribed from emails",
@@ -103,7 +141,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.replied": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin replied to conversation",
@@ -121,7 +159,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.single.created": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin started conversation",
@@ -139,7 +177,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation_part.redacted": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Conversation Part Redacted",
@@ -157,7 +195,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation_part.tag.created": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Conversation Part Tag Added",
@@ -176,7 +214,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.assigned": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin assigned conversation",
@@ -197,7 +235,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.closed": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin closed conversation",
@@ -216,7 +254,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.opened": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin opened conversation",
@@ -235,7 +273,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.noted": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin added note to conversation",
@@ -254,7 +292,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.snoozed": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin snoozed conversation",
@@ -270,7 +308,7 @@ const EVENT_MAPPING = {
     }
   },
   "conversation.admin.unsnoozed": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item.user",
     "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin unsnoozed conversation",
@@ -285,60 +323,8 @@ const EVENT_MAPPING = {
       "event_type": "data.item.type"
     }
   },
-  "user.tag.created": {
-    "action": "track",
-    "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
-    "eventName": "Added Tag",
-    "properties": {
-      "tag": "data.item.tag.name"
-    },
-    "context": {
-      "ip": "data.item.user.last_seen_ip",
-      "event_type": "data.item.type"
-    }
-  },
-  "user.tag.deleted": {
-    "action": "track",
-    "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
-    "eventName": "Removed Tag",
-    "properties": {
-      "tag": "data.item.tag.name"
-    },
-    "context": {
-      "ip": "data.item.user.last_seen_ip",
-      "event_type": "data.item.type"
-    }
-  },
-  "contact.tag.created": {
-    "action": "track",
-    "pathToEntity": "data.item.contact",
-    "webhookType": IntercomWebhookLeadEventRead,
-    "eventName": "Added Tag",
-    "properties": {
-      "tag": "data.item.tag.name"
-    },
-    "context": {
-      "ip": "data.item.contact.last_seen_ip",
-      "event_type": "data.item.type"
-    }
-  },
-  "contact.tag.deleted": {
-    "action": "track",
-    "pathToEntity": "data.item.contact",
-    "webhookType": IntercomWebhookLeadEventRead,
-    "eventName": "Removed Tag",
-    "properties": {
-      "tag": "data.item.tag.name"
-    },
-    "context": {
-      "ip": "data.item.contact.last_seen_ip",
-      "event_type": "data.item.type"
-    }
-  },
   "user.email.updated": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookUserEventRead,
     "eventName": "Updated email address",
@@ -351,7 +337,7 @@ const EVENT_MAPPING = {
     }
   },
   "contact.added_email": {
-    "action": "track",
+    "action": EVENT_ACTION.TRACK,
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookLeadEventRead,
     "eventName": "Updated email address",

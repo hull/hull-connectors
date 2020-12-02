@@ -7,8 +7,7 @@ import type {
   HullClientConfig,
   HullHandlersConfiguration,
   HullContext,
-  HullInstrumentation,
-  HullQueue
+  HullInstrumentation
 } from "./index";
 // =====================================
 // Hull Connector Data Object
@@ -76,7 +75,9 @@ export type HullMetric =
 
 export type HullMetricsConfig = {
   captureMetrics?: Array<HullMetric>,
-  exitOnError?: boolean
+  exitOnError?: boolean,
+  statsd_host: string,
+  statsd_port: string | number
 };
 export type HullLogsConfig = {
   logLevel?: ?string
@@ -97,6 +98,30 @@ export type HullCacheConfig =
       max?: number | string,
       min?: number | string
     };
+
+export type HullQueueConfig =
+  | {
+      store: "sqs",
+      region: string,
+      accessKeyId: string,
+      secretAccessKey: string,
+      url: string
+    }
+  | {
+      store: "redis",
+      url: string,
+      name: string,
+      settings?: {
+        lockDuration?: number,
+        stalledInterval?: number
+      }
+    }
+  | {
+      store: "memory",
+      url: void,
+      name: void
+    };
+
 export type HullClientCredentials = {
   id: string,
   secret: string,
@@ -111,21 +136,23 @@ export type HullConnectorConfig = {
   httpClientConfig?: HullHTTPClientConfig,
   logsConfig?: HullLogsConfig,
   jsonConfig?: HullJsonConfig,
+  queueConfig?: HullQueueConfig,
   hostSecret: string,
   port: number | string,
   connectorName?: string,
   skipSignatureValidation?: boolean,
   timeout?: number | string,
   disableOnExit?: boolean,
+  trustProxy?: boolean,
+  disableWebpack?: boolean,
   devMode?: boolean,
   instrumentation?: HullInstrumentation,
-  queue?: void | HullQueue,
   handlers:
     | HullHandlersConfiguration
     | (HullConnector => HullHandlersConfiguration),
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
-  manifest: HullManifest
+  manifest?: HullManifest
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
 };
 

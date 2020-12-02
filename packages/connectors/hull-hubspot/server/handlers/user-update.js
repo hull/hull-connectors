@@ -13,7 +13,18 @@ export default async (
 ): HullNotificationResponse => {
   try {
     const syncAgent = new SyncAgent(ctx);
-    await syncAgent.sendUserUpdateMessages(messages);
+
+    if (!syncAgent.isConfigured()) {
+      ctx.client.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve();
+    }
+
+    await Promise.all([
+      syncAgent.fetchVisitors(messages),
+      syncAgent.sendUserUpdateMessages(messages)
+    ]);
     return {};
   } catch (err) {
     return {

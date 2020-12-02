@@ -1,5 +1,7 @@
 // @flow
 import connectorConfig from "../../../../server/config";
+import manifest from "../../../../manifest.json";
+
 const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
 const intercomWebhookHandler = require("../../../../server/incoming-webhook")
 
@@ -7,12 +9,11 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
-process.env.COMBINED = true;
 
 describe("User Webhooks Tests", () => {
 
   it("should receive a user.created webhook", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.incomingRequestHandler,
         /*rawCustomRoutes: [
@@ -105,6 +106,14 @@ describe("User Webhooks Tests", () => {
                 }
               ]
             });
+
+          scope
+            .get("/tags")
+            .reply(200, {
+                "type": "list",
+                "data": []
+              }
+            );
 
           scope
             .get("/contacts/5f297f71bce3e055f3afdf6e/tags")
@@ -251,6 +260,18 @@ describe("User Webhooks Tests", () => {
               "responseTime": expect.whatever(),
               "method": "GET",
               "url": "/contacts/5f297f71bce3e055f3afdf6e/segments",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {},
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/tags",
               "status": 200,
               "vars": {}
             }
@@ -476,6 +497,8 @@ describe("User Webhooks Tests", () => {
         ],
         metrics: [
           ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],

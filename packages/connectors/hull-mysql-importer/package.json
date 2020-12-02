@@ -1,0 +1,11 @@
+{
+  "name": "hull-mysql-importer",
+  "version": "0.1.39-monorepo",
+  "description": "Import Users, Events and Accounts from MySQL",
+  "scripts": {
+    "test": "exit 0",
+    "documentation": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -7,6 +7,7 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 const incomingData = [
   ...require("../fixtures/get-contacts-groups"),
   {
@@ -39,7 +40,7 @@ const connector = {
 };
 
 it("Should return a synchronized user segments \"ok\" message when no user segments are given in the manifest", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

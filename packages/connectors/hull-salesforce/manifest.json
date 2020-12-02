@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -107,7 +107,13 @@
     {
       "name": "ignore_users_withoutchanges",
       "type": "boolean",
-      "title": "Ignore users and/or accounts without changes in the mapped attributes.",
+      "title": "Ignore users without changes in the mapped attributes.",
+      "default": false
+    },
+    {
+      "name": "ignore_accounts_withoutchanges",
+      "type": "boolean",
+      "title": "Ignore accounts without changes in the mapped attributes.",
       "default": false
     },
     {
@@ -125,7 +131,7 @@
       "format": "hidden"
     },
     {
-      "name": "user_claims",
+      "name": "contact_claims",
       "title": "Contact Identity",
       "type": "array",
       "format": "table",
@@ -143,10 +149,7 @@
           },
           "hull": {
             "title": "Hull Identifier",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["external_id", "email"]
           },
           "required": {
             "type": "boolean",
@@ -182,10 +185,7 @@
           },
           "hull": {
             "title": "Hull Identifier",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["external_id", "email"]
           },
           "required": {
             "type": "boolean",
@@ -386,10 +386,7 @@
         "properties": {
           "hull": {
             "title": "Hull Identifier",
-            "enum": [
-              "external_id",
-              "domain"
-            ]
+            "enum": ["external_id", "domain"]
           },
           "service": {
             "title": "Salesforce Identifier",
@@ -561,7 +558,7 @@
       "type": "array",
       "format": "table",
       "default": [],
-      "required": true,
+      "required": false,
       "items": {
         "type": "object",
         "properties": {
@@ -581,6 +578,63 @@
           }
         }
       }
+    },
+    {
+      "name": "task_attributes_inbound",
+      "title": "Task Incoming Fields",
+      "description": "List of Task fields to fetch from Salesforce",
+      "type": "array",
+      "default": [
+        { "service": "Id", "hull": "Id" },
+        { "service": "Subject", "hull": "Subject" },
+        { "service": "WhoId", "hull": "WhoId" },
+        { "service": "Status", "hull": "Status" },
+        { "service": "AccountId", "hull": "AccountId" },
+        { "service": "CreatedDate", "hull": "CreatedDate_at" },
+        { "service": "IsArchived", "hull": "IsArchived" },
+        { "service": "OwnerId", "hull": "OwnerId" },
+        { "service": "CallDurationInSeconds", "hull": "CallDurationInSeconds" },
+        { "service": "CallObject", "hull": "CallObject" },
+        { "service": "CallDisposition", "hull": "CallDisposition" },
+        { "service": "CallType", "hull": "CallType" },
+        { "service": "IsClosed", "hull": "IsClosed" },
+        { "service": "Description", "hull": "Description" },
+        { "service": "IsRecurrence", "hull": "IsRecurrence" },
+        { "service": "CreatedById", "hull": "CreatedById" },
+        { "service": "IsDeleted", "hull": "IsDeleted" },
+        { "service": "ActivityDate", "hull": "ActivityDate_at" },
+        { "service": "RecurrenceEndDateOnly", "hull": "RecurrenceEndDateOnly" },
+        { "service": "IsHighPriority", "hull": "IsHighPriority" },
+        { "service": "LastModifiedById", "hull": "LastModifiedById" },
+        { "service": "LastModifiedDate", "hull": "LastModifiedDate_at" },
+        { "service": "Priority", "hull": "Priority" },
+        { "service": "RecurrenceActivityId", "hull": "RecurrenceActivityId" },
+        { "service": "RecurrenceDayOfMonth", "hull": "RecurrenceDayOfMonth" },
+        {
+          "service": "RecurrenceDayOfWeekMask",
+          "hull": "RecurrenceDayOfWeekMask"
+        },
+        { "service": "RecurrenceInstance", "hull": "RecurrenceInstance" },
+        { "service": "RecurrenceInterval", "hull": "RecurrenceInterval" },
+        { "service": "RecurrenceMonthOfYear", "hull": "RecurrenceMonthOfYear" },
+        {
+          "service": "RecurrenceTimeZoneSidKey",
+          "hull": "RecurrenceTimeZoneSidKey"
+        },
+        { "service": "RecurrenceType", "hull": "RecurrenceType" },
+        { "service": "WhatId", "hull": "WhatId" },
+        { "service": "ReminderDateTime", "hull": "ReminderDateTime" },
+        { "service": "IsReminderSet", "hull": "IsReminderSet" },
+        {
+          "service": "RecurrenceRegeneratedType",
+          "hull": "RecurrenceRegeneratedType"
+        },
+        {
+          "service": "RecurrenceStartDateOnly",
+          "hull": "RecurrenceStartDateOnly_at"
+        },
+        { "service": "Type", "hull": "Type" }
+      ]
     }
   ],
   "settings": [],
@@ -803,12 +857,15 @@
         }
       ],
       "conditions": {
+        "segments": {
+          "user:update": [
+            "private_settings.lead_synchronized_segments",
+            "private_settings.contact_synchronized_segments"
+          ],
+          "account:update": ["private_settings.account_synchronized_segments"]
+        },
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       }
     }
@@ -817,16 +874,12 @@
     {
       "title": "Connect with Salesforce",
       "description": "Please begin by authenticating this connector with Salesforce.",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Lead Identity",
       "description": "Lead Identity",
-      "properties": [
-        "private_settings.lead_claims"
-      ]
+      "properties": ["private_settings.lead_claims"]
     },
     {
       "title": "Users - Fetching Leads from Salesforce",
@@ -852,9 +905,7 @@
     {
       "title": "Contact Identity",
       "description": "Contact Identity",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.contact_claims"]
     },
     {
       "title": "Users - Fetching Contacts from Salesforce",
@@ -878,9 +929,7 @@
     {
       "title": "Accounts - Identity",
       "description": "**Identity** is one of the most important concepts in Hull. The field mapping for account identity should correspond to unique fields across systems. This identity applies to both the data we send to Salesforce as well as the data we pull from Salesforce. To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471).",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Accounts - Fetching from Salesforce",
@@ -903,10 +952,7 @@
     {
       "title": "Events - Fetching Tasks from Salesforce",
       "description": "Hull gives it's customers the ability to decide if to fetch any Tasks from Salesforce. <b><p> - All standard attributes on the task will be fetched.</p><b><p> - If a Task was created via an event from Hull, that Task will not be fetched, neither on deletion nor update, given that the reference from the Salesforce Task to the Hull Event is not removed. </p>",
-      "properties": [
-        "private_settings.fetch_tasks",
-        "json.fetch_all_tasks"
-      ]
+      "properties": ["private_settings.fetch_tasks", "json.fetch_all_tasks"]
     },
     {
       "title": "Events - Sending Events as Tasks to Salesforce",
@@ -923,9 +969,7 @@
     {
       "title": "Advanced",
       "description": "You can configure the Connector to connect to a specific Sandbox system. Before proceeding please read carefully \"Connect with a Sandbox Environment\" section in Docs available above.<br /><br />When you are ready enter the login url of your Sandbox environment here and click “Save” to persist your changes. Switch to the tab \"Overview\" and click on \"Credentials\" to authenticate against your Sandbox system.",
-      "properties": [
-        "private_settings.salesforce_oauth_url"
-      ]
+      "properties": ["private_settings.salesforce_oauth_url"]
     }
   ]
 }

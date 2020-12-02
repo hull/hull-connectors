@@ -5,11 +5,12 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Outgoing Users Tests", () => {
 
   it("Send New User in Whitelisted Segments To Zap", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -94,7 +95,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Entered Segment. Should Send To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -221,7 +222,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Left Segment. Should Send To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -318,7 +319,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Whitelisted User Attribute Changed. Send User To Single Zap", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -465,7 +466,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Send New User in Whitelisted Segments To Multiple Zaps", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -627,7 +628,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Send Single User To Multiple Zaps", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -775,7 +776,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Send Multiple Users To Zapier", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -966,7 +967,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User enters non-whitelisted segment but is in whitelisted segment. Should not send to zapier.", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -1039,7 +1040,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Account on the user has a whitelisted attribute change and all validations pass. Should send to zapier.", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -1139,7 +1140,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("All available validations pass. Should send to zapier.", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
@@ -1239,7 +1240,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User entered 'all_segments'. Should send Single User To Zap", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,

@@ -6,11 +6,12 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const { createSimpleTriggerScenario } = require("hull-webhooks/test/trigger-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Outgoing Users Tests", () => {
 
   it("User Created. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "is_new_user" });
 
@@ -41,7 +42,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Entered Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered" });
 
@@ -72,7 +73,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Left Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left" });
 
@@ -103,7 +104,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Whitelisted User Attribute Changed. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_attribute_updated" });
 
@@ -134,7 +135,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Whitelisted User Event Occurred. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events" });
 
@@ -168,7 +169,7 @@ describe("Outgoing Users Tests", () => {
   TODO: UNSUPPORTED SCENARIOS:
 
   it("User Left Single Synchronized Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const private_settings = {
         "synchronized_user_segments_leave": ["segment_left"],
@@ -204,7 +205,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Account {Attribute|Segment} Changed. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_account_attribute_updated");
 
@@ -238,7 +239,7 @@ describe("Outgoing Users Tests", () => {
   // NEGATIVES
 
   it("User in whitelisted segment with no other trigger defined. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_synchronized_segment", negative: true });
 
@@ -257,7 +258,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User entered non synchronized segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered", negative: true });
 
@@ -276,7 +277,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User leaves non synchronized segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left", negative: true });
 
@@ -295,7 +296,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Non Whitelisted User Attribute Changed. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_attribute_updated", negative: true });
 
@@ -314,7 +315,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Not Whitelisted User Event Occurred. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events", negative: true });
 
@@ -333,7 +334,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Should send user with events and 'All Events' whitelist", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all" });
 
@@ -364,7 +365,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Should not send user without events and 'All Events' whitelist", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all", negative: true });
 

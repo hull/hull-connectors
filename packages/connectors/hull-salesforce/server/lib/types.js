@@ -3,7 +3,9 @@
 import type {
   THullObject,
   THullUserUpdateMessage,
-  THullAccountUpdateMessage
+  THullAccountUpdateMessage,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage
 } from "hull";
 import type { TAssignmentRule } from "./service-client/assignmentrules";
 
@@ -111,56 +113,153 @@ export interface ISalesforceClientOptions {
 }
 
 export interface IServiceClient {
-  findRecordsById(type: TResourceType, identifiers: string[], fields: string[], identityClaims: Array<Object>, options: Object): Promise<any[]>;
-  findRecordById(type: TResourceType, id: string): Promise<any[]>;
-  insert(records: Array<THullObject>, options: IInsertUpdateOptions): Promise<IApiResultObject[]>;
-  update(records: Array<THullObject>, options: TInsertUpdateOptions): Promise<IApiResultObject[]>;
+  queryRecordsById(
+    type: TResourceType,
+    ids: string[],
+    fields: string[],
+    options: Object
+  ): Promise<any[]>;
+  insert(
+    records: Array<THullObject>,
+    options: IInsertUpdateOptions
+  ): Promise<IApiResultObject[]>;
+  update(
+    records: Array<THullObject>,
+    options: TInsertUpdateOptions
+  ): Promise<IApiResultObject[]>;
   fetchFieldsList(type: TResourceType): any;
   fetchResourceSchema(type: TResourceType, fieldTypes: string): any;
-  fetchAssignmentRules(type: TResourceTypeAssignmentRule): Promise<TAssignmentRule[]>;
-  findLeads(query: any, fieldsList: string[], limit: number, skip: number): Promise<any[]>;
-  findContacts(query: any, fieldsList: string[], limit: number, skip: number): Promise<any[]>;
-  findAccounts(query: any, fieldsList: string[], limit: number, skip: number): Promise<any[]>;
-  queryExistingRecords(type: string, sfdcId: string, recordIds: string[]): Promise<any[]>;
-  getAllRecords(type: TResourceType, options: Object, onRecord: Function): Promise<*>;
-  getRecords(type: TResourceType, ids: Array<string>, options: Object, onRecord: Function): Promise<*>;
-  getUpdatedRecordIds(type: TResourceType, options: Object): Promise<*>;
-  getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>>;
+  fetchAssignmentRules(
+    type: TResourceTypeAssignmentRule
+  ): Promise<TAssignmentRule[]>;
+  findLeads(
+    query: any,
+    fieldsList: string[],
+    limit: number,
+    skip: number
+  ): Promise<any[]>;
+  findContacts(
+    query: any,
+    fieldsList: string[],
+    limit: number,
+    skip: number
+  ): Promise<any[]>;
+  findAccounts(
+    query: any,
+    fieldsList: string[],
+    limit: number,
+    skip: number
+  ): Promise<any[]>;
+  queryExistingRecords(
+    type: string,
+    sfdcId: string,
+    recordIds: string[]
+  ): Promise<any[]>;
+  getDeletedRecords(
+    type: TResourceType,
+    options: TDeletedRecordsParameters
+  ): Promise<Array<TDeletedRecordInfo>>;
   exec(fn: string, ...args: any): Promise<any>;
 }
 
 export interface IAttributesMapper {
-  mapToHullIdentityObject(resource: TResourceType, sfObject: Object, identityClaims: Array<Object>): Object;
-  mapToServiceObject(resource: TResourceType, hullObject: any, segments: Array<Object>, accountSegments: Array<Object>): any;
-  mapToHullAttributeObject(resource: TResourceType, sObject: any, resourceSchema: Object): any;
-  mapToHullEvent(mappings: Object, resource: TResourceType, sObject: any): any;
-  mapToHullDeletedObject(resource: TResourceType, deletedAt: Date): any;
+  mapToHullIdentityObject(
+    resource: TResourceType,
+    sfObject: Object,
+    identityClaims: Array<Object>
+  ): Object;
+  mapToServiceObject(
+    resource: TResourceType,
+    hullObject: any,
+    segments: Array<Object>,
+    accountSegments: Array<Object>
+  ): any;
+  mapToHullAttributeObject(
+    resource: TResourceType,
+    sObject: any,
+    resourceSchema: Object
+  ): any;
 }
 
 export interface IQueryUtil {
-  getSoqlFields(serviceType: string, fields: Array<string>, identityClaims: Array<Object>): Object;
+  getSoqlFields(
+    serviceType: string,
+    fields: Array<string>,
+    identityClaims: Array<Object>
+  ): Object;
   composeFindFields(serviceType: string, mappings: Object): Array<string>;
   extractUniqueValues(messages: Array<any>, path: string): Array<any>;
   buildQueryOpts(sfType: string, params: Array<Object>): Object;
-  composeFindQuery(messages: Array<THullUserUpdateMessage> | Array<THullAccountUpdateMessage>, searchMapping: Object, hullType: string): Object;
+  composeFindQuery(
+    messages: Array<THullUserUpdateMessage> | Array<THullAccountUpdateMessage>,
+    searchMapping: Object,
+    hullType: string
+  ): Object;
 }
 
 export interface IFilterUtil {
-  filterDuplicateMessages(messages: Array<Object>, entity: string): Array<Object>;
-  filterFindableAccountMessages(messages: Array<Object>, isBatch: boolean): Array<Object>;
-  filterFindableMessages(hullEntityType: string, messages: Array<Object>, isBatch: boolean): Array<Object>;
+  filterMessages(
+    sfType: TResourceType,
+    messages: Array<HullUserUpdateMessage | HullAccountUpdateMessage>,
+    isBatch: boolean
+  ): Array<Object>;
+  filterDuplicateMessages(
+    messages: Array<Object>,
+    entity: string
+  ): Array<Object>;
+  filterFindableAccountMessages(
+    messages: Array<Object>,
+    isBatch: boolean
+  ): Array<Object>;
+  filterFindableMessages(
+    hullEntityType: string,
+    messages: Array<Object>,
+    isBatch: boolean
+  ): Array<Object>;
   filterLeadEnvelopes(envelopes: Array<IUserUpdateEnvelope>): TFilterResults;
   filterContactEnvelopes(envelopes: Array<IUserUpdateEnvelope>): TFilterResults;
-  filterEnvelopes(envelopes: Array<IUserUpdateEnvelope>, resourceType: TResourceType): TFilterResults;
-  filterAccountEnvelope(results: TFilterResults, envelope: Object, isBatch: boolean): TFilterResults;
-  filterAccountEnvelopes(envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>, isBatch: boolean): TFilterResults;
+  filterEnvelopes(
+    envelopes: Array<IUserUpdateEnvelope>,
+    resourceType: TResourceType
+  ): TFilterResults;
+  filterAccountEnvelope(
+    results: TFilterResults,
+    envelope: Object,
+    isBatch: boolean
+  ): TFilterResults;
+  filterAccountEnvelopes(
+    envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
+    isBatch: boolean
+  ): TFilterResults;
+  filterLeads(messages: Array<IUserUpdateEnvelope>): Array<IUserUpdateEnvelope>;
+  filterContacts(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope>;
 }
 
 export interface IMatchUtil {
-  matchHullMessageToSalesforceAccount(message: THullUserUpdateMessage | THullAccountUpdateMessage, sfAccounts: Array<Object>, accountClaims: Array<Object>): Object;
-  matchHullMessageToSalesforceRecord(resource: TResourceType, user: THullObject, sfObjects: Array<Object>, identityClaims: Array<Object>): any;
-  getIdentityClaimMatches({ entities: Array<Object>, identityClaims: Array<Object>, searchEntity: Object, searchType: string }): Object;
-  filterIdentityClaimMatches({ identityClaims: Array<Object>, identityClaimMatches: Object, intersectBy: Object }): Array<Object>;
+  matchHullMessageToSalesforceAccount(
+    message: THullUserUpdateMessage | THullAccountUpdateMessage,
+    sfAccounts: Array<Object>,
+    accountClaims: Array<Object>
+  ): Object;
+  matchHullMessageToSalesforceRecord(
+    resource: TResourceType,
+    user: THullObject,
+    sfObjects: Array<Object>,
+    identityClaims: Array<Object>
+  ): any;
+  getIdentityClaimMatches({
+    entities: Array<Object>,
+    identityClaims: Array<Object>,
+    searchEntity: Object,
+    searchType: string
+  }): Object;
+  filterIdentityClaimMatches({
+    identityClaims: Array<Object>,
+    identityClaimMatches: Object,
+    intersectBy: Object
+  }): Array<Object>;
 }
 
 module.exports = {

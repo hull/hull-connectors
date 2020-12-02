@@ -4,7 +4,7 @@
   "source": "intercom",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.37-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -131,36 +131,142 @@
         "source": "intercom_lead"
       },
       "default": [
-        { "service": "external_id", "hull": "intercom_lead/user_id", "readOnly": true, "overwrite": true },
-        { "service": "id", "hull": "intercom_lead/id", "readOnly": true, "overwrite": true },
-        { "service": "email", "hull": "intercom_lead/email", "readOnly": true, "overwrite": true },
-        { "service": "avatar", "hull": "intercom_lead/avatar", "overwrite": true },
-        { "service": "browser", "hull": "intercom_lead/browser", "overwrite": true },
-        { "service": "browser_language", "hull": "intercom_lead/browser_language", "overwrite": true },
-        { "service": "browser_version", "hull": "intercom_lead/browser_version", "overwrite": true },
-        { "service": "companies", "hull": "intercom_lead/companies", "overwrite": true },
-        { "service": "created_at", "hull": "intercom_lead/created_at", "overwrite": true },
-        { "service": "has_hard_bounced", "hull": "intercom_lead/has_hard_bounced", "overwrite": true },
-        { "service": "language_override", "hull": "intercom_lead/language_override", "overwrite": true },
-        { "service": "last_contacted_at", "hull": "intercom_lead/last_contacted_at", "overwrite": true },
-        { "service": "last_email_clicked_at", "hull": "intercom_lead/last_email_clicked_at", "overwrite": true },
-        { "service": "last_email_opened_at", "hull": "intercom_lead/last_email_opened_at", "overwrite": true },
-        { "service": "last_replied_at", "hull": "intercom_lead/last_replied_at", "overwrite": true },
-        { "service": "last_seen_at", "hull": "intercom_lead/last_seen_at", "overwrite": true },
-        { "service": "location.city", "hull": "intercom_lead/location_city_name", "overwrite": true },
-        { "service": "location.country", "hull": "intercom_lead/location_country_name", "overwrite": true },
-        { "service": "location.region", "hull": "intercom_lead/location_region_name", "overwrite": true },
-        { "service": "marked_email_as_spam", "hull": "intercom_lead/marked_email_as_spam", "overwrite": true },
+        {
+          "service": "external_id",
+          "hull": "intercom_lead/user_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "id",
+          "hull": "intercom_lead/id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "email",
+          "hull": "intercom_lead/email",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "avatar",
+          "hull": "intercom_lead/avatar",
+          "overwrite": true
+        },
+        {
+          "service": "browser",
+          "hull": "intercom_lead/browser",
+          "overwrite": true
+        },
+        {
+          "service": "browser_language",
+          "hull": "intercom_lead/browser_language",
+          "overwrite": true
+        },
+        {
+          "service": "browser_version",
+          "hull": "intercom_lead/browser_version",
+          "overwrite": true
+        },
+        {
+          "service": "companies",
+          "hull": "intercom_lead/companies",
+          "overwrite": true
+        },
+        {
+          "service": "created_at",
+          "hull": "intercom_lead/created_at",
+          "overwrite": true
+        },
+        {
+          "service": "has_hard_bounced",
+          "hull": "intercom_lead/has_hard_bounced",
+          "overwrite": true
+        },
+        {
+          "service": "language_override",
+          "hull": "intercom_lead/language_override",
+          "overwrite": true
+        },
+        {
+          "service": "last_contacted_at",
+          "hull": "intercom_lead/last_contacted_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_email_clicked_at",
+          "hull": "intercom_lead/last_email_clicked_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_email_opened_at",
+          "hull": "intercom_lead/last_email_opened_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_replied_at",
+          "hull": "intercom_lead/last_replied_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_seen_at",
+          "hull": "intercom_lead/last_seen_at",
+          "overwrite": true
+        },
+        {
+          "service": "location.city",
+          "hull": "intercom_lead/location_city_name",
+          "overwrite": true
+        },
+        {
+          "service": "location.country",
+          "hull": "intercom_lead/location_country_name",
+          "overwrite": true
+        },
+        {
+          "service": "location.region",
+          "hull": "intercom_lead/location_region_name",
+          "overwrite": true
+        },
+        {
+          "service": "marked_email_as_spam",
+          "hull": "intercom_lead/marked_email_as_spam",
+          "overwrite": true
+        },
         { "service": "name", "hull": "intercom_lead/name", "overwrite": true },
         { "service": "os", "hull": "intercom_lead/os", "overwrite": true },
-        { "service": "owner_id", "hull": "intercom_lead/owner_id", "overwrite": true },
-        { "service": "phone", "hull": "intercom_lead/phone", "overwrite": true },
-        { "service": "segments", "hull": "intercom_lead/segments", "overwrite": true },
-        { "service": "signed_up_at", "hull": "intercom_lead/signed_up_at", "overwrite": true },
-        { "service": "social_profiles", "hull": "intercom_lead/social_profiles", "overwrite": true },
+        {
+          "service": "owner_id",
+          "hull": "intercom_lead/owner_id",
+          "overwrite": true
+        },
+        {
+          "service": "phone",
+          "hull": "intercom_lead/phone",
+          "overwrite": true
+        },
+        {
+          "service": "signed_up_at",
+          "hull": "intercom_lead/signed_up_at",
+          "overwrite": true
+        },
+        {
+          "service": "social_profiles",
+          "hull": "intercom_lead/social_profiles",
+          "overwrite": true
+        },
         { "service": "tags", "hull": "intercom_lead/tags", "overwrite": true },
-        { "service": "unsubscribed_from_emails", "hull": "intercom_lead/unsubscribed_from_emails", "overwrite": true },
-        { "service": "updated_at", "hull": "intercom_lead/updated_at", "overwrite": true }
+        {
+          "service": "unsubscribed_from_emails",
+          "hull": "intercom_lead/unsubscribed_from_emails",
+          "overwrite": true
+        },
+        {
+          "service": "updated_at",
+          "hull": "intercom_lead/updated_at",
+          "overwrite": true
+        }
       ]
     },
     {
@@ -193,36 +299,142 @@
         "source": "intercom_user"
       },
       "default": [
-        { "service": "external_id", "hull": "intercom_user/user_id", "readOnly": true, "overwrite": true },
-        { "service": "id", "hull": "intercom_user/id", "readOnly": true, "overwrite": true },
-        { "service": "email", "hull": "intercom_user/email", "readOnly": true, "overwrite": true },
-        { "service": "avatar", "hull": "intercom_user/avatar", "overwrite": true },
-        { "service": "browser", "hull": "intercom_user/browser", "overwrite": true },
-        { "service": "browser_language", "hull": "intercom_user/browser_language", "overwrite": true },
-        { "service": "browser_version", "hull": "intercom_user/browser_version", "overwrite": true },
-        { "service": "companies", "hull": "intercom_user/companies", "overwrite": true },
-        { "service": "created_at", "hull": "intercom_user/created_at", "overwrite": true },
-        { "service": "has_hard_bounced", "hull": "intercom_user/has_hard_bounced", "overwrite": true },
-        { "service": "language_override", "hull": "intercom_user/language_override", "overwrite": true },
-        { "service": "last_contacted_at", "hull": "intercom_user/last_contacted_at", "overwrite": true },
-        { "service": "last_email_clicked_at", "hull": "intercom_user/last_email_clicked_at", "overwrite": true },
-        { "service": "last_email_opened_at", "hull": "intercom_user/last_email_opened_at", "overwrite": true },
-        { "service": "last_replied_at", "hull": "intercom_user/last_replied_at", "overwrite": true },
-        { "service": "last_seen_at", "hull": "intercom_user/last_seen_at", "overwrite": true },
-        { "service": "location.city", "hull": "intercom_user/location_city_name", "overwrite": true },
-        { "service": "location.country", "hull": "intercom_user/location_country_name", "overwrite": true },
-        { "service": "location.region", "hull": "intercom_user/location_region_name", "overwrite": true },
-        { "service": "marked_email_as_spam", "hull": "intercom_user/marked_email_as_spam", "overwrite": true },
+        {
+          "service": "external_id",
+          "hull": "intercom_user/user_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "id",
+          "hull": "intercom_user/id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "email",
+          "hull": "intercom_user/email",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "avatar",
+          "hull": "intercom_user/avatar",
+          "overwrite": true
+        },
+        {
+          "service": "browser",
+          "hull": "intercom_user/browser",
+          "overwrite": true
+        },
+        {
+          "service": "browser_language",
+          "hull": "intercom_user/browser_language",
+          "overwrite": true
+        },
+        {
+          "service": "browser_version",
+          "hull": "intercom_user/browser_version",
+          "overwrite": true
+        },
+        {
+          "service": "companies",
+          "hull": "intercom_user/companies",
+          "overwrite": true
+        },
+        {
+          "service": "created_at",
+          "hull": "intercom_user/created_at",
+          "overwrite": true
+        },
+        {
+          "service": "has_hard_bounced",
+          "hull": "intercom_user/has_hard_bounced",
+          "overwrite": true
+        },
+        {
+          "service": "language_override",
+          "hull": "intercom_user/language_override",
+          "overwrite": true
+        },
+        {
+          "service": "last_contacted_at",
+          "hull": "intercom_user/last_contacted_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_email_clicked_at",
+          "hull": "intercom_user/last_email_clicked_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_email_opened_at",
+          "hull": "intercom_user/last_email_opened_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_replied_at",
+          "hull": "intercom_user/last_replied_at",
+          "overwrite": true
+        },
+        {
+          "service": "last_seen_at",
+          "hull": "intercom_user/last_seen_at",
+          "overwrite": true
+        },
+        {
+          "service": "location.city",
+          "hull": "intercom_user/location_city_name",
+          "overwrite": true
+        },
+        {
+          "service": "location.country",
+          "hull": "intercom_user/location_country_name",
+          "overwrite": true
+        },
+        {
+          "service": "location.region",
+          "hull": "intercom_user/location_region_name",
+          "overwrite": true
+        },
+        {
+          "service": "marked_email_as_spam",
+          "hull": "intercom_user/marked_email_as_spam",
+          "overwrite": true
+        },
         { "service": "name", "hull": "intercom_user/name", "overwrite": true },
         { "service": "os", "hull": "intercom_user/os", "overwrite": true },
-        { "service": "owner_id", "hull": "intercom_user/owner_id", "overwrite": true },
-        { "service": "phone", "hull": "intercom_user/phone", "overwrite": true },
-        { "service": "segments", "hull": "intercom_user/segments", "overwrite": true },
-        { "service": "signed_up_at", "hull": "intercom_user/signed_up_at", "overwrite": true },
-        { "service": "social_profiles", "hull": "intercom_user/social_profiles", "overwrite": true },
+        {
+          "service": "owner_id",
+          "hull": "intercom_user/owner_id",
+          "overwrite": true
+        },
+        {
+          "service": "phone",
+          "hull": "intercom_user/phone",
+          "overwrite": true
+        },
+        {
+          "service": "signed_up_at",
+          "hull": "intercom_user/signed_up_at",
+          "overwrite": true
+        },
+        {
+          "service": "social_profiles",
+          "hull": "intercom_user/social_profiles",
+          "overwrite": true
+        },
         { "service": "tags", "hull": "intercom_user/tags", "overwrite": true },
-        { "service": "unsubscribed_from_emails", "hull": "intercom_user/unsubscribed_from_emails", "overwrite": true },
-        { "service": "updated_at", "hull": "intercom_user/updated_at", "overwrite": true }
+        {
+          "service": "unsubscribed_from_emails",
+          "hull": "intercom_user/unsubscribed_from_emails",
+          "overwrite": true
+        },
+        {
+          "service": "updated_at",
+          "hull": "intercom_user/updated_at",
+          "overwrite": true
+        }
       ]
     },
     {
@@ -258,11 +470,7 @@
       "format": "select",
       "type": "array",
       "uniqueItems": true,
-      "default": [
-        "user.created",
-        "user.deleted",
-        "contact.created"
-      ],
+      "default": ["user.created", "user.deleted", "contact.created"],
       "items": {
         "type": "string",
         "enum": [
@@ -298,12 +506,9 @@
       "name": "send_batch_as",
       "title": "Send Batch Hull Users as Intercom Users or Leads",
       "type": "string",
-      "enum": [
-        "Users",
-        "Leads"
-      ],
+      "enum": ["Users", "Leads"],
       "default": "Users",
-      "required" : true
+      "required": true
     },
     {
       "name": "link_users_in_hull",
@@ -357,17 +562,11 @@
         "properties": {
           "hull": {
             "title": "Hull Identifier",
-            "enum": [
-              "external_id",
-              "domain"
-            ]
+            "enum": ["external_id", "domain"]
           },
           "service": {
             "title": "Intercom Identifier",
-            "enum": [
-              "company_id",
-              "name"
-            ]
+            "enum": ["company_id", "name"]
           },
           "required": {
             "type": "boolean",
@@ -487,11 +686,30 @@
         "source": "intercom"
       },
       "default": [
-        { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
-        { "service": "company_id", "hull": "intercom/company_id", "readOnly": true, "overwrite": true },
-        { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
-        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true },
-        { "service": "segments", "hull": "intercom/segments", "readOnly": true, "overwrite": true }
+        {
+          "service": "id",
+          "hull": "intercom/id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "company_id",
+          "hull": "intercom/company_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "website",
+          "hull": "intercom/website",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "tags",
+          "hull": "intercom/tags",
+          "readOnly": true,
+          "overwrite": true
+        }
       ]
     }
   ],
@@ -618,8 +836,16 @@
       "handler": "convertLead"
     },
     {
+      "url": "/tag-contact",
+      "handler": "manualTagContact"
+    },
+    {
       "url": "/fetch-company",
       "handler": "fetchCompany"
+    },
+    {
+      "url": "/fetch-contact",
+      "handler": "fetchContact"
     }
   ],
   "schedules": [
@@ -668,7 +894,7 @@
           "handler": "shipUpdate"
         }
       ],
-      "conditions" : {
+      "conditions": {
         "segments": {
           "user:update": [
             "private_settings.synchronized_lead_segments",
@@ -686,23 +912,17 @@
     {
       "title": "Connect with Intercom",
       "description": "Please begin by authenticating this connector with Intercom.",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Send Batch Hull Users As Intercom Users or Leads",
       "description": "When manually sending Hull Users to Intercom, define if they will be sent as Intercom Leads or Users.",
-      "properties": [
-        "private_settings.send_batch_as"
-      ]
+      "properties": ["private_settings.send_batch_as"]
     },
     {
       "title": "Lead Identity",
       "description": "",
-      "properties": [
-        "private_settings.lead_claims"
-      ]
+      "properties": ["private_settings.lead_claims"]
     },
     {
       "title": "Fetch Leads from Intercom",
@@ -725,9 +945,7 @@
     {
       "title": "User Identity",
       "description": "",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "Fetch Users from Intercom",
@@ -766,9 +984,7 @@
     {
       "title": "Company Identity",
       "description": "",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Fetch Companies from Intercom",

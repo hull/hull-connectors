@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640px" height="360px" viewBox="0 0 640 360" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>redshift-importer/picture</title>
+    <g id="redshift-importer/picture" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="640" height="360"></rect>
+        <g id="Group" transform="translate(162.000000, 131.000000)">
+            <text id="Redshift" font-family="NittiGrotesk-Light, Nitti Grotesk" font-size="28" font-weight="300" letter-spacing="3.333333" fill="#2E73B7">
+                <tspan x="124.5" y="36">REDSHIFT</tspan>
+            </text>
+            <text id="Importer" font-family="NittiGrotesk-Bold, Nitti Grotesk" font-size="52" font-weight="bold" fill="#2E73B7">
+                <tspan x="124.5" y="78">Importer</tspan>
+            </text>
+            <g id="aws-redshift-logo" fill-rule="nonzero">
+                <polygon id="Path" fill="#205B97" points="44.5 75.9748131 81.5 85 81.5 14 44.5 23.0251869"></polygon>
+                <path d="M82.3695652,14 L89.5,17.6100748 L89.5,81.3899252 L82.3695652,85 L82.3695652,14 Z M44.9347826,75.9748131 L7.5,85 L7.5,14 L44.9347826,23.0251869 L44.9347826,75.9748131 Z" id="Shape" fill="#5193CE"></path>
+                <polygon id="Path" fill="#205B97" points="7.5 14 0.5 17.6100748 0.5 81.3899252 7.5 85"></polygon>
+                <polygon id="Path" fill="#5193CE" points="53.9487255 99 68.5 91.8290632 68.5 7.17093682 53.9487255 0 49.5 47.0107081"></polygon>
+                <polygon id="Path" fill="#205B97" points="35.0512745 99 20.5 91.8290632 20.5 7.17093682 35.0512745 0 39.5 47.0107081"></polygon>
+                <polygon id="Path" fill="#2E73B7" points="35.5 0 54.5 0 54.5 99 35.5 99"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
