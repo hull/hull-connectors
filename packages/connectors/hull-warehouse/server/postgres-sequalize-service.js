@@ -54,7 +54,7 @@ const EVENT_SCHEMA = {
 };
 
 const synchOptions = {
-  logging: false,
+  logging: true,
   alter: true
 };
 
