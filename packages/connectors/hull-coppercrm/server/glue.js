@@ -22,7 +22,11 @@ const {
   cast,
   utils,
   not,
-  moment
+  moment,
+  cacheGet,
+  cacheSet,
+  cacheLock,
+  or
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -148,13 +152,22 @@ const glue = {
   leadUpdate: ifL(route("isConfigured"),[
     set("service_name", "coppercrm"),
     iterateL(input(), { key: "message", async: true }, [
-        ifL(set("leadId", "${message.user.coppercrm_lead/id}"), {
+      cacheLock(input("user.id"), [
+        ifL(or([
+          set("leadId", cacheGet(input("user.id"))),
+          set("leadId", "${message.user.coppercrm_lead/id}")
+        ]), {
           do: set("copperLead", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
-          eldo: set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
+          eldo: [
+            ifL(cond("notEmpty", set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}")))),
+              cacheSet({ key: input("user.id") }, "${copperLead.id}")
+            )
+          ]
         }),
         ifL("${copperLead.id}",
           hull("asUser", "${copperLead}")
         )
+      ])
     ])
   ]),
   userUpdate: {},
