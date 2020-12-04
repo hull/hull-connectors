@@ -268,6 +268,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 422 },
         errorType: SkippableError,
         message: "Copper has detected an issue with the data that you're trying to send, please inspect the attributes being sent to Copper for correct format, and that the entities you're trying to update are not ambiguous"
+      },
+      {
+        truthy: { status: 404 },
+        errorType: SkippableError,
+        message: "Resource not found"
       }
     ]
 
