@@ -54,7 +54,7 @@ const EVENT_SCHEMA = {
 };
 
 const synchOptions = {
-  logging: true,
+  logging: console.log,
   alter: true
 };
 
@@ -197,7 +197,7 @@ class SequalizeSdk {
             // prevent sequelize from pluralizing table names
             freezeTableName: true
           },
-          logging: false
+          logging: console.log
         };
 
         if (this.requireSshTunnel()) {
