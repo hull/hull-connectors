@@ -221,7 +221,8 @@ export default class HullConnector {
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds
-      max: 5, // Connections to Redis (??) Shouldn't be used in newer cache-manager-redis-store
+//       max: 5, // Connections to Redis (??) Shouldn't be used in newer cache-manager-redis-store
+      max: 100, // for in memory LRU cache this option is for number of objects you want
       store: "memory",
       ...cacheConfig
     };
