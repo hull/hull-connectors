@@ -306,14 +306,18 @@ const glue = {
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
   // currently don't support custom fields with no call to customLeadFields
-  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./fields/lead_fields"))),
+  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
+
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),
+
   attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("companySchema"))),
   companySchema: ld("concat", require("./fields/company_fields"), route("customCompanyFields")),
+
   attributesOpportunitiesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("opportunitySchema"))),
   opportunitySchema: ld("concat", require("./fields/opportunity_fields"), route("customOpportunityFields")),
+
   customLeadFields: jsonata(`$["lead" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customPeopleFields: jsonata(`$["people" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
@@ -333,8 +337,17 @@ const glue = {
     eldo: []
   }),
 
+  getCustomFieldMapByName: jsonata(
+    '$ {name: { "id": id, "type": data_type, "options": options{ name: id } } }',
+    route("getCustomFields")
+  ),
+  getCustomFieldValueNameMap: jsonata("$ { name : options{ name: id } }", route("getCustomFields")),
+  forceGetCustomFieldValueNameMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldValueNameMap")),
+
   getAssignees: jsonata("$ {$string(id): email}", cacheWrap(StandardEnumTimeout, coppercrm("getUsers"))),
   forceGetAssignees: returnValue(cacheDel(coppercrm("getUsers")), route("getAssignees")),
+  getAssigneesId: jsonata("$ {email: id}", cacheWrap(StandardEnumTimeout, coppercrm("getUsers"))),
+  forceGetAssigneesId: returnValue(cacheDel(coppercrm("getUsers")), route("getAssigneesId")),
 
   getContactTypes: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getContactTypes"))),
   forceGetContactTypes: returnValue(cacheDel(coppercrm("getContactTypes")), route("getContactTypes")),
@@ -343,6 +356,9 @@ const glue = {
 
   getCustomerSources: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getCustomerSources"))),
   forceGetCustomerSources: returnValue(cacheDel(coppercrm("getCustomerSources")), route("getCustomerSources")),
+  getCustomerSourcesId: jsonata("$ {name: id}", cacheWrap(StandardEnumTimeout, coppercrm("getCustomerSources"))),
+  forceGetCustomerSourcesId: returnValue(cacheDel(coppercrm("getCustomerSources")), route("getCustomerSourcesId")),
+
 
   getLossReasons: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getLossReasons"))),
   forceGetLossReason: returnValue(cacheDel(coppercrm("getLossReasons")), route("getLossReasons")),

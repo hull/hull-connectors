@@ -80,6 +80,15 @@ module.exports = {
   },
   "serviceRequests": [
     {
+      "localContext": expect.anything(),
+      "name": "coppercrm",
+      "op": "getCustomFields",
+      "result": {
+        "status": 200,
+        "text": "[{\"id\":455893,\"name\":\"Some Checkbox\",\"data_type\":\"Checkbox\",\"available_on\":[\"lead\",\"person\"]},{\"id\":455894,\"name\":\"Some Currency\",\"data_type\":\"Currency\",\"available_on\":[\"lead\"],\"currency\":\"USD\"},{\"id\":455895,\"name\":\"Some Date\",\"data_type\":\"Date\",\"available_on\":[\"lead\"]},{\"id\":455896,\"name\":\"Some Dropdown\",\"data_type\":\"Dropdown\",\"available_on\":[\"lead\"],\"options\":[{\"id\":1532570,\"name\":\"Some Option 3\",\"rank\":2},{\"id\":1532569,\"name\":\"Some Option 2\",\"rank\":1},{\"id\":1532568,\"name\":\"Some Option 1\",\"rank\":0}]},{\"id\":455897,\"name\":\"Some Multi Select Dropdown\",\"data_type\":\"MultiSelect\",\"available_on\":[\"lead\"],\"options\":[{\"id\":1532722,\"name\":\"Some Multi Select Option 4\",\"rank\":7},{\"id\":1532721,\"name\":\"Some Multi Select Option 3\",\"rank\":6},{\"id\":1532720,\"name\":\"Some Multi Select Option 2\",\"rank\":5},{\"id\":1532719,\"name\":\"Some Multi Select Option 1\",\"rank\":4},{\"id\":1532574,\"name\":\"Some Multi Select Dropdown 4\",\"rank\":3},{\"id\":1532573,\"name\":\"Some Multi Select Dropdown 3\",\"rank\":2},{\"id\":1532572,\"name\":\"Some Multi Select Dropdown 2\",\"rank\":1},{\"id\":1532571,\"name\":\"Some Multi Select Dropdown 1\",\"rank\":0}]},{\"id\":455899,\"name\":\"Some Number Field\",\"data_type\":\"Float\",\"available_on\":[\"lead\"]},{\"id\":455900,\"name\":\"Some Percentage\",\"data_type\":\"Percentage\",\"available_on\":[\"lead\"]},{\"id\":455901,\"name\":\"Some Text Area\",\"data_type\":\"Text\",\"available_on\":[\"lead\"]},{\"id\":455902,\"name\":\"Some Text Field\",\"data_type\":\"String\",\"available_on\":[\"lead\"]},{\"id\":455903,\"name\":\"Some Url\",\"data_type\":\"URL\",\"available_on\":[\"lead\"]}]"
+      }
+    },
+    {
       localContext: expect.anything(),
       name: "coppercrm",
       op: "upsertLead",

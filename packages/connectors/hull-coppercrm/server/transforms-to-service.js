@@ -2,6 +2,11 @@
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
 const {
+  leadTransformations
+} = require("./transforms-to-service-utils");
+const _ = require("lodash");
+
+const {
   HullLeadRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
@@ -11,10 +16,10 @@ const {
 } = require("./service-objects");
 
 const {
-  varUndefined,
   varEqual,
-  not
 }  = require("hull-connector-framework/src/purplefusion/conditionals");
+
+
 
 const transformsToHull: ServiceTransforms = [
   {
@@ -23,27 +28,8 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: [
-      {
-        operateOn: { component: "input", select: "attributes" },
-        expand: { keyName: "key", valueName: "value" },
-        then: [
-          {
-            condition: not(varEqual("key", "primaryEmail")),
-            writeTo: { path: "properties.${key}" }
-          },
-          {
-            condition: varEqual("key", "primaryEmail"),
-            writeTo: {
-              path: "properties.email",
-              format: {
-                email: "${value}",
-                category: "other"
-              }
-            }
-          }
-        ]
-      },
+    then:_.concat(
+      leadTransformations,
       {
         operateOn: { component: "input", select: "ident[0]" },
         // For now only support resolution on email
@@ -55,8 +41,7 @@ const transformsToHull: ServiceTransforms = [
             field_value: "${operateOn.value}"
           }
         }
-      }
-    ]
+      })
   },
   {
     input: HullLeadRaw,
@@ -64,28 +49,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: [
-      {
-        operateOn: { component: "input", select: "attributes" },
-        expand: { keyName: "key", valueName: "value" },
-        then: [
-          {
-            condition: not(varEqual("key", "primaryEmail")),
-            writeTo: { path: "properties.${key}" }
-          },
-          {
-            condition: varEqual("key", "primaryEmail"),
-            writeTo: {
-              path: "properties.email",
-              format: {
-                email: "${value}",
-                category: "other"
-              }
-            }
-          }
-        ]
-      },
-    ]
+    then: leadTransformations
   }
 ];
 

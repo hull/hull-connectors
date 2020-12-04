@@ -101,6 +101,10 @@ describe("CopperCRM Incoming Tests", () => {
     return harness.runTest(require("./fixtures/leadUpdate"));
   });
 
+  it("lead upsert with customfields", () => {
+    return harness.runTest(require("./fixtures/leadUpdate-customfields"));
+  });
+
   it("lead update", () => {
     return harness.runTest(require("./fixtures/leadUpdate_update_email"));
   });
