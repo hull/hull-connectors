@@ -1,7 +1,7 @@
 /* @flow */
 
 const {
-  cacheLock,
+  lockL,
   cacheGet,
   cacheSet,
   ifL,
@@ -126,7 +126,7 @@ const glue = {
     // This condition checks for both if the databaseUrl has been set or if it's not equal to the existing one
     // in either case have to schema update both account and user and set the databaseUrl
     ifL(cond("not", cond("isEqual", "${currentDatabaseSettings}", cacheGet("databaseSettings"))), {
-      do: cacheLock("${connector.id}", [
+      do: lockL("${connector.id}", [
         // need to invalidate the url in cases where we cleared the database
         // but the schema update fails, then we change the url back to previous
         // in bad state, still need to initialize
@@ -149,7 +149,7 @@ const glue = {
               path: "user"
             }),
           ],
-          cacheLock("${connector.id}", route("userSchemaUpdateStart"))
+          lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
         ifL([
             cond("isEqual", "${connector.private_settings.send_all_account_attributes}", true),
@@ -160,7 +160,7 @@ const glue = {
               path: "account"
             }),
           ],
-          cacheLock("${connector.id}", route("accountSchemaUpdateStart"))
+          lockL("${connector.id}", route("accountSchemaUpdateStart"))
         )
       ]
     })
