@@ -359,6 +359,7 @@ class SequalizeSdk {
         }
 
         if (!schema[normalizedName]) {
+          console.log("Trait not found in schema: ", normalizedName);
           return true;
         }
 
