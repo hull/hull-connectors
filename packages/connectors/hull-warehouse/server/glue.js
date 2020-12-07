@@ -152,7 +152,7 @@ const glue = {
           lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
         ifL([
-            cond("isEqual", "${connector.private_settings.send_all_user_attributes}", true),
+            cond("isEqual", "${connector.private_settings.send_all_account_attributes}", true),
             cond("notEmpty", input("[0].account")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),

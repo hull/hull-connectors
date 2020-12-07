@@ -154,13 +154,13 @@ const glue = {
     iterateL(input(), { key: "message", async: true }, [
       cacheLock("${message.user.id}", [
         ifL(or([
-          set("leadId", cacheGet("${message.user.id}")),
+          set("leadId", cacheGet("lead-${message.user.id}")),
           set("leadId", "${message.user.coppercrm_lead/id}")
         ]), {
           do: set("copperLead", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
           eldo: [
             ifL(cond("notEmpty", set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}")))),
-              cacheSet({ key: "${message.user.id}" }, "${copperLead.id}")
+              cacheSet({ key: "lead-${message.user.id}" }, "${copperLead.id}")
             )
           ]
         }),
