@@ -85,7 +85,7 @@ module.exports = {
       }),
       name: "coppercrm",
       op: "updateLead",
-      input: {"properties":{"name":"Pepper potts","details":"Married to iron man","customer_source_id":1118256,"email": {"category": "other", "email": "pepper2@stark.com"}}},
+      input: {"name":"Pepper potts","details":"Married to iron man","customer_source_id":1118256,"email": {"category": "other", "email": "pepper2@stark.com"}},
       result: {
         status: 200,
         body: {"id":1234,"name":"Pepper potts","prefix":null,"first_name":"Pepper","last_name":"potts","middle_name":null,"suffix":null,"address":null,"assignee_id":null,"company_name":null,"customer_source_id":1118256,"details":"Married to iron man","email":{"category": "other", "email": "pepper2@stark.com"},"interaction_count":0,"monetary_unit":null,"monetary_value":null,"converted_unit":null,"converted_value":null,"socials":[],"status":"New","status_id":1161163,"tags":[],"title":null,"websites":[],"phone_numbers":[],"custom_fields":[],"date_created":1585778382,"date_modified":1585778382,"date_last_contacted":null,"converted_opportunity_id":null,"converted_at":null}

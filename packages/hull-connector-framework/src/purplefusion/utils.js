@@ -483,7 +483,11 @@ function toSendMessage(
     const changedAttributes = _.reduce(
       entityAttributeChanges,
       (changeList, value, key) => {
-        changeList.push(key);
+        let attributeName = key;
+        if (/\[\d+\]$/.test(attributeName)) {
+          attributeName = attributeName.substr(0, attributeName.lastIndexOf("["));
+        }
+        changeList.push(attributeName);
         return changeList;
       },
       []

@@ -11,7 +11,7 @@ const _ = require("lodash");
 const enumValueFields = ["Dropdown"];
 const arrayEnumValueFields = ["MultiSelect"];
 
-const customFieldsTransform = attributeList => {
+const customFieldsTransform = (attributeList, propertiesPrefix) => {
   return {
     operateOn: { component: "settings", select: attributeList },
     expand: { valueName: "outgoingField" },
@@ -29,7 +29,7 @@ const customFieldsTransform = attributeList => {
           then: [
             {
               writeTo: {
-                path: "properties.custom_fields",
+                path: propertiesPrefix + "custom_fields",
                 appendToArray: true,
                 format: {
                   custom_field_definition_id: "${customField.id}"
@@ -37,7 +37,7 @@ const customFieldsTransform = attributeList => {
               }
             },
             {
-              target: { component: "target", select: ["properties.custom_fields", { custom_field_definition_id: "${customField.id}" }, "[0]"] },
+              target: { component: "target", select: [propertiesPrefix + "custom_fields", { custom_field_definition_id: "${customField.id}" }, "[0]"] },
               operateOn: { component: "input", select: "attributes.${outgoingField.service}" },
               expand: true,
               then: {
@@ -76,7 +76,7 @@ const customFieldsTransform = attributeList => {
                 select: "${outgoingField.service}.${operateOn}"
               } },
             writeTo: {
-              path: "properties.custom_fields",
+              path: propertiesPrefix + "custom_fields",
               appendToArray: true,
               format: {
                 custom_field_definition_id: "${customField.id}",
@@ -92,7 +92,7 @@ const customFieldsTransform = attributeList => {
             select: "attributes.${outgoingField.service}"
           },
           writeTo: {
-            path: "properties.custom_fields",
+            path: propertiesPrefix + "custom_fields",
             appendToArray: true,
             format: {
               custom_field_definition_id: "${customField.id}",
@@ -105,30 +105,31 @@ const customFieldsTransform = attributeList => {
   };
 };
 
-const addressTransform = [
+const createAddressTransform = (prefix) => [
   {
     operateOn: { component: "input", select: "attributes.addressStreet" },
-    writeTo: "properties.address.street"
+    writeTo: prefix + "address.street"
   },
   {
     operateOn: { component: "input", select: "attributes.addressCity" },
-    writeTo: "properties.address.city"
+    writeTo: prefix + "address.city"
   },
   {
     operateOn: { component: "input", select: "attributes.addressState" },
-    writeTo: "properties.address.state"
+    writeTo: prefix + "address.state"
   },
   {
     operateOn: { component: "input", select: "attributes.addressPostalCode" },
-    writeTo: "properties.address.postalCode"
+    writeTo: prefix + "address.postalCode"
   },
   {
     operateOn: { component: "input", select: "attributes.addressCountry" },
-    writeTo: "properties.address.country"
+    writeTo: prefix + "address.country"
   }
 ];
 
-const leadTransformations = _.concat(
+
+const createLeadTransformation = (prefix) => _.concat(
   {
     // this sends all of the default values that can be taken as is
     operateOn: {
@@ -143,16 +144,16 @@ const leadTransformations = _.concat(
         select: "attributes.${leadField.name}"
       },
       writeTo: {
-        path: "properties.${leadField.name}"
+        path: prefix + "${leadField.name}"
       }
     }
   },
-  addressTransform,
+  createAddressTransform(prefix),
   {
     operateOn: { component: "input", select: "attributes.primaryEmail" },
     condition: not(varUndefinedOrNull("operateOn")),
     writeTo: {
-      path: "properties.email",
+      path: prefix + "email",
       format:
         {
           email: "${operateOn}",
@@ -162,7 +163,7 @@ const leadTransformations = _.concat(
   },
   createEnumTransformWithAttributeListOutgoing({
     attribute: "customerSource",
-    writePath: "properties.customer_source_id",
+    writePath: prefix + "customer_source_id",
     attributeList: "outgoing_lead_attributes",
     route: "getCustomerSourcesId",
     forceRoute: "forceGetCustomerSourcesId",
@@ -170,15 +171,15 @@ const leadTransformations = _.concat(
   }),
   createEnumTransformWithAttributeListOutgoing({
     attribute: "assigneeEmail",
-    writePath: "properties.assignee_id",
+    writePath: prefix + "assignee_id",
     attributeList: "outgoing_lead_attributes",
     route: "getAssigneeIds",
     forceRoute: "forceGetAssigneeIds",
     formatOnNull: null
   }),
-  customFieldsTransform("outgoing_lead_attributes")
+  customFieldsTransform("outgoing_lead_attributes", prefix)
 );
 
 module.exports = {
-  leadTransformations
+  createLeadTransformation
 };

@@ -2,7 +2,7 @@
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
 const {
-  leadTransformations
+  createLeadTransformation
 } = require("./transforms-to-service-utils");
 const _ = require("lodash");
 
@@ -29,7 +29,7 @@ const transformsToHull: ServiceTransforms = [
     strategy: "AtomicReaction",
     target: { component: "new" },
     then:_.concat(
-      leadTransformations,
+      createLeadTransformation("properties."),
       {
         operateOn: { component: "input", select: "ident[0]" },
         // For now only support resolution on email
@@ -49,7 +49,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: leadTransformations
+    then: createLeadTransformation("")
   }
 ];
 
