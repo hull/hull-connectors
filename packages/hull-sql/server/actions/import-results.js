@@ -24,8 +24,7 @@ const importResults = adapter => {
         }
       };
     }
-
-    ctx.enqueue("startImport");
+    ctx.enqueue("startImport", {}, { jobId: ctx.clientCredentials.id });
 
     return { status: 200, data: "scheduled" };
   };

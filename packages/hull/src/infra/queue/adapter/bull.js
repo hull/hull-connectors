@@ -35,10 +35,18 @@ class BullAdapter {
     ctx,
     jobName,
     jobPayload = {},
-    { ttl = 0, delay = null, priority = null, backoff, attempts = 3 } = {}
+    {
+      ttl = 0,
+      delay = null,
+      priority = null,
+      backoff,
+      attempts = 3,
+      jobId = undefined
+    } = {}
   ) {
     return this.queue.add(jobName, jobPayload, {
       priority,
+      jobId,
       delay,
       timeout: ttl,
       backoff,
