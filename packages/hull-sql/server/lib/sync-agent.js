@@ -342,108 +342,105 @@ export default class SyncAgent {
    *     - @success Object
    */
 
-  runQuery(query, options = {}) {
+  async runQuery(query, options = {}) {
     // Wrap the query.
-    const oneDayAgo = moment()
-      .subtract(1, "day")
-      .utc();
-    const replacements = {
-      last_updated_at: options.last_updated_at || oneDayAgo.toISOString(),
-      import_start_date: moment()
-        .subtract(this.ship.private_settings.import_days, "days")
-        .format()
-    };
-
-    const wrappedQuery = this.adapter.in.wrapQuery(query, replacements);
-    // Run the method for the specific adapter.
-    // return this.adapter.in.runQuery(this.client, wrappedQuery, options)
-
-    let openClient;
-
-    return this.createClient()
-      .then(client => {
-        openClient = client;
-        return this.adapter.in.runQuery(client, wrappedQuery, options);
-      })
-      .then(result => {
-        this.closeClient(openClient);
-
+    const {
+      last_updated_at = moment()
+        .subtract(1, "day")
+        .utc()
+        .toISOString()
+    } = options;
+    try {
+      // Run the method for the specific adapter.
+      // return this.adapter.in.runQuery(this.client, wrappedQuery, options)
+      const client = await this.createClient();
+      try {
+        const result = await this.adapter.in.runQuery(
+          client,
+          this.adapter.in.wrapQuery(query, {
+            last_updated_at,
+            import_start_date: moment()
+              .subtract(this.ship.private_settings.import_days, "days")
+              .format()
+          }),
+          options
+        );
+        const { rows } = result;
         const { errors } = this.adapter.in.validateResult(
           result,
           this.import_type
         );
         if (errors && errors.length > 0) {
-          return { entries: result.rows, errors };
+          return { entries: rows, errors };
         }
 
-        return { entries: result.rows };
-      })
-      .catch(err => {
-        this.closeClient(openClient);
-        return Promise.reject(this.handleAndReturnAppropriateError(err));
-      });
+        return { entries: rows };
+      } catch (err) {
+        this.closeClient(client);
+        throw err;
+      }
+    } catch (err) {
+      throw this.handleAndReturnAppropriateError(err);
+    }
   }
 
-  startImport(options = {}) {
-    this.hull.logger.info("incoming.job.start", {
-      jobName: "sync",
-      type: this.import_type,
-      options
-    });
-    const query = this.getQuery();
-    const started_sync_at = new Date();
-    if (!options.import_days) {
-      options.import_days = FULL_IMPORT_DAYS;
-    }
-    if (!options.last_updated_at) {
-      options.last_updated_at = moment()
-        .subtract(FULL_IMPORT_DAYS, "days")
-        .toISOString();
-    }
-
-    let openClient;
-
-    return this.createClient()
-      .then(client => {
-        openClient = client;
-        return this.streamQuery(client, query, options);
-      })
-      .then(stream => this.sync(stream, started_sync_at))
-      .then(result => {
+  async startImport(options = {}) {
+    try {
+      this.hull.logger.info("incoming.job.start", {
+        jobName: "sync",
+        type: this.import_type,
+        options
+      });
+      const {
+        import_days = FULL_IMPORT_DAYS,
+        last_updated_at = moment()
+          .subtract(FULL_IMPORT_DAYS, "days")
+          .toISOString()
+      } = options;
+      const started_sync_at = new Date();
+      const query = this.getQuery();
+      const client = await this.createClient();
+      try {
+        const stream = await this.streamQuery(client, query, options);
+        const result = await this.sync(stream, started_sync_at);
         // we weren't closing client after the stream was complete
         // should close and continue to return result
-        this.closeClient(openClient);
-        return Promise.resolve(result);
-      })
-      .catch(err => {
-        this.closeClient(openClient);
-        return Promise.reject(this.handleAndReturnAppropriateError(err));
-      });
+        await this.closeClient(client);
+        return result;
+      } catch (err) {
+        this.closeClient(client);
+        throw err;
+      }
+    } catch (err) {
+      throw this.handleAndReturnAppropriateError(err);
+    }
   }
 
   startSync(options = {}) {
-    const private_settings = this.ship.private_settings;
-    const oneHourAgo = moment()
-      .subtract(1, "hour")
-      .utc();
-    options.import_days = private_settings.import_days;
-    const last_updated_at =
-      private_settings.last_updated_at ||
-      private_settings.last_sync_at ||
-      oneHourAgo.toISOString();
-    return this.startImport({ ...options, last_updated_at });
+    const { private_settings } = this.ship;
+    const { import_days, last_updated_at, last_sync_at } = private_settings;
+    return this.startImport({
+      ...options,
+      import_days,
+      last_updated_at:
+        last_updated_at ||
+        last_sync_at ||
+        moment()
+          .subtract(1, "hour")
+          .utc()
+          .toISOString()
+    });
   }
 
-  streamQuery(client, query, options = {}) {
-    const { last_updated_at } = options;
-    const replacements = {
+  async streamQuery(client, query, options = {}) {
+    const { last_updated_at, import_days } = options;
+    // Wrap the query.
+    const wrappedQuery = this.adapter.in.wrapQuery(query, {
       last_updated_at,
       import_start_date: moment()
-        .subtract(options.import_days, "days")
+        .subtract(import_days, "days")
         .format()
-    };
-    // Wrap the query.
-    const wrappedQuery = this.adapter.in.wrapQuery(query, replacements);
+    });
 
     this.hull.logger.info("incoming.job.query", {
       jobName: "sync",
@@ -451,26 +448,24 @@ export default class SyncAgent {
       type: this.import_type
     });
 
-    // Run the method for the specific adapter.
-    return this.adapter.in.streamQuery(client, wrappedQuery).then(
-      stream => {
-        return stream;
-      },
-      err => {
-        this.hull.logger.error("incoming.job.error", {
-          jobName: "sync",
-          errors: _.invoke(err, "toString") || err,
-          hull_summary: _.get(
-            err,
-            "message",
-            "Server Error: Error while streaming query from database"
-          ),
-          type: this.import_type
-        });
-        err.status = 403;
-        throw err;
-      }
-    );
+    try {
+      // Run the method for the specific adapter.
+      const stream = await this.adapter.in.streamQuery(client, wrappedQuery);
+      return stream;
+    } catch (err) {
+      this.hull.logger.error("incoming.job.error", {
+        jobName: "sync",
+        errors: _.invoke(err, "toString") || err,
+        hull_summary: _.get(
+          err,
+          "message",
+          "Server Error: Error while streaming query from database"
+        ),
+        type: this.import_type
+      });
+      err.status = 403;
+      throw err;
+    }
   }
 
   /**
@@ -726,7 +721,7 @@ export default class SyncAgent {
     });
   }
 
-  startImportJob(url, partNumber, size, importId) {
+  async startImportJob(url, partNumber, size, importId) {
     const { overwrite } = this.ship.private_settings;
     const params = {
       url,
@@ -752,8 +747,7 @@ export default class SyncAgent {
       type: this.import_type
     });
 
-    return this.hull.post(`/import/${this.import_type}`, params).then(job => {
-      return { job, partNumber };
-    });
+    const job = await this.hull.post(`/import/${this.import_type}`, params);
+    return { job, partNumber };
   }
 }
