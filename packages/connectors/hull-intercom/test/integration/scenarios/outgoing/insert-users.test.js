@@ -351,19 +351,6 @@ describe("Insert User Tests", () => {
             });
 
           scope
-            .get("/companies?company_id=account_external_id_1")
-            .reply(404, {
-              "type": "error.list",
-              "request_id": "001kil5vake9eikife90",
-              "errors": [
-                {
-                  "code": "company_not_found",
-                  "message": "Company Not Found"
-                }
-              ]
-            });
-
-          scope
             .post("/companies", {
               "company_id": "account_external_id_1"
             })
@@ -690,20 +677,6 @@ describe("Insert User Tests", () => {
             },
             {
               "responseTime": expect.whatever(),
-              "method": "GET",
-              "url": "/companies",
-              "status": 404,
-              "vars": {}
-            }
-          ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "responseTime": expect.whatever(),
               "method": "POST",
               "url": "/companies",
               "status": 200,
@@ -863,10 +836,6 @@ describe("Insert User Tests", () => {
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","connector.service_api.error",1],
-          ["increment","service.service_api.errors",1],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

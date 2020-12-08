@@ -562,11 +562,11 @@
         "properties": {
           "hull": {
             "title": "Hull Identifier",
-            "enum": ["external_id", "domain"]
+            "enum": ["external_id"]
           },
           "service": {
             "title": "Intercom Identifier",
-            "enum": ["company_id", "name"]
+            "enum": ["company_id"]
           },
           "required": {
             "type": "boolean",

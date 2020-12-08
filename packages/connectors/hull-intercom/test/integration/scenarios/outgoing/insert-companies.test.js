@@ -8,7 +8,7 @@ process.env.CLIENT_SECRET = "123";
 
 describe("Insert Company Tests", () => {
 
-  it("should insert a company after lookup returns empty", () => {
+  it("should upsert a company", () => {
     return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -120,32 +120,6 @@ describe("Insert Company Tests", () => {
                   "updated_at": 1595445305,
                   "model": "company"
                 },
-              ]
-            });
-
-          scope
-            .get("/companies?company_id=account_external_id_1")
-            .reply(404, {
-              "type": "error.list",
-              "request_id": "001kil5vake9eikife90",
-              "errors": [
-                {
-                  "code": "company_not_found",
-                  "message": "Company Not Found"
-                }
-              ]
-            });
-
-          scope
-            .get("/companies?name=rei.com")
-            .reply(404, {
-              "type": "error.list",
-              "request_id": "001kil5vake9eikife90",
-              "errors": [
-                {
-                  "code": "company_not_found",
-                  "message": "Company Not Found"
-                }
               ]
             });
 
@@ -326,34 +300,6 @@ describe("Insert Company Tests", () => {
               "method": "GET",
               "url": "/data_attributes?model=company",
               "status": 200,
-              "vars": {}
-            }
-          ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "responseTime": expect.whatever(),
-              "method": "GET",
-              "url": "/companies",
-              "status": 404,
-              "vars": {}
-            }
-          ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "responseTime": expect.whatever(),
-              "method": "GET",
-              "url": "/companies",
-              "status": 404,
               "vars": {}
             }
           ],
@@ -584,14 +530,6 @@ describe("Insert Company Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","connector.service_api.error",1],
-          ["increment","service.service_api.errors",1],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","connector.service_api.error",1],
-          ["increment","service.service_api.errors",1],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

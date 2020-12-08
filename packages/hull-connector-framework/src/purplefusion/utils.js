@@ -320,14 +320,12 @@ function toSendMessage(
       );
 
       let skipDeleted = false;
-      if (ignoreDeletedUsers) {
-        if (isUserLeadConnector && isDeletedUser && (targetEntity === 'user' || targetEntity === 'lead')) {
-          skipDeleted = true;
-        }
+      if ((isDeletedUser || isDeleted) && ignoreDeletedUsers && (targetEntity === 'user' || targetEntity === 'lead')) {
+        skipDeleted = true;
+      }
 
-        if (isDeleted && (targetEntity === 'user' || targetEntity === 'account')) {
-          skipDeleted = true;
-        }
+      if (isDeleted && ignoreDeletedAccounts && targetEntity === 'account') {
+        skipDeleted = true;
       }
 
       if (skipDeleted) {
