@@ -76,35 +76,23 @@ export default class SyncAgent {
     if (!this.adapter.out) {
       throw new ConfigurationError(`Invalid output type ${output_type}.`);
     }
-
-    // try {
-    //   this.client = this.adapter.in.openConnection(private_settings);
-    // } catch (err) {
-    //   let message;
-    //   const error = this.adapter.in.checkForError(err);
-    //   if (error) {
-    //     message = error.message;
-    //   } else {
-    //     message = `Server Error: ${_.get(err, "message", "")}`;
-    //   }
-    //
-    //   client.logger.error("connection.error", { hull_summary: message });
-    //   throw err;
-    // }
     return this;
   }
 
   createClient() {
-    if (this.requiresSshTunnel()) {
-      return this.openClientWithTunnel();
-    }
-    return this.openClient();
+    return this.requiresSshTunnel()
+      ? this.openClientWithTunnel()
+      : this.openClient();
   }
 
-  openClient() {
+  requiresSshTunnel() {
+    return !_.isEmpty(_.get(this.ship, "private_settings.ssh_host"));
+  }
+
+  async openClient() {
     try {
       const private_settings = this.ship.private_settings;
-      return Promise.resolve(this.adapter.in.openConnection(private_settings));
+      return await this.adapter.in.openConnection(private_settings);
     } catch (err) {
       let message;
       const error = this.adapter.in.checkForError(err);
@@ -115,15 +103,11 @@ export default class SyncAgent {
       }
 
       this.hull.logger.error("connection.error", { hull_summary: message });
-      return Promise.reject(err);
+      throw err;
     }
   }
 
-  requiresSshTunnel() {
-    return !_.isEmpty(_.get(this.ship, "private_settings.ssh_host"));
-  }
-
-  openClientWithTunnel() {
+  async openClientWithTunnel() {
     const private_settings = this.ship.private_settings;
 
     const dbConfig = getDatabaseConfig(private_settings);
@@ -143,62 +127,18 @@ export default class SyncAgent {
     const portIncrement = rotatingForwardingPort % 10000;
     const portForward = 50000 + portIncrement;
 
-    return this.sshConnection
-      .forward({
-        fromPort: portForward,
-        toPort: dbConfig.port,
-        toHost: dbConfig.host
-      })
-      .then(() => {
-        return Promise.resolve(
-          this.adapter.in.openConnection({
-            db_host: "127.0.0.1",
-            db_port: portForward,
-            db_user: dbConfig.user,
-            db_password: dbConfig.password,
-            db_name: dbConfig.database
-          })
-        );
-      });
-
-    // return new Promise((resolve, reject) => {
-    //
-    //   rotatingForwardingPort += 1;
-    //   const portIncrement = rotatingForwardingPort % 10000;
-    //   const portForward = 50000 + portIncrement;
-    //
-    //   const config = {
-    //     username: sshConfig.user,
-    //     // Password:'secret',
-    //     privateKey: sshConfig.privateKey,
-    //     host: sshConfig.host,
-    //     port: 22,
-    //     dstHost: dbConfig.host,
-    //     dstPort: dbConfig.port,
-    //     localHost: "127.0.0.1",
-    //     localPort: portForward
-    //   };
-    //
-    //
-    //   const tunnel = sshTunnel(config, (error, tnl) => {
-    //     if (error) {
-    //       return reject(error);
-    //     }
-    //     return resolve(this.adapter.in.openConnection({
-    //       db_host: "127.0.0.1",
-    //       db_port: portForward,
-    //       db_user: dbConfig.user,
-    //       db_password: dbConfig.password,
-    //       db_name: dbConfig.database
-    //     }));
-    //   });
-    //
-    //   tunnel.on("error", (err) => {
-    //     console.error(`SSH Tunnel error for ${sshConfig.host}`, err);
-    //     reject(err);
-    //   });
-    //
-    // });
+    await this.sshConnection.forward({
+      fromPort: portForward,
+      toPort: dbConfig.port,
+      toHost: dbConfig.host
+    });
+    return this.adapter.in.openConnection({
+      db_host: "127.0.0.1",
+      db_port: portForward,
+      db_user: dbConfig.user,
+      db_password: dbConfig.password,
+      db_name: dbConfig.database
+    });
   }
 
   closeClient(client) {
@@ -323,10 +263,10 @@ export default class SyncAgent {
    * @return {string} The SQL query string as supplied by the user.
    */
   getQuery(pendingQuery) {
-    const query = _.isEmpty(pendingQuery)
-      ? this.ship.private_settings.query
-      : pendingQuery;
-    return _.trimEnd(query, ";");
+    return _.trimEnd(
+      _.isEmpty(pendingQuery) ? this.ship.private_settings.query : pendingQuery,
+      ";"
+    );
   }
 
   /**
@@ -450,8 +390,7 @@ export default class SyncAgent {
 
     try {
       // Run the method for the specific adapter.
-      const stream = await this.adapter.in.streamQuery(client, wrappedQuery);
-      return stream;
+      return this.adapter.in.streamQuery(client, wrappedQuery);
     } catch (err) {
       this.hull.logger.error("incoming.job.error", {
         jobName: "sync",
