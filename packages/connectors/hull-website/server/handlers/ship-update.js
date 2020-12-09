@@ -5,10 +5,10 @@ import type { HullContext } from "hull";
 const _ = require("lodash");
 
 const ALIAS_SCRIPTS = {
-  intercom_alias: "https://intercom.hullapp.com/ship.js",
-  hubspot_utk_alias: "https://hubspot.hullapp.com/ship.js",
-  google_analytics_alias: "https://google-analytics.hullapp.com/ship.js",
-  facebook_alias: "https://facebook-audiences.hullapp.com/ship.js"
+  intercom_alias: "https://intercom.hullapp.com/alias.js",
+  hubspot_utk_alias: "https://hubspot.hullapp.com/alias.js",
+  google_analytics_alias: "https://google-analytics.hullapp.com/alias.js",
+  facebook_alias: "https://facebook-audiences.hullapp.com/alias.js"
 };
 
 export default async (ctx: HullContext) => {
