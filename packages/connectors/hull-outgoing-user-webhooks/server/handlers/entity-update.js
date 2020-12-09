@@ -70,8 +70,8 @@ const entityUpdate = (entity: HullEntityName) => (
                 });
 
                 const response = await request
-                  .use(throttle.plugin())
                   .post(url)
+                  .use(throttle.plugin())
                   .set(getHeaders(ctx) || {})
                   .send(result.data);
 
