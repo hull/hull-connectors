@@ -181,37 +181,7 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
           ["value", "connector.send_user_update_messages.messages", 1],
           ["increment", "ship.outgoing.users", 1]
         ],
-        platformApiCalls: [
-          [
-            "GET",
-            "/api/v1/app",
-            {},
-            {}
-          ],
-          [
-            "PUT",
-            "/api/v1/123456789012345678901234",
-            {},
-            {
-              "private_settings": {
-                "api_key": "1",
-                "domain": "mock",
-                "mailchimp_list_id": "1",
-                "interest_category_id": "2",
-                "interests_mapping": {
-                  "hullSegmentId": "MailchimpInterestId"
-                },
-                "segment_mapping": {
-                  "hullSegmentId": "MailchimpSegmentId"
-                },
-                "synchronized_user_segments": [
-                  "hullSegmentId"
-                ]
-              },
-              "refresh_status": false
-            }
-          ]
-        ]
+        platformApiCalls: []
       };
     }
   );

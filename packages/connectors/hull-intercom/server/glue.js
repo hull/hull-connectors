@@ -470,27 +470,7 @@ const glue = {
   companyUpdateStart: cacheLock(input("account.id"), [
     set("companyDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
     set("custom_attributes", ld("map", filter({ "custom": true }, "${companyDataAttributes}"), "name")),
-
-    ifL(or([
-      set("companyId", cacheGet(input("account.id"))),
-      set("companyId", input("account.intercom/id"))
-    ]), {
-      do: [
-        route("upsertCompany")
-      ],
-      eldo: [
-        route("companyLookup"),
-        ifL(not(cond("isEqual", "${skipCompany}", true)), [
-          ifL([
-            cond("isEmpty", "${companyId}")
-          ], {
-            do: route("upsertCompany"),
-            eldo: route("upsertCompany")
-          })
-        ])
-      ]
-    }),
-
+    route("upsertCompany"),
     ifL(cond("notEmpty", "${companyFromIntercom}"),
       [
         route("checkTags"),
@@ -498,16 +478,6 @@ const glue = {
       ]
     )
   ]),
-  companyLookup:
-    iterateL(notFilter({ service: "id" }, settings("account_claims")), "claim",
-      ifL([
-          cond("notEmpty", set("value", input("account.${claim.hull}"))),
-          cond("notEmpty", set("property", "${claim.service}")),
-          cond("notEmpty", set("accountId", get("id", intercom("searchCompanies"))))
-        ],
-        [loopEndL()]
-      )
-    ),
   upsertCompany: [
     set("companyFromIntercom", intercom("upsertCompany", input()))
   ],
@@ -560,8 +530,9 @@ const glue = {
     set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
     set("custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
 
+    set("hull_user_id", input("user.id")),
     ifL(or([
-      set("contactId", cacheGet(input("user.id"))),
+      set("contactId", cacheGet("${service_type}-${hull_user_id}")),
       set("contactId", input("user.intercom_${service_type}/id"))
     ]), {
       do: [
@@ -573,7 +544,12 @@ const glue = {
           ifL([
             cond("isEmpty", "${contactId}")
           ], {
-            do: route("insertContact"),
+            do: [
+              route("insertContact"),
+              ifL(cond("notEmpty", "${contactFromIntercom}"), [
+                cacheSet("${service_type}-${hull_user_id}", "${contactFromIntercom.id}")
+              ])
+            ],
             eldo: route("updateContact")
           })
         ])

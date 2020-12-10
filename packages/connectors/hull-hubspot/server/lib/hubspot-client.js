@@ -44,6 +44,7 @@ const {
   superagentUrlTemplatePlugin,
   superagentInstrumentationPlugin
 } = require("hull/src/utils");
+const ERRORS = require("./errors");
 
 class HubspotClient {
   connector: HullConnector;
@@ -116,27 +117,53 @@ class HubspotClient {
     return !_.isEmpty(this.connector.private_settings.token);
   }
 
-  /**
-   * This is a wrapper which handles the access_token errors for hubspot queries
-   * and runs `checkToken` to make sure that our token didn't expire.
-   * Then it retries the query once.
-   * @param {Promise} promise
-   */
-  retryUnauthorized(promise: () => Promise<mixed>): Promise<*> {
-    return promise().catch(err => {
-      if (err.response && err.response.unauthorized) {
-        this.client.logger.debug("retrying query", _.get(err, "response.body"));
-        return this.checkToken({
-          force: true
-        })
-          .catch(error => {
-            return Promise.reject(error);
+  retryRequest(
+    retryAttempts: number,
+    backoff: number,
+    promise: () => Promise<mixed>
+  ): Promise<*> {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(
+          promise().catch(async error => {
+            if (retryAttempts === 0) {
+              return Promise.reject(error);
+            }
+
+            const errorHandler = ERRORS[error.status];
+            if (!errorHandler) {
+              return reject(error);
+            }
+
+            // TODO fix - unauthorized error will use up retries
+            if (errorHandler.message === "UNAUTHORIZED") {
+              await this.checkToken({
+                force: true
+              });
+            }
+
+            return this.retryRequest(retryAttempts - 1, backoff * 2, promise);
           })
-          .then(() => {
-            return promise();
-          });
+        );
+      }, backoff);
+    });
+  }
+
+  sendRequest(promise: () => Promise<mixed>): Promise<*> {
+    return promise().catch(async err => {
+      const errorHandler = ERRORS[err.status];
+      if (!errorHandler || !errorHandler.retry) {
+        return Promise.reject(err);
       }
-      return Promise.reject(err);
+
+      if (errorHandler.message === "UNAUTHORIZED") {
+        await this.checkToken({
+          force: true
+        });
+        return this.retryRequest(errorHandler.retry - 1, 0, promise);
+      }
+
+      return this.retryRequest(errorHandler.retry - 1, 1000, promise);
     });
   }
 
@@ -185,7 +212,7 @@ class HubspotClient {
   }
 
   getPortalInformation(): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent.get("/integrations/v1/me").then(response => {
         return Promise.resolve(response.body);
       });
@@ -207,7 +234,7 @@ class HubspotClient {
     count: number = 100,
     offset: ?string = null
   ): Promise<HubspotGetAllContactsResponse> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent.get("/contacts/v1/lists/all/contacts/all").query({
         count,
         vidOffset: offset,
@@ -260,7 +287,7 @@ class HubspotClient {
     limit: number = 100,
     offset: ?string = null
   ): Promise<HubspotGetAllCompaniesResponse> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       const includeMergeAudits = true;
       return this.agent.get("/companies/v2/companies/paged").query({
         includeMergeAudits,
@@ -298,7 +325,7 @@ class HubspotClient {
   }
 
   postContacts(body: Array<HubspotWriteContact>): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .post("/contacts/v1/contact/batch/")
         .query({
@@ -310,7 +337,7 @@ class HubspotClient {
   }
 
   postCompanies(body: HubspotWriteCompany): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .post("/companies/v2/companies/")
         .query({
@@ -412,7 +439,7 @@ class HubspotClient {
   }
 
   postCompaniesUpdate(body: Array<HubspotWriteCompany>): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .post("/companies/v1/batch-async/update")
         .query({
@@ -424,7 +451,7 @@ class HubspotClient {
   }
 
   postCompanyDomainSearch(domain: string) {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .post("/companies/v2/domains/{{domain}}/companies")
         .tmplVar({
@@ -439,7 +466,7 @@ class HubspotClient {
   }
 
   getContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/contacts/v2/groups")
         .query({
@@ -450,7 +477,7 @@ class HubspotClient {
   }
 
   getCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/properties/v1/companies/groups")
         .query({
