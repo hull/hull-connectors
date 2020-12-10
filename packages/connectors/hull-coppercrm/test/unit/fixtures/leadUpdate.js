@@ -37,6 +37,14 @@ module.exports = {
         {
           hull: "test/customer_source_id",
           service: "customer_source_id"
+        },
+        {
+          hull: "test/attr_1",
+          service: ""
+        },
+        {
+          hull: "",
+          service: "some_copper_attribute"
         }
       ],
       "coppercrm_email": "timliuhull5@gmail.com",
@@ -54,6 +62,8 @@ module.exports = {
           "test/test_name": "Pepper potts",
           "test/test_details": "Married to iron man",
           "test/customer_source_id": 1118256,
+          "test/attr_1": "value1",
+          "test/attr_2": "value1",
         },
         "account": {
           "id": "5c54819ef441416d9c059aed",

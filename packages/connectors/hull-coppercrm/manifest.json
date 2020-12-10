@@ -29,6 +29,20 @@
       "type": "string"
     },
     {
+      "name": "ignore_deleted_users",
+      "title": "Ignore Deleted Users",
+      "description": "",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore Deleted Accounts",
+      "description": "",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "lead_claims",
       "title": "Lead Identity",
       "type": "array",
