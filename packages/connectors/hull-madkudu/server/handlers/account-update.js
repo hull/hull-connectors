@@ -1,6 +1,7 @@
 // @flow
 
 import type { HullContext, HullAccountUpdateMessage } from "hull";
+import { ConfigurationError } from "hull/src/errors";
 import { enrichAccount } from "../lib/side-effects";
 
 const hasDomain = ({ account: { domain } }: HullAccountUpdateMessage) =>
@@ -22,7 +23,7 @@ export default async function accountUpdate(
   } = ctx;
 
   if (!api_key) {
-    throw new Error("No API Key available");
+    throw new ConfigurationError("No API Key available");
   }
 
   const { hasMatchingSegments } = helpers;

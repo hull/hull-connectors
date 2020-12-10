@@ -69,6 +69,10 @@ export const enrichUser = (ctx: HullContext) => async (
       request,
       api_key
     })(message.user.email);
+    asUser.logger.info("incoming.user.progress", {
+      action: "enrichment",
+      data: payload
+    });
     await asUser.traits(
       mapAttributes({
         payload,
@@ -76,7 +80,6 @@ export const enrichUser = (ctx: HullContext) => async (
         direction: "incoming"
       })
     );
-    asUser.logger.info("incoming.user.success", { payload });
     return payload;
   } catch (err) {
     asUser.logger.error("incoming.user.error", {
@@ -104,6 +107,10 @@ export const enrichAccount = (ctx: HullContext) => async (
       request,
       api_key
     })(message.account.domain);
+    asAccount.logger.debug("incoming.account.progress", {
+      action: "enrichment",
+      data: payload
+    });
     await asAccount.traits(
       mapAttributes({
         payload,
@@ -111,7 +118,6 @@ export const enrichAccount = (ctx: HullContext) => async (
         direction: "incoming"
       })
     );
-    asAccount.logger.info("incoming.account.success", { payload });
     return payload;
   } catch (err) {
     asAccount.logger.error("incoming.account.error", {

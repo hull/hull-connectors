@@ -1,13 +1,13 @@
 {
   "name": "Madkudu",
-  "description": "Enrich Accounts with Madkudu",
+  "description": "Enrich Users and Accounts with Madkudu",
   "tags": ["batch", "batch-accounts", "smart-notifier", "kraken-exports"],
   "ui": false,
   "source": "madkudu",
   "logo": "logo.png",
   "picture": "picture.png",
   "readme": "readme.md",
-  "version": "1.0.3",
+  "version": "0.1.39-monorepo",
   "private_settings": [
     {
       "type": "string",
@@ -317,8 +317,14 @@
         "only": ["user:update", "account:update"],
         "conditions": {
           "segments": {
-            "user:update": ["private_settings.synchronized_user_segments"],
-            "account:update": ["private_settings.synchronized_account_segments"]
+            "user:update": [
+              "private_settings.enriched_user_segments",
+              "private_settings.synchronized_user_segments"
+            ],
+            "account:update": [
+              "private_settings.enriched_account_segments",
+              "private_settings.synchronized_account_segments"
+            ]
           }
         }
       },

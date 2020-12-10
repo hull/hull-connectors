@@ -1,5 +1,6 @@
 // @flow
 import type { HullContext, HullUserUpdateMessage } from "hull";
+import { ConfigurationError } from "hull/src/errors";
 import { updateUser, enrichUser } from "../lib/side-effects";
 
 const hasEmail = ({ user: { email } }: HullUserUpdateMessage) => !!email;
@@ -22,7 +23,7 @@ export default async function userUpdate(
   } = ctx;
 
   if (!api_key) {
-    throw new Error("No API Key available");
+    throw new ConfigurationError("No API Key available");
   }
 
   const { hasMatchingSegments } = helpers;
