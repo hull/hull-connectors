@@ -1,0 +1,11 @@
+{
+  "name": "hull-mssql-importer",
+  "version": "0.1.39-monorepo",
+  "description": "Import Users, Events and Accounts from MSSQL",
+  "scripts": {
+    "test": "exit 0",
+    "documentation": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,7 +1,15 @@
 /* @flow */
 
 import type { ServiceObjectDefinition } from "./types";
-import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
+import type {
+  HullAccountUpdateMessage,
+  HullContext,
+  HullEntityName,
+  HullTriggerSet,
+  HullUserUpdateMessage
+} from "hull";
+import type { HullSegment } from "hull-client/src/types";
+import type { PrivateSettings } from "hull-webhooks/types";
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
@@ -173,6 +181,28 @@ function createAnonymizedObject(object, pathsToAnonymize = {
   }, 2);
 }
 
+function getTriggers(
+  entity: HullEntityName,
+  serviceName: string,
+  private_settings: PrivateSettings
+): HullTriggerSet {
+  // TODO fill out user/lead/account triggers/filters
+
+  const { link_users_in_service } = private_settings;
+
+  const triggers = {};
+
+  if (entity !== "account") {
+    triggers[`${entity}_events`] = private_settings[`outgoing_${entity}_events`] || private_settings["outgoing_events"] || [];
+
+    if (link_users_in_service) {
+      triggers[`${entity}_account_linked`] = ["id"];
+      triggers["account_attribute_updated"] = [`${serviceName}/id`];
+    }
+  }
+  return triggers;
+}
+
 /**
  * TODO break apart method so can unit test individual pieces...
  * @param  {[type]} context                 [description]
@@ -191,6 +221,20 @@ function toSendMessage(
     sendOnAnySegmentChanges?: boolean
   }
 ): boolean {
+  const privateSettings = _.get(context, "connector.private_settings");
+  const { helpers } = context;
+  const { hasMatchingTriggers } = helpers;
+
+  const synchronizedUserSegments = _.get(
+    context,
+    "connector.private_settings.synchronized_user_segments"
+  );
+  const synchronizedLeadSegments = _.get(
+    context,
+    "connector.private_settings.synchronized_lead_segments"
+  );
+  const isUserLeadConnector = !_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments);
+
   // Entered segment
   // First: entered segment notification (no attribute change)
   // Second: segment_id change on user (is only attribute change)
@@ -212,6 +256,19 @@ function toSendMessage(
   // right? or should we just send the identifiers?
   // we'll keep it for now.
   if (context.isBatch) {
+    if (isUserLeadConnector) {
+      const sendBatchAs = _.get(context, "connector.private_settings.send_batch_as");
+
+      if (!sendBatchAs) {
+        context.client.asUser(message.user).logger.info("outgoing.user.skip", { reason: "Please set batch type in your connector settings" });
+        return false;
+      }
+
+      if ((targetEntity === "user" && sendBatchAs !== "Users") ||
+        (targetEntity === "lead" && sendBatchAs !== "Leads")) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -242,13 +299,16 @@ function toSendMessage(
     );
   }
 
-  const entity: any = _.get(message, targetEntity);
+  const hullType = targetEntity === "account" ? "account" : "user";
+  const entity: any = _.get(message, hullType);
 
   const serviceName = _.get(options, "serviceName");
   if (!isUndefinedOrNull(serviceName)) {
-    const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
+    const isDeleted = _.get(message, `${hullType}.${serviceName}/deleted_at`, null);
+    const isDeletedUser = _.get(message, `${hullType}.${serviceName}_${targetEntity}/deleted_at`, null);
 
-    if (!isUndefinedOrNull(isDeleted)) {
+    if (!isUndefinedOrNull(isDeleted) || !isUndefinedOrNull(isDeletedUser)) {
+
       const ignoreDeletedUsers = _.get(
         context,
         "connector.private_settings.ignore_deleted_users"
@@ -259,29 +319,21 @@ function toSendMessage(
         "connector.private_settings.ignore_deleted_accounts"
       );
 
-      if (targetEntity === 'user' && ignoreDeletedUsers === true) {
-        context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User has been deleted" });
-        return false;
+      let skipDeleted = false;
+      if ((isDeletedUser || isDeleted) && ignoreDeletedUsers && (targetEntity === 'user' || targetEntity === 'lead')) {
+        skipDeleted = true;
       }
 
-      if (targetEntity === 'account' && ignoreDeletedAccounts === true) {
-        context.client.asUser(entity).logger.debug("outgoing.account.skip", { reason: "Account has been deleted" });
+      if (isDeleted && ignoreDeletedAccounts && targetEntity === 'account') {
+        skipDeleted = true;
+      }
+
+      if (skipDeleted) {
+        context.client.asUser(entity).logger.debug(`outgoing.${hullType}.skip`, { reason: `${_.capitalize(hullType)} has been deleted` });
         return false;
       }
     }
   }
-
-  // // We probably should introduce a standard event filter
-  // if (targetEntity === "user") {
-  //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
-  //   const userEvents = _.get(message, "events");
-  //   if (Array.isArray(userEvents) && !_.isEmpty(userEvents)) {
-  //     const eventsToSend = _.filter(userEvents, (userEvent) => {
-  //       return
-  //     })
-  //     return true;
-  //   }
-  // }
 
   const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
   const enteredAnySegments = !_.isEmpty(enteredSegments);
@@ -310,52 +362,17 @@ function toSendMessage(
 
   // I think we can maybe take out the is_export logic because we're trying to only use isBatch
   if (!matchesSegments && !context.notification.is_export) {
-    if (targetEntity === "user") {
+    if (hullType === "user") {
       debug(`User does not match segment ${ JSON.stringify(entity) }`);
       context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
-    } else if (targetEntity === "account") {
+    } else if (hullType === "account") {
       debug(`Account does not match segment ${ JSON.stringify(entity) }`);
       context.client.asAccount(entity).logger.debug("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
     }
     return false;
   }
 
-  // Should we do on entered segment too?
-  if (targetEntity === "user") {
-    const linkInService = _.get(
-      context,
-      "connector.private_settings.link_users_in_service"
-    );
-
-    if (
-      !isUndefinedOrNull(linkInService) &&
-      typeof linkInService === "boolean" &&
-      linkInService
-    ) {
-      const changedAccounts = _.get(message, "changes.account.id");
-
-      if (!_.isEmpty(changedAccounts)) {
-        // user changed accounts, and link_users_in_service is enabled
-        // so update user...
-        return true;
-      }
-
-      const serviceName = _.get(options, "serviceName");
-      if (!isUndefinedOrNull(serviceName)) {
-        // try to detect if the account id of the user is changing
-        // If 2 users have been resolved to the same user, could result in loops
-        // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
-        // although there's a million factors there...
-        const changedServiceAccounts = _.get(message, `changes.account.${serviceName}/id`);
-        if (changedServiceAccounts) {
-          return true;
-        }
-      }
-      // if account enters a synchronized segment
-      // but it was or wasn't in a synchronized segment before
-      // may want to perform account linking
-    }
-
+  if (hullType === "user") {
     const associated_account_id = _.get(context, "connector.private_settings.outgoing_user_associated_account_id");
 
     if (!isUndefinedOrNull(associated_account_id) && typeof associated_account_id === "string") {
@@ -386,10 +403,17 @@ function toSendMessage(
     }
   }
 
+  // TODO expand use of triggers to include all user/lead/account triggers and filters
+  const triggers = getTriggers(targetEntity, serviceName, privateSettings);
+  const matchesTriggers = hasMatchingTriggers({ mode: "any", message, triggers });
+  if (matchesTriggers) {
+    return true;
+  }
+
   // This is a special flag where we send all attributes regardless of change
   // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
-  if (send_all_user_attributes === true && targetEntity === "user") {
+  if (send_all_user_attributes === true && hullType === "user") {
 
     const accountChanges = _.get(message.changes, "account");
     const userChanges = _.get(message.changes, "user");
@@ -408,25 +432,19 @@ function toSendMessage(
   }
 
   const send_all_account_attributes = _.get(context, "connector.private_settings.send_all_account_attributes");
-  if (send_all_account_attributes === true && targetEntity === "account") {
+  if (send_all_account_attributes === true && hullType === "account") {
     return true;
   }
 
-  // Is this the right thing?
-  // don't have to do anything on segment exited right?
-  // just filter on attribute change...
-  // const exitedSegments = _.get(message, "changes.segments.exited");
-  // const exitedAnySegments = !_.isEmpty(enteredSegments);
-
   const outgoingAttributes = _.get(context, outgoingAttributesPath);
   if (_.isEmpty(outgoingAttributes)) {
-    if (targetEntity === "user") {
+    if (hullType === "user") {
       debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
       context.client.asUser(entity).logger.debug("outgoing.user.skip", {
         reason:
           "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
       });
-    } else if (targetEntity === "account") {
+    } else if (hullType === "account") {
       debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
       context.client.asAccount(entity).logger.debug("outgoing.account.skip", {
         reason:
@@ -441,17 +459,18 @@ function toSendMessage(
   // this may be the result of pushing a full segment after it's creation
   // or could be because it's a new connector which we haven't done a full fetch
   if (!isUndefinedOrNull(serviceName)) {
-    const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
-    if (isUndefinedOrNull(serviceId)) {
+    const serviceId = _.get(message, `${hullType}.${serviceName}/id`);
+    const serviceIdUser = _.get(message, `${hullType}.${serviceName}_${targetEntity}/id`);
+    if (_.isNil(serviceId) && _.isNil(serviceIdUser)) {
       return true;
     }
   }
 
   const attributesToSync = outgoingAttributes.map(attr => attr.hull);
-  const entityAttributeChanges = _.get(message.changes, targetEntity, {});
+  const entityAttributeChanges = _.get(message.changes, hullType, {});
 
   // if a user has mapped account attributes, have to filter like this
-  if (targetEntity === "user") {
+  if (hullType === "user") {
     const accountChanges = _.get(message, "changes.account", {});
     _.forEach(accountChanges, (value, key) => {
       entityAttributeChanges[`account.${key}`] = value;
@@ -472,13 +491,13 @@ function toSendMessage(
       _.intersection(attributesToSync, changedAttributes).length >= 1;
 
     if (!hasAttributesToSync) {
-      if (targetEntity === "user") {
+      if (hullType === "user") {
         debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
         context.client.asUser(entity).logger.debug("outgoing.user.skip", {
           reason:
             "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
         });
-      } else if (targetEntity === "account") {
+      } else if (hullType === "account") {
         debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
         context.client.asAccount(entity).logger.debug("outgoing.account.skip", {
           reason:
@@ -488,7 +507,7 @@ function toSendMessage(
       return false;
     }
   } else {
-    if (targetEntity === "user") {
+    if (hullType === "user") {
       debug(
         `No attribute changes on target(${targetEntity}) entity: ${JSON.stringify(
           entity
@@ -497,7 +516,7 @@ function toSendMessage(
       context.client.asUser(entity).logger.debug("outgoing.user.skip", {
         reason: "No changes on any of the attributes for this user."
       });
-    } else if (targetEntity === "account") {
+    } else if (hullType === "account") {
       debug(
         `No attribute changes on target(${targetEntity}) entity: ${JSON.stringify(
           entity

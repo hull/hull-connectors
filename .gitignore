@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+.envrc
 .env.*
 *.log
 tmp
@@ -18,3 +19,4 @@ deployment.config.js
 _ignored/
 .cache
 .yarn
+tmp

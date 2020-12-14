@@ -8,9 +8,6 @@ import type {
 } from "hull";
 import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
 import type { Payload, Result } from "../types";
-import serialize from "./serialize";
-
-const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
@@ -18,10 +15,10 @@ export default async function ingest(
   ctx: HullContext,
   result: Result,
   claims?: HullEntityClaims,
-  payload?: Payload
+  payload?: Payload,
+  logger
 ) {
   const { client, metric } = ctx;
-  debug("ingest.result", result);
 
   const {
     events,
@@ -45,7 +42,7 @@ export default async function ingest(
 
   const promises = [];
 
-  client.logger.debug("compute.debug", serialize(result));
+  logger.debug("compute.debug", result);
 
   // Update user traits
   if (_.size(userTraits)) {
@@ -125,8 +122,8 @@ export default async function ingest(
   }
 
   if (errors && errors.length > 0) {
-    client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${errors
+    logger.error("incoming.user.error", {
+      hull_summary: `Error Processing entity: ${errors
         .map(e => (_.isObject(e) ? JSON.stringify(e) : e))
         .join(", ")}`,
       errors
@@ -134,9 +131,7 @@ export default async function ingest(
   }
 
   if (logsForLogger && logsForLogger.length) {
-    logsForLogger.map(log =>
-      client.logger.info("compute.console.log", { log })
-    );
+    logsForLogger.map(log => logger.info("compute.console.log", { log }));
   }
 
   // Wait until we've ingested everything

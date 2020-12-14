@@ -1,0 +1,93 @@
+{
+  "name": "hull-canary",
+  "description": "Synchronize Data with canary",
+  "tags": ["incoming", "outgoing", "oneColumn", "kraken"],
+  "ui": false,
+  "picture": "picture.png",
+  "readme": "readme.md",
+  "version": "0.1.39-monorepo",
+  "private_settings": [
+    {
+      "name": "events_to_send",
+      "title": "Events To process",
+      "description": "events to process",
+      "type": "array",
+      "format": "event",
+      "options": {
+        "standard": {
+          "ALL": "All Custom Events",
+          "Segments changed": "Segments changed",
+          "User merged": "User merged"
+        }
+      },
+      "default": [
+        "Segments changed",
+        "User merged",
+        "pageview",
+        "Enter Canary Event",
+        "Leave Canary Event"
+      ]
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/canaries-start-scheduled",
+      "type": "interval",
+      "value": "60",
+      "handler": "canaryStart"
+    }
+  ],
+  "json": [
+    {
+      "url": "/canaries-status",
+      "handler": "canariesStatus"
+    },
+    {
+      "url": "/canaries-start",
+      "handler": "canaryStart"
+    },
+    {
+      "title": "Start Canary",
+      "name": "start_canary",
+      "format": "button",
+      "url": "/manual-canary-start",
+      "handler": "canaryStart",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "start",
+          "text": "You are about to start the canary process, if it is in the middle of running the canary, it could interfere with results",
+          "button": "Start Canary",
+          "entity": "users"
+        }
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": ["ship:update", "user:update", "account:update"]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate",
+          "events-whitelist": ["private_settings.events_to_send"]
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Canary Actions",
+      "properties": ["json.start_canary", "private_settings.events_to_send"]
+    }
+  ]
+}

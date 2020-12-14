@@ -24,11 +24,7 @@ function notificationDefaultFlowControl(
   result: HullNotificationResult
 ): HullNotificationFlowControl {
   const defaultValues = {
-    success: {
-      size: 10,
-      in: 5,
-      in_time: 10
-    },
+    success: {},
     error: {
       size: 10,
       in: 1000,

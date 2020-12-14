@@ -38,7 +38,8 @@ class SSHConnection {
         const options = {
           host,
           username: this.options.username,
-          privateKey: this.options.privateKey
+          privateKey: this.options.privateKey,
+          port: this.options.endPort
         };
         /*
         if (this.options.agentForward) {

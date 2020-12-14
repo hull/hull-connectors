@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const debug = require("debug")("hull:firehose");
 const Configuration = require("./configuration");
 
 const BATCHERS = {};
@@ -6,6 +7,11 @@ const BATCHERS = {};
 global.setImmediate = global.setImmediate || process.nextTick.bind(process);
 
 class FirehoseBatcher {
+  static async exit() {
+    FirehoseBatcher.exiting = true;
+    return Promise.all(_.map(BATCHERS, async b => b.flush()));
+  }
+
   static getInstance(config, handler) {
     const { id, secret, organization, accessToken } = config;
     const key = [organization, id, secret].join("/");
@@ -36,7 +42,7 @@ class FirehoseBatcher {
       const callback = (err, res) => {
         return err ? reject(err) : resolve(res);
       };
-
+      debug("Firehose Message Queued", message);
       this.queue.push({ message, callback });
 
       if (FirehoseBatcher.exiting === true) return this.flush();
@@ -49,10 +55,8 @@ class FirehoseBatcher {
     });
   }
 
-  flush(fn) {
-    fn = fn || (() => {});
-    if (!this.queue.length) return setImmediate(fn);
-
+  async flush() {
+    if (!this.queue.length) return null;
     const items = this.queue.splice(0, this.flushAt);
     const fns = items.map(i => i.callback);
     const batch = items.map(i => i.message);
@@ -62,19 +66,17 @@ class FirehoseBatcher {
       timestamp: new Date(),
       sentAt: new Date()
     };
-
-    return this.handler(params, this).then(
-      ok => fns.forEach(func => func(null, ok)),
-      err => fns.forEach(func => func(err, null))
-    );
+    try {
+      const flushed = await this.handler(params, this);
+      fns.forEach(func => func(null, flushed));
+      return { flushed, queue: this.queue.length };
+    } catch (err) {
+      fns.forEach(func =>
+        func({ status: err.status, message: err.message }, null)
+      );
+      return Promise.reject(err);
+    }
   }
 }
-
-function handleBeforeExit() {
-  FirehoseBatcher.exiting = true;
-  _.map(BATCHERS, b => b.flush());
-}
-
-process.on("beforeExit", handleBeforeExit);
 
 module.exports = FirehoseBatcher;

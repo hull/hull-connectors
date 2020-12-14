@@ -222,6 +222,118 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
     );
   });
 
+  it("User Linked To Account. Should Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          id: [null, "1"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(1);
+  });
+
+  it("User Not Linked To Account. Should Not Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          name: [null, "rei"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
+  it("Lead Linked To Account. Should Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          id: [null, "1"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(1);
+  });
+
+  it("Lead Not Linked To Account. Should Not Trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+      }
+    });
+    const message = {
+      account: {},
+      user: {
+        id: "1"
+      },
+      changes: {
+        account: {
+          name: [null, "rei"]
+        }
+      },
+      events: [],
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
   it("User Entered 'all_segments'. Should not filter out trigger.", () => {
     const context = new ContextMock({
       private_settings: {
@@ -1120,6 +1232,41 @@ describe("Outgoing User Event Created Filtering Tests", () => {
     expect(_.size(triggers)).toEqual(0);
   });
 
+  it("No user event created. Should filter out trigger", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
+              account_segments: ["all_segments"],
+              user_segments: ["user_segment_1"],
+              user_events: ["Email Opened"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      user: { id: "1" },
+      changes: {},
+      account: {},
+      events: [],
+      segments: [{ id: "user_segment_1" }],
+      account_segments: [],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+
+    expect(_.size(triggers)).toEqual(0);
+  });
+
   it("Non whitelisted user event created. Should filter out trigger", () => {
     const context = new ContextMock({
       private_settings: {
@@ -1143,6 +1290,74 @@ describe("Outgoing User Event Created Filtering Tests", () => {
       changes: {},
       account: {},
       events: [{ event: "Email Sent" }, { event: "Email Dropped" }],
+      segments: [{ id: "user_segment_1" }],
+      account_segments: [],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+
+    expect(_.size(triggers)).toEqual(0);
+  });
+
+  it("'all_events' whitelisted user event created. Should not filter out trigger", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
+              user_events: ["all_events"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      user: { id: "1" },
+      changes: {},
+      account: {},
+      events: [{ event: "Email Sent" }, { event: "Email Dropped" }],
+      segments: [{ id: "user_segment_1" }],
+      account_segments: [],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+
+    expect(_.size(triggers)).toEqual(1);
+  });
+
+  it("'all_events' whitelisted but there are no events in message. Should filter out trigger", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
+              account_segments: ["all_segments"],
+              user_segments: ["user_segment_1"],
+              user_events: ["all_events"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      user: { id: "1" },
+      changes: {},
+      account: {},
+      events: [],
       segments: [{ id: "user_segment_1" }],
       account_segments: [],
       message_id: "message_1"

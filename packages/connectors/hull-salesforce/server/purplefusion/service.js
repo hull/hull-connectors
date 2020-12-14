@@ -6,7 +6,6 @@ import type {
 } from "hull-connector-framework/src/purplefusion/types";
 
 const _ = require("lodash");
-const MESSAGES = require("./messages");
 const {
   ConfigurationError,
   RateLimitError,

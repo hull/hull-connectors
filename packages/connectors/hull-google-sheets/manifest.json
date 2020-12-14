@@ -1,16 +1,11 @@
 {
   "name": "Google Sheets importer",
   "description": "Import data from your Google Sheets",
-  "tags": [
-    "incoming",
-    "oneColumn",
-    "first-install",
-    "single-install"
-  ],
+  "tags": ["incoming", "oneColumn", "first-install", "single-install"],
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "json": [
     {
       "name": "credentials",
@@ -54,20 +49,20 @@
     }
   ],
   "html": [],
-  "status": {
-    "url": "/status",
-    "handler": "statusHandler",
-    "type": "cron",
-    "value": "*/30 * * * *"
-  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ],
   "settings_sections": [
     {
       "title": "Credentials",
       "description": "Configure the Google Sheets addon by first installing it on your Google Account by opening the link below, then enter the token in the settings section of the addon inside Google Sheets",
-      "properties": [
-        "json.install",
-        "json.credentials"
-      ]
+      "properties": ["json.install", "json.credentials"]
     }
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "version": "0.1.38-monorepo",
+  "name": "Zendesk",
+  "description": "Capture Zendesk tickets.",
+  "type": "source-pooling",
+  "private_settings": [
+    {
+      "name": "support_url",
+      "type": "string",
+      "title": "Support Url",
+      "description": "Provide your Zendesk Support Url (e.g. https://obscura.zendesk.com). It must starts with `https://`",
+      "required": true
+    },
+    {
+      "name": "user_email",
+      "type": "string",
+      "title": "User Email",
+      "description": "Email address of Zendesk User to authorize API calls.",
+      "required": true
+    },
+    {
+      "name": "api_token",
+      "type": "string",
+      "title": "API Token",
+      "description": "API Token generated for the user provided above. See documentation on how to generate such API Token.",
+      "required": true
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Authentication",
+      "description": "Provide credentials to connect to your Zendesk instance.",
+      "properties": [
+        "private_settings.support_url",
+        "private_settings.user_email",
+        "private_settings.api_token"
+      ]
+    }
+  ]
+}

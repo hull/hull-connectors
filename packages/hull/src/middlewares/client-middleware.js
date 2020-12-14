@@ -3,9 +3,7 @@ import type { NextFunction } from "express";
 import HullClient from "hull-client/src";
 import type { HullRequest, HullResponse } from "../types";
 
-const _ = require("lodash");
 const debug = require("debug")("hull-connector:client-middleware");
-const helpers = require("../helpers");
 
 /**
  * This middleware initiates Hull client
@@ -60,7 +58,6 @@ function clientMiddlewareFactory() {
 
       debug("configuration %o", mergedClientConfig, req.hull.clientCredentials);
       req.hull.client = new HullClientClass(mergedClientConfig);
-      req.hull.helpers = _.mapValues(helpers, f => f(req.hull));
       next();
     } catch (error) {
       next(error);

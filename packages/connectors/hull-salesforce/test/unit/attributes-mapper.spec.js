@@ -2,7 +2,10 @@
 const _ = require("lodash");
 const expect = require("expect");
 
-const { createAttributeName, AttributesMapper } = require("../../server/lib/sync-agent/attributes-mapper");
+const {
+  createAttributeName,
+  AttributesMapper
+} = require("../../server/lib/sync-agent/attributes-mapper");
 
 describe("createAttributeName", () => {
   it("should convert CamelCase fields from Salesforce into snake_case", () => {
@@ -44,8 +47,16 @@ describe("AttributesMapper", () => {
       { hull: "first_name", service: "FirstName", overwrite: true },
       { hull: "last_name", service: "LastName", overwrite: true },
       { hull: "email", service: "Email", overwrite: true },
-      { hull: "account._sales_business_won", service: "business_won__c", overwrite: true },
-      { hull: "traits_clearbit/industry", service: "Industry__c", overwrite: false },
+      {
+        hull: "account._sales_business_won",
+        service: "business_won__c",
+        overwrite: true
+      },
+      {
+        hull: "traits_clearbit/industry",
+        service: "Industry__c",
+        overwrite: false
+      },
       { hull: "traits_status", service: "Status", overwrite: true },
       { hull: "traits_intercom/citygroup", service: "City", overwrite: true },
       { hull: "traits_company", service: "Company", overwrite: true }
@@ -54,49 +65,53 @@ describe("AttributesMapper", () => {
       { hull: "first_name", service: "FirstName", overwrite: true },
       { hull: "last_name", service: "LastName", overwrite: true },
       { hull: "email", service: "Email", overwrite: true },
-      { hull: "account._sales_business_won", service: "business_won__c", overwrite: true },
-      { hull: "traits_clearbit/industry", service: "Industry__c", overwrite: false },
+      {
+        hull: "account._sales_business_won",
+        service: "business_won__c",
+        overwrite: true
+      },
+      {
+        hull: "traits_clearbit/industry",
+        service: "Industry__c",
+        overwrite: false
+      },
       { hull: "traits_status", service: "Status", overwrite: true },
       { hull: "traits_intercom/citygroup", service: "City", overwrite: true },
       { hull: "traits_company", service: "Company", overwrite: true }
     ],
     account_attributes_outbound: [
-      { hull: "domain",
-        service: "Website",
-        overwrite: false },
-      { hull: "name",
-        service: "Name",
-        overwrite: false },
-      { hull: "mrr",
-        service: "MRR__c",
-        overwrite: true },
-      { hull: "employees",
-        service: "NumberOfEmployees",
-        overwrite: false }
+      { hull: "domain", service: "Website", overwrite: false },
+      { hull: "name", service: "Name", overwrite: false },
+      { hull: "mrr", service: "MRR__c", overwrite: true },
+      { hull: "employees", service: "NumberOfEmployees", overwrite: false }
     ],
     lead_attributes_inbound: [
-      { service: "FirstName",
+      {
+        service: "FirstName",
         hull: "traits_salesforce_lead/first_name",
-        overwrite: false },
-      { service: "Company",
+        overwrite: false
+      },
+      {
+        service: "Company",
         hull: "traits_salesforce_lead/company",
-        overwrite: false },
-      { service: "Status",
+        overwrite: false
+      },
+      {
+        service: "Status",
         hull: "traits_salesforce_lead/status",
-        overwrite: false }
+        overwrite: false
+      }
     ],
     account_attributes_inbound: [
-      { service: "Name",
-        hull: "salesforce/name",
-        overwrite: false },
-      { service: "Website",
-        hull: "salesforce/website",
-        overwrite: false },
-      { service: "CustomerPriority__c",
+      { service: "Name", hull: "salesforce/name", overwrite: false },
+      { service: "Website", hull: "salesforce/website", overwrite: false },
+      {
+        service: "CustomerPriority__c",
         hull: "salesforce/customer_priority",
-        overwrite: false }
+        overwrite: false
+      }
     ],
-    user_claims: [{ hull: "email", service: "Email" }],
+    contact_claims: [{ hull: "email", service: "Email" }],
     account_claims: [
       {
         hull: "domain",
@@ -108,7 +123,7 @@ describe("AttributesMapper", () => {
         service: "CustomField1",
         required: true
       }
-    ],
+    ]
   };
 
   it("should map a Hull user to a Salesforce lead object", () => {
@@ -190,13 +205,38 @@ describe("AttributesMapper", () => {
     };
 
     const connectorSettings = _.cloneDeep(CONNECTOR_SETTINGS);
-    _.set(connectorSettings, "lead_outgoing_user_segments", "LeadSegmentsField");
-    _.set(connectorSettings, "lead_outgoing_account_segments", "LeadAccountSegmentsField");
-    _.set(connectorSettings, "contact_outgoing_user_segments", "ContactSegmentsField");
-    _.set(connectorSettings, "contact_outgoing_account_segments", "ContactAccountSegmentsField");
-    _.set(connectorSettings, "account_outgoing_account_segments", "AccountSegmentsField");
+    _.set(
+      connectorSettings,
+      "lead_outgoing_user_segments",
+      "LeadSegmentsField"
+    );
+    _.set(
+      connectorSettings,
+      "lead_outgoing_account_segments",
+      "LeadAccountSegmentsField"
+    );
+    _.set(
+      connectorSettings,
+      "contact_outgoing_user_segments",
+      "ContactSegmentsField"
+    );
+    _.set(
+      connectorSettings,
+      "contact_outgoing_account_segments",
+      "ContactAccountSegmentsField"
+    );
+    _.set(
+      connectorSettings,
+      "account_outgoing_account_segments",
+      "AccountSegmentsField"
+    );
     const mapper = new AttributesMapper(connectorSettings);
-    const sObject = mapper.mapToServiceObject("Lead", hullUser, segments, accountSegments);
+    const sObject = mapper.mapToServiceObject(
+      "Lead",
+      hullUser,
+      segments,
+      accountSegments
+    );
 
     expect(sObject).toEqual(expectedSfObject);
   });
@@ -288,7 +328,10 @@ describe("AttributesMapper", () => {
 
     const expectedHullObject = {
       first_name: { value: sObject.FirstName, operation: "setIfNull" },
-      "salesforce_lead/first_name": { operation: "set", value: sObject.FirstName },
+      "salesforce_lead/first_name": {
+        operation: "set",
+        value: sObject.FirstName
+      },
       "salesforce_lead/company": { operation: "set", value: sObject.Company },
       "salesforce_lead/status": { operation: "set", value: sObject.Status },
       "salesforce_lead/id": { value: sObject.Id, operation: "setIfNull" }
@@ -311,11 +354,13 @@ describe("AttributesMapper", () => {
 
     const expectedHullObject = {
       name: { value: sObject.Name, operation: "setIfNull" },
-      domain: { value: sObject.Website, operation: "setIfNull" },
       "salesforce/id": { value: sObject.Id, operation: "setIfNull" },
       "salesforce/name": { operation: "set", value: sObject.Name },
       "salesforce/website": { operation: "set", value: sObject.Website },
-      "salesforce/customer_priority": { operation: "set", value: sObject.CustomerPriority__c }
+      "salesforce/customer_priority": {
+        operation: "set",
+        value: sObject.CustomerPriority__c
+      }
     };
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
@@ -341,7 +386,11 @@ describe("AttributesMapper", () => {
     };
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
-    const hObject = mapper.mapToHullIdentityObject("Lead", sObject, CONNECTOR_SETTINGS.user_claims);
+    const hObject = mapper.mapToHullIdentityObject(
+      "Lead",
+      sObject,
+      CONNECTOR_SETTINGS.contact_claims
+    );
 
     expect(hObject).toEqual(expectedHullObject);
   });
@@ -361,115 +410,172 @@ describe("AttributesMapper", () => {
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
 
-    const hObject = mapper.mapToHullIdentityObject("Account", sObject, CONNECTOR_SETTINGS.account_claims);
+    const hObject = mapper.mapToHullIdentityObject(
+      "Account",
+      sObject,
+      CONNECTOR_SETTINGS.account_claims
+    );
 
     expect(hObject).toEqual(expectedHullObject);
   });
 
   it("should map a user to a complex contact", () => {
     const mappings = [
-      { hull: "first_name",
-        service: "FirstName",
-        overwrite: false },
-      { hull: "last_name",
-        service: "LastName",
-        overwrite: false },
-      { hull: "email",
-        service: "Email",
-        overwrite: false },
-      { hull: "traits_role",
-        service: "Role__c",
-        overwrite: true },
-      { hull: "traits_last_valid_url",
+      { hull: "first_name", service: "FirstName", overwrite: false },
+      { hull: "last_name", service: "LastName", overwrite: false },
+      { hull: "email", service: "Email", overwrite: false },
+      { hull: "traits_role", service: "Role__c", overwrite: true },
+      {
+        hull: "traits_last_valid_url",
         service: "Last_Valid_URL__c",
-        overwrite: true },
-      { hull: "traits_total_users_active",
+        overwrite: true
+      },
+      {
+        hull: "traits_total_users_active",
         service: "Users__c",
-        overwrite: true },
-      { hull: "traits_last_message_sent_at",
+        overwrite: true
+      },
+      {
+        hull: "traits_last_message_sent_at",
         service: "Last_Message__c",
-        overwrite: true },
-      { hull: "traits_yesterday_conversations",
+        overwrite: true
+      },
+      {
+        hull: "traits_yesterday_conversations",
         service: "Yesterday_Conversations__c",
-        overwrite: true },
-      { hull: "traits_active_contacts",
+        overwrite: true
+      },
+      {
+        hull: "traits_active_contacts",
         service: "Active_Contacts__c",
-        overwrite: true },
-      { hull: "traits_total_conversations_chat",
+        overwrite: true
+      },
+      {
+        hull: "traits_total_conversations_chat",
         service: "chats__c",
-        overwrite: true },
-      { hull: "traits_lastweek_conversations",
+        overwrite: true
+      },
+      {
+        hull: "traits_lastweek_conversations",
         service: "Last_Week_Conversations__c",
-        overwrite: true },
-      { hull: "traits_lastweek_convo_growth",
+        overwrite: true
+      },
+      {
+        hull: "traits_lastweek_convo_growth",
         service: "Last_Week_Convo_Growth__c",
-        overwrite: true },
-      { hull: "traits_lastmonth_conversations",
+        overwrite: true
+      },
+      {
+        hull: "traits_lastmonth_conversations",
         service: "Last_Month_Conversations__c",
-        overwrite: true },
-      { hull: "traits_lastmonth_convo_growth",
+        overwrite: true
+      },
+      {
+        hull: "traits_lastmonth_convo_growth",
         service: "Last_Month_Convo_Growth__c",
-        overwrite: true },
-      { hull: "traits_yesterday_convo_growth",
+        overwrite: true
+      },
+      {
+        hull: "traits_yesterday_convo_growth",
         service: "Yesterday_Convo_Growth__c",
-        overwrite: true },
-      { hull: "traits_number_of_integrations",
+        overwrite: true
+      },
+      {
+        hull: "traits_number_of_integrations",
         service: "integrations__c",
-        overwrite: true },
-      { hull: "traits_billing_last_visit",
+        overwrite: true
+      },
+      {
+        hull: "traits_billing_last_visit",
         service: "Last_visited_upgrade_page__c",
-        overwrite: true },
-      { hull: "traits_billing_page_visits",
+        overwrite: true
+      },
+      {
+        hull: "traits_billing_page_visits",
         service: "Number_of_visits_to_upgrade_page__c",
-        overwrite: true },
-      { hull: "traits_pricing_last_visit",
+        overwrite: true
+      },
+      {
+        hull: "traits_pricing_last_visit",
         service: "Last_visited_pricing_page__c",
-        overwrite: true },
-      { hull: "traits_pricing_page_visits",
+        overwrite: true
+      },
+      {
+        hull: "traits_pricing_page_visits",
         service: "Number_of_visits_to_pricing_page__c",
-        overwrite: true },
-      { hull: "traits_last_seen_user",
+        overwrite: true
+      },
+      {
+        hull: "traits_last_seen_user",
         service: "last_seen__c",
-        overwrite: true },
-      { hull: "traits_convo_alert",
+        overwrite: true
+      },
+      {
+        hull: "traits_convo_alert",
         service: "Convo_alert__c",
-        overwrite: true },
-      { hull: "traits_attribution/lead_source",
+        overwrite: true
+      },
+      {
+        hull: "traits_attribution/lead_source",
         service: "LeadSource",
-        overwrite: false },
-      { hull: "traits_attribution/lead_source_detail",
+        overwrite: false
+      },
+      {
+        hull: "traits_attribution/lead_source_detail",
         service: "Lead_Detail__c",
-        overwrite: false },
-      { hull: "traits_attribution/lead_source_timestamp",
+        overwrite: false
+      },
+      {
+        hull: "traits_attribution/lead_source_timestamp",
         service: "Source_Timestamp__c",
-        overwrite: false },
-      { hull: "traits_attribution/last_lead_source",
+        overwrite: false
+      },
+      {
+        hull: "traits_attribution/last_lead_source",
         service: "Latest_Lead_Source__c",
-        overwrite: true },
-      { hull: "traits_attribution/last_lead_source_detail",
+        overwrite: true
+      },
+      {
+        hull: "traits_attribution/last_lead_source_detail",
         service: "Latest_Lead_Detail__c",
-        overwrite: true },
-      { hull: "traits_attribution/last_lead_source_timestamp",
+        overwrite: true
+      },
+      {
+        hull: "traits_attribution/last_lead_source_timestamp",
         service: "Latest_Source_Timestamp__c",
-        overwrite: true },
-      { hull: "traits_datanyze/monthly_tech_spend",
+        overwrite: true
+      },
+      {
+        hull: "traits_datanyze/monthly_tech_spend",
         service: "Tech_Spend__c",
-        overwrite: true },
-      { hull: "traits_datanyze/revenue_str",
+        overwrite: true
+      },
+      {
+        hull: "traits_datanyze/revenue_str",
         service: "Datanyze_Revenue__c",
-        overwrite: true },
-      { hull: "traits_datanyze/total_money_raised",
+        overwrite: true
+      },
+      {
+        hull: "traits_datanyze/total_money_raised",
         service: "Datanyze_Money_Raised__c",
-        overwrite: true },
-      { hull: "traits_cs_active_users",
+        overwrite: true
+      },
+      {
+        hull: "traits_cs_active_users",
         service: "CS_Active_Users__c",
-        overwrite: true },
-      { hull: "traits_playbooks_active",
+        overwrite: true
+      },
+      {
+        hull: "traits_playbooks_active",
         service: "Number_of_Playbooks_Active__c",
-        overwrite: true },
-      { hull: "traits_integrations_enabled",
+        overwrite: true
+      },
+      {
+        hull: "traits_integrations_enabled",
         service: "Integrations_Enabled__c",
-        overwrite: true }];
+        overwrite: true
+      }
+    ];
 
     const connectorSettings = {
       contact_attributes_outbound: mappings
@@ -482,7 +588,8 @@ describe("AttributesMapper", () => {
       name: "John Garibaldi",
       first_name: "John",
       last_name: "Garibaldi",
-      picture: "https://d1ts43dypk8bqh.cloudfront.net/v1/avatars/a12bcd34-5efg-434c-8ef9-1573f554dd4b",
+      picture:
+        "https://d1ts43dypk8bqh.cloudfront.net/v1/avatars/a12bcd34-5efg-434c-8ef9-1573f554dd4b",
       last_known_ip: "8.8.8.8",
       accepts_marketing: false,
       is_approved: false,
@@ -701,21 +808,15 @@ describe("AttributesMapper", () => {
 
   it("should map a custom account id to the salesforce account", () => {
     const mappings = [
-      { hull: "first_name",
-        service: "FirstName",
-        overwrite: false },
-      { hull: "last_name",
-        service: "LastName",
-        overwrite: false },
-      { hull: "email",
-        service: "Email",
-        overwrite: false },
-      { hull: "traits_role",
-        service: "Role__c",
-        overwrite: true },
-      { hull: "traits_intercom_contact/account_id",
+      { hull: "first_name", service: "FirstName", overwrite: false },
+      { hull: "last_name", service: "LastName", overwrite: false },
+      { hull: "email", service: "Email", overwrite: false },
+      { hull: "traits_role", service: "Role__c", overwrite: true },
+      {
+        hull: "traits_intercom_contact/account_id",
         service: "AccountId",
-        overwrite: true }
+        overwrite: true
+      }
     ];
 
     const connectorSettings = {
@@ -752,12 +853,8 @@ describe("AttributesMapper", () => {
 
   it("should map a add account id even if not mapped to salesforce account", () => {
     const mappings = [
-      { hull: "email",
-        service: "Email",
-        overwrite: false },
-      { hull: "traits_role",
-        service: "Role__c",
-        overwrite: true }
+      { hull: "email", service: "Email", overwrite: false },
+      { hull: "traits_role", service: "Role__c", overwrite: true }
     ];
 
     const connectorSettings = {

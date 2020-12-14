@@ -1,14 +1,13 @@
 {
   "name": "hull-outgoing-account-webhooks",
   "description": "Outgoing Accounts Webhooks connector",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'"
   },
   "dependencies": {
-    "domready": "^1.0.8",
-    "superagent-throttle": "^1.0.1"
+    "domready": "^1.0.8"
   },
   "devDependencies": {}
 }

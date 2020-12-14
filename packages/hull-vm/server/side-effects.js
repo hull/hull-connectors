@@ -66,9 +66,7 @@ export const callTraits = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.toArray().map(async ([claimsMap, attrsMap]) => {
-        const claims = claimsMap.toObject();
-        const attrs = attrsMap.toObject();
+      data.map(async ([claims, attrs]) => {
         const client = hullClient(claims);
         try {
           logIfNested(client, attrs);
@@ -178,9 +176,7 @@ export const callLinks = async ({
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.toArray().map(async ([userClaimsMap, accountClaimsMap]) => {
-        const accountClaims = accountClaimsMap.toObject();
-        const userClaims = userClaimsMap.toObject();
+      data.map(async ([userClaims, accountClaims]) => {
         const client = hullClient(userClaims);
         try {
           successful += 1;
@@ -220,13 +216,11 @@ export const callAlias = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.toArray().map(async ([claimsMap, operations]) => {
-        const claims = claimsMap.toObject();
+      data.map(async ([claims, operations]) => {
         const client = hullClient(claims);
         try {
           const opLog = await Promise.all(
-            operations.toArray().map(async ([aliasClaims, operation]) => {
-              const a = aliasClaims.toObject();
+            operations.map(async ([a, operation]) => {
               const { anonymous_id } = a;
               if (
                 payload &&
@@ -253,7 +247,7 @@ export const callAlias = async ({
         } catch (err) {
           client.logger.error(`incoming.${entity}.alias.error`, {
             claims,
-            aliases: operations.toJS()
+            aliases: operations
           });
           return undefined;
         }

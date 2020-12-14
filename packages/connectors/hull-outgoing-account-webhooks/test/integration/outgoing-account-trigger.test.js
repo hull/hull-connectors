@@ -6,11 +6,12 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const { createSimpleTriggerScenario } = require("hull-webhooks/test/trigger-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Outgoing Account Tests", () => {
 
   it("Account Created. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "is_new_account" });
 
@@ -41,7 +42,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account Entered Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_entered" });
 
@@ -72,7 +73,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account Left Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_left" });
 
@@ -103,7 +104,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Whitelisted Account Attribute Changed. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_attribute_updated" });
 
@@ -136,7 +137,7 @@ describe("Outgoing Account Tests", () => {
   // NEGATIVES
 
   it("Account in whitelisted segment with no other trigger defined. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_synchronized_segment", negative: true });
 
@@ -155,7 +156,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account Entered Segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_entered", negative: true });
 
@@ -174,7 +175,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Account Left Segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_left", negative: true });
 
@@ -193,7 +194,7 @@ describe("Outgoing Account Tests", () => {
   });
 
   it("Whitelisted Account Attribute Changed. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "account_attribute_updated", negative: true });
 

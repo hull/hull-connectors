@@ -1,9 +1,8 @@
 /* @flow */
 import type { HullClientLogger } from "hull";
-import type {
-  CustomApi
-} from "hull-connector-framework/src/purplefusion/types";
+import type { CustomApi } from "hull-connector-framework/src/purplefusion/types";
 
+const moment = require("moment");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
 
@@ -36,29 +35,6 @@ class SalesforceSDK {
     this.syncAgent = new SyncAgent(reqContext);
   }
 
-  getHullType({ sfType }) {
-    switch (sfType) {
-      case "Account": {
-        return "Account";
-      }
-
-      case "Contact": {
-        return "User";
-      }
-
-      case "Lead": {
-        return "User";
-      }
-
-      case "Task": {
-        return "Event";
-      }
-
-      default:
-        return null;
-    }
-  }
-
   async dispatch(methodName: string, params: any) {
     return this[methodName](params);
   }
@@ -67,23 +43,38 @@ class SalesforceSDK {
     return this.syncAgent.sendUserMessages(messages);
   }
 
+  async leadUpdate({ messages }) {
+    return this.syncAgent.sendLeadMessages(messages);
+  }
+
   async accountUpdate({ messages }) {
     return this.syncAgent.sendAccountMessages(messages);
   }
 
-  async getAllRecords({ sfType, fields }) {
-    return this.syncAgent.sf.getAllRecords(
+  async getFetchSoqlQuery({ sfType, fields, fetchDaysBack, lastFetchedAt }) {
+    const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
+    let fetchToDate;
+    if (fetchDaysBack && !lastFetchedAt) {
+      fetchToDate = moment()
+        .subtract({ days: fetchDaysBack })
+        .toISOString();
+    }
+    if (lastFetchedAt) {
+      fetchToDate = moment(lastFetchedAt, "x").toISOString();
+    }
+    return this.syncAgent.sf.getSoqlQuery({
       sfType,
-      _.merge({}, this.syncAgent.privateSettings, { fields }),
-      record => this.saveRecord({ sfType, record })
-    );
+      fields,
+      identityClaims,
+      fetchToDate
+    });
   }
 
-  async getUpdatedRecordIds({ sfType, fetchStart, fetchEnd }) {
-    return this.syncAgent.sf.getUpdatedRecordIds(sfType, {
-      start: fetchStart,
-      end: fetchEnd
-    });
+  async executeSoqlQuery(
+    queryOptions: Object,
+    retries: number = 3
+  ): Promise<*> {
+    return this.syncAgent.sf.queryAllRecords(queryOptions, retries);
   }
 
   async getDeletedRecords({ sfType, fetchStart, fetchEnd }) {
@@ -93,29 +84,26 @@ class SalesforceSDK {
     });
   }
 
-  async saveRecords({ sfType, ids, fields, executeQuery = "query" }) {
-    return this.syncAgent.sf.getRecords(
-      sfType,
-      ids,
-      _.merge({}, this.syncAgent.privateSettings, { fields, executeQuery }),
-      record => this.saveRecord({ sfType, record })
-    );
+  // includes deleted records
+  async queryAllById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(sfType, ids, fields, {
+      queryScope: "queryAll"
+    });
   }
 
-  async saveRecord({ sfType, record, progress = {} }) {
-    const hullType = this.getHullType({ sfType });
-    return this.syncAgent[`save${hullType}`](
-      { source: "salesforce", sfType },
-      record
-    );
+  // does not include deleted records
+  async queryExistingById({ sfType, ids, fields }) {
+    return this.syncAgent.sf.queryRecordsById(sfType, ids, fields, {
+      queryScope: "query"
+    });
   }
 
   async insertRecords({ records, resource }) {
-    return this.syncAgent.sf.insert(records,{ resource });
+    return this.syncAgent.sf.insert(records, { resource });
   }
 
   async updateRecords({ records, resource }) {
-    return this.syncAgent.sf.update(records,{ resource });
+    return this.syncAgent.sf.update(records, { resource });
   }
 
   async querySalesforceRecords({ sfType, identifierKey, event_ids }) {
@@ -128,14 +116,16 @@ class SalesforceSDK {
 
   async logOutgoing({ status, records, identity, hullType }) {
     if (!_.isEmpty(records)) {
-      const asEntity = hullType === "account" ?
-        this.syncAgent.hullClient.asAccount(identity) :
-        this.syncAgent.hullClient.asUser(identity);
-      return asEntity.logger.info(`outgoing.${hullType}.${status}`, { records });
+      const asEntity =
+        _.toLower(hullType) === "account"
+          ? this.syncAgent.hullClient.asAccount(identity)
+          : this.syncAgent.hullClient.asUser(identity);
+      return asEntity.logger.info(`outgoing.${hullType}.${status}`, {
+        records
+      });
     }
     return Promise.resolve();
   }
-
 }
 
 const salesforceSDK: CustomApi = {

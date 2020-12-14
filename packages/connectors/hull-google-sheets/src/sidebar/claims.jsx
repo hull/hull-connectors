@@ -24,6 +24,12 @@ type Props = {
   onChangeRow: ClaimsType => void
 };
 
+const TYPE_NAMES = {
+  user: "users",
+  account: "accounts",
+  user_event: "users"
+}
+
 const Claims = ({
   onChangeRow,
   type = "user",
@@ -32,7 +38,7 @@ const Claims = ({
   claims
 }: Props) => (
   <Fragment>
-    <h4>Claims used to identify {type}</h4>
+    <h4>Claims used to identify {TYPE_NAMES[type]}</h4>
     <Errors errors={errors} />
     <table className="full-width">
       <tbody>

@@ -1,16 +1,15 @@
 {
   "name": "hull-intercom",
-  "version": "0.1.33-monorepo",
-  "description": "Hull Salesforce integration",
+  "version": "0.1.39-monorepo",
+  "description": "Hull Intercom integration",
   "scripts": {
     "test": "yarn run test:integration",
-    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*test.js,**/*test.js}"
   },
   "dependencies": {
     "passport-intercom": "0.0.4",
     "rosie": "2.0.1",
-    "superagent-prefix": "0.0.2",
-    "superagent-throttle": "1.0.1"
+    "superagent-prefix": "0.0.2"
   },
   "devDependencies": {}
 }

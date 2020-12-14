@@ -12,11 +12,14 @@ import compute from "./compute";
 import ingest from "./ingest";
 import saveRecent from "./save-recent";
 
+const debug = require("debug")("hull:async-compute-ingest");
+
 const asyncComputeAndIngest = async (
   ctx: HullContext,
   {
     EntryModel,
     payload,
+    date,
     source,
     language,
     code,
@@ -26,15 +29,21 @@ const asyncComputeAndIngest = async (
   }: {
     source: string,
     code: string,
+    date?: string,
     language?: SupportedLanguage,
     entity?: HullEntityName,
-    claims: HullUserClaims | HullAccountClaims,
+    claims?: HullUserClaims | HullAccountClaims,
     payload: Payload,
     EntryModel?: Object,
     preview?: boolean
   }
 ) => {
   const { client } = ctx;
+
+  const logger = claims
+    ? client[entity === "user" ? "asUser" : "asAccount"](claims).logger
+    : client.logger;
+
   try {
     const result = await compute(ctx, {
       source,
@@ -45,16 +54,27 @@ const asyncComputeAndIngest = async (
       code,
       preview
     });
+    debug("Async Compute", {
+      result,
+      source,
+      language,
+      claims,
+      payload,
+      entity,
+      code,
+      preview
+    });
     if (!preview) {
       // TODO: Check how errors in the second await could not have a defined error
-      await ingest(ctx, result, claims, payload);
+      await ingest(ctx, result, claims, payload, logger);
     }
     if (EntryModel) {
-      await saveRecent(ctx, { EntryModel, payload, code, result });
+      await saveRecent(ctx, { EntryModel, date, payload, code, result });
     }
     return result;
   } catch (err) {
-    client.logger.error(`incoming.${entity || "payload"}.error`, {
+    console.log("ERROR", err);
+    logger.error(`incoming.${entity || "payload"}.error`, {
       hull_summary: `Error ingesting payload: ${_.get(
         err,
         "message",

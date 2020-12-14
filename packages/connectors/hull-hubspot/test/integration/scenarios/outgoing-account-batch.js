@@ -1,6 +1,7 @@
 // @flow
 /* global describe, it, beforeEach, afterEach */
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "abc";
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 it("send batch account update to hubspot in a batch", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -24,7 +25,11 @@ it("send batch account update to hubspot in a batch", () => {
           outgoing_account_attributes: [
             { hull: "name", service: "about_us" },
             { hull: "closeio/industry_sample", service: "industry" },
-            { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
+            {
+              hull: "account_segments.name[]",
+              service: "hull_segments",
+              overwrite: true
+            }
           ],
           handle_accounts: true,
           refresh_token: "refreshtoken",
@@ -58,29 +63,24 @@ it("send batch account update to hubspot in a batch", () => {
           .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, companyPropertyGroups);
 
-        const updatedCompany = [
-          {
-            properties: [
-              { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
-              { name: "industry", value: "Manufacturing" },
-              { name: "domain", value: "wayneenterprises.com" }
-            ],
-            objectId: "1778846597"
-          }
-        ];
         scope
-          .post("/companies/v1/batch-async/update?auditId=Hull", updatedCompany)
+          .post("/companies/v1/batch-async/update?auditId=Hull", [
+            {
+              properties: [
+                { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
+                { name: "industry", value: "Manufacturing" },
+                { name: "domain", value: "wayneenterprises.com" }
+              ],
+              objectId: "1778846597"
+            }
+          ])
           .reply(202);
-
         return scope;
       },
       response: {
-        "flow_control": {
-          "in": 5,
-          "in_time": 10,
-          "size": 10,
-          "type": "next",
-        },
+        flow_control: {
+          type: "next"
+        }
       },
       logs: [
         [
@@ -146,7 +146,7 @@ it("send batch account update to hubspot in a batch", () => {
             hubspotWriteCompany: {
               objectId: "1778846597",
               properties: [
-                { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
+                { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
                 { name: "industry", value: "Manufacturing" },
                 { name: "domain", value: "wayneenterprises.com" }
               ]

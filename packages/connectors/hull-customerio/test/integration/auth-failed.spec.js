@@ -1,6 +1,7 @@
 // @flow
 /* global describe, it, beforeEach, afterEach */
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -16,7 +17,7 @@ const connector = {
 };
 
 it("Should set status to check Site ID and API Key if authentication returns status 401", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
         return {
             handlerType: handlers.scheduleHandler,
             handlerUrl: "status",

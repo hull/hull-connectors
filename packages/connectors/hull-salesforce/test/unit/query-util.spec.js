@@ -2,7 +2,7 @@
 
 const QueryUtil = require("../../server/lib/sync-agent/query-util");
 const { getContextMock } = require("./support/hull-mock");
-const getMappings = require("../../server/lib/sync-agent/mapping-util");
+const { getMappings } = require("../../server/lib/sync-agent/mapping-util");
 const expect = require("expect");
 
 describe("composeFindFields", () => {
@@ -24,7 +24,12 @@ describe("composeFindFields", () => {
         service: "OwnerId"
       }
     ];
-    const contact_attributes_outbound = [];
+
+    const contact_attributes_outbound = [
+      { hull: "email",
+        service: "Email",
+        overwrite: false }
+    ];
     const account_attributes_outbound = [];
     const account_attributes_inbound = [];
     const ctx = getContextMock({ lead_attributes_outbound, lead_attributes_inbound, contact_attributes_outbound, account_attributes_outbound, account_attributes_inbound });

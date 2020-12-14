@@ -13,3 +13,4 @@ module.exports.getStandardMapping = require("./get-standard-mapping");
 module.exports.operations = require("./operations");
 module.exports.segmentChangesToEvents = require("./segment-changes-to-events");
 module.exports.hasMatchingTriggers = require("./has-matching-triggers");
+module.exports.streamRequest = require("./stream-request");

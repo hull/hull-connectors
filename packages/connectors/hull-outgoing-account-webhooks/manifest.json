@@ -1,13 +1,9 @@
 {
   "name": "Outgoing Account Webhooks",
   "description": "Send Hull Account updates as Webhooks",
-  "tags": [
-    "batch-accounts",
-    "smart-notifier",
-    "kraken-exports"
-  ],
+  "tags": ["batch-accounts", "smart-notifier", "kraken-exports"],
   "picture": "picture.png",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -62,10 +58,7 @@
       ],
       "items": {
         "type": "object",
-        "required": [
-          "key",
-          "value"
-        ],
+        "required": ["key", "value"],
         "properties": {
           "key": {
             "title": "Header Key",
@@ -87,12 +80,8 @@
       "format": "select",
       "items": {
         "type": "string",
-        "enum": [
-          "CREATED"
-        ],
-        "enumNames": [
-          "Account Created"
-        ]
+        "enum": ["CREATED"],
+        "enumNames": ["Account Created"]
       },
       "default": [],
       "uniqueItems": true
@@ -223,15 +212,10 @@
       ],
       "conditions": {
         "segments": {
-          "account:update": [
-            "private_settings.synchronized_segments_whitelist"
-          ]
+          "account:update": ["private_settings.synchronized_segments_whitelist"]
         },
         "channels": {
-          "only": [
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["account:update", "ship:update"]
         }
       }
     }

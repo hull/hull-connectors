@@ -1,6 +1,7 @@
 // @flow
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -33,7 +34,7 @@ const usersSegments = [
 
 it("should filter because none of the mapped attributes have changed", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -44,6 +45,13 @@ it("should filter because none of the mapped attributes have changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
+        scope
+          .post("/companies/v2/domains/doe.com/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, { "results": [] });
 
         return scope;
       },
@@ -102,13 +110,11 @@ it("should filter because none of the mapped attributes have changed", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
       logs: [
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
@@ -124,6 +130,8 @@ it("should filter because none of the mapped attributes have changed", () => {
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],

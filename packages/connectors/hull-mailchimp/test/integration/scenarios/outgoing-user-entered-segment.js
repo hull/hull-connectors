@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -33,7 +34,7 @@ const usersSegments = [
 it("should fetch user events on outgoing traffic", () => {
   const email = "mocked@email.com";
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, nock, expect, minihullPort }) => {
       const userClaims = expect.objectContaining({
         subject_type: "user",
@@ -99,7 +100,7 @@ it("should fetch user events on outgoing traffic", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, in_time: 30000, size: 50, type: "next" }
+          flow_control: { in_time: 30000, type: "next" }
         },
         logs: [
           [

@@ -28,6 +28,7 @@ import type {
 const _ = require("lodash");
 const moment = require("moment");
 const slug = require("slug");
+const HubspotClient = require("../hubspot-client");
 
 const attributeFormatter = value => {
   if (Array.isArray(value)) {
@@ -45,6 +46,8 @@ class MappingUtil {
   connector: HullConnector;
 
   hullClient: Object;
+
+  hubspotClient: HubspotClient;
 
   logger: Object;
 
@@ -66,14 +69,23 @@ class MappingUtil {
 
   incomingAccountClaims: Array<HullIncomingClaimsSetting>;
 
-  contactSchema: HubspotSchema;
+  outgoingContactSchema: HubspotSchema;
 
-  companySchema: HubspotSchema;
+  outgoingCompanySchema: HubspotSchema;
+
+  incomingCompanySchema: HubspotSchema;
+
+  incomingContactSchema: HubspotSchema;
+
+  isBatch: boolean;
+
+  sendOnlyChanges: boolean;
 
   constructor({
     ctx,
     connector,
     hullClient,
+    hubspotClient,
     usersSegments,
     accountsSegments,
     hubspotContactProperties,
@@ -82,6 +94,7 @@ class MappingUtil {
     this.ctx = ctx;
     this.connector = connector;
     this.hullClient = hullClient;
+    this.hubspotClient = hubspotClient;
     this.logger = hullClient.logger;
     this.usersSegments = usersSegments;
     this.accountsSegments = accountsSegments;
@@ -93,20 +106,33 @@ class MappingUtil {
       outgoing_account_attributes = [],
       link_users_in_service,
       incoming_user_claims = [],
-      incoming_account_claims = []
+      incoming_account_claims = [],
+      send_only_changes
     } = this.connector.private_settings;
 
+    this.isBatch = _.get(ctx.notification, "is_export", false);
+    this.sendOnlyChanges = send_only_changes || false;
     this.outgoingLinking = link_users_in_service || false;
     this.incomingUserClaims = incoming_user_claims;
 
-    this.contactSchema = this.getServiceSchema(
+    this.outgoingContactSchema = this.getOutgoingServiceSchema(
       hubspotContactProperties,
       outgoing_user_attributes
     );
 
-    this.companySchema = this.getServiceSchema(
+    this.outgoingCompanySchema = this.getOutgoingServiceSchema(
       hubspotCompanyProperties,
       outgoing_account_attributes
+    );
+
+    this.incomingCompanySchema = this.getIncomingServiceSchema(
+      hubspotCompanyProperties,
+      incoming_account_attributes
+    );
+
+    this.incomingConctactSchema = this.getIncomingServiceSchema(
+      hubspotContactProperties,
+      incoming_user_attributes
     );
 
     this.incomingAccountClaims = incoming_account_claims;
@@ -116,8 +142,8 @@ class MappingUtil {
     this.companyIncomingMapping = incoming_account_attributes;
   }
 
-  mapToHubspotEntity(
-    hullObject: HubspotReadContact | HubspotReadCompany,
+  async mapToHubspotEntity(
+    hullObject: HullUserUpdateMessage | HullAccountUpdateMessage,
     serviceType: ServiceType
   ) {
     switch (serviceType) {
@@ -151,8 +177,7 @@ class MappingUtil {
       payload: accountData,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      serviceSchema: this.incomingCompanySchema
     });
 
     hullTraits["hubspot/id"] = accountData.companyId;
@@ -174,8 +199,7 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      serviceSchema: this.incomingConctactSchema
     });
 
     hullTraits["hubspot/id"] =
@@ -197,8 +221,10 @@ class MappingUtil {
     return hullTraits;
   }
 
-  mapToHubspotContact(message: HullUserUpdateMessage): HubspotWriteContact {
-    const hubspotWriteProperties = this.mapToHubspotEntityProperties({
+  async mapToHubspotContact(
+    message: HullUserUpdateMessage
+  ): HubspotWriteContact {
+    const hubspotWriteProperties = await this.mapToHubspotEntityProperties({
       message,
       hullType: "user",
       serviceType: "contact",
@@ -219,8 +245,10 @@ class MappingUtil {
     return hubspotWriteContact;
   }
 
-  mapToHubspotCompany(message: HullAccountUpdateMessage): HubspotWriteCompany {
-    const hubspotWriteProperties = this.mapToHubspotEntityProperties({
+  async mapToHubspotCompany(
+    message: HullAccountUpdateMessage
+  ): HubspotWriteCompany {
+    const hubspotWriteProperties = await this.mapToHubspotEntityProperties({
       message,
       hullType: "account",
       serviceType: "company",
@@ -239,7 +267,7 @@ class MappingUtil {
       name: "domain"
     });
 
-    if (domainProperties.length === 0) {
+    if (!_.isNil(message.account.domain) && domainProperties.length === 0) {
       hubspotWriteCompany.properties.push({
         name: "domain",
         value: message.account.domain
@@ -249,7 +277,41 @@ class MappingUtil {
     return hubspotWriteCompany;
   }
 
-  mapToHubspotEntityProperties({
+  getOutgoingMapping(serviceType, message) {
+    const { changes } = message;
+    const hullType = _.toLower(serviceType) === "account" ? "account" : "user";
+
+    // TODO need to account for the 5+ minutes between insert and when Hull fetches
+    // the hubspot id
+    const hubspotId = _.get(message[hullType], "hubspot/id");
+    const isInsert = _.isNil(hubspotId);
+
+    const attributeMapping = this[`${_.toLower(serviceType)}OutgoingMapping`];
+    if (!this.sendOnlyChanges || this.isBatch || isInsert) {
+      return attributeMapping;
+    }
+
+    const userSegmentChanged = !_.isEmpty(changes.segments);
+    const accountSegmentChanged = !_.isEmpty(changes.account_segments);
+
+    // TODO attributes can be jsonata expressions
+    return _.filter(attributeMapping, mapping => {
+      if (
+        (mapping.hull === "segments.name[]" && userSegmentChanged) ||
+        (mapping.hull === "account_segments.name[]" && accountSegmentChanged)
+      ) {
+        return true;
+      }
+      let changedAttr = _.get(changes, `${hullType}.${mapping.hull}`);
+      if (!changedAttr) {
+        changedAttr = _.get(changes, mapping.hull);
+      }
+
+      return !_.isNil(changedAttr);
+    });
+  }
+
+  async mapToHubspotEntityProperties({
     message,
     hullType,
     serviceType,
@@ -260,7 +322,7 @@ class MappingUtil {
     serviceType: ServiceType,
     transform: any
   }): Array<HubspotWriteContactProperty> | Array<HubspotWriteCompanyProperty> {
-    const outgoingMapping = this[`${serviceType}OutgoingMapping`];
+    const outgoingMapping = this.getOutgoingMapping(serviceType, message);
 
     const { mapAttributes } = this.ctx.helpers;
     const rawHubspotProperties = mapAttributes({
@@ -268,8 +330,7 @@ class MappingUtil {
       payload: message,
       direction: "outgoing",
       mapping: outgoingMapping,
-      serviceSchema: this[`${_.toLower(serviceType)}Schema`],
-      attributeFormatter
+      serviceSchema: this[`outgoing${_.upperFirst(serviceType)}Schema`]
     });
 
     const properties = _.reduce(
@@ -284,21 +345,36 @@ class MappingUtil {
     );
 
     // link to company
-    if (
-      serviceType === "contact" &&
-      this.outgoingLinking &&
-      message.account &&
-      message.account["hubspot/id"]
-    ) {
-      properties.push({
-        property: "associatedcompanyid",
-        value: message.account["hubspot/id"]
-      });
+    if (serviceType === "contact" && this.outgoingLinking && message.account) {
+      let companyId = message.account["hubspot/id"];
+      if (!companyId && message.account.domain) {
+        const domain = message.account.domain;
+        try {
+          const companyRes = await this.hubspotClient.postCompanyDomainSearch(
+            domain
+          );
+          const companies = _.get(companyRes, "body.results", []);
+          if (_.size(companies) === 1) {
+            companyId = companies[0].companyId;
+          }
+        } catch (error) {
+          this.logger.info("outgoing.user.error", {
+            message: "Unable search for linked company"
+          });
+        }
+      }
+
+      if (companyId) {
+        properties.push({
+          property: "associatedcompanyid",
+          value: companyId
+        });
+      }
     }
     return properties;
   }
 
-  getServiceSchema(
+  getOutgoingServiceSchema(
     hubspotPropertyGroups: Array<HubspotPropertyGroup>,
     outgoingMapping: Array<HubspotSchema>
   ): Array<> {
@@ -364,14 +440,67 @@ class MappingUtil {
     }, {});
   }
 
+  getIncomingServiceSchema(
+    hubspotPropertyGroups: Array<HubspotPropertyGroup>,
+    attributeMapping: Array<HubspotSchema>
+  ): Array<> {
+    const formatter = (property, type) => value => {
+      if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+        return null;
+      }
+      if (_.isNumber(value)) {
+        return value;
+      }
+
+      // eslint-disable-next-line
+      if (type === "number") {
+        return parseFloat(value);
+      }
+      return value;
+    };
+
+    const hubspotProperties = _.flatten(
+      hubspotPropertyGroups.map(group => group.properties)
+    );
+
+    return attributeMapping.reduce((schema, mapping) => {
+      const { hull, service } = mapping;
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return schema;
+      }
+      const cleanedServiceName = service
+        .replace(/.*properties\./, "")
+        .replace(/\.value.*/, "")
+        .replace(/"/g, "")
+        .replace(/`/g, "");
+
+      const hubspotPropertyName = slug(cleanedServiceName, {
+        replacement: "_",
+        lower: true
+      });
+
+      const hubspotProperty = _.find(hubspotProperties, {
+        name: hubspotPropertyName
+      });
+
+      if (hubspotProperty) {
+        const { name, type } = hubspotProperty;
+        schema[hull.replace(/^traits_/, "")] = {
+          type,
+          formatter: formatter(name, type)
+        };
+      }
+      return schema;
+    }, {});
+  }
+
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
+    const propertyRegex = /.*properties\..*\.value.*/;
     return _.concat(attributeMapping, identityClaims)
-      .filter(
-        entry => entry.service && entry.service.indexOf("properties.") === 0
-      )
+      .filter(entry => entry.service && propertyRegex.test(entry.service))
       .map(entry =>
         entry.service
-          .replace(/properties\./, "")
+          .replace(/.*properties\./, "")
           .replace(/\.value.*/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")

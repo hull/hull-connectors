@@ -210,17 +210,14 @@ import handlers from "./handlers";
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
-    SECRET,
     NODE_ENV,
     PORT = 8082,
     OVERRIDE_FIREHOSE_URL
   } = process.env;
 
-  const hostSecret = SECRET || "1234";
-
   return {
     manifest,
-    hostSecret,
+    hostSecret: SECRET || "1234", //Defaults to process.env.SECRET
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: async (connectorInstance: HullConnector) => ({
@@ -232,7 +229,12 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     middlewares: [fetchToken],
     cacheConfig: { store: "memory", ttl: 1 },
-    logsConfig: { logLevel: LOG_LEVEL },
+    logsConfig: {
+      level: LOG_LEVEL,
+      logs: [],
+      transports: [{ type: "console" }]
+      capture: true
+    },
     clientConfig: { firehoseUrl: OVERRIDE_FIREHOSE_URL },
     serverConfig: { start: true }
   };
@@ -245,7 +247,6 @@ export type HullConnectorConfig = {
   serverConfig?: HullServerConfig, //How to start the express server
   workerConfig?: HullWorkerConfig, //How to start workers
   metricsConfig?: HullMetricsConfig, //Metrics reporting configuration
-  cacheConfig?: HullCacheConfig, //Cache configuration
   httpClientConfig?: HullHTTPClientConfig, //HTTP Client util configuration
   logsConfig?: HullLogsConfig, //Logs configuration
   jsonConfig?: HullJsonConfig, //JSON parsing configuration
@@ -255,8 +256,11 @@ export type HullConnectorConfig = {
   timeout?: number | string, //Connector timeout settings. Default = 25s
   disableOnExit?: boolean, //Should we disable exit listeners. Default = false
   devMode?: boolean, //development mode
+  disableWebpack?: boolean, // disable webpack building of client side assets. Speeds up process reload when only working on server side code
+  trustProxy?: boolean, // Get express to compute proper client ip if the app is behind a proxy. https://expressjs.com/en/guide/behind-proxies.html
   instrumentation?: HullInstrumentation, // set a custom instrumentation instance
-  queue?: void | HullQueue, // set a Custom Queue instance for workers
+  cacheConfig?: HullCacheConfig, //Cache configuration
+  queueConfig?: HullQueueConfig, // set a Custom Queue instance for workers
   handlers: HullConnector => HullHandlersConfiguration, //Handlers methods
   middlewares: Array<Middleware>, //Array of middlewares to run before handlers
   manifest: HullManifest // the current manifest
@@ -563,7 +567,7 @@ By default, the cache uses a Memory store. If you want to use persistence, or sh
 ```js
 const connectorConfig: HullConnectorConfig = {
   ...
-  cache: {
+  cacheConfig: {
     store: "redis",
     url: CACHE_REDIS_URL,
     ttl: SHIP_CACHE_TTL,
@@ -674,7 +678,9 @@ const {
 const connectorConfig: HullConnectorConfig = {
   manifest,
   devMode: NODE_ENV === "development",
-  logLevel: LOG_LEVEL,
+  logsConfig: {
+    level: LOG_LEVEL
+  }
   hostSecret: SECRET || "1234",
   port: PORT || 8082,
   handlers: {},
@@ -1135,12 +1141,190 @@ docker build . -t hull-connectors
 
 ### Start with DEBUG enabled
 
-```
+```sh
 > docker run -it -p 8082:8082 -e DEBUG='*' -e CONNECTOR=hull-processor -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
 ```
 
 ### Log in to running container
 
-```
+```sh
 docker exec -it CONTAINER_ID /bin/sh
 ```
+
+## Queue Config
+
+Newer versions deprecate exposing a Queue at the top level, instead opting to expose `queueConfig` to manage it.
+
+```js
+const connectorConfig = {
+  ...(queueConfig = {
+      store: "sqs",
+      region: string,
+      accessKeyId: string,
+      secretAccessKey: string,
+      queueUrl: string
+    }
+  | {
+      store: "redis",
+      url: string,
+      name: string,
+      settings?: {
+        lockDuration?: number,
+        stalledInterval?: number
+      }
+    }
+  | {
+      store: "memory",
+      url: void,
+      name: void
+    }
+  )
+};
+```
+
+## Streaming imports
+
+New helper to facilitate importing external content in Streaming. Initial version is very naive, only handle `GET` requests without Headers. Later implementations will introduce more power to fetch data. Make sure to handler from a Job Queue as this might be long running.
+
+It creates the following log entries for you:
+
+- `incoming.job.start`
+- `incoming.job.success`
+- `incoming.job.progress`
+- `incoming.job.error`
+
+```js
+/* @flow */
+import type { HullContext } from "hull";
+import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
+
+/**
+ * SyncIn : import all the list members as hull users
+ */
+export default function handler(EntryModel: Object) {
+  return function fetchAllUsers(ctx: HullContext, options: any = {}) {
+    const { helpers, connector } = ctx;
+    const { streamRequest } = helpers;
+    const url = "http://foo.bar/result.csv";
+    streamRequest({
+      url, //url to fetch data from
+      format: "csv", //CSV or JSON supported
+      batchSize: 10, //How many entries in data chunk,
+      onError: error => {
+        //Do something with Errors
+      },
+      onEnd: () => {
+        //Do someting when it ends
+      },
+      onData: async data => {
+        //data = [{xxx}, {xxx}, {xxx}]
+        //batched by the value of `batchSize`
+        data.map(entry => {
+          //Do something with data
+          // hull.asUser(xxx)
+        });
+      }
+    });
+  };
+}
+```
+
+### Consolidated defaults, and environment variable conventions
+
+We now automatically configure the connector if the `config.js` file exposes no value, and specific environment variables are set. This means that if no value is set for some configuration entries in `HullConnectorConfig`, we will rely on the environment variables to define them.
+
+```
+NODE_ENV = , // if `development`, will boot the connector in dev mode, with webpack compilation enabled
+DISABLE_WEBPACK, //if true, allows to forcefully disable webpack in dev mode
+LOG_LEVEL = "info", // will set the log level for the connector
+PORT = 8082, // prot to boot on
+REQUEST_TIMEOUT = "25s", //defines the timeout for a request - connector will close the connection after this time.
+QUEUE_ADAPTER = "memory",
+QUEUE_NAME = "queueApp",
+CACHE_STORE = "memory",
+SERVER = "true", //Boot the server
+WORKER, // Boots the worker (for connectors which use a Queue)
+COMBINED, //Boots in worker+server mode in a single process (for local dev.)
+KUE_PREFIX, // Prefix for Queues - should be unique per connector
+REDIS_MAX_CONNECTIONS = 50,
+REDIS_MIN_CONNECTIONS = 1
+REDIS_URL, // URL for the Redis queue and cache
+CACHE_REDIS_URL, // Specific url for the REDIS cache
+SECRET, //Host secret - set this to a complex string
+SHIP_CACHE_TTL, //Custom configure the ship cache
+SHIP_CACHE_MAX,, //Custom configure the ship cache
+SHIP_CACHE_KEY_PREFIX, //Custom configure the ship cache
+
+LIBPROCESS_IP,
+STATSD_HOST,
+STATSD_PORT,
+MARATHON_APP_ID,
+MARATHON_APP_DOCKER_IMAGE,
+FIREHOSE_KAFKA_BROKERS,
+FIREHOSE_KAFKA_TOPIC,
+FIREHOSE_KAFKA_TOPICS_MAPPING = "",
+FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
+FIREHOSE_KAFKA_ENABLED = true,
+LOGGER_KAFKA_BROKERS,
+LOGGER_KAFKA_TOPIC,
+LOGGER_KAFKA_ENABLED = true,
+LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES = 100,
+LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 1000,
+LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES = 100,
+LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
+
+```
+
+## Lightweight Connectors
+
+- checkout the `packages/hull-lightweight folder for details on how it works.
+
+- Start in Dev with:
+
+```
+  yarn combined hull-xxx
+```
+
+- Start in Production with:
+
+```
+  yarn start:lightweight hull-xxx
+```
+
+A few details:
+
+- manifest MUST must be in `/manifest.json`
+- manifest MUST contain a `type` entry defining the connector type
+- default entries in manifest can be ommitted (include only what you wish to override)
+- If you define items in Arrays, or objects in the manifest, they will be deeply merged with defaults. I.E. settings, subscriptions etc...will be added
+- handler must be in `/server/index.js`
+- handler must export a method using `export default` and this method shall have the appropriate signature for the right lightweight connector type. Currently we have the following types:
+
+  - `source-webhooks`
+  - `destination`
+  - `user-processor`
+
+- environment variables (or .env) MUST contain a `SECRET`
+- You can create new lightweight packages by looking at `packages/hull-lightweight` subfolders. For now, only `source-webhooks` exist
+
+## Boot environment
+
+- The boot environment has been redone. check `start-connector.sh` and `start-dev-connector.sh`
+- Lightweight connectors boot the same way in production. The fact that they're lightweight is entirely handled by the `type` in their manifest
+- Cluster mode supported: Use (or override) the `WEB_CONCURRENCY` env var to define how many instances to boot in cluster mode. Don't use this locally as babel will complain
+- On heroku, `WEB_CONCURRENCY` is computed from the `WEB_MEMORY` env var which you can set to tell Heroku how much memory to allocate for your instance. Heroku will use this and compute `WEB_CONCURRENCY` to match based on the Dyno's sizes.
+- You can use SERVER_MAX_CONNECTIONS and SERVER_BACKLOG to fine-tune how Express will respond
+
+### Node Args
+
+- Use NODE_ARGS to add more Node arguments to the dynos. Be careful, in Cluster mode, those aren't passed to child processes it seems.
+
+## Webpack
+
+Now build things sequentially since returning an array is not optimized at all
+
+## Queue UI
+
+Arena is available on `/__queue` - auth with the connector's HostSecret
+need to add `QUEUE_ADAPTER=redis` if you want a redis queue
+need to add `CACHE_STORE=redis` if you want a redis cache

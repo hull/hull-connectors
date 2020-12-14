@@ -8,6 +8,7 @@ const {
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const _ = require("lodash");
+
 const { SUPPORTED_RESOURCE_TYPES, IAttributesMapper } = require("../types");
 
 const TOPLEVEL_ATTRIBUTES = {
@@ -19,11 +20,7 @@ const TOPLEVEL_ATTRIBUTES = {
     { service: "FirstName", hull: "first_name" },
     { service: "LastName", hull: "last_name" }
   ],
-  Account: [
-    { service: "Name", hull: "name" },
-    { service: "Website", hull: "domain" }
-  ],
-  Task: []
+  Account: [{ service: "Name", hull: "name" }]
 };
 
 /**
@@ -75,23 +72,23 @@ class AttributesMapper implements IAttributesMapper {
     this.mappingsOutbound = {};
     this.mappingsInbound = {};
 
-    this.addAccountClaimsToOutgoingAttributes(connectorSettings);
-
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
-      _.set(
-        this.mappingsOutbound,
-        r,
-        _.cloneDeep(
-          _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`)
-        )
+      const attribPrefix =
+        r === "Account" ? "salesforce" : `salesforce_${r.toLowerCase()}`;
+      const outgoingAttributes = _.cloneDeep(
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
       );
-      _.set(
-        this.mappingsInbound,
-        r,
-        _.cloneDeep(
-          _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`)
-        )
+      const incomingAttributes = _.cloneDeep(
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`, [])
       );
+      const claims = _.cloneDeep(
+        _.get(connectorSettings, `${_.toLower(r)}_claims`, [])
+      );
+
+      _.set(this.mappingsOutbound, r, _.concat(claims, outgoingAttributes));
+
+      incomingAttributes.push({ service: "Id", hull: `${attribPrefix}/id` });
+      _.set(this.mappingsInbound, r, incomingAttributes);
     });
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
@@ -138,40 +135,6 @@ class AttributesMapper implements IAttributesMapper {
       }
     }
     return sfdcValue;
-  }
-
-  addAccountClaimsToOutgoingAttributes(connectorSettings: any) {
-    const accountClaimHullFields = _.get(
-      connectorSettings,
-      "account_claims",
-      []
-    );
-    const account_attributes_outbound = _.get(
-      connectorSettings,
-      "account_attributes_outbound",
-      []
-    );
-    const accountOutgoingHullFields = _.map(
-      account_attributes_outbound,
-      "hull"
-    );
-
-    const missingOutgoingAccountClaims = _.filter(
-      accountClaimHullFields,
-      accountClaim => {
-        const hullField = accountClaim.hull;
-        return !_.includes(accountOutgoingHullFields, hullField);
-      }
-    );
-
-    _.forEach(missingOutgoingAccountClaims, accountClaim => {
-      const account_attribute_outbound = {
-        hull: accountClaim.hull,
-        service: accountClaim.service,
-        overwrite: false
-      };
-      account_attributes_outbound.push(account_attribute_outbound);
-    });
   }
 
   /**
@@ -287,10 +250,6 @@ class AttributesMapper implements IAttributesMapper {
         ? "salesforce"
         : `salesforce_${resource.toLowerCase()}`;
 
-    if (!_.includes(mappings, "Id")) {
-      mappings.push({ service: "Id", hull: `${attribPrefix}/id` });
-    }
-
     const topLevelAttributes = TOPLEVEL_ATTRIBUTES[resource];
     const topLevelAttributesSf = _.map(topLevelAttributes, "service");
 
@@ -340,43 +299,6 @@ class AttributesMapper implements IAttributesMapper {
     return hObject;
   }
 
-  mapToHullEvent(mapping: Object, resource: TResourceType, sObject: any): any {
-    const event = _.cloneDeep(sObject);
-    _.forEach(mapping.fetchFields, (hull, service) => {
-      const value = _.get(sObject, service);
-      if (value) {
-        _.unset(event, service);
-        _.set(event, hull, value);
-      }
-    });
-
-    return event;
-  }
-
-  mapToHullDeletedObject(resource: TResourceType, deletedAt: Date): any {
-    const mappings = _.get(this.mappingsInbound, resource, []);
-    const attribPrefix =
-      resource === "Account"
-        ? "salesforce"
-        : `salesforce_${resource.toLowerCase()}`;
-
-    if (!_.includes(mappings, "Id")) {
-      mappings.push({ service: "Id", hull: `${attribPrefix}/id` });
-    }
-
-    const hObject = {};
-    _.forEach(mappings, mapping => {
-      const traitSet = { value: null, operation: "set" };
-      _.set(hObject, createAttributeName(attribPrefix, mapping.hull), traitSet);
-    });
-    _.set(hObject, `${attribPrefix}/deleted_at`, {
-      value: deletedAt,
-      operation: "set"
-    });
-
-    return hObject;
-  }
-
   mapToHullIdentityObject(
     resourceType: TResourceType,
     sfObject: Object,
@@ -391,12 +313,13 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
 
-        break;
-      case "Task":
-        _.set(ident, "event_id", `salesforce-${_.toLower(resourceType)}:${id}`);
         break;
       default:
         _.set(
@@ -408,7 +331,11 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
         break;
     }

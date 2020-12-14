@@ -4,7 +4,7 @@ const _ = require("lodash");
 
 const { DEFAULT_MAPPING } = require("./mappings");
 
-export type RecordType = "Account" | "Lead" | "Contact" | "Task";
+export type RecordType = "Account" | "Lead" | "Contact";
 
 type Mapping = {
   type: RecordType,
@@ -112,4 +112,6 @@ function getMappings(ship: Ship) {
   }, {});
 }
 
-module.exports = getMappings;
+module.exports = {
+  getMappings
+};

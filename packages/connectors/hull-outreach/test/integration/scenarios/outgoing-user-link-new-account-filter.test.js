@@ -7,12 +7,13 @@ process.env.CLIENT_SECRET = "1234";
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 // This test simulates when a user is not in a segment
 // but an account change is detected, in this case a user still
 // shouldn't be sent
 test("should not link account in outreach if user is not in segment", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json"));
     updateMessages.connector.private_settings.synchronized_user_segments = [];
     _.set(updateMessages.messages[0], "changes.account.id", [
@@ -30,9 +31,6 @@ test("should not link account in outreach if user is not in segment", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       logs: [

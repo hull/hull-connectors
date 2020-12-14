@@ -1,6 +1,6 @@
 {
   "name": "hull-zapier-app",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "A Hull app for the Zapier platform",
   "repository": "hull-ships/hull-zapier",
   "homepage": "https://hull.io/",
@@ -13,7 +13,7 @@
     "zapier-push": "npm run zapier-build && zapier push",
     "prepare": "npm run zapier-build",
     "pretest": "npm run zapier-build",
-    "test": "source .env && mocha --recursive lib/test/ --require babel-polyfill"
+    "test": "mocha --recursive lib/test/ --require babel-polyfill"
   },
   "engines": {
     "node": ">=8.10.0",

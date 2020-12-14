@@ -2,6 +2,7 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 const contactPropertyGroups = require("../fixtures/get-contacts-groups");
@@ -20,7 +21,7 @@ const connector = {
 
 it("should not create fields on 3rd party if no segments are in the org", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -72,9 +73,6 @@ it("should not create fields on 3rd party if no segments are in the org", () => 
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },

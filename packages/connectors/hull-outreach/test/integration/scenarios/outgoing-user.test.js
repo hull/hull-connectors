@@ -8,10 +8,11 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 test("send smart-notifier user update to outreach with specific attribute changes", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-changes.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -49,9 +50,6 @@ test("send smart-notifier user update to outreach with specific attribute change
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits

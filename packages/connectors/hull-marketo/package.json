@@ -1,16 +1,14 @@
 {
   "name": "hull-marketo",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
   "dependencies": {
-    "cache-manager-redis": "^0.4.0",
     "luxon": "^1.3.0",
     "superagent-prefix": "^0.0.2",
-    "superagent-throttle": "^0.2.5",
     "urijs": "^1.18.0"
   },
   "devDependencies": {}

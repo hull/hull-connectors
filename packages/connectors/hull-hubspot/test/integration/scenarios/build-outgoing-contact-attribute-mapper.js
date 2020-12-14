@@ -1,6 +1,7 @@
 // @flow
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -18,7 +19,7 @@ const connector = {
 
 describe("Should fetch contact groups and properties and transform it to outgoing attribute mapping", () => {
   it("Should use default outgoing groups", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/outgoing_contact_properties",
@@ -153,7 +154,7 @@ describe("Should fetch contact groups and properties and transform it to outgoin
 
   it("Should use default outgoing groups", () => {
     const domain = "hull.io";
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
         handlerUrl: "schema/outgoing_contact_properties",

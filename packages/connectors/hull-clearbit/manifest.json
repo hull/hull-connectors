@@ -1,12 +1,7 @@
 {
   "name": "Clearbit",
   "description": "Synchronize Data with Clearbit!",
-  "tags": [
-    "batch",
-    "batch-accounts",
-    "smart-notifier",
-    "kraken-exports"
-  ],
+  "tags": ["batch", "batch-accounts", "smart-notifier", "kraken-exports"],
   "mappings": {
     "person": {
       "incoming": {
@@ -749,7 +744,7 @@
   ],
   "source": "clearbit",
   "readme": "readme.md",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "settings": [],
   "private_settings": [
     {
@@ -1604,10 +1599,7 @@
       "items": {
         "type": "string"
       },
-      "default": [
-        "ceo",
-        "head of marketing"
-      ],
+      "default": ["ceo", "head of marketing"],
       "options": {
         "allowCreate": true
       },
@@ -1656,11 +1648,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "enum": [
-          "executive",
-          "director",
-          "manager"
-        ]
+        "enum": ["executive", "director", "manager"]
       },
       "description": "Filter based on Seniority or leave blank to search without restriction."
     },
@@ -1700,9 +1688,7 @@
       "title": "Setup",
       "step": "credentials",
       "description": "Clearbit API Key",
-      "properties": [
-        "private_settings.api_key"
-      ]
+      "properties": ["private_settings.api_key"]
     },
     {
       "title": "Attribute Mapping",
@@ -1754,11 +1740,7 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       },
       "channels": [

@@ -7,9 +7,10 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("send smart-notifier user update to outreach with owner email that is resolved", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
       "channel": "user:update",
       "connector": {
@@ -84,10 +85,7 @@ test("send smart-notifier user update to outreach with owner email that is resol
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -145,7 +143,7 @@ test("send smart-notifier user update to outreach with owner email that is resol
 });
 
 test("send smart-notifier user update to outreach with owner email that is unable to be resolved", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
       "channel": "user:update",
       "connector": {
@@ -238,10 +236,7 @@ test("send smart-notifier user update to outreach with owner email that is unabl
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -304,7 +299,7 @@ test("send smart-notifier user update to outreach with owner email that is unabl
 });
 
 test("send smart-notifier user update to outreach with owner email mapped but missing on user", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
       "channel": "user:update",
       "connector": {
@@ -368,10 +363,7 @@ test("send smart-notifier user update to outreach with owner email mapped but mi
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -423,7 +415,7 @@ test("send smart-notifier user update to outreach with owner email mapped but mi
 });
 
 test("send smart-notifier user update to outreach with owner email needs to be 'forcefully' resolved", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
       "channel": "user:update",
       "connector": {
@@ -507,10 +499,7 @@ test("send smart-notifier user update to outreach with owner email needs to be '
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [

@@ -1,24 +1,21 @@
 /* @flow */
-import type { IUserUpdateEnvelope, IAccountUpdateEnvelope } from "../types";
+import type {
+  HullAccountUpdateMessage,
+  HullEntityName,
+  HullUserUpdateMessage
+} from "hull";
+import type {
+  TFilterResults,
+  IUserUpdateEnvelope,
+  IAccountUpdateEnvelope,
+  IFilterUtil,
+  TResourceType
+} from "../types";
 
 const _ = require("lodash");
 const MatchUtil = require("./match-util");
-const { TResourceType } = require("../types");
 
-type TFilterResults = {
-  toInsert: Array<IUserUpdateEnvelope>,
-  toUpdate: Array<IUserUpdateEnvelope>,
-  toSkip: Array<IUserUpdateEnvelope>
-};
-
-// eslint-disable-next-line no-unused-vars
-type TAccountFilterResults = {
-  toInsert: Array<IAccountUpdateEnvelope>,
-  toUpdate: Array<IAccountUpdateEnvelope>,
-  toSkip: Array<IAccountUpdateEnvelope>
-};
-
-class FilterUtil {
+class FilterUtil implements IFilterUtil {
   contactSynchronizedSegments: Array<string>;
 
   leadSynchronizedSegments: Array<string>;
@@ -27,7 +24,9 @@ class FilterUtil {
 
   requireEmail: boolean;
 
-  requireEntityChanges: boolean;
+  requireUserChanges: boolean;
+
+  requireAccountChanges: boolean;
 
   sendDeletedObjects: boolean;
 
@@ -68,9 +67,14 @@ class FilterUtil {
       "ignore_users_withoutemail",
       false
     );
-    this.requireEntityChanges = _.get(
+    this.requireUserChanges = _.get(
       privateSettings,
       "ignore_users_withoutchanges",
+      false
+    );
+    this.requireAccountChanges = _.get(
+      privateSettings,
+      "ignore_accounts_withoutchanges",
       false
     );
     this.sendDeletedObjects = !_.get(
@@ -128,48 +132,32 @@ class FilterUtil {
 
     if (_.has(user, "id")) {
       if (this.matchesLeadSynchronizedSegments(envelope)) {
-        results.toSkip.push({
-          envelope,
-          hullType: "user",
-          skipReason: "user treated as lead",
-          log: false
-        });
+        results.toSkip.push({ envelope, hullType: "user" });
         return results;
       }
 
       if (!this.matchesContactSynchronizedSegments(envelope)) {
-        results.toSkip.push({
-          envelope,
-          hullType: "user",
-          skipReason: "doesn't match filter for accounts and contacts",
-          log: false
-        });
+        results.toSkip.push({ envelope, hullType: "user" });
         return results;
       }
     } else if (!isBatch && !this.matchesAccountSynchronizedSegments(envelope)) {
-      results.toSkip.push({
-        envelope,
-        hullType: "account",
-        skipReason: "doesn't match filter for accounts"
-      });
+      _.set(envelope.skip, "account", "doesn't match filter for accounts");
+      results.toSkip.push({ envelope, hullType: "account" });
       return results;
     }
 
     if (_.size(sfAccountMatches) > 1) {
-      results.toSkip.push({
-        envelope,
-        hullType: "account",
-        skipReason: "Cannot determine which salesforce account to update"
-      });
+      _.set(
+        envelope.skip,
+        "account",
+        "Cannot determine which salesforce account to update"
+      );
+      results.toSkip.push({ envelope, hullType: "account" });
       return results;
     }
 
     if (_.isNil(hullAccount) || !_.has(hullAccount, "id")) {
-      results.toSkip.push({
-        envelope,
-        hullType: "account",
-        skipReason: "user doesn't have an account"
-      });
+      results.toSkip.push({ envelope, hullType: "account" });
       return results;
     }
 
@@ -177,12 +165,12 @@ class FilterUtil {
       _.get(hullAccount, "salesforce/deleted_at", null) !== null &&
       !this.sendDeletedObjects
     ) {
-      results.toSkip.push({
-        envelope,
-        hullType: "account",
-        skipReason:
-          "Account has been manually deleted in Salesforce and won't be re-created."
-      });
+      _.set(
+        envelope.skip,
+        "account",
+        "Account has been manually deleted in Salesforce and won't be re-created."
+      );
+      results.toSkip.push({ envelope, hullType: "account" });
       return results;
     }
 
@@ -192,11 +180,12 @@ class FilterUtil {
       const isRequired = accountClaim.required;
       const hullField = accountClaim.hull;
       if (isRequired && _.isNil(_.get(hullAccount, hullField, null))) {
-        results.toSkip.push({
-          envelope,
-          hullType: "account",
-          skipReason: "Missing required unique identifier in Hull."
-        });
+        _.set(
+          envelope.skip,
+          "account",
+          "Missing required unique identifier in Hull."
+        );
+        results.toSkip.push({ envelope, hullType: "account" });
         return results;
       }
     }
@@ -213,12 +202,12 @@ class FilterUtil {
         }
         if (!this.sendDeletedObjects) {
           if (!this.accountInArray(results.toUpdate, hullAccount)) {
-            results.toSkip.push({
-              envelope,
-              hullType: "account",
-              skipReason:
-                "Account has been potentially manually deleted in Salesforce, skipping processing."
-            });
+            _.set(
+              envelope.skip,
+              "account",
+              "Account has been potentially manually deleted in Salesforce."
+            );
+            results.toSkip.push({ envelope, hullType: "account" });
           }
           return results;
         }
@@ -236,13 +225,12 @@ class FilterUtil {
         !this.allowShortDomains
       ) {
         if (!this.accountInArray(results.toSkip, hullAccount)) {
-          results.toSkip.push({
-            envelope,
-            hullType: "account",
-            skipReason:
-              "The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record",
-            log: !_.has(user, "id")
-          });
+          _.set(
+            envelope.skip,
+            "account",
+            "The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record"
+          );
+          results.toSkip.push({ envelope, hullType: "account" });
         }
         return results;
       }
@@ -256,8 +244,13 @@ class FilterUtil {
 
   filterEnvelopes(
     envelopes: Array<IUserUpdateEnvelope>,
-    resourceType: TResourceType
+    resourceType: TResourceType,
+    isBatch: boolean = false
   ): TFilterResults {
+    if (_.toLower(resourceType) === "account") {
+      return this.filterAccountEnvelopes(envelopes, isBatch);
+    }
+
     const traitGroup = `salesforce_${_.toLower(resourceType)}`;
     const results: TFilterResults = {
       toSkip: [],
@@ -269,13 +262,12 @@ class FilterUtil {
       const matches = envelope.matches[_.toLower(resourceType)];
 
       if (_.size(matches) > 1) {
-        return results.toSkip.push({
-          envelope,
-          hullType: "user",
-          skipReason: `Cannot determine which ${_.toLower(
-            resourceType
-          )} to update`
-        });
+        _.set(
+          envelope.skip,
+          _.toLower(resourceType),
+          `Cannot determine which ${_.toLower(resourceType)} to update`
+        );
+        return results.toSkip.push({ envelope, hullType: "user" });
       }
       const sfObject = _.size(matches) === 1 ? matches[0] : {};
       const existingId = _.get(sfObject, "Id");
@@ -297,23 +289,24 @@ class FilterUtil {
       }
 
       if (_.get(user, "email", "n/a") === "n/a" && this.requireEmail) {
-        _.set(envelope, "skipReason", "User doesn't have an email address.");
-        return results.toSkip.push({
-          envelope,
-          hullType: "user",
-          skipReason: "User doesn't have an email address"
-        });
+        _.set(
+          envelope.skip,
+          _.toLower(resourceType),
+          "User doesn't have an email address."
+        );
+        return results.toSkip.push({ envelope, hullType: "user" });
       }
 
       if (
         _.get(user, `${_.toLower(traitGroup)}/deleted_at`, null) !== null &&
         !this.sendDeletedObjects
       ) {
-        return results.toSkip.push({
-          envelope,
-          hullType: "user",
-          skipReason: `${resourceType} has been manually deleted in Salesforce and won't be re-created.`
-        });
+        _.set(
+          envelope.skip,
+          _.toLower(resourceType),
+          `${resourceType} has been manually deleted in Salesforce.`
+        );
+        return results.toSkip.push({ envelope, hullType: "user" });
       }
 
       if (!_.isNil(outgoingId)) {
@@ -321,11 +314,12 @@ class FilterUtil {
           return results.toUpdate.push(envelope);
         }
         if (!this.sendDeletedObjects) {
-          return results.toSkip.push({
-            envelope,
-            hullType: "user",
-            skipReason: `${resourceType} has been potentially manually deleted in Salesforce and will not be sent out.`
-          });
+          _.set(
+            envelope.skip,
+            _.toLower(resourceType),
+            `${resourceType} has been potentially manually deleted in Salesforce.`
+          );
+          return results.toSkip.push({ envelope, hullType: "user" });
         }
         return results.toInsert.push(envelope);
       }
@@ -334,11 +328,19 @@ class FilterUtil {
         return results.toUpdate.push(envelope);
       }
 
-      if (
-        resourceType === "Contact" &&
-        (_.has(user, `${traitGroup}/account_id`) || _.has(account, "id"))
-      ) {
-        return results.toInsert.push(envelope);
+      if (resourceType === "Contact") {
+        if (_.has(user, `${traitGroup}/account_id`) || _.has(account, "id")) {
+          return results.toInsert.push(envelope);
+        }
+        // logging this outside 'batch sent' may produce too many logs
+        if (this.isBatch) {
+          _.set(
+            envelope.skip,
+            _.toLower(resourceType),
+            `${resourceType} does not have an account`
+          );
+          return results.toSkip.push({ envelope, hullType: "user" });
+        }
       }
 
       if (resourceType === "Lead") {
@@ -346,12 +348,12 @@ class FilterUtil {
           _.has(user, "salesforce_contact/id") ||
           _.has(user, "salesforce_lead/converted_contact_id")
         ) {
-          return results.toSkip.push({
-            envelope,
-            hullType: "user",
-            skipReason:
-              "User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
-          });
+          _.set(
+            envelope.skip,
+            _.toLower(resourceType),
+            "User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
+          );
+          return results.toSkip.push({ envelope, hullType: "user" });
         }
 
         return results.toInsert.push(envelope);
@@ -373,14 +375,20 @@ class FilterUtil {
   }
 
   accountInArray(
-    array: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
+    messages: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
     account: Object
   ): boolean {
     const matchUtil = new MatchUtil();
 
-    // TODO find should be every?
+    const missingClaims = _.every(this.accountClaims, v =>
+      _.isNil(_.get(account, v.hull))
+    );
+
+    if (missingClaims) {
+      return false;
+    }
     return (
-      _.find(array, e => {
+      _.find(messages, e => {
         for (let i = 0; i < this.accountClaims.length; i += 1) {
           const accountClaim = this.accountClaims[i];
 
@@ -404,6 +412,31 @@ class FilterUtil {
         return true;
       }) !== undefined
     );
+  }
+
+  filterLeads(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return this.matchesLeadSynchronizedSegments({
+        message
+      });
+    });
+  }
+
+  filterContacts(
+    messages: Array<IUserUpdateEnvelope>
+  ): Array<IUserUpdateEnvelope> {
+    return _.filter(messages, message => {
+      return (
+        this.matchesContactSynchronizedSegments({
+          message
+        }) &&
+        !this.matchesLeadSynchronizedSegments({
+          message
+        })
+      );
+    });
   }
 
   matchesContactSynchronizedSegments(envelope: IUserUpdateEnvelope): boolean {
@@ -439,146 +472,69 @@ class FilterUtil {
   }
 
   /**
-   * Filters out messages which we don't want to process
+   * Filters out messages which we should not be processed
    */
-  filterFindableMessages(
-    hullEntityType: string,
-    messages: Array<Object>,
+  filterMessages(
+    sfType: TResourceType,
+    messages: Array<HullUserUpdateMessage | HullAccountUpdateMessage>,
     isBatch: boolean = false
   ): Array<Object> {
-    if (hullEntityType === "user") {
-      return messages.filter(message => {
-        const envelope = { message };
-        if (
-          this.requireEmail &&
-          _.get(message, "user.email", "n/a") === "n/a"
-        ) {
-          return false;
-        }
+    const hullType = _.toLower(sfType) === "account" ? "account" : "user";
+    return messages.filter(message => {
+      if (
+        hullType === "user" &&
+        this.requireEmail &&
+        _.get(message, "user.email", "n/a") === "n/a"
+      ) {
+        return false;
+      }
+      if (this[`require${_.upperFirst(hullType)}Changes`] && !isBatch) {
+        return this.hasChangedWhitelistedAttributes(
+          hullType,
+          message,
+          this[`${_.toLower(sfType)}AttributesOutbound`]
+        );
+      }
+      return true;
+    });
+  }
 
-        if (
-          !this.matchesContactSynchronizedSegments(envelope) &&
-          !this.matchesLeadSynchronizedSegments(envelope)
-        ) {
-          return false;
-        }
-
-        if (this.requireEntityChanges && !isBatch) {
-          return this.hasSyncedHullAttributesWithChanges(message);
-        }
-        return true;
+  hasChangedWhitelistedAttributes(
+    hullType: HullEntityName,
+    message: Object,
+    outgoingHullAttributes: Array<string>
+  ): boolean {
+    const entityAttributeChanges = _.get(message.changes, hullType, {});
+    if (hullType === "user") {
+      const accountChanges = _.get(message, "changes.account", {});
+      _.forEach(accountChanges, (value, key) => {
+        entityAttributeChanges[`account.${key}`] = value;
       });
     }
-    if (hullEntityType === "account") {
-      return this.filterFindableAccountMessages(messages, isBatch);
+
+    if (!_.isEmpty(entityAttributeChanges)) {
+      const changedAttributes = _.reduce(
+        entityAttributeChanges,
+        (changeList, value, key) => {
+          changeList.push(this.standardizeAttributeName(key));
+          return changeList;
+        },
+        []
+      );
+
+      return !_.isEmpty(
+        _.intersection(outgoingHullAttributes, changedAttributes)
+      );
     }
-    return [];
+    return false;
   }
 
-  filterFindableAccountMessages(
-    messages: Array<Object>,
-    isBatch: boolean = false
-  ): Array<Object> {
-    return messages.filter(message => {
-      const envelope = { message };
-      const matchFilter = this.matchesAccountSynchronizedSegments(envelope);
-
-      if (isBatch) {
-        return true;
-      }
-
-      if (this.requireEntityChanges) {
-        return matchFilter && this.hasSyncedHullAttributesWithChanges(message);
-      }
-
-      return matchFilter;
-    });
-  }
-
-  filterDuplicateMessages(
-    messages: Array<Object>,
-    entity: string
-  ): Array<Object> {
-    if (!messages || !_.isArray(messages) || messages.length === 0) {
-      return [];
+  standardizeAttributeName(attributeName: string): string {
+    if (/\[\d+\]$/.test(attributeName)) {
+      return attributeName.substr(0, attributeName.lastIndexOf("["));
     }
 
-    return _.chain(messages)
-      .groupBy(`${entity}.id`)
-      .map(val => {
-        return _.last(_.sortBy(val, [`${entity}.indexed_at`]));
-      })
-      .value();
-  }
-
-  hasSyncedHullAttributesWithChanges(message: Object): boolean {
-    const changedUserAttributes = _.keys(_.get(message, "changes.user", {}));
-    const standardizedUserAttributes = this.standardizeAttributeNames(
-      changedUserAttributes
-    );
-
-    const changedAccountAttributes = _.keys(
-      _.get(message, "changes.account", {})
-    );
-    const standardizedAccountAttributes = this.standardizeAttributeNames(
-      changedAccountAttributes
-    );
-
-    const contactAccountAttributesOutbound = _.map(
-      _.filter(this.contactAttributesOutbound, v => {
-        return _.startsWith(v, "account.");
-      }),
-      v => {
-        return v.replace("account.", "");
-      }
-    );
-    const leadAccountAttributesOutbound = _.map(
-      _.filter(this.leadAttributesOutbound, v => {
-        return _.startsWith(v, "account.");
-      }),
-      v => {
-        return v.replace("account.", "");
-      }
-    );
-
-    return (
-      _.intersection(
-        leadAccountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0 ||
-      _.intersection(
-        contactAccountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0 ||
-      _.intersection(this.leadAttributesOutbound, standardizedUserAttributes)
-        .length > 0 ||
-      _.intersection(this.contactAttributesOutbound, standardizedUserAttributes)
-        .length > 0 ||
-      _.intersection(
-        this.accountAttributesOutbound,
-        standardizedAccountAttributes
-      ).length > 0
-    );
-  }
-
-  standardizeAttributeNames(attributeNames: Array<string>): Array<string> {
-    const standardizedNames = [];
-
-    _.forEach(attributeNames, attributeName => {
-      if (/\[\d+\]$/.test(attributeName)) {
-        const trimmedArrayName = attributeName.substr(
-          0,
-          attributeName.lastIndexOf("[")
-        );
-        if (standardizedNames.indexOf(trimmedArrayName) < 0) {
-          standardizedNames.push(trimmedArrayName);
-        }
-      } else {
-        standardizedNames.push(attributeName);
-      }
-    });
-
-    return standardizedNames;
+    return attributeName;
   }
 }
 

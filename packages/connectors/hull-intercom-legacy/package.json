@@ -1,0 +1,15 @@
+{
+  "name": "hull-intercom-legacy",
+  "version": "0.1.39-monorepo",
+  "description": "Hull Intercom Legacy Integration",
+  "scripts": {
+    "test": "yarn run test:integration",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "passport-intercom": "0.0.4",
+    "rosie": "2.0.1",
+    "superagent-prefix": "0.0.2"
+  },
+  "devDependencies": {}
+}

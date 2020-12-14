@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.39-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -26,9 +26,7 @@
       "name": "type",
       "type": "string",
       "title": "Type",
-      "enum": [
-        "postgres"
-      ],
+      "enum": ["postgres"],
       "default": "postgres",
       "required": true
     },
@@ -273,12 +271,12 @@
         }
       ],
       "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        },
         "channels": {
-          "only": [
-            "ship:update",
-            "user:update",
-            "account:update"
-          ]
+          "only": ["ship:update", "user:update", "account:update"]
         }
       }
     }

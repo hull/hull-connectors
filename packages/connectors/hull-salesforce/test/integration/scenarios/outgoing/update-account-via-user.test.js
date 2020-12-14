@@ -1,6 +1,6 @@
 // @flow
 import connectorConfig from "../../../../server/config";
-
+import manifest from "../../../../manifest.json";
 const createSoapEnvelope = require("../../../helper/soapapiopsresponse");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -172,20 +172,13 @@ describe("Update Accounts Via User Update Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/query")
@@ -456,25 +449,9 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 287,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -484,43 +461,11 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           ]),
           expect.arrayContaining([
-            "outgoing.job.progress",
+            "ship.service_api.request",
             {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 2,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
+              "method": "GET",
+              "url_length": 287,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           [
@@ -597,9 +542,6 @@ describe("Update Accounts Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -748,20 +690,13 @@ describe("Update Accounts Via User Update Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q === "SELECT FirstName, LastName, Email, Id, ConvertedAccountId, ConvertedContactId, Company, Website FROM Lead WHERE Email IN ('adam.pietrzyk@krakowtraders.pl', 'rafa.kasczka@krakowtraders.pl') ORDER BY CreatedDate ASC LIMIT 10000";
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/query")
@@ -1054,25 +989,9 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 287,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -1082,43 +1001,11 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           ]),
           expect.arrayContaining([
-            "outgoing.job.progress",
+            "ship.service_api.request",
             {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 4,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 4,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
+              "method": "GET",
+              "url_length": 287,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           [
@@ -1195,9 +1082,6 @@ describe("Update Accounts Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -1346,20 +1230,13 @@ describe("Update Accounts Via User Update Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q === "SELECT FirstName, LastName, Email, Id, ConvertedAccountId, ConvertedContactId, Company, Website FROM Lead WHERE Email IN ('adam.pietrzyk@krakowtraders.pl', 'rafa.kasczka@krakowtraders.pl') ORDER BY CreatedDate ASC LIMIT 10000";
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/query")
@@ -1708,25 +1585,9 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 287,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -1736,43 +1597,11 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           ]),
           expect.arrayContaining([
-            "outgoing.job.progress",
+            "ship.service_api.request",
             {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 9,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 9,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
+              "method": "GET",
+              "url_length": 287,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           [
@@ -1849,9 +1678,6 @@ describe("Update Accounts Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
@@ -2001,20 +1827,13 @@ describe("Update Accounts Via User Update Tests", () => {
         ]
       }
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-
-          scope
-            .get("/services/data/v39.0/query")
-            .query((query) => {
-              return query.q && query.q.match("FROM Lead");
-            })
-            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/query")
@@ -2209,25 +2028,9 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "ship.service_api.request",
-            {
-              "method": "GET",
-              "url_length": 287,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -2237,43 +2040,11 @@ describe("Update Accounts Via User Update Tests", () => {
             }
           ]),
           expect.arrayContaining([
-            "outgoing.job.progress",
+            "ship.service_api.request",
             {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 2,
-              "sfAccounts": 1,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
+              "method": "GET",
+              "url_length": 287,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           [
@@ -2350,9 +2121,6 @@ describe("Update Accounts Via User Update Tests", () => {
           ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["increment","ship.service_api.call",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
           ["value","ship.service_api.limit",50000],

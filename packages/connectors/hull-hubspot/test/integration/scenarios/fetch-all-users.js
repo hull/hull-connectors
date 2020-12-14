@@ -4,6 +4,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 const contactPropertyGroups = require("../fixtures/get-contacts-groups");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = 1;
@@ -34,7 +35,7 @@ const connector = {
 };
 
 it("should fetch all users using settings", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.jsonHandler,
       handlerUrl: "fetch-all-contacts",
@@ -44,9 +45,9 @@ it("should fetch all users using settings", () => {
           .reply(200, contactPropertyGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=hs_calculated_form_submissions&property=email")
           .reply(200, incomingData);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=hs_calculated_form_submissions&property=email")
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
@@ -57,7 +58,7 @@ it("should fetch all users using settings", () => {
       logs: [
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v2/groups","status":200,"vars":{}}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/properties/v1/companies/groups","status":200,"vars":{}}],
-        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","email"]}],
+        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","hs_calculated_form_submissions","email"]}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
         ["info","incoming.job.progress",{},{"jobName":"fetchAllContacts","type":"user","progress":2}],
         ["debug","saveContacts",{},2],
@@ -65,7 +66,7 @@ it("should fetch all users using settings", () => {
           "claims":{"email":"testingapis@hubspot.com","anonymous_id":"hubspot:3234574"},
           "traits":{
             "hubspot/id":3234574,
-            "hubspot/merged_vids":null,
+            "hubspot/merged_vids":[],
             "hubspot/first_name":"Jeff",
             "hubspot/form_submission": "Download-Form",
             "hubspot/last_name":"Testing some string 100",
@@ -78,7 +79,7 @@ it("should fetch all users using settings", () => {
           "claims":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},
           "traits":{
             "hubspot/id":3714024,
-            "hubspot/merged_vids":null,
+            "hubspot/merged_vids":[],
             "hubspot/first_name":"Updated",
             "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},
@@ -87,15 +88,15 @@ it("should fetch all users using settings", () => {
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/form_submission": "Download-Form","hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":[],"hubspot/first_name":"Jeff","hubspot/form_submission": "Download-Form","hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":[],"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
         ["info","incoming.job.success",{},{"jobName":"fetchAllContacts"}]
       ],
       firehoseEvents: [
         ["traits",{"asUser":{"email":"testingapis@hubspot.com","anonymous_id":"hubspot:3234574"},"subjectType":"user"},
           {
             "hubspot/id":3234574,
-            "hubspot/merged_vids":null,
+            "hubspot/merged_vids":[],
             "hubspot/first_name":"Jeff",
             "hubspot/form_submission": "Download-Form",
             "hubspot/last_name":"Testing some string 100",
@@ -106,7 +107,7 @@ it("should fetch all users using settings", () => {
         ["traits",{"asUser":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},"subjectType":"user"},
           {
             "hubspot/id":3714024,
-            "hubspot/merged_vids":null,
+            "hubspot/merged_vids":[],
             "hubspot/first_name":"Updated",
             "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},

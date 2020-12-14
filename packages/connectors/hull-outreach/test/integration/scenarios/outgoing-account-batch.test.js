@@ -6,9 +6,10 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("send batch account update to outreach in a batch", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {};
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
@@ -70,7 +71,7 @@ test("send batch account update to outreach in a batch", () => {
 
         return scope;
       },
-      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response: {"flow_control": {"type": "next"}},
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}],

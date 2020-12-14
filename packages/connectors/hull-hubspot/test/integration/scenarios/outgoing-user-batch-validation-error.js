@@ -2,6 +2,7 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.CLIENT_ID = "123";
@@ -21,7 +22,7 @@ const usersSegments = [
 
 it("should send out a new hull user to hubspot via batch", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -89,7 +90,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           ]
         }
       ],
-      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response: {"flow_control": {"type": "next"}},
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

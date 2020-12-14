@@ -1,6 +1,7 @@
 // @flow
 /* global describe, it, beforeEach, afterEach */
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
@@ -30,7 +31,7 @@ const accountsSegments = [
 
 it("should send out a new hull account to hubspot", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -77,6 +78,9 @@ it("should send out a new hull account to hubspot", () => {
                 "createdate": {
                   "value": "1584635613078"
                 },
+                "founded_year": {
+                  "value": ""
+                },
                 "days_to_close": {
                   "value": ""
                 }
@@ -97,7 +101,7 @@ it("should send out a new hull account to hubspot", () => {
         }
       ],
       response: {
-        flow_control: { in: 5, in_time: 10, size: 10, type: "next" }
+        flow_control: { type: "next" }
       },
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -132,6 +136,7 @@ it("should send out a new hull account to hubspot", () => {
           {
             "hubspot/create_date": "1584635613078",
             "hubspot/days_to_close": null,
+            "hubspot/founded_year": null,
             "hubspot/domain": "hull.io",
             "hubspot/hs_lastmodified_date": "1584635613078",
             "hubspot/website": "hull.io",

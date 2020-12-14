@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
@@ -24,7 +25,7 @@ const accountsSegments = [{ name: "testSegment", id: "hullSegmentId" }];
 
 it("should send out a new hull account to hubspot found existing", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -82,9 +83,6 @@ it("should send out a new hull account to hubspot found existing", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },

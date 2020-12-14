@@ -74,6 +74,11 @@ const HullIncomingUser: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullUserIdentity: ServiceObjectDefinition = {
+  service_name: "HullUserIdentity",
+  name: "User"
+};
+
 const HullIncomingOpportunity: ServiceObjectDefinition = {
   service_name: "HullIncomingOpportunity",
   name: "Opportunity"
@@ -86,6 +91,11 @@ const HullOutgoingUser: ServiceObjectDefinition = {
 
 const HullOutgoingEvent: ServiceObjectDefinition = {
   service_name: "HullOutgoingEvent",
+  name: "Event"
+};
+
+const HullIncomingEvent: ServiceObjectDefinition = {
+  service_name: "HullIncomingEvent",
   name: "Event"
 };
 
@@ -156,6 +166,11 @@ const HullUserEventTrigger: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullUserAccountLinkedTrigger: ServiceObjectDefinition = {
+  service_name: "HullUserAccountLinkedTrigger",
+  name: "User"
+};
+
 const HullAccountAttributeChangedTrigger: ServiceObjectDefinition = {
   service_name: "HullAccountAttributeChangedTrigger",
   name: "Account"
@@ -174,8 +189,10 @@ const EntityCreatedTrigger: ServiceObjectDefinition = {
 module.exports = {
   HullEnumMap,
   WebPayload,
+  HullUserIdentity,
   HullIncomingUser,
   HullIncomingAccount,
+  HullIncomingEvent,
   HullOutgoingUser,
   HullOutgoingEvent,
   HullOutgoingAccount,
@@ -185,6 +202,7 @@ module.exports = {
   HullAccountSegmentChangedTrigger,
   EntityCreatedTrigger,
   HullUserEventTrigger,
+  HullUserAccountLinkedTrigger,
   HullApiAttributeDefinition,
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,
