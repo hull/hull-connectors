@@ -19,7 +19,8 @@ const {
   ld,
   utils,
   transformTo,
-  not
+  ex,
+  settingsUpdate
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -186,7 +187,10 @@ const glue = {
       tableName: settings("db_events_table_name"),
       indexes: postgresJdbc("createEventIndexes")
     }),
-    postgresJdbc("syncTableSchema", settings("db_events_table_name"))
+    ifL(cond("isEmpty", settings("event_table_synced_at")), [
+      postgresJdbc("syncTableSchema", settings("db_events_table_name")),
+      settingsUpdate({ event_table_synced_at: ex(moment(), "valueOf") }),
+    ])
   ],
   // currently need to do this so ship:update doesn't fail, but ensure hook will see if we really need to reinit
   shipUpdate: {}
