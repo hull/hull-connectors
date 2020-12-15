@@ -396,6 +396,11 @@ class SequalizeSdk {
           objectToUpsert[normalizedName] = parsedDate;
         }
       } else {
+
+        if ("external_id" === normalizedName && !_.isNil(valueToUpsert)) {
+          valueToUpsert = _.toString(valueToUpsert);
+        }
+
         if (typeof valueToUpsert === "string") {
 
           if (this.ascii_encoded) {
