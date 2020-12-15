@@ -19,7 +19,9 @@ const {
   ld,
   utils,
   transformTo,
-  not
+  ex,
+  settingsUpdate,
+  moment,
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -152,7 +154,7 @@ const glue = {
           lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
         ifL([
-            cond("isEqual", "${connector.private_settings.send_all_user_attributes}", true),
+            cond("isEqual", "${connector.private_settings.send_all_account_attributes}", true),
             cond("notEmpty", input("[0].account")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
@@ -186,7 +188,10 @@ const glue = {
       tableName: settings("db_events_table_name"),
       indexes: postgresJdbc("createEventIndexes")
     }),
-    postgresJdbc("syncTableSchema", settings("db_events_table_name"))
+    ifL(cond("isEmpty", settings("event_table_synced_at")), [
+      postgresJdbc("syncTableSchema", settings("db_events_table_name")),
+      settingsUpdate({ event_table_synced_at: ex(moment(), "valueOf") }),
+    ])
   ],
   // currently need to do this so ship:update doesn't fail, but ensure hook will see if we really need to reinit
   shipUpdate: {}
