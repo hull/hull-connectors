@@ -113,6 +113,26 @@ describe("CopperCRM Incoming Tests", () => {
     return harness.runTest(require("./fixtures/leadUpdate_fail"));
   });
 
+  it("person create", () => {
+    return harness.runTest(require("./fixtures/personCreate"));
+  });
+
+  it("person update with id", () => {
+    return harness.runTest(require("./fixtures/personUpdate_id"));
+  });
+
+  it("person update with email", () => {
+    return harness.runTest(require("./fixtures/personUpdate_email"));
+  });
+
+  it("create activity", () => {
+    return harness.runTest(require("./fixtures/activityCreate"));
+  });
+
+  it("update activity", () => {
+    return harness.runTest(require("./fixtures/activityUpdate"));
+  });
+
 //   it("fetch recent coppercrm", () => {
 //     const requestTrace = require("./fixtures/fetchAllActivities");
 //     return harness.runTest(requestTrace);

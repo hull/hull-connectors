@@ -118,6 +118,7 @@ module.exports = {
             "properties": {
               "created_at": "2019-11-03T20:37:00.000Z",
               "details": "called jon last year",
+              "copper_activity_id": 6336813267,
               "assigneeEmail": "timliuhull3@gmail.com"
             },
             "eventName": "Phone Call"
@@ -145,6 +146,7 @@ module.exports = {
             "properties": {
               "created_at": "2019-11-21T20:29:00.000Z",
               "details": "Called him during turkey3 won&#x27;t edit modified",
+              "copper_activity_id": 6336780524,
               "assigneeEmail": "timliuhull3@gmail.com"
             },
             "eventName": "Phone Call"
@@ -172,6 +174,7 @@ module.exports = {
             "properties": {
               "created_at": "2019-12-18T15:38:00.000Z",
               "details": "Called brittnay",
+              "copper_activity_id": 6333030590,
               "assigneeEmail": "timliuhull3@gmail.com"
             },
             "eventName": "Phone Call"
@@ -199,6 +202,7 @@ module.exports = {
             "properties": {
               "created_at": "2019-12-29T20:24:00.000Z",
               "details": "called him a week ago",
+              "copper_activity_id": 6336757725,
               "assigneeEmail": "timliuhull3@gmail.com"
             },
             "eventName": "Phone Call"
@@ -226,6 +230,7 @@ module.exports = {
             "properties": {
               "created_at": "2019-12-31T15:30:09.000Z",
               "details": "Called someone",
+              "copper_activity_id": 6333016749,
               "assigneeEmail": "timliuhull3@gmail.com"
             },
             "eventName": "Phone Call"
@@ -252,6 +257,7 @@ module.exports = {
             },
             "properties": {
               "created_at": "2020-01-02T20:00:26.000Z",
+              "copper_activity_id": 6336644555,
               "details": "not to call brittany",
               "assigneeEmail": "timliuhull3@gmail.com"
             },
@@ -279,6 +285,7 @@ module.exports = {
             },
             "properties": {
               "created_at": "2020-01-02T20:23:00.000Z",
+              "copper_activity_id": 6336756720,
               "details": "please call this guy",
               "assigneeEmail": "timliuhull3@gmail.com"
             },

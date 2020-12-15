@@ -26,7 +26,8 @@ const {
   cacheGet,
   cacheSet,
   cacheLock,
-  or
+  or,
+  get
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -35,7 +36,8 @@ const {
   HullConnectorAttributeDefinition,
   HullIncomingUser,
   HullIncomingAccount,
-  HullOutgoingUser
+  HullOutgoingUser,
+  HullOutgoingEvent
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -149,6 +151,39 @@ const glue = {
       ]
     })
   ),
+  sendEvents: ifL([
+    cond("notEmpty", input()),
+    cond("notEmpty", settings("events_mapping"))
+  ], [
+    iterateL(input(), "event", [
+      ifL("${event.event_id}", [
+        set("activityId", "${event.properties.copper_activity_id}"),
+        ifL("${activityId}", {
+          do: coppercrm("updateActivity", cast(HullOutgoingEvent, "${event}")),
+          eldo: [
+            set("copperActivity", coppercrm("createActivity", cast(HullOutgoingEvent, "${event}"))),
+            // Update the event with all its original attributes back to Hull
+            ifL("copperActivity.id", [
+              set("event.properties.copper_activity_id", "${copperActivity.id}"),
+              set("event.context.event_id", "${event.event_id}"),
+              set("event.context.created_at", "${event.created_at}"),
+              set("event.context.source", "${event.event_source}"),
+              hull("asUser", {
+                ident: { anonymous_id: "coppercrm-${parent.type}:${parent.type}-${parent.id}" },
+                events: [
+                  {
+                    eventName: "${event.event}",
+                    properties: "${event.properties}",
+                    context: "${event.context}"
+                  }
+                ]
+              })
+            ])
+          ]
+        })
+      ])
+    ])
+  ]),
   leadUpdate: ifL(route("isConfigured"),[
     set("service_name", "coppercrm"),
     iterateL(input(), { key: "message", async: true }, [
@@ -164,14 +199,82 @@ const glue = {
             )
           ]
         }),
-        ifL("${copperLead.id}",
-          hull("asUser", "${copperLead}")
-        )
+        ifL("${copperLead.id}", [
+          hull("asUser", "${copperLead}"),
+          set("parent", {
+            type: "lead",
+            id: "${copperLead.id}"
+          }),
+          route("sendEvents", "${message.events}")
+        ])
       ])
     ])
   ]),
-  userUpdate: {},
+  userUpdate: ifL(route("isConfigured"), [
+    iterateL(input(), { key: "message", async: true }, [
+      ifL(
+        set("personId", "${message.user.coppercrm_person/id}"),
+        set(
+          "copperPerson",
+          coppercrm("updatePerson", cast(HullOutgoingUser, "${message}"))
+        )
+      ),
+      ifL("${copperPerson.id}", [
+        hull("asUser", "${copperPerson}"),
+        set("parent", {
+          type: "person",
+          id: "${copperPerson.id}"
+        }),
+        route("sendEvents", "${message.events}")
+      ]),
+    ]),
+    set(
+      "newUsers",
+      ld("filter", ld("reject", input(), "user.coppercrm_person/id")),
+      "user.email"
+    ),
+    set("newEmails", ld("map", "${newUsers}", "user.email")),
 
+    ifL(cond("notEmpty", "${newEmails}"), [
+      set(
+        "existingUsers",
+        jsonata(
+          "$merge($map($, function($vv, $ii) {\n" +
+          "    $merge($map($vv.emails, function($v, $i) {\n" +
+          "        {$string($v.email): $$[$ii]}\n" +
+          "    }))\n" +
+          "}))",
+          coppercrm("batchFindPerson", {
+            page_size: 25,
+            sort_by: "name",
+            emails: "${newEmails}"
+          })
+        )
+      ),
+
+      iterateL("${newUsers}", { key: "message", async: true }, [
+        set("copperPerson", get("${message.user.email}", "${existingUsers}")),
+        ifL(set("personId", "${copperPerson.id}"), {
+          do: set(
+            "copperPerson",
+            coppercrm("updatePerson", cast(HullOutgoingUser, "${message}"))
+          ),
+          eldo: set(
+            "copperPerson",
+            coppercrm("insertPerson", cast(HullOutgoingUser, "${message}"))
+          )
+        }),
+        ifL("${copperPerson.id}", [
+          hull("asUser", "${copperPerson}"),
+          set("parent", {
+            type: "person",
+            id: "${copperPerson.id}"
+          }),
+          route("sendEvents", "${message.events}")
+        ])
+      ])
+    ])
+  ]),
   // Incremental polling logic
   fetchAllLeads: ifL(route("isConfigured"),
     fetchAllByStaticDateAscFilteredWithPaging({
@@ -309,6 +412,10 @@ const glue = {
   attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
 
+  attributesPeopleOutgoing: transformTo(
+    HullOutgoingDropdownOption,
+    cast(HullConnectorAttributeDefinition, require("./fields/people_fields"))
+  ),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),
 

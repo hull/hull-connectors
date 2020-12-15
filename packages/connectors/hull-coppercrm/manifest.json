@@ -91,7 +91,7 @@
     },
     {
       "name": "outgoing_lead_attributes",
-      "title": "User Attributes to send to CopperCrm",
+      "title": "Lead Attributes to send to CopperCrm",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -103,7 +103,28 @@
       }
     },
     {
-      "name": "person_claims",
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Persons to CopperCrm when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to CopperCrm",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCRM User Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-people-outgoing"
+      }
+    },
+    {
+      "name": "user_claims",
       "title": "Person Identity",
       "type": "array",
       "format": "table",
@@ -254,6 +275,49 @@
         "placeholder": "Choose which types of activities to fetch",
         "loadOptions": "/attributes-activities-incoming"
       }
+    },
+    {
+      "name": "events_mapping",
+      "title": "Activity Mapping",
+      "description": "Define which Hull Events should be send as Copper Activities.",
+      "type": "array",
+      "format": "table",
+      "default": [],
+      "required": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "event",
+          "activity_type",
+          "operation"
+        ],
+        "properties": {
+          "event": {
+            "title": "Event to send",
+            "type": "string",
+            "format": "event",
+            "options": {
+              "placeholder": "Event to send",
+              "allowCreate": true
+            }
+          },
+          "activity_type": {
+            "title": "Activity type to create",
+            "format": "select",
+            "type": "string",
+            "options": {
+              "loadOptions": "/attributes-activities-incoming",
+              "allowCreate": false
+            }
+          },
+          "operation": {
+            "title": "Event Attribute -> Activity Details",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]+$",
+            "default": "event"
+          }
+        }
+      }
     }
   ],
   "settings": [],
@@ -365,6 +429,10 @@
       "handler": "attributesLeadsOutgoing"
     },
     {
+      "url": "/attributes-people-outgoing",
+      "handler": "attributesPeopleOutgoing"
+    },
+    {
       "url": "/attributes-people-incoming",
       "handler": "attributesPeopleIncoming"
     },
@@ -430,6 +498,7 @@
   ],
   "statuses": [
     {
+      "initial_value": "setupRequired",
       "url": "/status",
       "type": "interval",
       "value": "5",
@@ -437,6 +506,7 @@
     }
   ],
   "status": {
+    "initial_value": "setupRequired",
     "url": "/status",
     "type": "interval",
     "value": "5",
@@ -447,7 +517,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "segments": {
-          "user:update": ["private_settings.synchronized_lead_segments"]
+          "user:update": [
+            "private_settings.synchronized_lead_segments",
+            "private_settings.synchronized_user_segments"
+          ]
         }
       },
       "channels": [
@@ -477,6 +550,7 @@
     {
       "title": "Connect with Copper",
       "description": "The following information is required in order to connect with your Copper instance.  You can find these values in your Copper instance by clicking `Settings` then in the `Integrations` section click `API Keys`",
+      "step": "credentials",
       "properties": [
         "private_settings.coppercrm_api_key",
         "private_settings.coppercrm_email"
@@ -506,7 +580,7 @@
     {
       "title": "Person - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
-      "properties": ["private_settings.person_claims"]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "Person - Fetching People from Copper",
@@ -515,6 +589,14 @@
         "private_settings.incoming_person_attributes",
         "private_settings.link_person_in_hull",
         "json.fetch_all_people"
+      ]
+    },
+    {
+      "title": "Person - Send Persons to CopperCrm",
+      "description": "Hull gives it's customers the ability to send persons to copper crm",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
       ]
     },
     {
@@ -549,6 +631,13 @@
       "properties": [
         "private_settings.activities_to_fetch",
         "json.fetch_all_activities"
+      ]
+    },
+    {
+      "title": "Activities - Sending Events as Activities to Copper",
+      "description": "Configure this section in order to send selected Hull User Events as Copper Activities.\nHull events that don't hold an id attribute won't be sent to Copper Activities.",
+      "properties": [
+        "private_settings.events_mapping"
       ]
     }
   ]

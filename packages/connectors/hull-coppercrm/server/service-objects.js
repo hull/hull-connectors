@@ -37,6 +37,16 @@ const CopperCRMIncomingActivity: ServiceObjectDefinition = {
   name: "Activity"
 }
 
+const CopperCRMOutgoingActivity: ServiceObjectDefinition = {
+  service_name: "coppercrm_outgoing_activity",
+  name: "Activity"
+};
+
+const CopperCRMOutgoingPerson: ServiceObjectDefinition = {
+  service_name: "coppercrm_outgoing_person",
+  name: "Person"
+};
+
 module.exports = {
   CopperCRMIncomingLead,
   CopperCRMOutgoingLead,
@@ -44,5 +54,7 @@ module.exports = {
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity,
-  CopperCRMIncomingActivity
+  CopperCRMIncomingActivity,
+  CopperCRMOutgoingActivity,
+  CopperCRMOutgoingPerson
 };

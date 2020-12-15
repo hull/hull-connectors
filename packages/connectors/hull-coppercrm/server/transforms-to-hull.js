@@ -349,6 +349,10 @@ const transformsToHull: ServiceTransforms = [
           writeTo: { path: "events[0].context.event_id" }
         },
         {
+          operateOn: { component: "input", select: "id" },
+          writeTo: { path: "events[0].properties.copper_activity_id" }
+        },
+        {
           operateOn: { component: "input", select: "details" },
           writeTo: { path: "events[0].properties.details" }
         },

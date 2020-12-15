@@ -26,6 +26,7 @@ const {
 
 const {
   HullUserRaw,
+  HullUserRaw2,
   HullLeadRaw,
   ServiceUserRaw,
   ServiceAccountRaw,
@@ -169,6 +170,61 @@ const transformsShared: ServiceTransforms = [
         ],
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}"
+      }
+    ]
+  },
+  {
+    input: HullOutgoingUser,
+    output: HullUserRaw2,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: "${connector.private_settings.outgoing_user_attributes}",
+        expand: { valueName: "mapping" },
+        then: [
+          {
+            operateOn: { component: "input", select: "user.${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+          {
+            // for account mappings
+            operateOn: { component: "input", select: "${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          }
+        ]
+      },
+      {
+        operateOn: "${connector.private_settings.user_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "user.${mapping.hull}" },
+          condition: not(varUndefinedOrNull("operateOn")),
+          writeTo: {
+            appendToArray: true,
+            path: "ident",
+            format: {
+              hull: "${mapping.hull}",
+              service: "${mapping.service}",
+              value: "${operateOn}"
+            }
+          }
+        }
+      },
+      {
+        condition: isEqual(
+          "connector.private_settings.link_users_in_service",
+          true
+        ),
+        inputPath: "account.${service_name}/id",
+        outputPath: "hull_service_accountId"
+      },
+      {
+        mapping:
+          "connector.private_settings.outgoing_user_associated_account_id",
+        inputPath: "user.${hull_field_name}",
+        outputPath: "hull_service_accountId"
       }
     ]
   },

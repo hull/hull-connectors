@@ -108,6 +108,14 @@ function varSizeEquals(param: string, value) {
   };
 }
 
+function isCustomVarAttributeInVarList(custom: string, varServiceName: string, varListName: string) {
+  return (context) => {
+    const serviceName = context.get(varServiceName);
+    const list = context.get(`connector.private_settings.${varListName}`);
+    return _.filter(list, { [custom]: serviceName }).length > 0;
+  };
+}
+
 /***************************/
 
 function notNull(param: string) {
@@ -231,5 +239,6 @@ module.exports = {
   or,
   varStartsWithString,
   varInResolvedArray,
-  varSizeEquals
+  varSizeEquals,
+  isCustomVarAttributeInVarList
 };

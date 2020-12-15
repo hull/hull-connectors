@@ -20,7 +20,9 @@ const {
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity,
-  CopperCRMIncomingActivity
+  CopperCRMIncomingActivity,
+  CopperCRMOutgoingActivity,
+  CopperCRMOutgoingPerson
   } = require("./service-objects");
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
@@ -46,6 +48,38 @@ const service = ({ clientID, clientSecret } : {
       operation: "put",
       input: CopperCRMOutgoingLead,
       output: CopperCRMIncomingLead
+    },
+    //https://developer.copper.com/people/fetch-a-person-by-id.html
+    findPersonById: {
+      url: "/v1/people/${personId}",
+      operation: "get",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/fetch-a-person-by-email.html
+    findPersonByEmail: {
+      url: "/v1/people/fetch_by_email",
+      operation: "post",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/list-people-search.html
+    batchFindPerson: {
+      url: "/v1/people/search",
+      operation: "post",
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/create-a-new-person.html
+    insertPerson: {
+      url: "/v1/people",
+      operation: "post",
+      input: CopperCRMOutgoingPerson,
+      output: CopperCRMIncomingPerson
+    },
+    //https://developer.copper.com/people/update-a-person.html
+    updatePerson: {
+      url: "/v1/people/${personId}",
+      operation: "put",
+      input: CopperCRMOutgoingPerson,
+      output: CopperCRMIncomingPerson
     },
     getUsers: {
       url: "/v1/users/search",
@@ -210,6 +244,20 @@ const service = ({ clientID, clientSecret } : {
         "minimum_activity_date": "${dateOffset}"
       }
     },
+    createActivity: {
+      url: "/v1/activities",
+      operation: "post",
+      input: CopperCRMOutgoingActivity
+    },
+    updateActivity: {
+      url: "/v1/activities/${activityId}",
+      operation: "put",
+      input: CopperCRMOutgoingActivity
+    },
+    getActivity: {
+      url: "/v1/activities/${activityId}",
+      operation: "get"
+    },
     getAllWebhooks: {
       url: "/v1/webhooks",
       operation: "get"
@@ -273,6 +321,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 404 },
         errorType: SkippableError,
         message: "Resource not found"
+      },
+      {
+        truthy: { status: 403 },
+        errorType: SkippableError,
+        message: "The CopperCRM system could not update the entity"
       }
     ]
 
