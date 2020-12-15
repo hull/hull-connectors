@@ -124,7 +124,7 @@
       }
     },
     {
-      "name": "user_claims",
+      "name": "person_claims",
       "title": "Person Identity",
       "type": "array",
       "format": "table",
@@ -579,7 +579,7 @@
     {
       "title": "Person - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
-      "properties": ["private_settings.user_claims"]
+      "properties": ["private_settings.person_claims"]
     },
     {
       "title": "Person - Fetching People from Copper",

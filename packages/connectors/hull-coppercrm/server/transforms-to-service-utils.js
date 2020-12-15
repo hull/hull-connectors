@@ -180,6 +180,61 @@ const createLeadTransformation = (prefix) => _.concat(
   customFieldsTransform("outgoing_lead_attributes", prefix)
 );
 
+const createPersonTransformation = () => _.concat(
+  {
+    // this sends all of the default values that can be taken as is
+    operateOn: {
+      component: "static",
+      object: require("./fields/people_fields"),
+      select: { readOnly: false, needsTranslation: false }
+    },
+    expand: { valueName: "personField" },
+    then: {
+      operateOn: {
+        component: "input",
+        select: "attributes.${personField.name}"
+      },
+      writeTo: { path: "${personField.name}" }
+    }
+  },
+  createAddressTransform(""),
+  {
+    operateOn: { component: "input", select: "attributes.primaryEmail" },
+    condition: not(varUndefinedOrNull("operateOn")),
+    writeTo: {
+      path: "emails",
+      format: [
+        {
+          email: "${operateOn}",
+          category: "other"
+        }
+      ]
+    }
+  },
+  {
+    operateOn: { component: "input", select: "hull_service_accountId" },
+    writeTo: "company_id"
+  },
+  createEnumTransformWithAttributeListOutgoing({
+    attribute: "customerSource",
+    writePath: "customer_source_id",
+    attributeList: "outgoing_user_attributes",
+    route: "getCustomerSourcesId",
+    forceRoute: "forceGetCustomerSourcesId",
+    formatOnNull: null
+  }),
+  createEnumTransformWithAttributeListOutgoing({
+    attribute: "assigneeEmail",
+    writePath: "assignee_id",
+    attributeList: "outgoing_user_attributes",
+    route: "getAssigneeIds",
+    forceRoute: "forceGetAssigneeIds",
+    formatOnNull: null
+  }),
+  customFieldsTransform("outgoing_user_attributes", "")
+);
+
 module.exports = {
-  createLeadTransformation
+  createLeadTransformation,
+  createPersonTransformation
 };

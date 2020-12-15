@@ -4,7 +4,8 @@ import { createEnumTransformWithAttributeListOutgoing } from "hull-connector-fra
 import { varInArray } from "hull-connector-framework/src/purplefusion/conditionals";
 
 const {
-  createLeadTransformation
+  createLeadTransformation,
+  createPersonTransformation
 } = require("./transforms-to-service-utils");
 const _ = require("lodash");
 
@@ -28,68 +29,6 @@ const {
   not,
   isCustomVarAttributeInVarList
 }  = require("hull-connector-framework/src/purplefusion/conditionals");
-
-const enumValueFields = ["Dropdown"];
-const arrayEnumValueFields = ["MultiSelect"];
-
-const customFieldsTransform = attributeList => {
-  return {
-    operateOn: { component: "settings", select: attributeList },
-    expand: { valueName: "outgoingField" },
-    then: {
-      operateOn: {
-        component: "glue",
-        route: "getCustomFieldMapByName",
-        select: "${outgoingField.service}",
-        name: "customField"
-      },
-      then: [
-        {
-          condition: [
-            not(varInArray("customField.type", enumValueFields)),
-            not(varInArray("customField.type", arrayEnumValueFields)),
-            not(varUndefined("customField.id"))
-          ],
-          operateOn: {
-            component: "input",
-            select: "attributes.${outgoingField.service}"
-          },
-          writeTo: {
-            path: "custom_fields",
-            appendToArray: true,
-            format: {
-              custom_field_definition_id: "${customField.id}",
-              value: "${operateOn}"
-            }
-          }
-        }
-      ]
-    }
-  };
-};
-
-const addressTransform = [
-  {
-    operateOn: { component: "input", select: "addressStreet" },
-    writeTo: "address.street"
-  },
-  {
-    operateOn: { component: "input", select: "addressCity" },
-    writeTo: "address.city"
-  },
-  {
-    operateOn: { component: "input", select: "addressState" },
-    writeTo: "address.state"
-  },
-  {
-    operateOn: { component: "input", select: "addressPostalCode" },
-    writeTo: "address.postalCode"
-  },
-  {
-    operateOn: { component: "input", select: "addressCountry" },
-    writeTo: "address.country"
-  }
-];
 
 const transformsToHull: ServiceTransforms = [
   {
@@ -174,15 +113,7 @@ const transformsToHull: ServiceTransforms = [
             field_value: "${operateOn.value}"
           }
         }
-      },
-      createEnumTransformWithAttributeListOutgoing({
-        attribute: "assigneeEmail",
-        writePath: "assignee_id",
-        attributeList: "outgoing_lead_attributes",
-        route: "getAssigneeId",
-        forceRoute: "forceGetAssigneeId",
-        formatOnNull: null
-      }))
+      })
   },
   {
     input: HullLeadRaw,
@@ -190,17 +121,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: _.concat(
-      createLeadTransformation(""),
-      createEnumTransformWithAttributeListOutgoing({
-        attribute: "assigneeEmail",
-        writePath: "assignee_id",
-        attributeList: "outgoing_lead_attributes",
-        route: "getAssigneeId",
-        forceRoute: "forceGetAssigneeId",
-        formatOnNull: null
-      })
-    )
+    then: createLeadTransformation("")
   },
   {
     input: HullUserRaw2,
@@ -208,62 +129,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: _.concat(
-      addressTransform,
-      {
-        operateOn: { component: "input", select: "attributes.primaryEmail" },
-        writeTo: {
-          path: "emails",
-          format: [
-            {
-              email: "${operateOn.value}",
-              category: "other"
-            }
-          ]
-        }
-      },
-      {
-        operateOn: { component: "input", select: "hull_service_accountId" },
-        writeTo: "company_id"
-      },
-      {
-        // this sends all of the default values that can be taken as is
-        operateOn: {
-          component: "static",
-          object: require("./fields/people_fields"),
-          select: { readOnly: false, needsTranslation: false }
-        },
-        expand: { valueName: "personField" },
-        then: {
-          operateOn: {
-            component: "input",
-            select: "attributes.${personField.name}"
-          },
-          writeTo: { path: "${personField.name}" }
-        }
-      },
-      createEnumTransformWithAttributeListOutgoing({
-        attribute: "assigneeEmail",
-        writePath: "assignee_id",
-        attributeList: "outgoing_user_attributes",
-        route: "getAssigneeIds",
-        forceRoute: "forceGetAssigneeIds",
-        formatOnNull: null
-      }),
-      {
-        operateOn: { component: "input", select: "ident[0]" },
-        // For now only support resolution on email
-        condition: varEqual("operateOn.service", "primaryEmail"),
-        writeTo: {
-          path: "emails[0]",
-          format: {
-            email: "${operateOn.value}",
-            category: "other"
-          }
-        }
-      },
-      customFieldsTransform("outgoing_user_attributes")
-    )
+    then: createPersonTransformation()
   }
 ];
 

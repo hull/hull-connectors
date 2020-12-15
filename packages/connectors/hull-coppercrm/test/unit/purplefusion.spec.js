@@ -125,6 +125,14 @@ describe("CopperCRM Incoming Tests", () => {
     return harness.runTest(require("./fixtures/personUpdate_email"));
   });
 
+  it( "person create with customfields", () => {
+    return harness.runTest(require("./fixtures/person-create-with-customfields"));
+  });
+
+  it("person update with customfields", () => {
+    return harness.runTest(require("./fixtures/person-update-with-customfields"));
+  });
+
   it("create activity", () => {
     return harness.runTest(require("./fixtures/activityCreate"));
   });

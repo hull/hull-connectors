@@ -408,14 +408,10 @@ const glue = {
   getActivityTypes: cacheWrap(StandardEnumTimeout, coppercrm("getActivityTypes")),
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
-  // currently don't support custom fields with no call to customLeadFields
   attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
 
-  attributesPeopleOutgoing: transformTo(
-    HullOutgoingDropdownOption,
-    cast(HullConnectorAttributeDefinition, require("./fields/people_fields"))
-  ),
+  attributesPeopleOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),
 
@@ -426,7 +422,7 @@ const glue = {
   opportunitySchema: ld("concat", require("./fields/opportunity_fields"), route("customOpportunityFields")),
 
   customLeadFields: jsonata(`$["lead" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
-  customPeopleFields: jsonata(`$["people" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+  customPeopleFields: jsonata(`$["person" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customOpportunityFields: jsonata(`$["opportunity" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
 
