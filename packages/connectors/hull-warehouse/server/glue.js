@@ -20,7 +20,8 @@ const {
   utils,
   transformTo,
   ex,
-  settingsUpdate
+  settingsUpdate,
+  moment,
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
