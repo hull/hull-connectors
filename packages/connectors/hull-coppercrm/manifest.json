@@ -283,7 +283,6 @@
       "type": "array",
       "format": "table",
       "default": [],
-      "required": true,
       "items": {
         "type": "object",
         "required": [
