@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { Router } from "express";
+import {Router} from "express";
 
 import HullClient from "hull-client/src";
 import uuid from "uuid/v1";
@@ -39,6 +39,15 @@ class UnauthorizedDomainError extends Error {
   }
 }
 
+function parseOriginHost(origin) {
+  if (!origin) return null;
+  try {
+    return new URL(origin).host;
+  } catch (e) {
+    return null;
+  }
+}
+
 export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   const app = Router();
 
@@ -56,9 +65,8 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
 
   app.use(
     cors((req, callback) => {
-      const origin = req.header("origin");
-      if (origin) {
-        const originHost = new URL(origin).host;
+      const originHost = parseOriginHost(req.header("origin"));
+      if (originHost) {
         const allowedHeaders = [
           "content-type",
           "hull-access-token",
