@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import {Router} from "express";
+import { Router } from "express";
 
 import HullClient from "hull-client/src";
 import uuid from "uuid/v1";
