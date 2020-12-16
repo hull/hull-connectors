@@ -396,6 +396,11 @@ class SequalizeSdk {
           objectToUpsert[normalizedName] = parsedDate;
         }
       } else {
+
+        if ("external_id" === normalizedName && !_.isNil(valueToUpsert)) {
+          valueToUpsert = _.toString(valueToUpsert);
+        }
+
         if (typeof valueToUpsert === "string") {
 
           if (this.ascii_encoded) {
@@ -546,23 +551,7 @@ const postgresSdk = ({ clientID, clientSecret } : {
     }
   },
   error: {
-    templates: [
-      {
-        truthy: { name: "SequelizeDatabaseError" },
-        errorType: SkippableError,
-        message: "Unable to upsert entity"
-      },
-      {
-        truthy: { name: "SequelizeConnectionRefusedError" },
-        errorType: SkippableError,
-        message: "Database not accessible"
-      },
-      {
-        truthy: { name: "SequelizeConnectionError" },
-        errorType: SkippableError,
-        message: "Unknown error"
-      }
-    ]
+    templates: []
   }
 });
 
