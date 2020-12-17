@@ -1,0 +1,15 @@
+{
+  "version": "0.1.38-monorepo",
+  "name": "Asana Incoming Task Status",
+  "description": "Capturing Task Status from Asana",
+  "type": "source-webhook",
+  "private_settings": [
+  ],
+  "settings_sections": [
+    {
+      "title": "Asana Incoming Webhooks",
+      "description": "Asana Incoming Webhooks",
+      "properties": []
+    }
+  ]
+}

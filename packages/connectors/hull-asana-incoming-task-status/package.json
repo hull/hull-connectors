@@ -1,0 +1,11 @@
+{
+  "name": "hull-asana-incoming-task-status",
+  "description": "Asana Incoming Connector",
+  "version": "0.1.38-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
