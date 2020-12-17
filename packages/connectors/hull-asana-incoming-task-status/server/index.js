@@ -5,14 +5,16 @@ import moment from "moment";
 // make apiToken configurable
 // Then manually add webhook
 // surface webhook id so that it can easily be deleted
-const projectId = 1199545927229599;
-const projectName = "Bug Tracking";
-const apiToken = '1/1198862649071197:585cf5411d6e32aeef5c98274400a004';
 
 export default async function handle({ hull, private_settings, headers, body, request }) {
 
   //determine if this webhook has been established or not by looking in the private settings
   // update it on first secret push...
+
+  const api_token = private_settings.api_token;
+  if (_.isNil(api_token)) {
+    return;
+  }
 
   const webhookEstablished = _.get(private_settings, "webhook_established");
 
@@ -40,7 +42,7 @@ export default async function handle({ hull, private_settings, headers, body, re
   const tasksWithNewSectionsRequests = await Promise.all(addedToSection.map((switchSectionEvent) => {
     return request
       .get(`https://app.asana.com/api/1.0/tasks/${switchSectionEvent.resource.gid}`)
-      .auth(apiToken, { type: 'bearer' });
+      .auth(api_token, { type: 'bearer' });
   }));
 
   const tasks = tasksWithNewSectionsRequests.map(response => {

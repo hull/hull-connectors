@@ -3,13 +3,22 @@
   "name": "Asana Incoming Task Status",
   "description": "Capturing Task Status from Asana",
   "type": "source-webhook",
-  "private_settings": [
+  "private_settings": [    {
+    "name": "api_token",
+    "type": "string",
+    "title": "API Token",
+    "description": "API Token generated for the user provided above. See documentation on how to generate such API Token.",
+    "required": true
+  }
   ],
   "settings_sections": [
     {
       "title": "Asana Incoming Webhooks",
       "description": "Asana Incoming Webhooks",
-      "properties": []
+      "properties": [
+        "private_settings.api_token"
+      ]
+
     }
   ]
 }
