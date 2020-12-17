@@ -78,7 +78,7 @@ const handlerFactory = ({
     }
 
     // There'a an actual Response to send
-    const { pageLocation, data, error, status = 200, text } = response;
+    const { pageLocation, data, error, status = 200, text, headers } = response;
     if (!status && !data && !text && !pageLocation) {
       throw new Error(
         "Malformed response, missing content to conform to HullExternalResponse"
@@ -88,6 +88,10 @@ const handlerFactory = ({
     // Set the response status
     debug("sending status", status);
     res.status(status);
+
+    if (headers) {
+      res.set(headers);
+    }
 
     // For HTML middlewares, force a html rendering or error out.
     if (format === "html") {

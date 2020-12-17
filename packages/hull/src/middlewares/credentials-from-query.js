@@ -79,12 +79,12 @@ function credentialsFromQueryMiddlewareFactory() {
       const { hostSecret } = req.hull.connectorConfig;
       const clientCredentials =
         req.hull.clientCredentials ||
+        parseQueryString(req.query) ||
         parseToken(req.hull.clientCredentialsEncryptedToken, hostSecret) ||
         parseToken(req.hull.clientCredentialsToken, hostSecret) ||
         parseToken(getToken(req.query), hostSecret) ||
         // also check the body to see if the tokens may be there
-        parseToken(getToken(req.body), hostSecret) ||
-        parseQueryString(req.query);
+        parseToken(getToken(req.body), hostSecret);
 
       if (clientCredentials === undefined) {
         const e = new Error("Could not resolve clientCredentials");
