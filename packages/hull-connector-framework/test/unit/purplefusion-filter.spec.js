@@ -896,21 +896,4 @@ describe("Outgoing Account Segment Filtering Tests", () => {
       )
     ).toEqual(false);
   });
-
-  describe("Outgoing Account Filtering Tests", () => {
-    it("should send outgoing account containing events against empty attributes changes", () => {
-      const context = new ContextMock({
-        private_settings: {
-          outgoing_account_events: ["ALL"],
-          synchronized_account_segments: ["ALL"]
-        }
-      });
-      expect(
-        toSendMessage(context, "account", {
-          events: [{ event: "Account merged" }],
-          account: { gmail: "gmail.com" }
-        })
-      ).toEqual(true);
-    });
-  });
 });
