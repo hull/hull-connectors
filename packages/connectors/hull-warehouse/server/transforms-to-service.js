@@ -199,20 +199,20 @@ const transformsToService: ServiceTransforms = [
                 condition: varStartsWithString("mapping.hull", "account"),
                 operateOn: { component: "input", select: "${mapping.hull}" },
                 writeTo: { path: "account.${mapping.service}" }
-              },
-              {
-                operateOn: { component: "input", select: "user.id" },
-                writeTo: { path: "user.id" }
-              },
-              {
-                operateOn: { component: "input", select: "account.id" },
-                writeTo: { path: "account.id" }
-              },
-              {
-                operateOn: { component: "input", select: "segments" },
-                writeTo: { path: "segments" }
               }
             ]
+          },
+          {
+            operateOn: { component: "input", select: "user.id" },
+            writeTo: { path: "user.id" }
+          },
+          {
+            operateOn: { component: "input", select: "account.id" },
+            writeTo: { path: "account.id" }
+          },
+          {
+            operateOn: { component: "input", select: "segments" },
+            writeTo: { path: "segments" }
           },
           // For now filter out unwanted events. Kraken will handle that later.
           {
@@ -291,16 +291,16 @@ const transformsToService: ServiceTransforms = [
                   select: "account.${mapping.hull}"
                 },
                 writeTo: { path: "account.${mapping.service}" }
-              },
-              {
-                operateOn: { component: "input", select: "account.id" },
-                writeTo: { path: "account.id" }
-              },
-              {
-                operateOn: { component: "input", select: "account_segments" },
-                writeTo: { path: "account_segments" }
               }
             ]
+          },
+          {
+            operateOn: { component: "input", select: "account.id" },
+            writeTo: { path: "account.id" }
+          },
+          {
+            operateOn: { component: "input", select: "account_segments" },
+            writeTo: { path: "account_segments" }
           }
         ]
       }
