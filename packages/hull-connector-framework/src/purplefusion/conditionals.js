@@ -84,7 +84,7 @@ function varInResolvedArray(param: string, listValues) {
 function paramInContextArray(param: string, listValues) {
   return context => {
     const varList = context.get(listValues);
-    return varList.indexOf(param) > -1;
+    return _.size(varList) ? varList.indexOf(param) > -1 : false;
   };
 }
 
