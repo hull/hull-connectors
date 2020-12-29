@@ -70,6 +70,7 @@ COPY packages/connectors/hull-bigquery-importer/package.json /app/packages/conne
 COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/connectors/hull-facebook-audiences/package.json
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 COPY packages/connectors/hull-madkudu/package.json /app/packages/connectors/hull-madkudu/package.json
+COPY packages/connectors/hull-calendly/package.json /app/packages/connectors/hull-calendly/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 
