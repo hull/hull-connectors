@@ -162,15 +162,18 @@ const glue = {
   scheduledImport: route("startImport", settings("query")),
   paginateResults: [
     set("queryPageResults", bigquery("getJobResults")),
-    set("arrangedResults", jsonata("[$.rows.(\n" +
+    set("arrangedResults", jsonata("[\n" +
+      "    $.rows.(\n" +
       "    $merge(\n" +
       "        $map($.f, function($v, $i) {\n" +
       "            {\n" +
-      "                $$.schema.fields[$i].name: $v.v\n" +
+      "                $$.schema.fields[$i].name: $$.schema.fields[$i].mode = \"REPEATED\" ? [$map($v.v, function($vv, $ii) {\n" +
+      "                    $vv.v\n" +
+      "                })] : $v.v\n" +
       "            }\n" +
       "        })\n" +
-      "    )\n" +
-      ")]\n", "${queryPageResults}")),
+      "    ))\n" +
+      "]", "${queryPageResults}")),
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
       hull("${operation.hull}", cast("${operation.type}", "${entity}"))
     ]),

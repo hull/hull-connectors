@@ -6,14 +6,7 @@ const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framew
 
 const {
   doesNotContain,
-  doesContain,
-  isEqual,
-  mappingExists,
-  notNull,
-  isNull,
-  not,
-  resolveIndexOf,
-  inputIsEqual
+  doesContain
 } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const transformsToHull: ServiceTransforms = [
@@ -25,21 +18,21 @@ const transformsToHull: ServiceTransforms = [
     transforms: [
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesNotContain(["email", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "attributes.${attributesGroupName}/${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["email", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
@@ -55,21 +48,21 @@ const transformsToHull: ServiceTransforms = [
     transforms: [
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesNotContain(["domain", "external_id", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "attributes.${attributesGroupName}/${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["domain", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
@@ -85,21 +78,21 @@ const transformsToHull: ServiceTransforms = [
     transforms: [
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesNotContain(["domain", "external_id", "created_at", "event_id", "event_name", "email", "anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "events[0].properties.${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["email", "external_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["anonymous_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${service_field_name}",
@@ -107,14 +100,14 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["created_at", "event_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "events[0].context.${service_field_name}",
       },
       {
         mapping: { type: "input" },
-        arrayStrategy: "append_index",
+        arrayStrategy: "send_raw_array",
         condition: doesContain(["event_name"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "events[0].eventName",
