@@ -113,7 +113,7 @@ const glue = {
   ],
   shipUpdate: ifL([
       cond("notEmpty", settings("access_token")),
-      cond("notEmpty", "${organization}")
+      cond("notEmpty", settings("organization"))
     ], [
     calendly("me")
   ]),
