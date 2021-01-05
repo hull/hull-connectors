@@ -5,7 +5,8 @@ import Sequelize from "sequelize";
 const getPort = require('get-port');
 
 const {
-  isUndefinedOrNull
+  isUndefinedOrNull,
+  removeTraitsPrefix
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
@@ -98,6 +99,12 @@ class SequalizeSdk {
 
   accountTableName: string;
 
+  sendAllUserAttributes: boolean;
+
+  sendAllAccountAttributes: boolean;
+
+  sendNull: boolean;
+
   ascii_encoded: boolean;
 
   use_native_json: boolean;
@@ -129,6 +136,13 @@ class SequalizeSdk {
       reqContext.connector.private_settings.db_account_table_name;
     this.eventTableName =
       reqContext.connector.private_settings.db_events_table_name;
+    this.sendNull =
+      reqContext.connector.private_settings.send_null || false;
+    this.sendAllUserAttributes =
+      reqContext.connector.private_settings.send_all_user_attributes || false;
+    this.sendAllAccountAttributes =
+      reqContext.connector.private_settings.send_all_account_attributes || false;
+
   }
 
   async closeDatabaseConnectionIfExists() {
@@ -226,6 +240,25 @@ class SequalizeSdk {
     return this.generateSequelizeSchema(hullAccountSchema);
   }
 
+  async buildBatchObject({ message, attributes, entity }) {
+    const entityObj = {};
+
+    _.forEach(attributes, attribute => {
+      if (
+        attribute.key.indexOf("account.") < 0 &&
+        attribute.visible &&
+        attribute.type !== "event"
+      ) {
+        entityObj[removeTraitsPrefix(attribute.key)] = null
+      }
+    });
+
+    return {
+      ...entityObj,
+      ...message[entity]
+    };
+  }
+
   async createUserSchema(hullUserSchema: Array<any>) {
     const userSchema = this.generateSequelizeSchema(hullUserSchema);
 
@@ -315,6 +348,9 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
+      /*if (attribute.key === "external_id") {
+        sequalizeSchema["external_id"] = Sequelize.STRING;
+      } else */
       if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
       } else if (type === "number") {
@@ -419,6 +455,16 @@ class SequalizeSdk {
 
   async upsertHullAccount(message: any) {
     const sequelizedAccount = this.createSequelizedObject(message.account);
+
+    if (this.sendAllAccountAttributes && this.sendNull && !_.isEmpty(message.changes)) {
+      const { account = {} } = message.changes;
+      _.forEach(account, (change, attribute) => {
+        if (_.isNil(change[1])) {
+          sequelizedAccount[normalizeFieldName(attribute)] = null;
+        }
+      });
+    }
+
     if (message.account_segments) {
       const segments = [];
       _.forEach(message.account_segments, segment => {
@@ -450,6 +496,15 @@ class SequalizeSdk {
     const sequelizedUser = this.createSequelizedObject(message.user);
     if (message.account) {
       sequelizedUser.account_id = message.account.id;
+    }
+
+    if (this.sendAllUserAttributes && this.sendNull && !_.isEmpty(message.changes)) {
+      const { user = {} } = message.changes;
+      _.forEach(user, (change, attribute) => {
+        if (_.isNil(change[1])) {
+          sequelizedUser[normalizeFieldName(attribute)] = null;
+        }
+      });
     }
 
     if (message.segments) {
