@@ -111,9 +111,12 @@ const glue = {
       ])
     )
   ],
-  shipUpdate: [
+  shipUpdate: ifL([
+      cond("notEmpty", settings("access_token")),
+      cond("notEmpty", "${organization}")
+    ], [
     calendly("me")
-  ],
+  ]),
   status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
