@@ -4,7 +4,7 @@
 import moment from "moment";
 import ps from "promise-streams";
 
-import uuid from "uuid/v1";
+import { v1 as uuid } from "uuid";
 
 // Map each record of the stream.
 import map from "through2-map";
