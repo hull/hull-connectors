@@ -18,14 +18,7 @@
       "name": "project_id",
       "title": "Project ID",
       "description": "Google cloud project name",
-      "type": "string",
-      "url": "/get-projects",
-      "format": "select",
-      "options": {
-        "loadOptions": "/get-projects",
-        "allowCreate": false,
-        "placeholder": "Select Google project to work with"
-      }
+      "type": "string"
     },
     {
       "name": "import_type",

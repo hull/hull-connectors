@@ -8,7 +8,7 @@ import _ from "lodash";
 import { validateResultColumns } from "hull-sql";
 
 /**
- * SnowFlake adapter.
+ * Bigquery adapter.
  */
 
 /**
@@ -88,7 +88,7 @@ export function wrapQuery(sql, replacements) {
 
 /**
  * Runs the query using the specified client and options.
- * @param client The SnowFlake client.
+ * @param client The Bigquery client.
  * @param {string} query The query to execute.
  * @param {Object} options The options.
  *
@@ -126,7 +126,7 @@ export function runQuery(client, query, options = {}) {
 
 /**
  * Creates a readable stream that contains the query result.
- * @param client The SnowFlake client.
+ * @param client The Bigquery client.
  * @param {string} query The query to execute.
  * @param {Object} options The options.
  *
