@@ -6,6 +6,8 @@
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@google-cloud/bigquery": "^5.5.0"
+  },
   "devDependencies": {}
 }

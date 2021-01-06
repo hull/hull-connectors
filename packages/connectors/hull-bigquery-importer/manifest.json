@@ -92,45 +92,19 @@
   "incoming": [],
   "json": [
     {
-      "url": "/get-projects",
-      "handler": "getProjects"
-    },
-    {
       "url": "/run",
       "handler": "run",
       "options": {}
     },
     {
       "url": "/import",
-      "handler": "manualImport",
+      "handler": "importResults",
       "options": {}
     },
     {
       "url": "/storedquery",
-      "handler": "storedQuery",
+      "handler": "storedquery",
       "options": {}
-    }
-  ],
-  "schedules": [
-    {
-      "url": "/scheduled-import",
-      "type": "interval",
-      "handler": "scheduledImport",
-      "value_from": "private_settings.import_interval",
-      "default": "180",
-      "options": {
-        "fireAndForget": true
-      }
-    },
-    {
-      "url": "/check-job",
-      "handler": "checkJob",
-      "type": "interval",
-      "value": "5",
-      "options": {
-        "fireAndForget": true,
-        "alwaysEnabled": true
-      }
     }
   ],
   "statuses": [
