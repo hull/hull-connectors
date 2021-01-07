@@ -43,9 +43,12 @@ module.exports = {
       db_events_table_name: "events",
       outgoing_account_attributes: [],
       send_all_user_attributes: false,
+      send_null: true,
       outgoing_user_attributes: [
         { service: "my_email", hull: "email", overwrite: false },
-        { service: "dooom", hull: "doom", overwrite: false }
+        { service: "dooom", hull: "doom", overwrite: false },
+        { service: "salesforce_description", hull: "salesforce/description", overwrite: false },
+        { service: "accnt_salesforce_description", hull: "account.salesforce/description", overwrite: false }
       ],
       send_all_account_attributes: false,
       outgoing_user_events: ["Front message received"]
@@ -84,10 +87,14 @@ module.exports = {
       op: "upsertHullUser",
       input: {
         events,
+        account: {
+          accnt_salesforce_description: null
+        },
         user: {
           id: "5df8f6f42c6f70000b9d050a",
           my_email: "bruce@wayneenterprises.com",
-          dooom: true
+          dooom: true,
+          salesforce_description: null
         },
         segments: [
           {

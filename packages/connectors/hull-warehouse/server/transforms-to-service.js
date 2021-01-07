@@ -2,7 +2,7 @@ import type {
   Transform,
   ServiceTransforms
 } from "hull-connector-framework/src/purplefusion/types";
-
+const _ = require("lodash");
 const {
   isNull,
   notNull,
@@ -193,12 +193,52 @@ const transformsToService: ServiceTransforms = [
                   component: "input",
                   select: "user.${mapping.hull}"
                 },
-                writeTo: { path: "user.${mapping.service}" }
+                then: [
+                  {
+                    condition: not(isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    )),
+                    writeTo: { path: "user.${mapping.service}" }
+                  },
+                  {
+                    condition: isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    ),
+                    writeTo: {
+                      path: "user.${mapping.service}",
+                      formatter: (value) => {
+                        return _.isNil(value) ? null : value;
+                      }
+                    }
+                  }
+                ]
               },
               {
                 condition: varStartsWithString("mapping.hull", "account"),
                 operateOn: { component: "input", select: "${mapping.hull}" },
-                writeTo: { path: "account.${mapping.service}" }
+                then: [
+                  {
+                    condition: not(isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    )),
+                    writeTo: { path: "account.${mapping.service}" }
+                  },
+                  {
+                    condition: isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    ),
+                    writeTo: {
+                      path: "account.${mapping.service}",
+                      formatter: (value) => {
+                        return _.isNil(value) ? null : value;
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -290,7 +330,27 @@ const transformsToService: ServiceTransforms = [
                   component: "input",
                   select: "account.${mapping.hull}"
                 },
-                writeTo: { path: "account.${mapping.service}" }
+                then: [
+                  {
+                    condition: not(isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    )),
+                    writeTo: { path: "account.${mapping.service}" }
+                  },
+                  {
+                    condition: isEqual(
+                      "connector.private_settings.send_null",
+                      true
+                    ),
+                    writeTo: {
+                      path: "account.${mapping.service}",
+                      formatter: (value) => {
+                        return _.isNil(value) ? null : value;
+                      }
+                    }
+                  }
+                ]
               }
             ]
           },
