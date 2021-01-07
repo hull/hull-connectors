@@ -101,7 +101,7 @@ const glue = {
         cond("isEqual", settings("send_all_account_attributes"), true),
         cond("isEqual", settings("send_null"), true)
       ], [
-        set("accountAttributes", cacheGet("accountAttributes")),
+        ifL(cond("isEmpty", "${accountAttributes}"), set("accountAttributes", cacheGet("accountAttributes"))),
         ifL(cond("isEmpty", "${accountAttributes}"), [
           set("accountAttributes", hull("getAccountAttributes")),
           cacheSet({ key: "accountAttributes", ttl: 99999999 }, "${accountAttributes}")
@@ -120,7 +120,7 @@ const glue = {
         cond("isEqual", settings("send_all_user_attributes"), true),
         cond("isEqual", settings("send_null"), true)
       ], [
-        set("userAttributes", cacheGet("userAttributes")),
+        ifL(cond("isEmpty", "${userAttributes}"), set("userAttributes", cacheGet("userAttributes"))),
         ifL(cond("isEmpty", "${userAttributes}"), [
           set("userAttributes", hull("getUserAttributes")),
           cacheSet({ key: "userAttributes", ttl: 99999999 }, "${userAttributes}")

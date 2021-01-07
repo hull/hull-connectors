@@ -90,9 +90,5 @@ module.exports = {
       ]
     }
   ],
-  result: [
-    [
-      undefined
-    ]
-  ]
+  result: expect.anything()
 };
