@@ -22,7 +22,7 @@ const {
   getDatabaseConfig
 } = require("hull-connector-framework/src/purplefusion/ssh/ssh-utils");
 
-const DEFAULT_BATCH_SIZE = parseInt(process.env.BATCH_SIZE || "10000", 10);
+const DEFAULT_BATCH_SIZE = parseInt(process.env.BATCH_SIZE || "5000000", 10);
 const FULL_IMPORT_DAYS = process.env.FULL_IMPORT_DAYS || "10000";
 
 /**
@@ -727,13 +727,12 @@ export default class SyncAgent {
   }
 
   startImportJob(url, partNumber, size, importId) {
-    const { overwrite } = this.ship.private_settings;
+    const { dedupe_lines_from_previous_import = false } = this.ship.private_settings;
     const params = {
       url,
       format: "json",
       notify: true,
       emit_event: false,
-      overwrite: !!overwrite,
       name: `Import from hull-sql ${this.ship.name} - part ${partNumber}`,
       // scheduling all parts for right now.  Doesn't seem to work if schedule_at is removed
       // dashboard says "Invalid Date"
@@ -741,7 +740,8 @@ export default class SyncAgent {
       stats: { size },
       size,
       import_id: importId,
-      part_number: partNumber
+      part_number: partNumber,
+      dedupe: dedupe_lines_from_previous_import
     };
 
     this.hull.logger.info("incoming.job.progress", {

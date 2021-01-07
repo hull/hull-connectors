@@ -67,6 +67,18 @@
       "title": "Last sync",
       "type": "string",
       "format": "hidden"
+    },
+    {
+      "name": "last_updated_at",
+      "title": "Last updated_at",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name" : "dedupe_lines_from_previous_import",
+      "title" : "Dedupe lines from previous import",
+      "type" : "boolean",
+      "default" : false
     }
   ],
   "tabs": [
@@ -133,6 +145,7 @@
       "title": "Import Setup",
       "description": "",
       "properties": [
+        "private_settings.dedupe_lines_from_previous_import",
         "private_settings.import_type",
         "private_settings.import_interval",
         "private_settings.attributes_group_name"
