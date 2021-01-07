@@ -47,11 +47,10 @@
     },
     {
       "name": "import_interval",
-      "title": "Import interval",
-      "description": "Define here the amount of time (in minutes) between imports.",
+      "title": "Import interval (in minutes)",
       "type": "string",
       "default": "180",
-      "enum": ["30", "60", "180", "360", "720", "1440", "43800"]
+      "enum": ["30", "60", "180", "360", "720", "1440"]
     },
     {
       "name": "import_days",
@@ -127,6 +126,15 @@
     "value": "5",
     "handler": "status"
   },
+  "schedules": [
+    {
+      "url": "/sync",
+      "type": "interval",
+      "handler": "sync",
+      "value_from": "private_settings.import_interval",
+      "default": "180"
+    }
+  ],
   "subscriptions": [],
   "batches": [],
   "settings_sections": [
