@@ -128,10 +128,16 @@ export function streamQuery(client, query) {
   return Promise.resolve(client.createQueryStream(query));
 }
 
-export function transformRecord(record) {
+export function transformRecord(record, settings) {
   const transformedRecord = {};
+  const skipFields = ["email", "external_id", "domain"];
+  const prefix = _.get(settings, "attributes_group_name", "");
   _.forEach(record, (value, key) => {
-    transformedRecord[_.toLower(key)] = record[key];
+    if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
+      transformedRecord[_.toLower(key)] = record[key];
+    } else {
+      transformedRecord[`${prefix}/${_.toLower(key)}`] = record[key];
+    }
   });
   return transformedRecord;
 }

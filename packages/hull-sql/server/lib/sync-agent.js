@@ -544,7 +544,7 @@ export default class SyncAgent {
       }
 
       const record = this.adapter.in.transformRecord
-        ? this.adapter.in.transformRecord(rawRecord)
+        ? this.adapter.in.transformRecord(rawRecord, this.ship.private_settings)
         : rawRecord;
 
       // Add the external_id if exists.
