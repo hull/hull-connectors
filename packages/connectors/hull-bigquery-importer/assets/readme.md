@@ -32,7 +32,9 @@ If you have any concerns about those permissions, contact your Google Cloud Admi
   ![Create Service Account Form](./docs/hull-bigquery-create-service-account-6.png)
 7. Save the settings before going forward.
 
-Once this is done you need to define which BigQuery project the connector should work in. This is a single select dropdown.
+Once this is done you need to define which BigQuery project the connector should work in. Input your project id in the field below the service account key.
+You can find your project id in the dropdown on your google cloud console account as shown below.
+![Find your project ID](./docs/projectID.png)
 
 The final part of the setup is to define what kind of Hull Entity connector should import. You can select users, accounts, and events. Additionally below you can define on which schedule the importer will run the query.
 

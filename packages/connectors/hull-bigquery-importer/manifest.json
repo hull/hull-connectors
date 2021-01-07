@@ -137,8 +137,8 @@
       "properties": ["private_settings.service_account_key"]
     },
     {
-      "title": "Select project",
-      "description": "Select the google project you'd like to work on. The connector will create jobs associated to this project.",
+      "title": "Project ID",
+      "description": "Input the google project id you'd like to work on. The connector will create jobs associated to this project.",
       "properties": ["private_settings.project_id"]
     },
     {
