@@ -175,7 +175,7 @@
     },
     {
       "name": "attachements",
-      "title": "Attachements",
+      "title": "Attachments",
       "type": "array",
       "format": "table",
       "default": [
@@ -197,7 +197,7 @@
             "format": "string"
           },
           "attributes": {
-            "title": "Attachements",
+            "title": "Attachments",
             "type": "array",
             "format": "trait"
           }
