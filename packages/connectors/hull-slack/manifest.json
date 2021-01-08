@@ -223,7 +223,7 @@
     },
     {
       "title": "Attribute Blocks",
-      "description": "Define blocks with fields to attach to slack notifications. Blocks will be attached to every notification",
+      "description": "Define blocks with fields to attach to Slack notifications. Blocks will be attached to every notification",
       "properties": ["private_settings.attachements"]
     }
   ],
