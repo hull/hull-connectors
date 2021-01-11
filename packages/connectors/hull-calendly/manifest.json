@@ -7,8 +7,7 @@
   "version": "0.1.39-monorepo",
   "tags": [
     "incoming",
-    "oneColumn",
-    "single-install"
+    "oneColumn"
   ],
   "private_settings": [
     {
