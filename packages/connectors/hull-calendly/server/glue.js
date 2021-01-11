@@ -63,24 +63,17 @@ const refreshTokenDataTemplate = {
 const glue = {
   ensure: [
     cacheLock("ensureHook", [
-      // TODO need to move setting organization to oauth flow
-      set("organization", settings("organization")),
       ifL([
-          cond("notEmpty", settings("access_token")),
-          cond("isEmpty", "${organization}")
-        ], [
-          set("organization", get("organization", calendly("introspect", introspectTokenTemplate))),
-          hull("settingsUpdate", { organization: "${organization}" })
-      ]),
-      ifL(cond("isEqual", settings("receive_events"), true), [
+        cond("notEmpty", settings("access_token")),
+        cond("notEmpty", set("organization", settings("service_organization"))),
+        cond("notEmpty", "${connector.private_settings.incoming_events}"),
+        cond("isEqual", settings("receive_events"), true)
+      ], [
         route("ensureWebhooks")
       ])
     ])
   ],
   ensureWebhooks: ifL([
-    cond("notEmpty", settings("access_token")),
-    cond("notEmpty", "${organization}"),
-    cond("notEmpty", "${connector.private_settings.incoming_events}"),
     cond("isEmpty", "${connector.private_settings.webhook_id}")
   ], [
     set("webhookUrl", utils("createWebhookUrl")),
@@ -113,7 +106,7 @@ const glue = {
   ],
   shipUpdate: ifL([
       cond("notEmpty", settings("access_token")),
-      cond("notEmpty", settings("organization"))
+      cond("notEmpty", settings("service_organization"))
     ], [
     calendly("me")
   ]),
