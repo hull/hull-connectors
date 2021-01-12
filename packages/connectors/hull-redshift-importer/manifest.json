@@ -2,7 +2,7 @@
   "name": "Redshift Importer",
   "description": "Import data from your Redshift databases",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "source": "redshift",
   "tags": [
     "incoming",

@@ -8,7 +8,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "mappings": {
     "identify": {
       "outgoing": {}
