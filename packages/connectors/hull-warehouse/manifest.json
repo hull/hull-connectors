@@ -361,5 +361,40 @@
         "private_settings.outgoing_account_attributes"
       ]
     }
+  ],
+  "mappings": [
+    {
+      "direction": "outgoing",
+      "service": {
+        "entity": "row",
+        "name": "user"
+      },
+      "hull": {
+        "entity": "user"
+      },
+      "description": "Send the Users to a new table inside your data warehouse"
+    },
+    {
+      "direction": "outgoing",
+      "service": {
+        "entity": "row",
+        "name": "accounts"
+      },
+      "hull": {
+        "entity": "accounts"
+      },
+      "description": "Send the Accounts to a new table inside your data warehouse"
+    },
+    {
+      "direction": "outgoing",
+      "service": {
+        "entity": "row",
+        "name": "events"
+      },
+      "hull": {
+        "entity": "events"
+      },
+      "description": "Send User events to a new table inside your data warehouse"
+    }
   ]
 }
