@@ -744,7 +744,7 @@
   ],
   "source": "clearbit",
   "readme": "readme.md",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "settings": [],
   "private_settings": [
     {

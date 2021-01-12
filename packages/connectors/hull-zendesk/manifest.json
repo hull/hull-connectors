@@ -1,5 +1,5 @@
 {
-  "version": "0.1.38-monorepo",
+  "version": "0.1.40-monorepo",
   "name": "Zendesk",
   "description": "Capture Zendesk tickets.",
   "type": "source-pooling",
