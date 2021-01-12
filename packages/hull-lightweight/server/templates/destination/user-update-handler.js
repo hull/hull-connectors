@@ -19,10 +19,13 @@ const update = (handler: HandlerFunc) => async (
         const asUser = client.asUser(message.user);
         try {
           const response = await handler(ctx, message);
-          asUser.logger.info("incoming.user.success", { response });
+          asUser.logger.info("outgoing.user.success", { response });
           return true;
         } catch (err) {
-          asUser.logger.error("incoming.user.error", { error: err.message });
+          asUser.logger.error("outgoing.user.error", { error: err.message });
+          if (err && err.name === "SkippableError") {
+            return true;
+          }
           throw err;
         }
       })

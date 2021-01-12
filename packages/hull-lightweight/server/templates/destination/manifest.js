@@ -1,5 +1,4 @@
 const manifest = () => ({
-  version: "0.1.36-monorepo",
   tags: ["batch", "smart-notifier", "kraken-exports"],
   logo: "logo.png",
   picture: "picture.png",
@@ -8,7 +7,7 @@ const manifest = () => ({
     {
       name: "synchronized_user_segments",
       title: "User Filter",
-      description: "Which users are processed",
+      description: "Pick segments of users that should be processed by this connector.",
       type: "array",
       format: "segment",
       options: {
@@ -16,13 +15,13 @@ const manifest = () => ({
           ALL: "All Users"
         }
       },
-      default: ["ALL"]
+      default: []
     }
   ],
   settings_sections: [
     {
-      title: "Configuration",
-      description: "Configure connector",
+      title: "Outgoing User Filter",
+      description: "Connector only works for users from segments whitelisted below.",
       properties: ["private_settings.synchronized_user_segments"]
     }
   ],

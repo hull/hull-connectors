@@ -1,0 +1,62 @@
+{
+  "version": "0.1.39-monorepo",
+  "name": "hull-hunter",
+  "description": "Find email based on person name and company domain/name",
+  "type": "destination",
+  "private_settings": [
+    {
+      "name": "api_key",
+      "title": "Hunter.io API KEY",
+      "type": "string",
+      "format": "password",
+      "description": "Paste value from hunter.io dashboard."
+    },
+    {
+      "name": "first_name_attribute",
+      "title": "First Name Attribute",
+      "type": "string",
+      "format": "trait",
+      "description": "Define which Hull attribute should be sent to hunter.io API as `first_name`."
+    },
+    {
+      "name": "last_name_attribute",
+      "title": "Last Name Attribute",
+      "type": "string",
+      "format": "trait",
+      "description": "Define which Hull attribute should be sent to hunter.io API as `last_name`."
+    },
+    {
+      "name": "domain_attribute",
+      "title": "Domain Attribute",
+      "type": "string",
+      "format": "trait",
+      "description": "Define which Hull attribute should be sent to hunter.io API as `domain`."
+    },
+    {
+      "name": "company_attribute",
+      "title": "Company Attribute",
+      "type": "string",
+      "format": "trait",
+      "description": "Define which Hull attribute should be sent to hunter.io API as `company` (name)."
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "This section authorize connector against hunter.io API.",
+      "properties": [
+        "private_settings.api_key"
+      ]
+    },
+    {
+      "title": "Email Finder Mapping",
+      "description": "Hunter.io's Email Finder requires at least 3 different data points to return user email - domain or company name, first name, and last name. Decide which Hull User attribute should be used to provide those values.",
+      "properties": [
+        "private_settings.first_name_attribute",
+        "private_settings.last_name_attribute",
+        "private_settings.domain_attribute",
+        "private_settings.company_attribute"
+      ]
+    }
+  ]
+}
