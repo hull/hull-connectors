@@ -372,6 +372,11 @@
             "entity": "row",
             "name": "user"
           },
+          "mapping": [
+            { "service": "last_seen_at", "hull":"last_seen_at", "type": "date" },
+            { "service": "email", "hull":"email", "type": "string" },
+            { "service": "external_id", "hull":"external_id", "type": "string" }
+          ],
           "hull": {
             "entity": "user"
           },
@@ -383,6 +388,11 @@
             "entity": "row",
             "name": "accounts"
           },
+          "mapping": [
+            { "service": "last_seen_at", "hull":"last_seen_at", "type": "date" },
+            { "service": "domain", "hull":"domain", "type": "string" },
+            { "service": "external_id", "hull":"external_id", "type": "string" }
+          ],
           "hull": {
             "entity": "accounts"
           },
