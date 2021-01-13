@@ -4,11 +4,10 @@
   "source": "calendly",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "tags": [
     "incoming",
-    "oneColumn",
-    "single-install"
+    "oneColumn"
   ],
   "private_settings": [
     {

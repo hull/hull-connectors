@@ -1,6 +1,6 @@
 {
   "name": "hull-calendly",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "description": "Hull Calendly integration",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",

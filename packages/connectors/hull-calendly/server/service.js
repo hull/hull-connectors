@@ -80,6 +80,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 401 },
         errorType: ConfigurationError,
         recoveryroute: "refreshToken"
+      },
+      {
+        truthy: { status: 403 },
+        errorType: ConfigurationError,
+        message: "Permission Denied. Please upgrade your Calendly account to Premium."
       }
     ]
   }
