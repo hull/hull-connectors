@@ -7,7 +7,8 @@
     "documentation": "exit 0"
   },
   "dependencies": {
-    "@google-cloud/bigquery": "^5.5.0"
+    "@google-cloud/bigquery": "^5.5.0",
+    "google-auth-library": "^6.1.4"
   },
   "devDependencies": {}
 }

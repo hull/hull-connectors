@@ -2,6 +2,7 @@
  * Module dependencies.
  */
 const { BigQuery } = require("@google-cloud/bigquery");
+const { UserRefreshClient } = require('google-auth-library');
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
@@ -18,17 +19,44 @@ import { validateResultColumns } from "hull-sql";
  *
  */
 export function openConnection(settings) {
+  const {
+    refresh_token,
+    service_account_key,
+    project_id
+  } = settings;
+
+  if (_.isEmpty(project_id)) {
+    return null;
+  }
+
   try {
-    const options = {
-      credentials: JSON.parse(settings.service_account_key),
-      projectId: settings.project_id
-    };
+    if (!_.isEmpty(service_account_key)) {
+      const options = {
+        projectId: project_id,
+        credentials: JSON.parse(service_account_key)
+      };
+      if (_.isEmpty(options.credentials)) {
+        return null;
+      }
+      return new BigQuery(options);
+    } else {
+      const credentials = {
+        type: 'authorized_user',
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        refresh_token
+      };
+      if (_.isEmpty(credentials.refresh_token)) {
+        return null;
+      }
+      const refreshClient = new UserRefreshClient();
+      refreshClient.fromJSON(credentials);
 
-    if (_.isEmpty(options.credentials) || _.isEmpty(options.projectId)) {
-      return null;
+      const bigquery = new BigQuery({ projectId: project_id });
+      bigquery.authClient.cachedCredential = refreshClient;
+
+      return bigquery;
     }
-
-    return new BigQuery(options);
   } catch (err) {
     return null;
   }
@@ -39,18 +67,25 @@ export function getRequiredParameters() {
 }
 
 export function isValidConfiguration(settings) {
-  const key = settings.service_account_key;
-  const project = settings.project_id;
+  const {
+    refresh_token,
+    service_account_key,
+    project_id
+  } = settings;
 
-  if (_.isEmpty(key) || _.isEmpty(project)) {
+  const badKeyConf = _.isEmpty(service_account_key) || _.isEmpty(project_id);
+  const badTokenConf = _.isEmpty(refresh_token) || _.isEmpty(project_id);
+  if (badKeyConf && badTokenConf) {
     return false;
   }
 
   // Check if we have a parsable json string
-  try {
-    JSON.parse(settings.service_account_key);
-  } catch (err) {
-    return false;
+  if (!badKeyConf) {
+    try {
+      JSON.parse(service_account_key);
+    } catch (err) {
+      return false;
+    }
   }
   return true;
 }
@@ -128,10 +163,17 @@ export function streamQuery(client, query) {
   return Promise.resolve(client.createQueryStream(query));
 }
 
+/**
+ * Transform each row with the right format
+ * For this specific connector, prefix all attributes with a value from settings
+ * @param record the current row to edit
+ * @param settings private_settings containing the prefix
+ * @returns transformRecord containing the newly formatted attributes
+ */
 export function transformRecord(record, settings) {
   const transformedRecord = {};
   const skipFields = ["email", "external_id", "domain"];
-  const prefix = _.get(settings, "attributes_group_name", "");
+  const prefix = _.get(settings, "attributes_group_name", "bigquery");
   _.forEach(record, (value, key) => {
     if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
       transformedRecord[_.toLower(key)] = record[key];
