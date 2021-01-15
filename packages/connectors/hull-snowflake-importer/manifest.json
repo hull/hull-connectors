@@ -36,12 +36,6 @@
       "enum": ["30", "60", "180", "360", "720", "1440"]
     },
     {
-      "name": "overwrite",
-      "title": "Use SQL value in case of data conflict",
-      "type": "boolean",
-      "default": "true"
-    },
-    {
       "name": "import_days",
       "title": "Incremental Queries - Start Date (x days ago)",
       "description": "Enter the number of days and the connector will make a variable called 'import_start_date' available to your query that allows you to run incremental queries. If your SQL query does not use this variable at all, this setting has no effect.",
@@ -122,6 +116,12 @@
       "title": "Last job ID",
       "type": "string",
       "format": "hidden"
+    },
+    {
+      "name" : "dedupe_lines_from_previous_import",
+      "title" : "Dedupe lines from previous import",
+      "type" : "boolean",
+      "default" : false
     }
   ],
   "resources": [],
@@ -146,7 +146,7 @@
         "private_settings.import_type",
         "private_settings.enabled",
         "private_settings.sync_interval",
-        "private_settings.overwrite",
+        "private_settings.dedupe_lines_from_previous_import",
         "private_settings.import_days"
       ]
     }
