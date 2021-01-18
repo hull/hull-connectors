@@ -6,7 +6,7 @@ const { SkippableError } = require("hull/src/errors");
 export default async function handle({ request, client, connector }, message) {
   const { private_settings } = connector;
   const { api_key } = private_settings;
-  const { user } = message;
+  const { user, account } = message;
 
   if (!api_key) {
     throw new SkippableError("Connector settings are missing api_key.");
@@ -28,6 +28,8 @@ export default async function handle({ request, client, connector }, message) {
     throw new SkippableError("Domain or company name must be mapped in the connector settings.");
   }
 
+  const valuePayload = { ...user, account };
+
   const payload = [
     'domain',
     'company',
@@ -39,7 +41,7 @@ export default async function handle({ request, client, connector }, message) {
       return acc;
     }
 
-    const attributeValue = user[attributeName];
+    const attributeValue = _.get(valuePayload, attributeName);
 
     if (!attributeValue) {
       return acc;
