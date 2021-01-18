@@ -525,8 +525,14 @@ class SequalizeSdk {
         .upsert(sequelizedUser)
         .then(() => {
           if (message.events) {
+            const eventInclusionList = this.privateSettings.outgoing_user_events || [];
+            const filteredEvents = _.filter(message.events, event =>
+              _.includes(eventInclusionList, "all_events") ||
+              _.includes(eventInclusionList, "ALL") ||
+              _.includes(eventInclusionList, event.event)
+            );
             return Promise.all(
-              message.events.map(event => {
+              filteredEvents.map(event => {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
