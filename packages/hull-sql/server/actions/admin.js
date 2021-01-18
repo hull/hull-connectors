@@ -23,7 +23,10 @@ const admin = adapter => {
       };
     }
     return {
-      pageLocation: "home.html"
+      pageLocation: "../../../hull-sql/views/home.html",
+      data: {
+        connector_name: manifest.name
+      }
     };
   };
 };

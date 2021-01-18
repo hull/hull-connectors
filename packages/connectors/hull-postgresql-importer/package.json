@@ -1,6 +1,6 @@
 {
   "name": "hull-postgresql-importer",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "description": "Import Users, Events and Accounts from PostgreSQL",
   "scripts": {
     "test": "exit 0",

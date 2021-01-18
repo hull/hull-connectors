@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -120,7 +120,6 @@
     "debug": "^4.1.1",
     "ejs": "^2.6.1",
     "eslint": "^7.2.0",
-    "minimist": "^1.2.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-import-resolver-babel-module": "^5.1.0",
@@ -144,6 +143,7 @@
     "lodash": "^4.17.11",
     "lodash-webpack-plugin": "^0.11.5",
     "mini-css-extract-plugin": "^1.2.1",
+    "minimist": "^1.2.0",
     "moment": "^2.24.0",
     "newrelic": "^5.8.0",
     "node-rdkafka": "^2.9.0",
