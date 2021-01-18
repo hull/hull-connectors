@@ -173,7 +173,8 @@ describe("Outgoing User Segment Filtering Tests", () => {
     expect(
       toSendMessage(context, "user", {
         segments: [],
-        user: { email: "someuser@gmail.com" }
+        user: { email: "someuser@gmail.com" },
+        changes: { user: { "attr": [] } }
       })
     ).toEqual(true);
   });
@@ -188,7 +189,8 @@ describe("Outgoing User Segment Filtering Tests", () => {
     expect(
       toSendMessage(context, "user", {
         segments: [{ id: "1234" }],
-        user: { email: "someuser@gmail.com" }
+        user: { email: "someuser@gmail.com" },
+        changes: { user: { "attr": [] } }
       })
     ).toEqual(true);
   });
@@ -263,7 +265,7 @@ describe("Outgoing User Segment Filtering Tests", () => {
     });
     expect(
       toSendMessage(context, "user", {
-        segments: [],
+        segments: [{ id: "1234" }],
         user: { email: "someuser@gmail.com" },
         changes: { segments: { entered: [{ id: "1234" }] } }
       })
@@ -430,7 +432,7 @@ describe("Outgoing User Segment Filtering Tests", () => {
         context,
         "user",
         {
-          segments: [],
+          segments: [{ id: "1234" }],
           user: {
             email: "someuser@gmail.com",
             "hubspot/deleted_at": "1-1-2019"
@@ -681,7 +683,8 @@ describe("Outgoing Account Segment Filtering Tests", () => {
     expect(
       toSendMessage(context, "account", {
         account_segments: [],
-        account: { domain: "somedomain.com" }
+        account: { domain: "somedomain.com" },
+        changes: { account: { "attr": [] }}
       })
     ).toEqual(true);
   });
@@ -696,7 +699,8 @@ describe("Outgoing Account Segment Filtering Tests", () => {
     expect(
       toSendMessage(context, "account", {
         account_segments: [{ id: "1234" }],
-        account: { email: "somedomain.com" }
+        account: { email: "somedomain.com" },
+        changes: { account: { "attr": [] }}
       })
     ).toEqual(true);
   });
@@ -734,16 +738,9 @@ describe("Outgoing Account Segment Filtering Tests", () => {
   });
 
   it("outgoing account entered segment", () => {
-    const context = new ContextMock({
-      private_settings: { synchronized_account_segments: ["1234"] }
-    });
-    expect(
-      toSendMessage(context, "account", {
-        account_segments: [],
-        account: { domain: "somedomain.com" },
-        changes: { account_segments: { entered: [{ id: "1234" }] } }
-      })
-    ).toEqual(true);
+    const context = new ContextMock({ private_settings: { synchronized_account_segments: [ "1234" ] }});
+    expect(toSendMessage(context,
+      "account", { account_segments: [{ id: "1234" }], account: { domain: "somedomain.com"}, changes: { account_segments: { entered: [ { id: "1234" }]}} })).toEqual(true);
   });
 
   // Test for sendOnAnySegmentChanges for cases that we're sending segments by default and we need to send on any change

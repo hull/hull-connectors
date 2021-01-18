@@ -62,6 +62,13 @@ const userTriggers = (entityType) => {
         "changes.segments.left": [required, validateSegments]
       }
     },
+    [`${entityType}_segments_updated`]: {
+      type: HullUserSegmentChangedTrigger,
+      filters: {},
+      validations: {
+        "changes.segments": [required]
+      }
+    },
     [`${entityType}_events`]: {
       type: HullUserEventTrigger,
       filters: {
