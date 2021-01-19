@@ -44,6 +44,13 @@ it("should filter because none of the mapped attributes have changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
+        scope
+          .post("/companies/v2/domains/doe.com/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, { "results": [] });
 
         return scope;
       },
@@ -108,6 +115,7 @@ it("should filter because none of the mapped attributes have changed", () => {
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
           "debug",
@@ -117,10 +125,12 @@ it("should filter because none of the mapped attributes have changed", () => {
             "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
           }
         ]
-        ],
+      ],
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
