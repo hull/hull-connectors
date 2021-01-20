@@ -225,7 +225,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
   it("User Linked To Account. Should Trigger.", () => {
     const context = new ContextMock({
       private_settings: {
-        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+        triggers: [{ inputData: { user_account_linked: ["id"] } }]
       }
     });
     const message = {
@@ -253,7 +253,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
   it("User Not Linked To Account. Should Not Trigger.", () => {
     const context = new ContextMock({
       private_settings: {
-        triggers: [{ inputData: { user_account_linked: [ "id" ] } }]
+        triggers: [{ inputData: { user_account_linked: ["id"] } }]
       }
     });
     const message = {
@@ -281,7 +281,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
   it("Lead Linked To Account. Should Trigger.", () => {
     const context = new ContextMock({
       private_settings: {
-        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+        triggers: [{ inputData: { lead_account_linked: ["id"] } }]
       }
     });
     const message = {
@@ -309,7 +309,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
   it("Lead Not Linked To Account. Should Not Trigger.", () => {
     const context = new ContextMock({
       private_settings: {
-        triggers: [{ inputData: { lead_account_linked: [ "id" ] } }]
+        triggers: [{ inputData: { lead_account_linked: ["id"] } }]
       }
     });
     const message = {
@@ -848,6 +848,69 @@ describe("Outgoing User Attribute Filtering Tests", () => {
       changes: { user: { attr1: ["value_1", "value_2"] } },
       account: {},
       user: { id: "1", attr1: "value_2" },
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    });
+    expect(serviceAction.webhook).toEqual(
+      "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1"
+    );
+  });
+
+  it("User Array Attribute Changed. Should not filter out trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1"
+            },
+            inputData: {
+              user_attribute_updated: ["attr1", "attr2"],
+              user_segments: ["user_segment_1"],
+              account_segments: ["all_segments"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      changes: {
+        user: {
+          "attr1[0]": ["value_1", "value_2"],
+          bl_attr: ["", "1"]
+        },
+        account: {
+          attr1: ["value_1", "value_2"],
+          bl_attr: ["", "1"]
+        }
+      },
+      account: {},
+      user: {
+        id: "1",
+        attr1: ["value_2"]
+      },
+      account_segments: [],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    const { serviceAction, cleanedEntity } = triggers[0];
+
+    expect(_.size(triggers)).toEqual(1);
+    expect(_.keys(triggers[0])).toEqual([
+      "serviceAction",
+      "cleanedEntity",
+      "rawEntity"
+    ]);
+    expect(cleanedEntity).toEqual({
+      changes: { user: { "attr1[0]": ["value_1", "value_2"] } },
+      account: {},
+      user: { id: "1", attr1: ["value_2"] },
       account_segments: [],
       segments: [{ id: "user_segment_1" }],
       message_id: "message_1"
