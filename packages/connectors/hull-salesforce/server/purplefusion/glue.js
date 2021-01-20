@@ -53,7 +53,10 @@ function salesforceSyncAgent(op: string, param?: any): Svc {
 }
 
 const glue = {
-  ensureHook: [set("service_name", "salesforce")],
+  ensureHook: [
+    set("service_name", settings("source")),
+    ifL(cond("isEmpty", "${service_name}"), [set("service_name", "salesforce")])
+  ],
   refreshToken: [],
   userUpdate: [
     salesforceSyncAgent("userUpdate", { messages: input() }),

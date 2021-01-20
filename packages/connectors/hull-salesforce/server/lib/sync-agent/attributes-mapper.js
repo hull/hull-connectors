@@ -49,19 +49,11 @@ function createAttributeName(
  * @class AttributesMapper
  */
 class AttributesMapper implements IAttributesMapper {
-  /**
-   * Gets or sets the outbound attribute mappings.
-   *
-   * @memberof AttributesMapper
-   */
   mappingsOutbound: Object;
 
-  /**
-   * Gets or sets the inbound attribute mappings.
-   *
-   * @memberof AttributesMapper
-   */
   mappingsInbound: Object;
+
+  source: string;
 
   /**
    * Creates an instance of AttributesMapper.
@@ -69,6 +61,7 @@ class AttributesMapper implements IAttributesMapper {
    * @memberof AttributesMapper
    */
   constructor(connectorSettings: any) {
+    this.source = _.get(connectorSettings, "source", "salesforce");
     this.mappingsOutbound = {};
     this.mappingsInbound = {};
 
@@ -247,8 +240,8 @@ class AttributesMapper implements IAttributesMapper {
     const mappings = _.get(this.mappingsInbound, resource, []);
     const attribPrefix =
       resource === "Account"
-        ? "salesforce"
-        : `salesforce_${resource.toLowerCase()}`;
+        ? this.source
+        : `${this.source}_${resource.toLowerCase()}`;
 
     const topLevelAttributes = TOPLEVEL_ATTRIBUTES[resource];
     const topLevelAttributesSf = _.map(topLevelAttributes, "service");
@@ -308,7 +301,7 @@ class AttributesMapper implements IAttributesMapper {
     const ident = {};
     switch (resourceType) {
       case "Account":
-        _.set(ident, "anonymous_id", `salesforce:${id}`);
+        _.set(ident, "anonymous_id", `${this.source}:${id}`);
         _.forEach(identityClaims, claim => {
           const identSfdc = claim.service;
           const identHull = claim.hull;
@@ -325,7 +318,7 @@ class AttributesMapper implements IAttributesMapper {
         _.set(
           ident,
           "anonymous_id",
-          `salesforce-${_.toLower(resourceType)}:${id}`
+          `${this.source}-${_.toLower(resourceType)}:${id}`
         );
         _.forEach(identityClaims, claim => {
           const identSfdc = claim.service;

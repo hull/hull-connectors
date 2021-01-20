@@ -183,21 +183,28 @@ class MatchUtil implements IMatchUtil {
     return filteredEntities;
   }
 
-  matchHullMessageToSalesforceRecord(
+  matchHullMessageToSalesforceRecord({
+    resource,
+    user,
+    sfObjects,
+    identityClaims = [],
+    source
+  }: {
     resource: TResourceType,
     user: THullObject,
     sfObjects: Array<Object>,
-    identityClaims: Array<Object>
-  ): any {
+    identityClaims: Array<Object>,
+    source: string
+  }): any {
     if (resource !== "Contact" && resource !== "Lead") {
       throw new Error(
         "Unsupported resource type. Only Contact and Lead can be matched to an user."
       );
     }
     let sfObject;
-    if (_.get(user, `salesforce_${_.toLower(resource)}/id`, "n/a") !== "n/a") {
+    if (_.get(user, `${source}_${_.toLower(resource)}/id`, "n/a") !== "n/a") {
       sfObject = _.find(sfObjects, {
-        Id: _.get(user, `salesforce_${_.toLower(resource)}/id`)
+        Id: _.get(user, `${source}_${_.toLower(resource)}/id`)
       });
     }
     if (!sfObject) {
@@ -220,11 +227,17 @@ class MatchUtil implements IMatchUtil {
     return sfObject ? [sfObject] : [];
   }
 
-  matchHullMessageToSalesforceAccount(
+  matchHullMessageToSalesforceAccount({
+    message,
+    sfAccounts,
+    accountClaims,
+    source
+  }: {
     message: THullUserUpdateMessage | THullAccountUpdateMessage,
     sfAccounts: Array<Object>,
-    accountClaims: Array<Object>
-  ): Object {
+    accountClaims: Array<Object>,
+    source: string
+  }): Object {
     const foundSFAccounts = {
       primary: [],
       secondary: []
@@ -236,13 +249,13 @@ class MatchUtil implements IMatchUtil {
       const findBy = {};
       let sfAccount;
 
-      if (_.get(account, "salesforce/id", null)) {
-        _.set(findBy, "Id", _.get(account, "salesforce/id"));
+      if (_.get(account, `${source}/id`, null)) {
+        _.set(findBy, "Id", _.get(account, `${source}/id`));
         sfAccount = _.find(sfAccounts, findBy);
       }
       if (_.isNil(sfAccount)) {
-        if (_.get(user, "salesforce_contact/account_id", null)) {
-          _.set(findBy, "Id", _.get(user, "salesforce_contact/account_id"));
+        if (_.get(user, `${source}_contact/account_id`, null)) {
+          _.set(findBy, "Id", _.get(user, `${source}_contact/account_id`));
           sfAccount = _.find(sfAccounts, findBy);
         }
       }

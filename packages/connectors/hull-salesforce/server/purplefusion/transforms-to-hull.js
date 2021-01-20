@@ -93,7 +93,7 @@ function serviceUserTransformation({ entityType }) {
         },
         {
           writeTo: {
-            path: `attributes.salesforce_${entityType}/id`,
+            path: `attributes.\${service_name}_${entityType}/id`,
             format: {
               value: "${operateOn}",
               operation: "set"
@@ -117,7 +117,7 @@ function serviceUserTransformation({ entityType }) {
         },
         {
           operateOn: { component: "input", select: "AccountId" },
-          writeTo: { path: "accountAttributes.salesforce/id" }
+          writeTo: { path: "accountAttributes.${service_name}/id" }
         }
       ]
     }
@@ -222,7 +222,7 @@ const transformsToService: ServiceTransforms = [
     target: { component: "new" },
     then: [
       { writeTo: { path: "eventName", value: "${eventName}" } },
-      { writeTo: { path: "context.source", value: "salesforce" } },
+      { writeTo: { path: "context.source", value: "${service_name}" } },
       {
         operateOn: { component: "input", select: "CreatedDate" },
         writeTo: {
@@ -235,6 +235,7 @@ const transformsToService: ServiceTransforms = [
         writeTo: {
           path: "context.event_id",
           formatter: event => {
+            // TODO add source
             return `salesforce-task:${event.Id}`;
           }
         }
