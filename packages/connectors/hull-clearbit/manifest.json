@@ -1497,7 +1497,7 @@
     },
     {
       "title": "User Reveal whitelist",
-      "description": "Who will be sent to Reveal. *Every anonymous user is sent if this is empty*. We never send anyone who has identifiable information",
+      "description": "Who will be sent to Reveal.",
       "name": "reveal_user_segments",
       "type": "array",
       "default": [],
