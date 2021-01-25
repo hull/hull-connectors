@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-const { BigQuery } = require("@google-cloud/bigquery");
+const { BigQuery, BigQueryDatetime } = require("@google-cloud/bigquery");
 const { UserRefreshClient } = require('google-auth-library');
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
@@ -175,11 +175,14 @@ export function transformRecord(record, settings) {
   const skipFields = ["email", "external_id", "domain"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");
   _.forEach(record, (value, key) => {
+    let transformedKey;
+    let transformedValue = typeof record[key] === BigQueryDatetime ? record[key].value : record[key];
     if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
-      transformedRecord[_.toLower(key)] = record[key];
+      transformedKey = _.toLower(key);
     } else {
-      transformedRecord[`${prefix}/${_.toLower(key)}`] = record[key];
+      transformedKey = `${prefix}/${_.toLower(key)}`;
     }
+    transformedRecord[transformedKey] = transformedValue;
   });
   return transformedRecord;
 }
