@@ -101,6 +101,11 @@ export type CustomApi = {
   }
 };
 
+export type SqlExporterAdapter = {
+  getConnectionString: Function,
+  isValidConfiguration: Function
+};
+
 export type Connector = {
   glue: Object,
   service: RawRestApi,
