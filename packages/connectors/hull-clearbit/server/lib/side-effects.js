@@ -167,9 +167,11 @@ export async function saveAccount(
   }
 
   const userClaims = { ...user };
-  const clearbitClaim = getClearbitAnonymousId(person);
-  if (clearbitClaim) {
-    userClaims.anonymous_id = clearbitClaim;
+  if (person) {
+    const clearbitClaim = getClearbitAnonymousId(person);
+    if (clearbitClaim) {
+      userClaims.anonymous_id = clearbitClaim;
+    }
   }
 
   const asAccount =
