@@ -2,6 +2,7 @@
 import type { HullClientLogger } from "hull";
 import type { CustomApi } from "hull-connector-framework/src/purplefusion/types";
 
+const Promise = require("bluebird");
 const moment = require("moment");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
@@ -11,6 +12,8 @@ const { SkippableError, ConfigurationError } = require("hull/src/errors");
 const _ = require("lodash");
 const HullVariableContext = require("hull-connector-framework/src/purplefusion/variable-context");
 const SyncAgent = require("../lib/sync-agent");
+
+const FETCH_CHUNKSIZE = 750;
 
 class SalesforceSDK {
   api: CustomApi;

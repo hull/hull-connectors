@@ -44,6 +44,8 @@ const {
   SalesforceTaskWrite
 } = require("./service-objects");
 
+const CHUNK_SIZE = 750;
+
 function salesforce(op: string, param?: any): Svc {
   return new Svc({ name: "salesforce", op }, param);
 }
@@ -248,9 +250,14 @@ const glue = {
       set("nextPage", "${page.nextRecordsUrl}"),
       set("done", "${page.done}"),
 
-      iterateL("${records}", { key: "record", async: true }, [
-        hull("${incoming_action}", cast("${transform_to}", "${record}"))
+      set("recordSize", ld("size", "${records}")),
+      utils("print", "page size: ${recordSize}"),
+      iterateL(ld("chunk", "${records}", CHUNK_SIZE), { key: "recordChunk", async: false }, [
+        iterateL("${recordChunk}", { key: "record", async: true }, [
+          hull("${incoming_action}", cast("${transform_to}", "${record}"))
+        ]),
       ]),
+
       ifL(cond("isEqual", "${done}", true), loopEndL())
     ])
   ],
