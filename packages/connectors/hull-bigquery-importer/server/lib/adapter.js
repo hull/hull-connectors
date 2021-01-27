@@ -1,12 +1,20 @@
 /**
  * Module dependencies.
  */
-const { BigQuery, BigQueryDatetime } = require("@google-cloud/bigquery");
-const { UserRefreshClient } = require('google-auth-library');
+
+import {
+  BigQueryDate,
+  BigQueryDatetime,
+  BigQueryTime,
+  BigQueryTimestamp
+} from "@google-cloud/bigquery"
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
 import { validateResultColumns } from "hull-sql";
+
+const { BigQuery } = require("@google-cloud/bigquery");
+const { UserRefreshClient } = require("google-auth-library");
 
 /**
  * Bigquery adapter.
@@ -171,12 +179,24 @@ export function streamQuery(client, query) {
  * @returns transformRecord containing the newly formatted attributes
  */
 export function transformRecord(record, settings) {
+  const arrayTypes = [
+    BigQueryDate,
+    BigQueryDatetime,
+    BigQueryTime,
+    BigQueryTimestamp
+  ];
   const transformedRecord = {};
   const skipFields = ["email", "external_id", "domain"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");
   _.forEach(record, (value, key) => {
     let transformedKey;
-    let transformedValue = typeof record[key] === BigQueryDatetime ? record[key].value : record[key];
+    let transformedValue = value;
+    for (let i = 0; i < arrayTypes.length; ++i) {
+      if (value instanceof  arrayTypes[i] && _.get(value, "value", undefined)) {
+        transformedValue = value.value;
+        break ;
+      }
+    }
     if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
       transformedKey = _.toLower(key);
     } else {
