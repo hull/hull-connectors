@@ -2,7 +2,7 @@
   "name": "Slack",
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "tags": ["kraken"],
   "private_settings": [
     {
@@ -175,7 +175,7 @@
     },
     {
       "name": "attachements",
-      "title": "Attachements",
+      "title": "Attachments",
       "type": "array",
       "format": "table",
       "default": [
@@ -197,7 +197,7 @@
             "format": "string"
           },
           "attributes": {
-            "title": "Attachements",
+            "title": "Attachments",
             "type": "array",
             "format": "trait"
           }
@@ -223,7 +223,7 @@
     },
     {
       "title": "Attribute Blocks",
-      "description": "Define blocks with fields to attach to slack notifications. Blocks will be attached to every notification",
+      "description": "Define blocks with fields to attach to Slack notifications. Blocks will be attached to every notification",
       "properties": ["private_settings.attachements"]
     }
   ],

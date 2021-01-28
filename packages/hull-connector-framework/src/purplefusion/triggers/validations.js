@@ -1,5 +1,4 @@
 // @flow
-const _ = require("lodash");
 import type {
   HullTrigger,
   HullEvent,
@@ -10,10 +9,12 @@ import type {
   HullTriggerValidations,
   HullTriggerValidation,
   HullTriggerValidationFunction,
-  HullTriggerValidationRule,
   HullUserUpdateMessage,
   HullAccountUpdateMessage
 } from "hull";
+import { getStandardAttributeName } from "./utils";
+
+const _ = require("lodash");
 
 const getSegmentIds = (segments: Array<HullSegment>) => [
   "ALL",
@@ -27,15 +28,40 @@ const getEventNames = (events: Array<HullEvent>) => [
   ..._.map(events, "event")
 ];
 
+const getChangedAttributes = (
+  changes: $PropertyType<
+    $PropertyType<HullUserUpdateMessage, "changes">,
+    "user"
+  >
+) => [
+  "ALL",
+  "all_attributes",
+  ..._.reduce(
+    changes,
+    (changeList, value, key) => {
+      const attributeName = getStandardAttributeName(key);
+      changeList.push(attributeName);
+      return changeList;
+    },
+    []
+  )
+];
+
 const intersectionWithSegment = (
   segments: Array<HullSegment>,
   list: Array<string>
 ) => _.intersection(getSegmentIds(segments), list);
 
-const intersectionWithEvent = (
-  events: Array<HullEvent>,
+const intersectionWithEvent = (events: Array<HullEvent>, list: Array<string>) =>
+  _.intersection(getEventNames(events), list);
+
+const intersectionWithChangedAttribute = (
+  changes: $PropertyType<
+    $PropertyType<HullUserUpdateMessage, "changes">,
+    "user"
+  >,
   list: Array<string>
-) => _.intersection(getEventNames(events), list);
+) => _.intersection(getChangedAttributes(changes), list);
 
 const validateChanges: HullTriggerValidationFunction = (
   changes: $PropertyType<
@@ -43,13 +69,13 @@ const validateChanges: HullTriggerValidationFunction = (
     "user"
   >,
   whitelist: Array<string>
-): boolean %checks => !_.isEmpty(_.intersection(whitelist, _.keys(changes)));
+): boolean %checks =>
+  !_.isEmpty(intersectionWithChangedAttribute(changes, whitelist));
 
 const validateEvents: HullTriggerValidationFunction = (
   events: Array<HullEvent>,
   whitelist: Array<string>
-): boolean %checks =>
-  !_.isEmpty(intersectionWithEvent(events, whitelist));
+): boolean %checks => !_.isEmpty(intersectionWithEvent(events, whitelist));
 
 const validateSegments: HullTriggerValidationFunction = (
   segments: Array<HullSegment>,
@@ -86,7 +112,6 @@ const isValidSubEntity = (
     }
     return true;
   });
-
 
 const isValidMessage = (
   message: HullUserUpdateMessage | HullAccountUpdateMessage,

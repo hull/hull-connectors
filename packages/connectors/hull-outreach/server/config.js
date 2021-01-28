@@ -28,7 +28,7 @@ export default function connectorConfig(): HullConnectorConfig {
           require("./transforms-to-hull"),
           require("./transforms-to-service")
         ),
-        ensureHook: "ensureWebhooks"
+        ensureHook: "ensure"
       },
       require("./specialcase-filtering")
     ).createHandler

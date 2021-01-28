@@ -1,6 +1,6 @@
 {
   "name": "hull-datanyze",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "description": "Enrich Customer data with Datanyze",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {

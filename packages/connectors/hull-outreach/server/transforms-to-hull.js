@@ -98,7 +98,7 @@ const transformsToHull: ServiceTransforms =
         },
         {
           strategy: "PropertyKeyedValue",
-          arrayStrategy: "append_index",
+          arrayStrategy: "${arrayStrategy}",
           transforms: [
             { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
             {
@@ -118,6 +118,7 @@ const transformsToHull: ServiceTransforms =
             {
               mapping: "connector.private_settings.incoming_user_attributes",
               allowNull: true,
+              arrayValueResolution: "post",
               inputPath: "attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
               outputFormat: {
@@ -154,7 +155,7 @@ const transformsToHull: ServiceTransforms =
         },
         {
           strategy: "PropertyKeyedValue",
-          arrayStrategy: "append_index",
+          arrayStrategy: "${arrayStrategy}",
           transforms: [
             { inputPath: "data.id", outputPath: "id"},
             { inputPath: "changed_to", outputPath: "hull_events[0].properties.changed_to"},
@@ -236,7 +237,7 @@ const transformsToHull: ServiceTransforms =
         },
         {
           strategy: "PropertyKeyedValue",
-          arrayStrategy: "append_index",
+          arrayStrategy: "${arrayStrategy}",
           transforms: [
             { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
             { inputPath: "data.id", outputPath: "attributes.outreach/id",
@@ -256,6 +257,7 @@ const transformsToHull: ServiceTransforms =
             { mapping: "connector.private_settings.incoming_user_attributes",
               inputPath: "data.attributes.${service_field_name}",
               allowNull: true,
+              arrayValueResolution: "post",
               outputPath: "attributes.${hull_field_name}",
               outputFormat: {
                 value: "${value}",
@@ -314,7 +316,7 @@ const transformsToHull: ServiceTransforms =
         },
         {
           strategy: "PropertyKeyedValue",
-          arrayStrategy: "append_index",
+          arrayStrategy: "${arrayStrategy}",
           transforms: [
             { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
             {
@@ -334,6 +336,7 @@ const transformsToHull: ServiceTransforms =
             },
             {
               mapping: "connector.private_settings.incoming_account_attributes",
+              arrayValueResolution: "post",
               inputPath: "attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
               allowNull: true,
@@ -384,7 +387,7 @@ const transformsToHull: ServiceTransforms =
         },
         {
           strategy: "PropertyKeyedValue",
-          arrayStrategy: "append_index",
+          arrayStrategy: "${arrayStrategy}",
           transforms: [
             { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
             {
@@ -404,6 +407,7 @@ const transformsToHull: ServiceTransforms =
             },
             {
               mapping: "connector.private_settings.incoming_account_attributes",
+              arrayValueResolution: "post",
               inputPath: "data.attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
               outputFormat: {

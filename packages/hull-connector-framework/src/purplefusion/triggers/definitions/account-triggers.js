@@ -77,6 +77,13 @@ const accountTriggers = (entityType) => {
         "changes.account_segments.left": [required, validateSegments]
       }
     },
+    [`${entityType}_segments_updated`]: {
+      type: HullAccountSegmentChangedTrigger,
+      filters: {},
+      validations: {
+        "changes.account_segments": [required]
+      }
+    },
     //TODO: Deprecate to have uniform naming
     [`${entityType}_segments`]: {
       type: HullAccountSegmentChangedTrigger,

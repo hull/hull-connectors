@@ -213,7 +213,7 @@ describe("Update Lead Tests", () => {
               access_token: "intercomABC",
               tag_leads: false,
               synchronized_lead_segments: ["lead_segment_1"],
-              synchronized_user_segments: [],
+              synchronized_user_segments: ["user_segment_1"],
               lead_claims: [{ hull: "email", service: "email" }],
               outgoing_lead_attributes: [
                 { hull: "intercom_lead/name", service: "name" },
@@ -475,6 +475,26 @@ describe("Update Lead Tests", () => {
                 }
               },
               events: []
+            },
+            {
+              user: {
+                id: "123-deleted",
+                email: "bob.deleted@rei.com",
+                name: "Bob Deleted",
+                "intercom_user/description": "a description",
+                "intercom_user/deleted_at": 1
+              },
+              segments: [{ id: "user_segment_1", name: "User Segment 1" }],
+              changes: {
+                user: {
+                  "traits_intercom_user/description": [
+                    "something",
+                    "a description"
+                  ]
+                },
+                segments: {}
+              },
+              events: []
             }
           ],
           response: { flow_control: { type: "next" } },
@@ -495,7 +515,7 @@ describe("Update Lead Tests", () => {
                 user_id: "123"
               },
               {
-                reason: "User has been deleted"
+                reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
               }
             ],
             [
@@ -646,6 +666,32 @@ describe("Update Lead Tests", () => {
                   }
                 },
                 type: "Lead"
+              }
+            ],
+            [
+              "debug",
+              "outgoing.user.skip",
+              {
+                request_id: expect.whatever(),
+                subject_type: "user",
+                user_email: "bob.deleted@rei.com",
+                user_id: "123-deleted"
+              },
+              {
+                reason: "User has been deleted"
+              }
+            ],
+            [
+              "debug",
+              "outgoing.user.skip",
+              {
+                request_id: expect.whatever(),
+                subject_type: "user",
+                user_email: "bob.deleted@rei.com",
+                user_id: "123-deleted"
+              },
+              {
+                reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
               }
             ],
             [
