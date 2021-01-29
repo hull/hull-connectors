@@ -1,0 +1,11 @@
+{
+  "name": "hull-mysql-exporter",
+  "version": "0.1.40-monorepo",
+  "description": "Export to a Mysql Database",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'",
+    "documentation": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
