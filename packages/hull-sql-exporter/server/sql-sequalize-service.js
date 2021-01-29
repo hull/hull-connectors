@@ -84,9 +84,9 @@ class SequalizeSdk {
 
   helpers: Object;
 
-  connectorId: string;
+  connectionOptions: Object;
 
-  connectionString: string;
+  connectorId: string;
 
   userTableName: string;
 
@@ -125,7 +125,7 @@ class SequalizeSdk {
     this.sshConfig = getSshTunnelConfig(this.privateSettings);
     this.dbConfig = getDatabaseConfig(this.privateSettings);
 
-    this.connectionString = adapter.getConnectionString({ private_settings: this.privateSettings });
+    this.connectionOptions = adapter.getConnectionOptions({ private_settings: this.privateSettings });
 
     this.userTableName =
       reqContext.connector.private_settings.db_user_table_name;
@@ -203,12 +203,16 @@ class SequalizeSdk {
 
     return new Promise((resolve, reject) => {
       if (!databases[this.connectorId]) {
-        const opts = {
+        const defaultOptions = {
+          ssl: true,
           define: {
             // prevent sequelize from pluralizing table names
             freezeTableName: true
           },
-          logging: false
+          logging: false,
+          dialectOptions: {
+            ssl: true
+          }
         };
 
         if (this.requireSshTunnel()) {
@@ -221,8 +225,14 @@ class SequalizeSdk {
             reject(error);
           }
         } else {
-
-          databases[this.connectorId] = new Sequelize(this.connectionString, opts);
+          const opts = {
+            ...defaultOptions,
+            ...this.connectionOptions
+          };
+          databases[this.connectorId] = new Sequelize({
+            ...defaultOptions,
+            ...this.connectionOptions
+          });
         }
       }
 

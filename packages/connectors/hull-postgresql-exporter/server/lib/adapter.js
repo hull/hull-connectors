@@ -1,16 +1,25 @@
 const _ = require("lodash");
 
-export function getConnectionString({ private_settings }) {
-  const dbType = "postgres";
+export function getConnectionOptions({ private_settings }) {
   const {
     db_username: username,
     db_password: password,
-    db_hostname: hostname,
+    db_hostname: host,
     db_name: name,
     db_port: port
   } = private_settings;
 
-  return `${dbType}://${username}:${password}@${hostname}:${port}/${name}?ssl=true`;
+  return {
+    username,
+    password,
+    host,
+    name,
+    port,
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: true
+    }
+  };
 }
 
 export function isValidConfiguration({ private_settings }) {

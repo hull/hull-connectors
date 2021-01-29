@@ -102,7 +102,7 @@ export type CustomApi = {
 };
 
 export type SqlExporterAdapter = {
-  getConnectionString: Function,
+  getConnectionOptions: Function,
   isValidConfiguration: Function
 };
 
