@@ -1,0 +1,46 @@
+{
+  "configuration": {
+    "id": "5c092905c36af496c700012e",
+    "secret": "shhh",
+    "organization": "organization.hullapp.io",
+    "hostname": "connectortest.connectordomain.io",
+    "private_settings": {
+      "type": "postgres",
+      "db_port": 5432,
+      "synchronized_user_segments": [],
+      "send_all_user_attributes": true,
+      "send_all_account_attributes": true,
+      "synchronized_account_segments": [],
+      "db_user_table_name": "hullusers",
+      "db_events_table_name": "hullevents",
+      "db_account_table_name": "hullaccounts"
+    }
+  },
+  "route": "status",
+  "input": {},
+  "serviceRequests": [],
+  "result": [
+    {
+      "status": "setupRequired",
+      "message": "Please specify hostname in the settings as it is a required field"
+    },
+    {
+      "hullDispatcherStatus": "stop"
+    },
+    {
+      "status": "setupRequired",
+      "message": "Please specify database name in the settings as it is a required field"
+    },
+    {
+      "status": "setupRequired",
+      "message": "Please specify username in the settings as it is a required field"
+    },
+    {
+      "status": "setupRequired",
+      "message": "Please specify password in the settings as it is a required field"
+    },
+    {
+      "hullDispatcherStatus": "stop"
+    }
+  ]
+}
