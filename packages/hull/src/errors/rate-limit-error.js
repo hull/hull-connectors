@@ -14,6 +14,7 @@ class RateLimitError extends TransientError {
     super(message, extra);
     this.name = "RateLimitError"; // compatible with http-errors library
     this.code = "HULL_ERR_RATE_LIMIT"; // compatible with internal node error
+    this.status = 429;
     Error.captureStackTrace(this, RateLimitError);
   }
 }

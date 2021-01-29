@@ -9,7 +9,8 @@ const {
   ConfigurationError,
   TransientError,
   NotificationValidationError,
-  MissingHandlerError
+  MissingHandlerError,
+  RateLimitError
 } = require("../../errors");
 
 function errorToResponse(error) {
@@ -75,6 +76,17 @@ function notificationHandlerErrorMiddlewareFactory() {
           req.hull,
           channel,
           "configuration_error"
+        ),
+        error: errorToResponse(err)
+      });
+    }
+
+    if (err instanceof RateLimitError) {
+      return res.status(429).json({
+        flow_control: notificationDefaultFlowControl(
+          req.hull,
+          channel,
+          "rate_limit_error"
         ),
         error: errorToResponse(err)
       });

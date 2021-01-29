@@ -39,6 +39,11 @@ function notificationDefaultFlowControl(
       size: 10,
       in: 5,
       in_time: 10
+    },
+    rate_limit_error: {
+      size: 10,
+      in: 6000,
+      in_time: 10
     }
   };
 
