@@ -19,7 +19,9 @@ const {
   ld,
   utils,
   transformTo,
-  not
+  ex,
+  settingsUpdate,
+  moment,
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -90,14 +92,41 @@ const glue = {
     cond("notEmpty", settings("db_port")),
     cond("notEmpty", settings("db_name"))
   ]),
-
+  buildBatchObject: postgresJdbc("buildBatchObject", input()),
   accountUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
+
+      ifL([
+        cond("isEqual", "${isBatch}", true),
+        cond("isEqual", settings("send_all_account_attributes"), true),
+        cond("isEqual", settings("send_null"), true)
+      ], [
+        ifL(cond("isEmpty", "${accountAttributes}"), set("accountAttributes", cacheGet("accountAttributes"))),
+        ifL(cond("isEmpty", "${accountAttributes}"), [
+          set("accountAttributes", hull("getAccountAttributes")),
+          cacheSet({ key: "accountAttributes", ttl: 99999999 }, "${accountAttributes}")
+        ]),
+        ld("set", "${message}", "account", route("buildBatchObject", { message: "${message}", attributes: "${accountAttributes}", entity: "account" })),
+      ]),
+
       postgresJdbc("upsertHullAccount", transformTo(WarehouseAccountWrite, cast(HullOutgoingAccount,"${message}"))),
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
+
+      ifL([
+        cond("isEqual", "${isBatch}", true),
+        cond("isEqual", settings("send_all_user_attributes"), true),
+        cond("isEqual", settings("send_null"), true)
+      ], [
+        ifL(cond("isEmpty", "${userAttributes}"), set("userAttributes", cacheGet("userAttributes"))),
+        ifL(cond("isEmpty", "${userAttributes}"), [
+          set("userAttributes", hull("getUserAttributes")),
+          cacheSet({ key: "userAttributes", ttl: 99999999 }, "${userAttributes}")
+        ]),
+        ld("set", "${message}", "user", route("buildBatchObject", { message: "${message}", attributes: "${userAttributes}", entity: "user" })),
+      ]),
 
       postgresJdbc("upsertHullUser", transformTo(WarehouseUserWrite, cast(HullOutgoingUser,"${message}"))),
 
@@ -186,7 +215,10 @@ const glue = {
       tableName: settings("db_events_table_name"),
       indexes: postgresJdbc("createEventIndexes")
     }),
-    postgresJdbc("syncTableSchema", settings("db_events_table_name"))
+    ifL(cond("isEmpty", settings("event_table_synced_at")), [
+      postgresJdbc("syncTableSchema", settings("db_events_table_name")),
+      settingsUpdate({ event_table_synced_at: ex(moment(), "valueOf") }),
+    ])
   ],
   // currently need to do this so ship:update doesn't fail, but ensure hook will see if we really need to reinit
   shipUpdate: {}

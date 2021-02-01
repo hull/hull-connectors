@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -287,7 +287,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Salesforce Lead Field",
         "allowCreate": true,
         "loadOptions": "/schema/lead",
@@ -363,7 +363,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Salesforce Contact Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact",
@@ -468,7 +468,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Salesforce Account Field",
         "allowCreate": true,
         "loadOptions": "/schema/account",

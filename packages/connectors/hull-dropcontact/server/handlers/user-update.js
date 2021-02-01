@@ -182,7 +182,7 @@ const updateAccount = ({
           { request_id, ids },
           {
             delay: 5 * 1000,
-            attempts: 5,
+            attempts: 1000,
             ttl: 120 * 1000,
             backoff: { delay: 30 * 1000, type: "fixed" }
           }

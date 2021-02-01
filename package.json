@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -11,6 +11,7 @@
       "packages/hull-webhooks",
       "packages/hull-lightweight",
       "packages/hull-sql",
+      "packages/hull-sql-exporter",
       "packages/hull",
       "packages/hull-client",
       "packages/minihull"
@@ -143,6 +144,7 @@
     "lodash": "^4.17.11",
     "lodash-webpack-plugin": "^0.11.5",
     "mini-css-extract-plugin": "^1.2.1",
+    "minimist": "^1.2.0",
     "moment": "^2.24.0",
     "newrelic": "^5.8.0",
     "node-rdkafka": "^2.9.0",
