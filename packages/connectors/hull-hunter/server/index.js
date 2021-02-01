@@ -65,22 +65,30 @@ export default async function handle({ request, client, connector }, message) {
     .get("https://api.hunter.io/v2/email-finder")
     .query(payload);
 
-  if (response.body && response.body.data.email) {
-    if (response.body.data.score > 90) {
-      const userClaims = {
-        external_id: user.external_id,
-        anonymous_id: _.first(user.anonymous_ids),
-        email: response.body.data.email
-      };
-      const traits = {
-        "hunter/enriched_at": moment().format(),
-        "hunter/email": response.body.data.email,
-        "hunter/score": response.body.data.score
-      };
-      return client.asUser(userClaims).traits(traits);
+  if (response.status === 200 && response.body) {
+    const userClaims = {
+      external_id: user.external_id,
+      anonymous_id: _.first(user.anonymous_ids)
+    };
+    if (response.body.data && response.body.data.email) {
+      if (response.body.data.score > 90) {
+        userClaims.email = response.body.data.email;
+      } else {
+        client.asUser(userClaims).logger.warn("outgoing.user.warning", {
+          warning: `Hunter.io returned score below 90: ${response.body.data.score}, saving enriched_at attributed and ignoring the email.`
+        });
+      }
+    } else {
+      client.asUser(userClaims).logger.warn("outgoing.user.warning", {
+        warning: `Hunter.io returned no email for this user, saving enriched_at attribute and skipping.`
+      });
     }
-    throw new SkippableError(`Hunter.io returned score below 90: ${response.body.data.score}, ignoring results.`);
+    const traits = {
+      "hunter/enriched_at": moment().format(),
+      "hunter/email": response.body.data.email,
+      "hunter/score": response.body.data.score
+    };
+    return client.asUser(userClaims).traits(traits);
   }
-
   throw new Error("Hunter.io returned unknown API response, if error persist contact Hull support.");
 }

@@ -1,6 +1,6 @@
-# Hunter.io
+# Hunter
 
-This connector currently supports hunter.io Email Finder feature. Which allows to find email address of a person based on 2 data points - person's name and company domain or name. As a result it allows to obtain this identifier for Hull User Profile in order to process it in other tools or merge/unify with existing user profile.
+This connector currently supports Hunter (hunter.io) Email Finder feature. Which allows to find email address of a person based on 2 data points - person's name and company domain or name. As a result it allows to obtain this identifier for Hull User Profile in order to process it in other tools or merge/unify with existing user profile.
 
 **IMPORTANT:** this is BETA connector and may contain major bugs, use with caution on safe data first. Consider pausing the connector and running it manually before enabling automatic flow.
 
@@ -36,8 +36,9 @@ Depending on the setup connector will send out following params to this endpoint
 - domain (required if company is not mapped)
 - company (required if domain is not mapped)
 
-Once response from hunter.io is obtained and returned score is above 90 the connector will save email address to the user profile, additionally it will store following attributes:
+Once successful response from hunter.io is received the connector will save some attributes in it's group (see the list below).
+The actual top level email address will be stored only if it's found and the score is at least 90. In other cases the email and score will be stored in the attributes for further inspection.
 
-- hunter/enriched_at
-- hunter/email
-- hunter/score
+- hunter/enriched_at - saved every time a correct enrichment call is made to Hunter API not matter what was the result
+- hunter/email - saved every time an email address was found
+- hunter/score - saved every time score was returned by Hunter API
