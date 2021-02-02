@@ -26,14 +26,10 @@
       "options": {
         "tokenInUrl": true,
         "name": "Salesforce",
-        "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
-        "tokenURL": "https://login.salesforce.com/services/oauth2/token",
-        "scope": ["refresh_token", "api"],
         "strategy": {
-          "tokenInUrl": true,
-          "name": "Salesforce",
-          "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
-          "tokenURL": "https://login.salesforce.com/services/oauth2/token",
+          "name": "forcedotcom",
+          "authorizationURL": "/services/oauth2/authorize",
+          "tokenURL": "/services/oauth2/token",
           "scope": ["refresh_token", "api"]
         }
       }

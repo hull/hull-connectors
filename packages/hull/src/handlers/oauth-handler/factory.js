@@ -11,6 +11,7 @@ import type { NextFunction, $Response } from "express";
 import getRouter from "../get-router";
 import getMessage from "../../utils/get-message-from-request";
 
+const _ = require("lodash");
 const cors = require("cors");
 const passport = require("passport");
 const querystring = require("querystring");
@@ -50,6 +51,7 @@ function getURLs(req) {
     // home: getURL(req, HOME_URL)
   };
 }
+
 const noopPromise = (_ctx, _message) => Promise.resolve({});
 function OAuthHandlerFactory({
   options: opts,
@@ -89,44 +91,52 @@ function OAuthHandlerFactory({
     // disableErrorHandling: false
   });
 
-  const OAuthStrategy = new Strategy(
-    {
-      ...strategy,
-      clientID,
-      clientSecret,
-      passReqToCallback: true
-    },
-    function verifyAccount(
-      req: HullRequest,
-      accessToken: string,
-      refreshToken: string,
-      verifyParams: any,
-      profile: (any, any) => any,
-      done?: (any, any) => any
-    ) {
-      if (done === undefined) {
-        done = profile;
-        profile = verifyParams;
-        verifyParams = undefined;
-      }
-      done(undefined, {
-        accessToken,
-        refreshToken,
-        params: verifyParams,
-        profile
-      });
-    }
-  );
-
-  passport.serializeUser((req, user, done) => {
-    req.user = user;
-    done(null, user);
-  });
-
-  passport.use(OAuthStrategy);
+  const { authorizationURL, tokenURL, name: strategyName } = strategy;
 
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
-    passport.authorize(OAuthStrategy.name, {
+    const oauth_url = req.hull.connector.private_settings[
+      `${_.toLower(name)}_oauth_url`
+    ].replace(/\/$/, "");
+
+    const OAuthStrategy = new Strategy(
+      {
+        ...strategy,
+        authorizationURL: `${oauth_url}/${authorizationURL}`,
+        tokenURL: `${oauth_url}/${tokenURL}`,
+        clientID,
+        clientSecret,
+        passReqToCallback: true
+      },
+      function verifyAccount(
+        req1: HullRequest,
+        accessToken: string,
+        refreshToken: string,
+        verifyParams: any,
+        profile: (any, any) => any,
+        done?: (any, any) => any
+      ) {
+        if (done === undefined) {
+          done = profile;
+          profile = verifyParams;
+          verifyParams = undefined;
+        }
+        done(undefined, {
+          accessToken,
+          refreshToken,
+          params: verifyParams,
+          profile
+        });
+      }
+    );
+
+    passport.serializeUser((req1, user, done) => {
+      req1.user = user;
+      done(null, user);
+    });
+
+    passport.use(OAuthStrategy);
+
+    passport.authorize(strategyName, {
       ...req.hull.authParams,
       failureFlash: true,
       failureRedirect: getURL(
