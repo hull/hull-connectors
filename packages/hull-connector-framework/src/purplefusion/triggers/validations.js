@@ -92,6 +92,11 @@ const required: HullTriggerValidationFunction = (
   whitelist: Array<string>
 ): boolean %checks => !_.isEmpty(obj);
 
+const empty: HullTriggerValidationFunction = (
+  obj,
+  whitelist: Array<string>
+): boolean %checks => _.isEmpty(obj);
+
 const isValidSubEntity = (
   entity: {},
   rules: Array<HullTriggerValidation>,
@@ -153,5 +158,6 @@ module.exports = {
   validateChanges,
   validateSegments,
   validateEvents,
-  required
+  required,
+  empty
 };
