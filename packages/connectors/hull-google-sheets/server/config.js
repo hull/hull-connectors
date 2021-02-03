@@ -1,18 +1,3 @@
-// import Hull from "hull";
-// import app from "./app";
-//
-// const options = {
-//   Hull,
-//   skipSignatureValidation: true,
-//   installUrl: process.env.INSTALL_URL
-// };
-//
-// const connector = new Hull.Connector(options);
-// connector.startApp(app(connector, options));
-//
-//
-//
-
 // @flow
 
 import type { HullConnectorConfig } from "hull";

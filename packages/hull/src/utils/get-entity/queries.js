@@ -56,7 +56,6 @@ const getTerms = (claims?: HullEntityClaims = {}): Array<Lookup | Condition> =>
         return filters;
       }
       const tt = TERMS[claim].map(term => ({ term: { [term]: value } }));
-      console.log(tt);
       filters.push(tt.length === 1 ? _.first(tt) : condition("should", tt));
       return filters;
     },

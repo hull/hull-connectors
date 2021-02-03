@@ -1,7 +1,7 @@
 // @flow
 import type { HullContext, HullCredentialsResponse } from "hull";
 
-const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
+const HULL_JS_URL = "https://js.hull.io/0.11.0/hull.js.gz";
 
 const credentialsHandler = REMOTE_DOMAIN => (
   ctx: HullContext

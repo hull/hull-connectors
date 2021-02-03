@@ -1,10 +1,10 @@
 // @flow
 
-import uuid from "uuid/v1";
 import Hull from "hull-client/src";
 import cacheManager from "cache-manager";
+import uuid from "uuid/v1";
 
-const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
+const HULL_JS_URL = "https://js.hull.io/0.11.0/hull.js.gz";
 const ONE_YEAR = 365 * 24 * 3600000;
 const THIRTY_MINUTES = 1800000;
 

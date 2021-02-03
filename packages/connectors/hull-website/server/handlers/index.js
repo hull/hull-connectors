@@ -1,25 +1,22 @@
 // @flow
 import type {
-  HullHandlersConfiguration,
   Connector,
-  HullFirehoseKafkaTransport
+  HullFirehoseKafkaTransport,
+  HullHandlersConfiguration
 } from "hull";
-import bluebird from "bluebird";
+
 import Redis from "redis";
-import SocketIO from "socket.io";
-import socketIOredis from "socket.io-redis";
+import redisAdapter from "socket.io-redis";
 import Store from "../lib/store";
-import statusHandlerFactory from "./status";
-import userUpdateFactory from "./user-update";
 import connectorUpdateFactory from "./connector-update";
+import credentialsHandler from "./credentials-handler";
+import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
 import onConnectionFactory from "../lib/on-connection";
 import sendPayloadFactory from "../lib/send-payload";
-import credentialsHandler from "./credentials-handler";
+import statusHandlerFactory from "./status";
+import userUpdateFactory from "./user-update";
 
-import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
-
-bluebird.promisifyAll(Redis.RedisClient.prototype);
-bluebird.promisifyAll(Redis.Multi.prototype);
+const SocketIO = require("socket.io");
 
 const handlers = ({
   redisUri,
@@ -30,16 +27,27 @@ const handlers = ({
   redisUri: string,
   firehoseTransport: HullFirehoseKafkaTransport
 }) => async (connector: Connector): HullHandlersConfiguration => {
-  const { app, server, Client, getContext } = connector;
+  const { app, server, getContext } = connector;
   const redis = Redis.createClient(redisUri);
+  const pubClient = redis.duplicate();
+  const subClient = pubClient.duplicate();
+
   const store = Store(redis);
-  const io = SocketIO(server, {
-    pingInterval: 15000,
-    pingTimeout: 30000
-  }).adapter(socketIOredis(redisUri));
+
+  const io = SocketIO({
+    transports: ["websocket"],
+    pingInterval: 5000,
+    pingTimeout: 3000
+  }).adapter(redisAdapter({ pubClient, subClient }));
+
+  io.attach(server);
+
+  // io.on("connection", socket => {
+  //   console.log("On Connection", socket.handshake.query); // prints { x: "42", EIO: "4", transport: "polling" }
+  // });
+
   const sendPayload = sendPayloadFactory({ io });
   const onConnection = onConnectionFactory({
-    Client,
     getContext,
     store,
     sendPayload

@@ -15,12 +15,9 @@ export default function connectorConfig(): HullConnectorConfig {
   if (!REDIS_URL) {
     throw new Error("Missing REDIS_URL environment variable");
   }
-  if (!FIREHOSE_KAFKA_BROKERS) {
-    throw new Error("Missing FIREHOSE_KAFKA_BROKERS environment variable");
-  }
-  if (!FIREHOSE_KAFKA_TOPIC) {
-    throw new Error("Missing FIREHOSE_KAFKA_TOPIC environment variable");
-  }
+
+  const usesKafka = FIREHOSE_KAFKA_BROKERS && FIREHOSE_KAFKA_TOPIC;
+
   if (!HULL_DOMAIN) {
     throw new Error("Missing HULL_DOMAIN environment variable");
   }
@@ -35,17 +32,19 @@ export default function connectorConfig(): HullConnectorConfig {
       redisUri: REDIS_URL,
       HULL_DOMAIN,
       REMOTE_DOMAIN,
-      firehoseTransport: {
-        type: "kafka",
-        brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
-        topic: FIREHOSE_KAFKA_TOPIC,
-        producerConfig: {
-          "queue.buffering.max.ms": parseInt(
-            FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
-            10
-          )
-        }
-      }
+      firehoseTransport: usesKafka
+        ? {
+            type: "kafka",
+            brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
+            topic: FIREHOSE_KAFKA_TOPIC,
+            producerConfig: {
+              "queue.buffering.max.ms": parseInt(
+                FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
+                10
+              )
+            }
+          }
+        : undefined
     })
   };
 }

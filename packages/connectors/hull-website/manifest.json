@@ -152,6 +152,18 @@
         "settings.load_scripts",
         "settings.init_script"
       ]
+    },
+    {
+      "title": "Personalization",
+      "description": "This section allows to personalize content on of the website based on data send back from Hull as we detect changes on identified user.<br /> - start by enabling the feature toggle<br /> - define conditions for a user to be sent client-side, by whitelisting some segments<br /> - select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
+      "properties": [
+        "private_settings.subscribe_to_user_updates",
+        "private_settings.synchronized_segments",
+        "private_settings.public_traits",
+        "private_settings.public_segments",
+        "private_settings.public_account_segments",
+        "settings.script"
+      ]
     }
   ],
   "status": {
@@ -170,5 +182,19 @@
       "handler": "statusHandler"
     }
   ],
-  "subscriptions": []
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "connectorUpdate"
+        }
+      ]
+    }
+  ]
 }

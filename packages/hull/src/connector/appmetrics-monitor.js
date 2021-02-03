@@ -1,5 +1,5 @@
-import StatsdClient from "statsd-client";
 import AppMetrics from "appmetrics";
+import StatsdClient from "statsd-client";
 
 const MonitorStatus = { client: null };
 

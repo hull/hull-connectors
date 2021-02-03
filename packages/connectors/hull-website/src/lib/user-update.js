@@ -32,7 +32,7 @@ export default function userUpdate({
       changes
     };
 
-    debug("emitting user.update", update);
+    debug("received user.update, emitting", update);
     emitter.emit("user.update", update);
 
     eval(

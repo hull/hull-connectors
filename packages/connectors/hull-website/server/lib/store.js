@@ -1,8 +1,8 @@
 // @flow
 
-import _ from "lodash";
-import Lru from "redis-lru";
 import type { HullContext } from "hull";
+import Lru from "redis-lru";
+import _ from "lodash";
 import type { Store as StoreReturnValue } from "../../types";
 
 export default function Store(redis: any): StoreReturnValue {
@@ -16,16 +16,12 @@ export default function Store(redis: any): StoreReturnValue {
     return POOL[id];
   };
 
-  const get = (id: string) =>
-    redis.getAsync(id).then(
-      res => JSON.parse(res),
-      err => {
-        throw err;
-      }
-    );
+  const get = async (id: string) => {
+    const res = await redis.get(id);
+    return JSON.parse(res);
+  };
 
-  const set = (id: string, value: any) =>
-    redis.setAsync(id, JSON.stringify(value));
+  const set = (id: string, value: any) => redis.set(id, JSON.stringify(value));
 
   const lru = (id: string) => {
     if (LRU[id]) return LRU[id];

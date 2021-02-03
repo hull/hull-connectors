@@ -1,43 +1,42 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
-import queueUIRouter from "hull/src/infra/queue/ui-router";
+
 import OS from "os";
+import type { Server } from "http";
 import _ from "lodash";
 import cluster from "cluster";
-import type { Server } from "http";
 import express from "express";
 import https from "http";
-import repl from "hullrepl";
 import minimist from "minimist";
-import type {
-  HullContext,
-  HullServerConfig,
-  HullContextGetter,
-  HullJsonConfig,
-  HullWorkerConfig,
-  HullConnectorConfig,
-  HullClient,
-  HullCredentialsObject,
-  HullRouterFactory,
-  HullWorker
-} from "../types/index";
+import queueUIRouter from "hull/src/infra/queue/ui-router";
+import repl from "hullrepl";
+import mergeConfig from "../utils/merge-config";
+import errorHandler from "./error";
+import buildConfigurationFromEnvironment from "../utils/config-from-env";
+import AppMetricsMonitor from "./appmetrics-monitor";
 import {
-  jsonHandler,
-  scheduleHandler,
-  notificationHandler,
-  batchHandler,
-  incomingRequestHandler,
-  htmlHandler,
   OAuthHandler,
+  batchHandler,
+  htmlHandler,
+  incomingRequestHandler,
+  jsonHandler,
+  notificationHandler,
+  scheduleHandler,
   statusHandler
 } from "../handlers";
-
-import AppMetricsMonitor from "./appmetrics-monitor";
-import errorHandler from "./error";
-
-import buildConfigurationFromEnvironment from "../utils/config-from-env";
-import mergeConfig from "../utils/merge-config";
+import type {
+  HullClient,
+  HullConnectorConfig,
+  HullContext,
+  HullContextGetter,
+  HullCredentialsObject,
+  HullJsonConfig,
+  HullRouterFactory,
+  HullServerConfig,
+  HullWorker,
+  HullWorkerConfig
+} from "../types/index";
 
 const { compose } = require("compose-middleware");
 
@@ -300,13 +299,16 @@ export default class HullConnector {
       }
 
       this.app = app;
-      const server = this.startApp(app);
-      if (server) {
-        this.server = server;
-      }
+      const server = https.createServer(app);
+      this.server = server;
+
       this.setupApp(app);
+
       await this.setupRoutes(app);
+
       this.setupErrorHandling(app);
+
+      this.startApp(server);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
@@ -569,11 +571,10 @@ export default class HullConnector {
    * @param  {express} app expressjs application
    * @return {http.Server}
    */
-  startApp(app: $Application): Promise<?Server> {
+  startApp(server: $Server): void {
     const { port } = this.connectorConfig;
     const maxConnections = getMaxConnections();
     const backlog = getBacklogSize();
-    const server = https.createServer(app);
     server.listen(
       {
         port: parseInt(port, 10),

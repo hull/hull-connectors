@@ -35,6 +35,10 @@ function devMode({ source, destination }) {
         disableDotRule: true
       },
       proxy: {
+        "/socket.io": {
+          target: `http://0.0.0.0:${PORT}`,
+          ws: true
+        },
         "/": {
           target: `http://0.0.0.0:${PORT}`
         }

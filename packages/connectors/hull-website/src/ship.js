@@ -1,26 +1,28 @@
-import { Promise } from "es6-promise";
-import find from "lodash/find";
-import isEmpty from "lodash/isEmpty";
-import _get from "lodash/get";
-import io from "socket.io-client";
 import { EventEmitter2 as EventEmitter } from "eventemitter2";
-import debugFactory from "debug";
+import { Promise } from "es6-promise";
+import _get from "lodash/get";
+import find from "lodash/find";
+import io from "socket.io-client";
+import isEmpty from "lodash/isEmpty";
 import {
-  setLocalStorage,
+  getLocalStorage,
   getLocalStorageId,
-  getLocalStorage
-  // deleteLocalStorage
+  setLocalStorage
 } from "./lib/localstorage";
-import getQueryStringIds from "./lib/querystring";
+
+import diff from "./lib/diff";
 import getAnalyticsIds from "./lib/analytics";
 import getHullIds from "./lib/hull";
 import getIntercomIds from "./lib/intercom";
+import getQueryStringIds from "./lib/querystring";
 import userUpdate from "./lib/user-update";
-import diff from "./lib/diff";
+
+const debug = require("debug")("hull-browser");
+
 // import destinations from "./destinations";
 
-const onEmbed = (rootNode, deployment, hull) => {
-  const debug = debugFactory("hull-browser");
+const findId = (ids = []) => find(ids, idGroup => !isEmpty(idGroup));
+const getEndpoint = ({ hull, deployment }) => {
   const scriptTag = document.querySelector("script[data-hull-endpoint]");
   let connectorId;
   let endpoint;
@@ -28,7 +30,7 @@ const onEmbed = (rootNode, deployment, hull) => {
     const { ship: connector, platform } = deployment;
     if (platform) {
       connectorId = connector.id;
-      endpoint = `${connector.source_url.replace(/\/$/, "")}`;
+      endpoint = connector.source_url.replace(/\/$/, "");
     } else if (connector && connector.index) {
       const shipSource = document.createElement("a");
       shipSource.href = deployment.ship.index;
@@ -41,94 +43,80 @@ const onEmbed = (rootNode, deployment, hull) => {
     connectorId = scriptTag.getAttribute("data-hull-id");
     endpoint = scriptTag.getAttribute("data-hull-endpoint");
   }
-
   if (!connectorId || !endpoint) {
     return console.log(
       "Could not find ID or Endpoint on the Script tag. Did you copy/paste it correctly?"
     );
   }
+  return { uri: `${endpoint}/${connectorId}`, connectorId };
+};
 
-  const findId = (ids = []) => find(ids, idGroup => !isEmpty(idGroup));
-  debug("Creating socket on", `${endpoint}/${connectorId}`);
-  const socket = io(`${endpoint}/${connectorId}`, {
-    transports: ["websocket"]
-  });
+const findUserIds = async ({ socket, callback }) => {
+  try {
+    const ids = await Promise.all([
+      getLocalStorageId(),
+      getQueryStringIds(),
+      getIntercomIds(),
+      getHullIds(),
+      getAnalyticsIds()
+    ]);
+    const claims = findId(ids);
+    if (!isEmpty(claims)) {
+      callback(null, claims);
+      return;
+    }
+    setTimeout(() => findUserIds({ socket, callback }), 500);
+  } catch (err) {
+    debug(err);
+  }
+};
+
+const onEmbed = async (rootNode, deployment, hull) => {
+  const { uri } = getEndpoint({ hull, deployment });
+  debug("Creating socket on", uri);
+  const socket = io(uri, { transports: ["websocket"] });
+
   const emitter =
-    window.Hull && window.Hull.emit
-      ? window.Hull
-      : new EventEmitter({
-          wildcard: true,
-          verboseMemoryLeak: true
-        });
+    hull ||
+    new EventEmitter({
+      wildcard: true,
+      verboseMemoryLeak: true
+    });
 
   // destinations({ emitter });
-  if (!window.Hull) window.hullBrowser = emitter;
+  if (!hull) window.hullBrowser = emitter;
 
-  function setup() {
-    const search = hull
-      ? Promise.all([getHullIds()])
-      : Promise.all([
-          getLocalStorageId(),
-          getQueryStringIds(),
-          getIntercomIds(),
-          getHullIds(),
-          getAnalyticsIds()
-        ]);
-
-    search
-      .then(
-        ids => {
-          const found = findId(ids);
-          if (!isEmpty(found)) return found;
-          setTimeout(setup, 500);
-          return null;
-        },
-        err => debug(err)
-      )
-      .then(
-        (claims = {}) => {
-          if (!claims) return null;
-          debug("Establishing connection with settings", {
-            connectorId,
-            claims
-          });
-          socket.emit("user.fetch", {
-            connectorId,
-            claims
-          });
-          return true;
-        },
-        err => debug(err)
-      );
-  }
-
-  // Emit a first event on boot.
-  getLocalStorage().then(payload =>
-    userUpdate({ emitter, debug, payload, boot: true })
-  );
-
-  setup();
-
+  socket.on("connect", () => debug("Connected", { socket }));
+  socket.on("disconnect", () => debug("Disconnected", { socket }));
+  socket.on("room.joined", res => debug("room.joined", res));
+  socket.on("room.error", res => debug("error", res));
+  socket.on("cache.miss", res => debug("cache.miss", res));
+  socket.on("close", res => debug("close", res));
   socket.on("user.update", async (payload = {}) => {
-    debug("user.update start", payload);
+    debug("user.update: received", payload);
     const userId = _get(payload, "user.id");
-    const previous = (await getLocalStorage()) || {};
+    const previous = getLocalStorage() || {};
     const changes = diff(payload, previous);
     if (!isEmpty(changes)) {
-      debug("user.update CHANGE", changes);
+      debug("user.update: user changed", { changes });
       if (userId) setLocalStorage(payload);
       userUpdate({ emitter, debug, payload, changes });
+    } else {
+      debug("user.update: no change", { changes });
     }
   });
-  socket.on("room.joined", res => {
-    debug("room.joined", res);
+
+  findUserIds({
+    socket,
+    callback: (err, claims) => {
+      debug("user.fetch: Asking server for User", { claims });
+      socket.emit("user.fetch", { claims });
+    }
   });
-  socket.on("room.error", res => {
-    debug("error", res);
-  });
-  socket.on("close", ({ message }) => {
-    debug("close", message);
-  });
+
+  // Emit a first event on boot.
+  userUpdate({ emitter, debug, payload: getLocalStorage(), boot: true });
+
   return true;
 };
 

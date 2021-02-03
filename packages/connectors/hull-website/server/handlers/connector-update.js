@@ -1,6 +1,6 @@
+import type { HullContext } from "hull";
 // @flow
 import typeof SocketIO from "socket.io";
-import type { HullContext } from "hull";
 import type { Store } from "../../types";
 
 export type ConnectorUpdateFunction = (ctx: HullContext) => Promise<void>;
@@ -14,14 +14,19 @@ export default function connectorUpdateFactory({
   io: SocketIO
 }): ConnectorUpdateFunction {
   return async function connectorUpdate(ctx: HullContext) {
-    const { connector = {} } = ctx;
+    const { connector = {}, clientCredentialsEncryptedToken } = ctx;
     const { id } = connector;
     if (!id) {
       throw new Error("Could not find a connector ID in the received payload");
     }
     await store.setup(ctx /* , io */);
     if (store.pool(id)) return;
-    const setupOnConnection = io.of(id).on("connection", onConnection);
+    ctx.client.logger.info("Initializing Websocket Namespace with connector", {
+      id
+    });
+    const setupOnConnection = io
+      .of(id)
+      .on("connection", onConnection(clientCredentialsEncryptedToken));
     store.pool(id, setupOnConnection);
   };
 }
