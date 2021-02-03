@@ -2,7 +2,6 @@
 const express = require("express");
 const superagent = require("superagent");
 const bluebirdPromise = require("bluebird");
-const https = require("http");
 const MiniHull = require("minihull");
 const sinon = require("sinon");
 const { expect } = require("chai");
@@ -37,7 +36,6 @@ describe("notificationHandler", () => {
     });
 
     app = express();
-    server = https.createServer(app);
     connector = new Hull.Connector({
       manifest: {},
       connectorName: "TestConnector",
@@ -96,7 +94,7 @@ describe("notificationHandler", () => {
         }
       }).router
     );
-    connector.startApp(server);
+    server = connector.startApp(app);
     miniHull.listen(3000).then(done);
   });
 

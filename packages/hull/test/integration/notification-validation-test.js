@@ -3,7 +3,6 @@ const { expect, should } = require("chai");
 const sinon = require("sinon");
 const express = require("express");
 const Promise = require("bluebird");
-const https = require("http");
 
 const Hull = require("../../src");
 const notificationHandler = require("../../src/handlers/notification-handler/factory");
@@ -15,7 +14,6 @@ const chaiHttp = require("chai-http");
 
 chai.use(chaiHttp);
 const app = express();
-const server = https.createServer(app);
 const handler = sinon.stub().resolves(true);
 const valid_notification = {
   notification_id: "0123456789",
@@ -46,14 +44,19 @@ const connector = new Hull.Connector({
   notificationValidatorHttpClient: mockHttpClient
 });
 connector.setupApp(app);
+// app.use(smartNotifierMiddleware({
+//   skipSignatureValidation: false,
+//   httpClient: mockHttpClient
+// }));
 app.use(
   "/notify",
   notificationHandler({
     "user:update": handler
   }).router
 );
+// app.use(smartNotifierErrorMiddleware());
 
-connector.startApp(server);
+const server = connector.startApp(app);
 
 describe("notificationHandler validation", () => {
   it("should fail with missing smart notifier header", done => {

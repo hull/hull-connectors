@@ -1,42 +1,43 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
-
+import queueUIRouter from "hull/src/infra/queue/ui-router";
 import OS from "os";
-import type { Server } from "http";
 import _ from "lodash";
 import cluster from "cluster";
+import type { Server } from "http";
 import express from "express";
 import https from "http";
-import minimist from "minimist";
-import queueUIRouter from "hull/src/infra/queue/ui-router";
 import repl from "hullrepl";
-import mergeConfig from "../utils/merge-config";
-import errorHandler from "./error";
-import buildConfigurationFromEnvironment from "../utils/config-from-env";
-import AppMetricsMonitor from "./appmetrics-monitor";
+import minimist from "minimist";
+import type {
+  HullContext,
+  HullServerConfig,
+  HullContextGetter,
+  HullJsonConfig,
+  HullWorkerConfig,
+  HullConnectorConfig,
+  HullClient,
+  HullCredentialsObject,
+  HullRouterFactory,
+  HullWorker
+} from "../types/index";
 import {
-  OAuthHandler,
-  batchHandler,
-  htmlHandler,
-  incomingRequestHandler,
   jsonHandler,
-  notificationHandler,
   scheduleHandler,
+  notificationHandler,
+  batchHandler,
+  incomingRequestHandler,
+  htmlHandler,
+  OAuthHandler,
   statusHandler
 } from "../handlers";
-import type {
-  HullClient,
-  HullConnectorConfig,
-  HullContext,
-  HullContextGetter,
-  HullCredentialsObject,
-  HullJsonConfig,
-  HullRouterFactory,
-  HullServerConfig,
-  HullWorker,
-  HullWorkerConfig
-} from "../types/index";
+
+import AppMetricsMonitor from "./appmetrics-monitor";
+import errorHandler from "./error";
+
+import buildConfigurationFromEnvironment from "../utils/config-from-env";
+import mergeConfig from "../utils/merge-config";
 
 const { compose } = require("compose-middleware");
 
@@ -279,17 +280,15 @@ export default class HullConnector {
       const concurrency = getConcurrency();
       if (concurrency > 1) {
         if (cluster.isMaster) {
-          console.log(
-            `Starting cluster in Main Mode, with ${concurrency} instances`
-          );
+          debug(`Starting cluster in Main Mode, with ${concurrency} instances`);
           for (let i = 0; i < concurrency; i += 1) {
             cluster.fork();
           }
           return;
         }
-        console.log("Starting cluster in Secondary Mode");
+        debug("Starting cluster in Secondary Mode");
       } else {
-        console.log("Starting in Single process mode");
+        debug("Starting in Single process mode");
       }
 
       const app = express();
@@ -299,16 +298,13 @@ export default class HullConnector {
       }
 
       this.app = app;
-      const server = https.createServer(app);
-      this.server = server;
-
+      const server = this.startApp(app);
+      if (server) {
+        this.server = server;
+      }
       this.setupApp(app);
-
       await this.setupRoutes(app);
-
       this.setupErrorHandling(app);
-
-      this.startApp(server);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
@@ -571,10 +567,11 @@ export default class HullConnector {
    * @param  {express} app expressjs application
    * @return {http.Server}
    */
-  startApp(server: $Server): void {
+  startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
     const maxConnections = getMaxConnections();
     const backlog = getBacklogSize();
+    const server = https.createServer(app);
     server.listen(
       {
         port: parseInt(port, 10),
