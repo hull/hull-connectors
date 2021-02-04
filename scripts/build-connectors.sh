@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # this scripts builds a webpack project
+CONNECTOR=${CONNECTOR:=$1}
+echo "CONNECTOR BUILD SPECIFIED: $CONNECTOR"
 
 # Ignore the client-side JS files and Test files
 babel packages                          -d dist                                       --root-mode upward --verbose --copy-files --ignore "packages/connectors/*/src/**","packages/connectors/*/test/**","packages/hull-vm/src/**","packages/hull-webhooks/src/**","packages/hull-lightweight/src/**","packages/hull-sql/src/**"
@@ -16,10 +18,17 @@ babel packages/hull-connector-framework -d dist/node_modules/hull-connector-fram
 
 rsync -rl packages/ dist/ --ignore-existing
 
-for d in packages/connectors/*; do
-  if [ -d "$d" ]; then
-    if [ -d "$d/src" ]; then
-      webpack --progress --config webpack --env=$d
+if [[ $CONNECTOR && -d "packages/connectors/$CONNECTOR" && -d "packages/connectors/$CONNECTOR/src" ]]; then
+  echo "Building only one Connector"
+  webpack --progress --config webpack --env="packages/connectors/$CONNECTOR"
+else
+  echo "Building all Connectors"
+  for d in packages/connectors/*; do
+    if [ -d "$d" ]; then
+      if [ -d "$d/src" ]; then
+        webpack --progress --config webpack --env=$d
+      fi
     fi
-  fi
-done
+  done
+fi
+
