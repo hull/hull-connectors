@@ -8,7 +8,6 @@ import type {
   HullFetchedUser
 } from "hull";
 
-import URI from "urijs";
 import _ from "lodash";
 import type { Store } from "../../types";
 
@@ -19,8 +18,7 @@ const USER_NOT_FOUND = {
   segments: {}
 };
 
-const getIdentifier = (q = {}) =>
-  q.id || q.external_id || q.email || q.anonymous_id;
+const getRoom = (q = {}) => q.id || q.external_id || q.email || q.anonymous_id;
 
 const logAndClose = (socket, Client) => (
   action: string = "incoming.user.fetch.error",
@@ -33,14 +31,6 @@ const logAndClose = (socket, Client) => (
     socket.disconnect(true);
   }, 200);
 };
-
-const isWhitelisted = (domains, hostname) =>
-  _.includes(
-    _.map(domains, d =>
-      URI(`https://${d.replace(/http(s)?:\/\//, "")}`).hostname()
-    ),
-    hostname
-  );
 
 export default function onConnectionFactory({
   getContext,
@@ -57,10 +47,7 @@ export default function onConnectionFactory({
       const ctx: HullContext = await getContext({
         clientCredentialsEncryptedToken
       });
-      const { client, connector } = ctx;
-
-      const { private_settings = {} } = connector;
-      const { whitelisted_domains = [] } = private_settings;
+      const { client } = ctx;
 
       // socket.emit("credentials.update", {
       //   token: clientCredentialsEncryptedToken
@@ -71,59 +58,21 @@ export default function onConnectionFactory({
       socket.on("user.fetch", async function onUserFetch({ claims = {} }) {
         const connectorId = socket.nsp.name.replace("/", "");
         try {
-          client.logger.debug("incoming.connection.start", {});
-
           if (!_.size(claims)) {
             return logClose(
-              "incoming.connection.error",
+              "user.fetch.error",
               `Empty Claims (${connectorId})`
-            );
-          }
-
-          const { origin } = socket.request.headers;
-
-          if (!origin) {
-            return logClose(
-              "incoming.connection.error",
-              `Not connecting socket: No Origin (${connectorId})`
             );
           }
 
           const userClient = client.asUser(claims, { scopes: ["admin"] });
 
-          if (!whitelisted_domains.length) {
-            return logClose(
-              "incoming.connection.error",
-              "No whitelisted domains",
-              userClient
-            );
-          }
-
-          userClient.logger.debug("incoming.connection.check", { origin });
-
-          // Only continue if domain is whitelisted.
-          const hostname = URI(origin).hostname();
-          const whitelisted = isWhitelisted(whitelisted_domains, hostname);
-
-          if (!whitelisted) {
-            return logClose(
-              "incoming.connection.error",
-              `Unauthorized domain ${hostname}. Authorized: ${JSON.stringify(
-                _.map(whitelisted_domains, d => URI(d).hostname())
-              )}`,
-              client
-            );
-          }
-
-          // Starting the actual outgoing data sequence
-          userClient.logger.info("incoming.connection.success");
-
           // Only join one room to avoid multi-posting
-          const identifier = getIdentifier(claims);
+          const room = getRoom(claims);
 
-          userClient.logger.info("incoming.user.joinRoom", identifier);
-          socket.join(identifier);
-          socket.emit("room.joined", identifier);
+          userClient.logger.info("incoming.user.joinRoom", room);
+          socket.join(room);
+          socket.emit("room.joined", room);
 
           userClient.logger.info("incoming.user.fetch.start", claims);
 

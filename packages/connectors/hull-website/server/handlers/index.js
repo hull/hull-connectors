@@ -16,6 +16,7 @@ import sendPayloadFactory from "../lib/send-payload";
 import statusHandlerFactory from "./status";
 import userUpdateFactory from "./user-update";
 
+const debug = require("debug")("hull-website");
 const SocketIO = require("socket.io");
 
 const handlers = ({
@@ -35,12 +36,18 @@ const handlers = ({
   const store = Store(redis);
 
   const io = SocketIO({
-    transports: ["websocket"],
+    transports: ["polling", "websocket"],
     pingInterval: 5000,
     pingTimeout: 3000
   }).adapter(redisAdapter({ pubClient, subClient }));
 
   io.attach(server);
+
+  io.of(/^\w+$/).on("connection", socket => {
+    const { nsp } = socket;
+    debug("Connection to unknown Namespace", nsp);
+    nsp.emit("connection.error", { error: "Invalid Namespace " });
+  });
 
   // io.on("connection", socket => {
   //   console.log("On Connection", socket.handshake.query); // prints { x: "42", EIO: "4", transport: "polling" }
