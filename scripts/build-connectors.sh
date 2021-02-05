@@ -18,7 +18,7 @@ babel packages/hull-connector-framework -d dist/node_modules/hull-connector-fram
 
 rsync -rl packages/ dist/ --ignore-existing
 
-if [[ $CONNECTOR && -d "packages/connectors/$CONNECTOR" && -d "packages/connectors/$CONNECTOR/src" ]]; then
+if [ $CONNECTOR -a -d "packages/connectors/$CONNECTOR" -a -d "packages/connectors/$CONNECTOR/src" ]; then
   echo "Building only one Connector"
   webpack --progress --config webpack --env="packages/connectors/$CONNECTOR"
 else
