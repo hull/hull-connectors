@@ -23,7 +23,9 @@ const HullVariableContext = require("hull-connector-framework/src/purplefusion/v
 
 const {
   PostgresUserSchema,
-  PostgresAccountSchema
+  PostgresAccountSchema,
+  WarehouseUserWrite,
+  WarehouseAccountWrite
 } = require("./service-objects");
 
 // class UserModel extends Sequelize.Model {};
@@ -609,6 +611,18 @@ const postgresSdk = ({ clientID, clientSecret } : {
       endpointType: "upsert",
       batch: true,
       input: PostgresAccountSchema
+    },
+    upsertHullUser: {
+      method: "upsertHullUser",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseUserWrite
+    },
+    upsertHullAccount: {
+      method: "upsertHullAccount",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseAccountWrite
     }
   },
   error: {
