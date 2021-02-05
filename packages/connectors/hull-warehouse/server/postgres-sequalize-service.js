@@ -348,7 +348,7 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
-      if (attribute.key === "external_id") {
+      if (attribute.key === "external_id" || normalizedAttributeKey === "external_id") {
         sequalizeSchema["external_id"] = Sequelize.STRING;
       } else if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
