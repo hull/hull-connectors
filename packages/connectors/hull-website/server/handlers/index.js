@@ -35,13 +35,12 @@ const handlers = ({
 
   const store = Store(redis);
 
-  const io = SocketIO({
-    transports: ["polling", "websocket"],
+  const io = SocketIO(server, {
+    transports: ["websocket"],
     pingInterval: 5000,
-    pingTimeout: 3000
-  }).adapter(redisAdapter({ pubClient, subClient }));
-
-  io.attach(server);
+    pingTimeout: 3000,
+    adapter: redisAdapter({ pubClient, subClient })
+  });
 
   io.of(/^\w+$/).on("connection", socket => {
     const { nsp } = socket;

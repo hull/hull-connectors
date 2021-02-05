@@ -16,7 +16,10 @@ const debug = require("debug")("hull-browser");
 const onEmbed = async (rootNode, deployment, hull) => {
   const { uri } = getEndpoint({ hull, deployment });
   debug("Creating socket on", uri);
-  const socket = io(uri, { transports: ["websocket"] });
+  const socket = io(uri, {
+    transports: ["websocket"],
+    withCredentials: true
+  });
 
   const emitter =
     hull ||
