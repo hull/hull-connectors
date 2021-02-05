@@ -3,13 +3,11 @@ import type { HullContext } from "hull";
 import URI from "urijs";
 import _ from "lodash";
 
+const getHostname = d =>
+  URI(`https://${d.replace(/http(s)?:\/\//, "")}`).hostname();
+
 const isWhitelisted = (domains, hostname) =>
-  _.includes(
-    _.map(domains, d =>
-      URI(`https://${d.replace(/http(s)?:\/\//, "")}`).hostname()
-    ),
-    hostname
-  );
+  _.includes(_.map(domains, getHostname), hostname);
 
 const logAndClose = (socket, Client) => (
   action: string = "incoming.user.fetch.error",
@@ -57,8 +55,14 @@ export default function namespaceOriginMiddleware(ctx: HullContext) {
 
     if (!whitelisted) {
       const errMsg = `Unauthorized domain ${hostname}. Authorized: ${JSON.stringify(
-        _.map(whitelisted_domains, d => URI(d).hostname())
+        _.map(whitelisted_domains, getHostname)
       )}`;
+      client.logger.debug("Invalid Domain", {
+        whitelisted_domains,
+        whitelisted,
+        hostname,
+        origin
+      });
       logClose("incoming.connection.error", errMsg, client);
       return next(new Error(errMsg));
     }
