@@ -594,10 +594,7 @@ class SequalizeSdk {
   }
 }
 
-const postgresSdk = ({ clientID, clientSecret } : {
-  clientID: string,
-  clientSecret: string
-}): CustomApi => ({
+const postgresSdk = (): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
   endpoints: {
     createUserSchema: {
