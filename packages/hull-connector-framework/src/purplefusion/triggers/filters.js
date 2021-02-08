@@ -1,6 +1,7 @@
 // @flow
 
 import type { HullSegment, HullEvent } from "hull";
+import { getStandardAttributeName } from "./utils";
 const _ = require("lodash");
 
 const filterNone = (entity: any, whitelist: Array<string>) => entity;
@@ -19,7 +20,25 @@ const filterSegments = (
 const filterAttributeChanges = (
   attributeChanges: Object = {},
   whitelist: Array<string>
-) => _.pick(attributeChanges, whitelist);
+) => {
+  if (!_.isEmpty(_.intersection(whitelist, ["ALL", "all_attributes"]))) {
+    return attributeChanges;
+  }
+
+  return _.reduce(
+    attributeChanges,
+    (attrs, value, attributeName) => {
+      const standardAttributeName = getStandardAttributeName(attributeName);
+
+      if (_.includes(whitelist, standardAttributeName)) {
+        attrs[attributeName] = value;
+      }
+
+      return attrs;
+    },
+    {}
+  );
+};
 
 const filterEvents = (
   events: Array<HullEvent> = [],

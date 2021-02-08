@@ -1,12 +1,20 @@
 /**
  * Module dependencies.
  */
-const { BigQuery } = require("@google-cloud/bigquery");
-const { UserRefreshClient } = require('google-auth-library');
+
+import {
+  BigQueryDate,
+  BigQueryDatetime,
+  BigQueryTime,
+  BigQueryTimestamp
+} from "@google-cloud/bigquery"
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
 import { validateResultColumns } from "hull-sql";
+
+const { BigQuery } = require("@google-cloud/bigquery");
+const { UserRefreshClient } = require("google-auth-library");
 
 /**
  * Bigquery adapter.
@@ -128,6 +136,21 @@ export function wrapQuery(sql, replacements) {
   return SequelizeUtils.formatNamedParameters(sql, replacements, "mysql");
 }
 
+function transformDateTypes(value: any) {
+  const arrayTypes = [
+    BigQueryDate,
+    BigQueryDatetime,
+    BigQueryTime,
+    BigQueryTimestamp
+  ];
+  for (let i = 0; i < arrayTypes.length; ++i) {
+    if (value instanceof  arrayTypes[i] && _.get(value, "value", undefined)) {
+      return value.value;
+    }
+  }
+  return value;
+}
+
 /**
  * Runs the query using the specified client and options.
  * @param client The Bigquery client.
@@ -144,7 +167,14 @@ export function runQuery(client, query, options = {}) {
     };
 
     return client.query(options)
-      .then(data => resolve({ rows: data[0] }))
+      .then(data => {
+        _.forEach(data[0], row => {
+          _.forEach(row, (value, key) => {
+            row[key] = transformDateTypes(value);
+          })
+        })
+        return resolve({ rows: data[0] })
+      })
       .catch(err => {
         return reject(err);
       });
@@ -175,11 +205,14 @@ export function transformRecord(record, settings) {
   const skipFields = ["email", "external_id", "domain"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");
   _.forEach(record, (value, key) => {
+    let transformedKey;
+    const transformedValue = transformDateTypes(value);
     if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
-      transformedRecord[_.toLower(key)] = record[key];
+      transformedKey = _.toLower(key);
     } else {
-      transformedRecord[`${prefix}/${_.toLower(key)}`] = record[key];
+      transformedKey = `${prefix}/${_.toLower(key)}`;
     }
+    transformedRecord[transformedKey] = transformedValue;
   });
   return transformedRecord;
 }

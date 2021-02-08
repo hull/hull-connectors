@@ -1,0 +1,380 @@
+{
+  "name": "PostgreSQL Exporter",
+  "description": "Outgoing integration to PostgreSQL for Users, Accounts and Events",
+  "source": "outreach",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "tags": [
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "kraken-exports",
+    "postgres",
+    "sql"
+  ],
+  "private_settings": [
+    {
+      "type": "string",
+      "format": "title",
+      "name": "db_info",
+      "title": "Database connection"
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "title": "Type",
+      "enum": ["postgres"],
+      "default": "postgres",
+      "required": true
+    },
+    {
+      "name": "db_hostname",
+      "type": "string",
+      "title": "Database Hostname",
+      "required": true,
+      "description": "The hostname of the postgres database to connect to"
+    },
+    {
+      "name": "db_port",
+      "type": "number",
+      "title": "Database Port",
+      "default": 5432,
+      "required": true,
+      "description": "The port that you want to connect to"
+    },
+    {
+      "name": "db_name",
+      "type": "string",
+      "title": "Database Name",
+      "required": true,
+      "description": "The name of the database that you want to connect to"
+    },
+    {
+      "type": "string",
+      "format": "title",
+      "name": "db_info_login",
+      "title": "Database Login"
+    },
+    {
+      "name": "db_username",
+      "type": "string",
+      "title": "Username",
+      "required": true
+    },
+    {
+      "name": "db_password",
+      "type": "string",
+      "title": "Password",
+      "required": true,
+      "format": "password"
+    },
+    {
+      "name": "ssh_host",
+      "type": "string",
+      "title": "SSH host"
+    },
+    {
+      "name": "ssh_port",
+      "type": "string",
+      "title": "SSH port",
+      "description": "Defaults to port 22"
+    },
+    {
+      "name": "ssh_username",
+      "type": "string",
+      "title": "SSH username"
+    },
+    {
+      "name": "ssh_private_key",
+      "type": "string",
+      "format": "textarea",
+      "title": "SSH private key"
+    },
+    {
+      "name": "user_outgoing_sync_title",
+      "title": "Outgoing User Synchronization Options (Hull to PostgreSQL)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* to your postgreSQL database when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      }
+    },
+    {
+      "name": "send_all_user_attributes",
+      "title": "Send all user attributes",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "send_all_account_attributes",
+      "title": "Send all account attributes",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "account_outgoing_synch_title",
+      "title": "Outgoing Account Synchronization Options (Hull to PostreSQL)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Send *Accounts* to your PostgreSQL database when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      }
+    },
+    {
+      "name": "outgoing_table_naming_title",
+      "title": "Tables to Sync to in Postgres",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "db_user_table_name",
+      "type": "string",
+      "title": "User Table Name",
+      "default": "hullusers",
+      "required": true,
+      "description": "The User table will contain all user attributes in columns. You may join to the account table using the \"accountId\" field.  As new attributes are created in Hull, this connector adds columns to this table"
+    },
+    {
+      "name": "db_events_table_name",
+      "type": "string",
+      "title": "Events Table Name",
+      "default": "hullevents",
+      "required": true,
+      "description": "The Event table is a static schema which can be joined to the user table using the \"userId\" column.  The properties and context columns are JSON columns which contain attributes associated with the event"
+    },
+    {
+      "name": "db_account_table_name",
+      "type": "string",
+      "title": "Account Table Name",
+      "default": "hullaccounts",
+      "required": true,
+      "description": "The Account table will contain all account attributes in columns. As new attributes are created in Hull, this connector adds columns to this table"
+    },
+    {
+      "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
+      "name": "flow_control_account_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
+      "name": "ascii_encoded_database",
+      "type": "boolean",
+      "title": "Truncate fields based on ascii lengths",
+      "description": "String fields are encoded with varchar(255) which means if you have a value greater than 255 characters, we truncate the field.  If the database is encoded in SQL_ASCII, the truncation must be calculated based on the number of bytes of the value.  Enable this if your database is encoded in SQL_ASCII so that the truncation calculation is correct",
+      "default": false
+    },
+    {
+      "name": "use_native_json_field_type",
+      "type": "boolean",
+      "title": "When creating the table schema, use the native postgres json field type instead of a varchar(255)",
+      "description": "We store nested json values as strings by default.  Enable this option to use postgres's native json column type.  If your tables already exist, you'll have to either drop the table or specify a new table for it to be rebuilt properly",
+      "default": false
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to PostgreSQL",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "autoFill": true,
+        "showOverwriteToggle": true,
+        "placeholder": "Warehouse user field",
+        "allowCreate": true
+      }
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Account Attributes to send to PostgreSQL",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "autoFill": true,
+        "showOverwriteToggle": true,
+        "placeholder": "Warehouse account field",
+        "allowCreate": true
+      }
+    },
+    {
+      "name": "send_if_any_segment_change",
+      "type": "boolean",
+      "format": "hidden",
+      "default": true
+    },
+    {
+      "name": "outgoing_user_events",
+      "title": "Send User Events",
+      "description": "Send these events to Warehouse. By default, all events are sent.\nIf you update this list, be sure to include \"User Merged\" or you will end up with duplicate users",
+      "type": "array",
+      "format": "event",
+      "default": ["all_events", "User merged"],
+      "options": {
+        "standard": {
+          "all_events": "ALL",
+          "User merged": "User merged"
+        }
+      }
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        },
+        "channels": {
+          "only": ["ship:update", "user:update", "account:update"]
+        }
+      }
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    },
+    {
+      "url": "/batch-accounts",
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Database Connection Information",
+      "description": "Please fill out the following database connection information.  Because this connector is hosted in Heroku, we are unable to provide a static ip address which the connection will be coming from",
+      "step": "credentials",
+      "properties": [
+        "private_settings.type",
+        "private_settings.db_hostname",
+        "private_settings.db_port",
+        "private_settings.db_name"
+      ]
+    },
+    {
+      "title": "Database Login Information",
+      "description": "You will need a user and password which can create tables (if the tables do not exist) and functions (used to upsert data).  Additionally the user will need permission to alter tables (to add columns when new attributes appear).",
+      "step": "credentials",
+      "properties": [
+        "private_settings.db_username",
+        "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "SSH Tunnel Configuration",
+      "description": "If your connection must go through an ssh tunnel, please input the information here",
+      "properties": [
+        "private_settings.ssh_host",
+        "private_settings.ssh_port",
+        "private_settings.ssh_username",
+        "private_settings.ssh_private_key"
+      ]
+    },
+    {
+      "title": "Tables to populate",
+      "description": "Once configured, this connector will automatically create the following 3 tables to store your User/Account/Event data",
+      "properties": [
+        "private_settings.db_user_table_name",
+        "private_settings.db_account_table_name",
+        "private_settings.db_events_table_name",
+        "private_settings.use_native_json_field_type",
+        "private_settings.ascii_encoded_database"
+      ]
+    },
+    {
+      "title": "User Filter Setup",
+      "description": "This section configures what User data will be send out to Warehouse, start by whitelisting User segments and then decide which attributes to send.",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_events",
+        "private_settings.send_all_user_attributes",
+        "private_settings.outgoing_user_attributes"
+      ]
+    },
+    {
+      "title": "Account Filter Setup",
+      "description": "This section configures what Account data will be send out to Warehouse, start by whitelisting Account segments and then decide which attributes to send.",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.send_all_account_attributes",
+        "private_settings.outgoing_account_attributes"
+      ]
+    }
+  ]
+}

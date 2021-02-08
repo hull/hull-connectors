@@ -12,6 +12,7 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage
 } from "hull";
+import { getStandardAttributeName } from "./utils";
 
 const _ = require("lodash");
 
@@ -31,17 +32,14 @@ const getChangedAttributes = (
   changes: $PropertyType<
     $PropertyType<HullUserUpdateMessage, "changes">,
     "user"
-    >
+  >
 ) => [
   "ALL",
   "all_attributes",
   ..._.reduce(
     changes,
     (changeList, value, key) => {
-      let attributeName = key;
-      if (/\[\d+\]$/.test(attributeName)) {
-        attributeName = attributeName.substr(0, attributeName.lastIndexOf("["));
-      }
+      const attributeName = getStandardAttributeName(key);
       changeList.push(attributeName);
       return changeList;
     },
@@ -61,7 +59,7 @@ const intersectionWithChangedAttribute = (
   changes: $PropertyType<
     $PropertyType<HullUserUpdateMessage, "changes">,
     "user"
-    >,
+  >,
   list: Array<string>
 ) => _.intersection(getChangedAttributes(changes), list);
 
@@ -69,7 +67,7 @@ const validateChanges: HullTriggerValidationFunction = (
   changes: $PropertyType<
     $PropertyType<HullUserUpdateMessage, "changes">,
     "user"
-    >,
+  >,
   whitelist: Array<string>
 ): boolean %checks =>
   !_.isEmpty(intersectionWithChangedAttribute(changes, whitelist));
@@ -93,6 +91,11 @@ const required: HullTriggerValidationFunction = (
   obj,
   whitelist: Array<string>
 ): boolean %checks => !_.isEmpty(obj);
+
+const empty: HullTriggerValidationFunction = (
+  obj,
+  whitelist: Array<string>
+): boolean %checks => _.isEmpty(obj);
 
 const isValidSubEntity = (
   entity: {},
@@ -155,5 +158,6 @@ module.exports = {
   validateChanges,
   validateSegments,
   validateEvents,
-  required
+  required,
+  empty
 };

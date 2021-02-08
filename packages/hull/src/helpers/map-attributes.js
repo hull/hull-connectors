@@ -91,7 +91,7 @@ const mapAttributes = (ctx: HullContext) => ({
   return _.reduce(
     response,
     (r, val, attribute) => {
-      const schema = _.get(serviceSchema, attribute, {});
+      const schema = _.get(serviceSchema, _.toLower(attribute), {});
       const { formatter = attributeFormatter } = schema;
       r[attribute] = formatter(val);
       return r;

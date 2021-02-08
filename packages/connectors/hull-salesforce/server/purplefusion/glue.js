@@ -44,6 +44,8 @@ const {
   SalesforceTaskWrite
 } = require("./service-objects");
 
+const CHUNK_SIZE = 750;
+
 function salesforce(op: string, param?: any): Svc {
   return new Svc({ name: "salesforce", op }, param);
 }
@@ -119,6 +121,7 @@ const glue = {
    */
   fetchAllAccounts: [
     cacheLock("fetch-all-accounts", [
+      set("job", "fetch-all-accounts"),
       set("service_type", "account"),
       set("transform_to", SalesforceAccountRead),
       route("prepareFetchAll"),
@@ -139,6 +142,7 @@ const glue = {
    */
   fetchAllLeads: [
     cacheLock("fetch-all-leads", [
+      set("job", "fetch-all-leads"),
       set("service_type", "lead"),
       set("transform_to", SalesforceLeadRead),
       route("prepareFetchAll"),
@@ -159,6 +163,7 @@ const glue = {
    */
   fetchAllContacts: [
     cacheLock("fetch-all-contacts", [
+      set("job", "fetch-all-contacts"),
       set("service_type", "contact"),
       set("transform_to", SalesforceContactRead),
       route("prepareFetchAll"),
@@ -227,6 +232,16 @@ const glue = {
       eldo: set("incoming_action", "asUser")
     }),
     loopL([
+      ifL(cond("notEmpty", "${job}"), [
+        ifL(cond("isEmpty", "${nextPage}"), {
+          do: set("currentPage", "0"),
+          eldo: set("currentPage", "${nextPage}")
+        }),
+        utils("logInfo", {
+          message: "incoming.job.progress",
+          data: { job: "${job}", page: "${currentPage}" }
+        })
+      ]),
       set(
         "page",
         salesforceSyncAgent("executeSoqlQuery", {
@@ -238,9 +253,14 @@ const glue = {
       set("nextPage", "${page.nextRecordsUrl}"),
       set("done", "${page.done}"),
 
-      iterateL("${records}", { key: "record", async: true }, [
-        hull("${incoming_action}", cast("${transform_to}", "${record}"))
+      set("recordSize", ld("size", "${records}")),
+      utils("print", "page size: ${recordSize}"),
+      iterateL(ld("chunk", "${records}", CHUNK_SIZE), { key: "recordChunk", async: false }, [
+        iterateL("${recordChunk}", { key: "record", async: true }, [
+          hull("${incoming_action}", cast("${transform_to}", "${record}"))
+        ]),
       ]),
+
       ifL(cond("isEqual", "${done}", true), loopEndL())
     ])
   ],
