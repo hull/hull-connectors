@@ -10,7 +10,7 @@
   },
   "author": "Michał Rączka",
   "dependencies": {
-    "faker": "^4.1.0",
+    "faker": "^5.3.1",
     "lodash-id": "^0.14.0",
     "lowdb": "^1.0.0",
     "shelljs": "^0.8.2"
