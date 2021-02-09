@@ -1,11 +1,8 @@
 /* @flow */
 import type { HullClientLogger, HullContext } from "hull";
-import type {
-  CustomApi,
-  RawRestApi
-} from "hull-connector-framework/src/purplefusion/types";
+import type { CustomApi, RawRestApi } from "hull-connector-framework/src/purplefusion/types";
 import Sequelize from "sequelize";
-const getPort = require("get-port");
+const getPort = require('get-port');
 
 const {
   isUndefinedOrNull,
@@ -13,13 +10,8 @@ const {
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
-const {
-  getSshTunnelConfig,
-  getDatabaseConfig
-} = require("hull-connector-framework/src/purplefusion/ssh/ssh-utils");
-const {
-  SSHConnection
-} = require("hull-connector-framework/src/purplefusion/ssh/ssh-connection");
+const { getSshTunnelConfig, getDatabaseConfig } = require("hull-connector-framework/src/purplefusion/ssh/ssh-utils");
+const { SSHConnection } = require("hull-connector-framework/src/purplefusion/ssh/ssh-connection");
 const { Client } = require("hull");
 const { SkippableError } = require("hull/src/errors");
 
@@ -83,8 +75,8 @@ function truncateByBytesUTF8(chars, n) {
   while (true) {
     try {
       return fromBytesUTF8(bytes);
-    } catch (e) {}
-    bytes = bytes.substring(0, bytes.length - 1);
+    } catch(e) {};
+    bytes = bytes.substring(0, bytes.length-1);
   }
 }
 
@@ -119,13 +111,8 @@ class SequalizeSdk {
 
   constructor(globalContext: HullVariableContext, api: CustomApi) {
     const reqContext = globalContext.reqContext();
-    this.ascii_encoded =
-      globalContext.get("connector.private_settings.ascii_encoded_database") ===
-      true;
-    this.use_native_json =
-      globalContext.get(
-        "connector.private_settings.use_native_json_field_type"
-      ) === true;
+    this.ascii_encoded = globalContext.get("connector.private_settings.ascii_encoded_database") === true;
+    this.use_native_json = globalContext.get("connector.private_settings.use_native_json_field_type") === true;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
     this.metricsClient = reqContext.metric;
@@ -149,12 +136,13 @@ class SequalizeSdk {
       reqContext.connector.private_settings.db_account_table_name;
     this.eventTableName =
       reqContext.connector.private_settings.db_events_table_name;
-    this.sendNull = reqContext.connector.private_settings.send_null || false;
+    this.sendNull =
+      reqContext.connector.private_settings.send_null || false;
     this.sendAllUserAttributes =
       reqContext.connector.private_settings.send_all_user_attributes || false;
     this.sendAllAccountAttributes =
-      reqContext.connector.private_settings.send_all_account_attributes ||
-      false;
+      reqContext.connector.private_settings.send_all_account_attributes || false;
+
   }
 
   async closeDatabaseConnectionIfExists() {
@@ -164,15 +152,8 @@ class SequalizeSdk {
         _.unset(databases, this.connectorId);
       }
     } catch (error) {
-      const message = _.get(
-        error,
-        "message",
-        "Unknown Error Closing Database Connection"
-      );
-      this.loggerClient.error("incoming.job.error", {
-        jobName: "sync",
-        hull_summary: message
-      });
+      const message = _.get(error, "message", "Unknown Error Closing Database Connection");
+      this.loggerClient.error("incoming.job.error", { jobName: "sync", hull_summary: message });
     }
 
     try {
@@ -181,15 +162,8 @@ class SequalizeSdk {
         _.unset(sshConnections, this.connectorId);
       }
     } catch (error) {
-      const message = _.get(
-        error,
-        "message",
-        "Unknown Error Closing SSH Client"
-      );
-      this.loggerClient.error("incoming.job.error", {
-        jobName: "sync",
-        hull_summary: message
-      });
+      const message = _.get(error, "message", "Unknown Error Closing SSH Client");
+      this.loggerClient.error("incoming.job.error", { jobName: "sync", hull_summary: message });
     }
   }
 
@@ -198,7 +172,7 @@ class SequalizeSdk {
   }
 
   getSequelizeTunnelConnection(): Sequelize {
-    return getPort().then(portForward => {
+    return getPort().then((portForward) => {
       sshConnections[this.connectorId] = new SSHConnection({
         endPort: this.sshConfig.port,
         endHost: this.sshConfig.host,
@@ -206,31 +180,30 @@ class SequalizeSdk {
         privateKey: this.sshConfig.privateKey
       });
 
-      return sshConnections[this.connectorId]
-        .forward({
-          fromPort: portForward,
-          toPort: this.dbConfig.port,
-          toHost: this.dbConfig.host
-        })
-        .then(() => {
-          const username = this.privateSettings.db_username;
-          const password = this.privateSettings.db_password;
-          const database = this.privateSettings.db_name;
+      return sshConnections[this.connectorId].forward({
+        fromPort: portForward,
+        toPort: this.dbConfig.port,
+        toHost: this.dbConfig.host
+      }).then(() => {
+        const username = this.privateSettings.db_username;
+        const password = this.privateSettings.db_password;
+        const database = this.privateSettings.db_name;
 
-          return new Sequelize(database, username, password, {
-            host: "127.0.0.1",
-            port: portForward,
-            dialect: "postgres",
-            define: {
-              freezeTableName: true
-            },
-            logging: false
-          });
+        return new Sequelize(database, username, password, {
+          host: '127.0.0.1',
+          port: portForward,
+          dialect: 'postgres',
+          define: {
+            freezeTableName: true
+          },
+          logging: false
         });
+      });
     });
   }
 
   getSequelizeConnection(): Sequelize {
+
     return new Promise((resolve, reject) => {
       if (!databases[this.connectorId]) {
         const opts = {
@@ -243,20 +216,15 @@ class SequalizeSdk {
 
         if (this.requireSshTunnel()) {
           try {
-            return this.getSequelizeTunnelConnection().then(
-              sequelizeConnection => {
-                databases[this.connectorId] = sequelizeConnection;
-                return resolve(databases[this.connectorId]);
-              }
-            );
+            return this.getSequelizeTunnelConnection().then((sequelizeConnection) => {
+              databases[this.connectorId] = sequelizeConnection;
+              return resolve(databases[this.connectorId]);
+            });
           } catch (error) {
             reject(error);
           }
         } else {
-          databases[this.connectorId] = new Sequelize(
-            this.connectionString,
-            opts
-          );
+          databases[this.connectorId] = new Sequelize(this.connectionString, opts);
         }
       }
 
@@ -281,7 +249,7 @@ class SequalizeSdk {
         attribute.visible &&
         attribute.type !== "event"
       ) {
-        entityObj[removeTraitsPrefix(attribute.key)] = null;
+        entityObj[removeTraitsPrefix(attribute.key)] = null
       }
     });
 
@@ -312,21 +280,17 @@ class SequalizeSdk {
    */
   async createEventIndexes() {
     return {
-      indexes: [
+      indexes:[
         {
-          unique: false,
-          fields: ["user_id"]
+          unique: false ,
+          fields:['user_id']
         }
       ]
     };
   }
 
-  async initSchema(params: {
-    schema: any,
-    tableName: string,
-    indexes: Object
-  }) {
-    return this.getSequelizeConnection().then(sequelizeConnection => {
+  async initSchema(params: { schema: any, tableName: string, indexes: Object } ) {
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
       return sequelizeConnection.define(
         params.tableName,
         params.schema,
@@ -336,7 +300,7 @@ class SequalizeSdk {
   }
 
   async syncTableSchema(tableName: string) {
-    return this.getSequelizeConnection().then(sequelizeConnection => {
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
       return sequelizeConnection.model(tableName).sync(synchOptions);
     });
   }
@@ -384,10 +348,7 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
-      if (
-        attribute.key === "external_id" ||
-        normalizedAttributeKey === "external_id"
-      ) {
+      if (attribute.key === "external_id" || normalizedAttributeKey === "external_id") {
         sequalizeSchema["external_id"] = Sequelize.STRING;
       } else if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
@@ -398,9 +359,7 @@ class SequalizeSdk {
       } else if (this.use_native_json && type === "json") {
         sequalizeDataType = Sequelize.JSON;
       } else if (attribute.key === "anonymous_ids") {
-        sequalizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(
-          Sequelize.STRING
-        );
+        sequalizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(Sequelize.STRING);
       }
 
       sequalizeSchema[normalizedAttributeKey] = sequalizeDataType;
@@ -417,11 +376,7 @@ class SequalizeSdk {
     return sequalizeSchema;
   }
 
-  containsNewAttribute(params: {
-    messages: Array<any>,
-    schema: any,
-    path: string
-  }) {
+  containsNewAttribute(params: { messages: Array<any>, schema: any, path: string }) {
     const schema = params.schema;
     const path = params.path;
 
@@ -429,12 +384,7 @@ class SequalizeSdk {
       // Remember, when creating the object, we'll still put these fields in the payload
       // but the sequelize library "gracefully" handles attributes that don't map
       // where it will just exclude them from being sent
-      const reservedAttributes = [
-        "indexed_at",
-        "updated_at",
-        "segment_ids",
-        "doctype"
-      ];
+      const reservedAttributes = ["indexed_at", "updated_at", "segment_ids", "doctype"];
 
       return _.some(_.get(message, path), (value, key) => {
         let normalizedName = normalizeFieldName(key);
@@ -451,6 +401,7 @@ class SequalizeSdk {
       });
     });
   }
+
 
   createSequelizedObject(objectToSend: any) {
     const objectToUpsert = {};
@@ -480,11 +431,13 @@ class SequalizeSdk {
           objectToUpsert[normalizedName] = parsedDate;
         }
       } else {
+
         if ("external_id" === normalizedName && !_.isNil(valueToUpsert)) {
           valueToUpsert = _.toString(valueToUpsert);
         }
 
         if (typeof valueToUpsert === "string") {
+
           if (this.ascii_encoded) {
             valueToUpsert = truncateByBytesUTF8(valueToUpsert, 254);
           } else if (valueToUpsert.length >= 255) {
@@ -502,11 +455,7 @@ class SequalizeSdk {
   async upsertHullAccount(message: any) {
     const sequelizedAccount = this.createSequelizedObject(message.account);
 
-    if (
-      this.sendAllAccountAttributes &&
-      this.sendNull &&
-      !_.isEmpty(message.changes)
-    ) {
+    if (this.sendAllAccountAttributes && this.sendNull && !_.isEmpty(message.changes)) {
       const { account = {} } = message.changes;
       _.forEach(account, (change, attribute) => {
         if (_.isNil(change[1])) {
@@ -524,14 +473,13 @@ class SequalizeSdk {
       });
       sequelizedAccount.segments = JSON.stringify(segments);
     }
-    return this.getSequelizeConnection().then(sequelizeConnection => {
-      return sequelizeConnection
-        .model(this.accountTableName)
-        .upsert(sequelizedAccount);
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.accountTableName).upsert(sequelizedAccount);
     });
   }
 
   async upsertHullUser(message: any) {
+
     // https://stackoverflow.com/questions/48124949/nodejs-sequelize-bulk-upsert
 
     // looks like updateOnDuplicate does not work for postgres
@@ -549,11 +497,7 @@ class SequalizeSdk {
       sequelizedUser.account_id = message.account.id;
     }
 
-    if (
-      this.sendAllUserAttributes &&
-      this.sendNull &&
-      !_.isEmpty(message.changes)
-    ) {
+    if (this.sendAllUserAttributes && this.sendNull && !_.isEmpty(message.changes)) {
       const { user = {} } = message.changes;
       _.forEach(user, (change, attribute) => {
         if (_.isNil(change[1])) {
@@ -575,54 +519,44 @@ class SequalizeSdk {
     if (!sequelizedUser.id) {
       return Promise.resolve();
     }
-    return this.getSequelizeConnection().then(sequelizeConnection => {
-      return sequelizeConnection
-        .model(this.userTableName)
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.userTableName)
         .upsert(sequelizedUser)
         .then(() => {
           if (message.events) {
-            const eventInclusionList =
-              this.privateSettings.outgoing_user_events || [];
-            const filteredEvents = _.filter(
-              message.events,
-              event =>
-                _.includes(eventInclusionList, "all_events") ||
-                _.includes(eventInclusionList, "ALL") ||
-                _.includes(eventInclusionList, event.event)
+            const eventInclusionList = this.privateSettings.outgoing_user_events || [];
+            const filteredEvents = _.filter(message.events, event =>
+              _.includes(eventInclusionList, "all_events") ||
+              _.includes(eventInclusionList, "ALL") ||
+              _.includes(eventInclusionList, event.event)
             );
             return Promise.all(
               filteredEvents.map(event => {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
-                // Automatic conversion not working anymore.
-                // event_id is set as Sequelize.STRING in EVENT_SCHEMA, received as number in notifs
-                event.event_id = event.event_id && event.event_id.toString();
-                return this.getSequelizeConnection().then(
-                  sequelizeConnection => {
-                    return sequelizeConnection
-                      .model(this.eventTableName)
-                      .upsert(event);
-                  }
-                );
+                return this.getSequelizeConnection().then((sequelizeConnection) => {
+                  return sequelizeConnection.model(this.eventTableName).upsert(event);
+                });
               })
             );
           }
           return Promise.resolve();
         });
-    });
+    })
   }
 
-  async mergeHullUser({
-    previous,
-    merged
-  }: {
-    previous: String,
-    merged: String
-  }) {
-    return this.getSequelizeConnection().then(sequelizeConnection => {
-      return sequelizeConnection
-        .model(this.eventTableName)
+  async mergeHullUser(
+    {
+      previous,
+      merged
+    }: {
+      previous: String,
+      merged: String
+    }
+  ) {
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.eventTableName)
         .update(
           {
             user_id: merged
@@ -631,35 +565,33 @@ class SequalizeSdk {
             where: {
               user_id: previous
             }
-          }
-        )
+          })
         .then(() => {
-          return this.getSequelizeConnection().then(sequelizeConnection => {
-            return sequelizeConnection.model(this.userTableName).destroy({
-              where: {
-                id: previous
-              }
-            });
-          });
+          return this.getSequelizeConnection().then((sequelizeConnection) => {
+            return sequelizeConnection .model(this.userTableName)
+              .destroy({
+                where: {
+                  id: previous
+                }
+              });
+          })
         });
     });
   }
 
   async removeHullAccount(id: String) {
-    return this.getSequelizeConnection().then(sequelizeConnection => {
-      return sequelizeConnection.model(this.accountTableName).destroy({
-        where: {
-          id
-        }
-      });
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.accountTableName)
+        .destroy({
+          where: {
+            id
+          }
+        });
     });
   }
 }
 
-const postgresSdk = ({
-  clientID,
-  clientSecret
-}: {
+const postgresSdk = ({ clientID, clientSecret } : {
   clientID: string,
   clientSecret: string
 }): CustomApi => ({
