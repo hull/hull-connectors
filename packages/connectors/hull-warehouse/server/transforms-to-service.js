@@ -169,7 +169,7 @@ const transformsToService: ServiceTransforms = [
     output: WarehouseUserWrite,
     strategy: "AtomicReaction",
     direction: "outgoing",
-    target: { component: "input" },
+    target: { component: "cloneInitialInput" },
     asPipeline: true,
     batchTransform: true,
     condition: isEqual(
@@ -307,7 +307,7 @@ const transformsToService: ServiceTransforms = [
     output: WarehouseAccountWrite,
     strategy: "AtomicReaction",
     direction: "outgoing",
-    target: { component: "input" },
+    target: { component: "cloneInitialInput" },
     asPipeline: true,
     batchTransform: true,
     condition: isEqual(
