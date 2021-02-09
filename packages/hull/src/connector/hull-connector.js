@@ -288,9 +288,9 @@ export default class HullConnector {
           }
           return;
         }
-        console.log("Starting cluster in Secondary Mode");
+        debug("Starting cluster in Secondary Mode");
       } else {
-        console.log("Starting in Single process mode");
+        debug("Starting in Single process mode");
       }
 
       const app = express();
