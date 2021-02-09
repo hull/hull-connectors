@@ -1662,10 +1662,6 @@ describe("Outgoing Account Update On User Update Message Filtering Tests", () =>
     expect(_.size(triggers)).toEqual(0);
   });
 
-  /*
-  TODO need to update support for this on the validation level:
-    -> if (typeof rule === "function" && Array.isArray(whitelist))
-    -> need to add support for multiple types of whitelist
   it("Account Is New. Message Is Propagated Down To User. Should filter out trigger.", () => {
     const context = new ContextMock({
       private_settings: {
@@ -1708,5 +1704,5 @@ describe("Outgoing Account Update On User Update Message Filtering Tests", () =>
       context.connector.private_settings.triggers
     );
     expect(_.size(triggers)).toEqual(0);
-  });*/
+  });
 });

@@ -89,12 +89,12 @@ const excludeSegments: HullTriggerValidationFunction = (
 
 const required: HullTriggerValidationFunction = (
   obj,
-  whitelist: Array<string>
+  whitelist: any
 ): boolean %checks => !_.isEmpty(obj);
 
 const empty: HullTriggerValidationFunction = (
   obj,
-  whitelist: Array<string>
+  whitelist: any
 ): boolean %checks => _.isEmpty(obj);
 
 const isValidSubEntity = (
@@ -103,8 +103,7 @@ const isValidSubEntity = (
   whitelist: HullTriggerList
 ): boolean %checks =>
   _.every(rules, rule => {
-    // TODO: Whitelist could be a boolean/undefined/..., yet we assume in every validation function that it's an array of string...
-    if (typeof rule === "function" && Array.isArray(whitelist)) {
+    if (typeof rule === "function") {
       return rule(entity, whitelist);
     }
     if (typeof rule === "object" && _.isEmpty(_.filter([entity], rule))) {
