@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "bluebird": "^3.5.3",
-    "eventemitter2": "^5.0.1",
+    "eventemitter2": "^6.4.3",
     "jwt-simple": "^0.5.1",
     "query-string": "^6.13.8",
     "redis": "^3.0.2",
