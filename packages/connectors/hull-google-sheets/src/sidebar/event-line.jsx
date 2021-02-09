@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import { Component } from "react";
 import type { GoogleColumns } from "../../types";
 
 type Props = {

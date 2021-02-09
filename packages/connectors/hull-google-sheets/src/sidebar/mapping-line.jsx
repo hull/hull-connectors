@@ -1,6 +1,6 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import { PureComponent } from "react";
 import Creatable from "react-select/creatable";
 import SVG from "react-inlinesvg";
 import hasInvalidCharacters from "../lib/has-invalid-characters";

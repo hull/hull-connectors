@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import DropdownItem from "react-bootstrap/DropdownItem";
 import Button from "react-bootstrap/Button";
