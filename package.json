@@ -167,7 +167,7 @@
     "stream-csv-as-json": "^1.0.4",
     "stream-json": "^1.5.0",
     "style-loader": "^2.0.0",
-    "superagent": "^5.3.1",
+    "superagent": "^6.1.0",
     "superagent-throttle": "^1.0.1",
     "svg-inline-loader": "^0.8.2",
     "sweetalert": "^2.1.2",
