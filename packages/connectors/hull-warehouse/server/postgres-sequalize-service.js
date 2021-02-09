@@ -535,6 +535,9 @@ class SequalizeSdk {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
+                // Automatic conversion not working anymore.
+                // event_id is set as Sequelize.STRING in EVENT_SCHEMA, received as number in notifs
+                event.event_id = event.event_id && event.event_id.toString();
                 return this.getSequelizeConnection().then((sequelizeConnection) => {
                   return sequelizeConnection.model(this.eventTableName).upsert(event);
                 });
