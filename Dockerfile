@@ -1,7 +1,7 @@
 # build: docker build .-t hull-connectors
 # launch shell: docker run -it hull-connectors /bin/sh
 
-FROM node:12.12-alpine
+FROM node:12.20-alpine
 
 RUN apk --no-cache add bash \
       g++ \
