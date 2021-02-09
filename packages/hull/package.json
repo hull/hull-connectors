@@ -23,7 +23,7 @@
     "dogapi": "^2.6.0",
     "jsonata": "^1.7.0",
     "jsonpath": "^1.1.0",
-    "jsonwebtoken": "^7.4.3",
+    "jsonwebtoken": "^8.5.1",
     "jwt-simple": "^0.5.0",
     "kue-ui": "^0.1.0",
     "passport": "^0.4.1",
