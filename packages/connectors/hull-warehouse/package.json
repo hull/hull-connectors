@@ -10,7 +10,7 @@
   "dependencies": {
     "get-port": "^5.1.1",
     "luxon": "^1.3.0",
-    "sequelize": "^5.2.15",
+    "sequelize": "^6.5.0",
     "ssh2": "^0.8.7",
     "superagent-prefix": "^0.0.2"
   },
