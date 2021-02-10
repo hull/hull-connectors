@@ -33,7 +33,6 @@
     "react-hot-loader": "^4.2.0",
     "request": "^2.72.0",
     "sns-validator": "^0.3.0",
-    "sqs-consumer": "^3.6.1",
     "supply": "0.0.4"
   },
   "peerDependencies": {},

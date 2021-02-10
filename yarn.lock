@@ -3546,7 +3546,7 @@ async@^1.5.2:
   resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
   integrity sha1-7GphrlZIDAw8skHJVhjiCJL5Zyo=
 
-async@^2.0.1, async@^2.6.0, async@^2.6.2, async@^2.6.3:
+async@^2.6.0, async@^2.6.2, async@^2.6.3:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.3.tgz#d72625e2344a3656e3a3ad4fa749fa83299d82ff"
   integrity sha512-zflvls11DCy+dQWzTW2dzuilv8Z5X/pjfmZOWba6TNIVDm+2UDaJmXSOXlasHKfNBs8oo3M0aT50fDEWfKZjXg==
@@ -3584,21 +3584,6 @@ available-typed-arrays@^1.0.2:
   integrity sha512-XWX3OX8Onv97LMk/ftVyBibpGwY5a8SmuxZPzeOxqmuEqUCOM9ZE+uIaD1VNJ5QnvU2UQusvmKbuM1FR8QWGfQ==
   dependencies:
     array-filter "^1.0.0"
-
-aws-sdk@^2.100.0:
-  version "2.786.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.786.0.tgz#2309ac63df9ec42341c46a545ba043bffd7851d7"
-  integrity sha512-oL+rDkoBdn0Q3AxiEzSemCE3WqW6kBf0A72SIjDQZJb4/NDvA2mL2rpNQGaxaFX3zMHEwfUGcMu7T3q7I6Q0lw==
-  dependencies:
-    buffer "4.9.2"
-    events "1.1.1"
-    ieee754 "1.1.13"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.3.2"
-    xml2js "0.4.19"
 
 aws-sdk@^2.840.0:
   version "2.840.0"
@@ -6548,7 +6533,7 @@ debug@*, debug@4, debug@4.2.0, debug@^4.0.1, debug@^4.1.0, debug@^4.2.0:
   dependencies:
     ms "2.1.2"
 
-debug@2.6.9, debug@^2.1.0, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.9:
+debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -18151,15 +18136,6 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
-
-sqs-consumer@^3.6.1:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/sqs-consumer/-/sqs-consumer-3.8.0.tgz#36f3b24b7a3afc49a45b26e910593a7c41dc9b53"
-  integrity sha512-naqkdsxanG3WPqokWuanIb9SxqHM0u+CSTskg/EQyfmKavJUTRl/1afFkEU1fuIRrpvkVkBQyrW/Zka5GGopDw==
-  dependencies:
-    async "^2.0.1"
-    aws-sdk "^2.100.0"
-    debug "^2.1.0"
 
 ssh2-streams@~0.4.10:
   version "0.4.10"
