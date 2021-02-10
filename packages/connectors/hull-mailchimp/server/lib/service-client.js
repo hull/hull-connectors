@@ -138,7 +138,9 @@ class ServiceClient {
     extract.on("finish", () => decoder.end());
     extract.on("error", () => decoder.end());
 
-    superagent(response_body_url).pipe(zlib.createGunzip()).pipe(extract);
+    superagent(response_body_url)
+      .pipe(zlib.createGunzip())
+      .pipe(extract);
 
     /**
      * content of every file is
