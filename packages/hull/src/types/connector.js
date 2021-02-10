@@ -100,7 +100,7 @@ export type HullCacheConfig =
     };
 
 export type HullQueueConfig =
-  {
+  | {
       store: "redis",
       url: string,
       name: string,
