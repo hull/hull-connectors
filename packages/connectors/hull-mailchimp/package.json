@@ -14,13 +14,11 @@
     "passport-mailchimp": "^1.1.0",
     "promise-retry": "^1.1.1",
     "promise-streams": "^1.0.1",
-    "request-promise": "^3.0.0",
-    "simple-oauth2": "^0.7.0",
     "superagent-prefix": "^0.0.2",
     "tar-stream": "^1.5.2"
   },
   "devDependencies": {
-    "faker": "^4.1.0",
-    "proxyquire": "^1.7.10"
+    "faker": "^5.3.1",
+    "proxyquire": "^2.1.3"
   }
 }

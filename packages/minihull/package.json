@@ -15,6 +15,6 @@
     "shelljs": "^0.8.2"
   },
   "optionalDependencies": {
-    "ngrok": "^2.2.14"
+    "ngrok": "^3.4.0"
   }
 }

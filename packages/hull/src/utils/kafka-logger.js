@@ -1,9 +1,10 @@
 // @flow
 
+import { v4 as uuid } from "uuid";
+
 const Transport = require("winston-transport");
 const { HighLevelProducer } = require("node-rdkafka");
 const _ = require("lodash");
-const uuid = require("uuid");
 
 /**
  * Transport for outputting to Kafka.

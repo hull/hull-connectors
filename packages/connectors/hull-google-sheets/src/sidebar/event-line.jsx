@@ -1,7 +1,6 @@
 // @flow
 
 import React, { Component } from "react";
-// import Select from "react-select";
 import type { GoogleColumns } from "../../types";
 
 type Props = {

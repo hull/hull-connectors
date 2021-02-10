@@ -12,21 +12,20 @@
     "precommit": "npm run documentation && git add API.md"
   },
   "dependencies": {
-    "aws-sdk": "^2.81.0",
     "batch-stream": "^0.1.3",
-    "bull": "^3.0.0-rc.3",
+    "bull": "^3.20.1",
     "connect": "^3.4.1",
     "connect-timeout": "^1.8.0",
     "cors": "^2.8.5",
-    "csv-stream": "^0.1.3",
-    "del": "^2.2.1",
+    "csv-stream": "^0.2.0",
+    "del": "^6.0.0",
     "dogapi": "^2.6.0",
     "jsonata": "^1.7.0",
-    "jsonpath": "^1.0.0",
+    "jsonpath": "^1.1.0",
     "jsonwebtoken": "^7.4.3",
     "jwt-simple": "^0.5.0",
     "kue-ui": "^0.1.0",
-    "passport": "^0.3.2",
+    "passport": "^0.4.1",
     "promise-streams": "^1.0.1",
     "promisepipe": "^3.0.0",
     "raw-body": "^2.1.7",
@@ -38,8 +37,8 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "chai-http": "^3.0.0",
-    "node-mocks-http": "^1.7.0",
-    "supertest": "^3.1.0"
+    "chai-http": "^4.3.0",
+    "node-mocks-http": "^1.10.1",
+    "supertest": "^6.1.3"
   }
 }

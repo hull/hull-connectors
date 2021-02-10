@@ -2,7 +2,6 @@
 
 import React, { PureComponent } from "react";
 import Creatable from "react-select/creatable";
-// import Select from "react-select";
 import SVG from "react-inlinesvg";
 import hasInvalidCharacters from "../lib/has-invalid-characters";
 import {

@@ -6,9 +6,6 @@
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'"
   },
-  "dependencies": {
-    "domready": "^1.0.8",
-    "mongoose": "5.4.16"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }

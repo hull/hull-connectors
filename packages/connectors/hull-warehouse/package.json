@@ -12,8 +12,7 @@
     "pg": "^6.1.0",
     "sequelize": "^5.2.15",
     "ssh2": "^0.8.7",
-    "superagent-prefix": "^0.0.2",
-    "urijs": "^1.18.0"
+    "superagent-prefix": "^0.0.2"
   },
   "devDependencies": {}
 }
