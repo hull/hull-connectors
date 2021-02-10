@@ -17,7 +17,7 @@
     "s3-upload-stream": "^1.0.7",
     "sequelize": "^6.3.5",
     "sweetalert2": "^10.14.0",
-    "tedious": "^8.2.0"
+    "tedious": "^11.0.3"
   },
   "devDependencies": {}
 }
