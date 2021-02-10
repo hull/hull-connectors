@@ -2,9 +2,10 @@
   "name": "hull-aircall",
   "description": "Capture Aircall Events",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
-    "test": "exit 0; echo 'No Tests here' Sad Panda",
+    "test": "exit 0; echo 'No Tests here'",
     "testx": "yarn test:unit && yarn test:integration",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"

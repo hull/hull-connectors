@@ -2,6 +2,7 @@
   "name": "hull-processor",
   "description": "Run code to update User Properties and generate Events",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",

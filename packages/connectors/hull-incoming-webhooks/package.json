@@ -2,6 +2,7 @@
   "name": "hull-incoming-webhooks",
   "description": "Receive webhooks and enrich your data in Hull",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",

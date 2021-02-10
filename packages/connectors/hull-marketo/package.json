@@ -1,6 +1,7 @@
 {
   "name": "hull-marketo",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",

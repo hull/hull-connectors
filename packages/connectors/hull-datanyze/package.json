@@ -1,6 +1,7 @@
 {
   "name": "hull-datanyze",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Enrich Customer data with Datanyze",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {

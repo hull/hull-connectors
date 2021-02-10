@@ -1,11 +1,12 @@
 {
   "name": "hull-website",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Track web traffic and integrate with other client side services.",
   "main": "index.js",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
-    "test": "exit 0; echo 'No Tests here' Sad Panda"
+    "test": "exit 0; echo 'No Tests here'"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
