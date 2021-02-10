@@ -1,11 +1,7 @@
 /* @flow */
 import SyncAgent from "../lib/sync-agent";
 
-const startImportJob = adapter => {
-  return (ctx: any) => {
-    const agent = new SyncAgent(ctx, adapter);
-    return agent.startImport();
-  };
-};
+const startImportJob = adapter => (ctx: any) =>
+  new SyncAgent(ctx, adapter).startImport();
 
 export default startImportJob;

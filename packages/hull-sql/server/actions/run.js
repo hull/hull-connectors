@@ -1,8 +1,7 @@
 /* @flow */
 import type { HullContext, HullExternalResponse } from "hull";
+import _ from "lodash";
 import SyncAgent from "../lib/sync-agent";
-
-const _ = require("lodash");
 
 const run = adapter => {
   return async (ctx: HullContext): HullExternalResponse => {
@@ -19,7 +18,7 @@ const run = adapter => {
       };
     }
 
-    const query = agent.getQuery(_.get(ctx, "notification.query"));
+    const query = await agent.getQuery(_.get(ctx, "notification.query"));
     if (!query) {
       return {
         status: 403,
@@ -29,23 +28,24 @@ const run = adapter => {
       };
     }
 
-    return agent
-      .runQuery(query, { timeout: parseInt(preview_timeout, 10), limit: 100 })
-      .then(data => {
-        return {
-          status: 200,
-          data
-        };
-      })
-      .catch(error => {
-        const { message } = error;
-        return {
-          status: 500,
-          data: {
-            message
-          }
-        };
+    try {
+      const data = await agent.runQuery(query, {
+        timeout: parseInt(preview_timeout, 10),
+        limit: 100
       });
+      return {
+        status: 200,
+        data
+      };
+    } catch (error) {
+      const { message } = error;
+      return {
+        status: 500,
+        data: {
+          message
+        }
+      };
+    }
   };
 };
 
