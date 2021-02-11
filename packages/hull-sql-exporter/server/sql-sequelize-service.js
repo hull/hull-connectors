@@ -3,7 +3,7 @@ import type { HullClientLogger, HullContext } from "hull";
 import type { CustomApi, SqlExporterAdapter } from "hull-connector-framework/src/purplefusion/types";
 import Sequelize from "sequelize";
 const getPort = require('get-port');
-
+const { SQLUserWrite, SQLAccountWrite } = require("./service-objects");
 const {
   isUndefinedOrNull,
   removeTraitsPrefix
@@ -73,7 +73,7 @@ function truncateByBytesUTF8(chars, n) {
   }
 }
 
-class SequalizeSdk {
+class SequelizeSdk {
   api: CustomApi;
 
   adapter: SqlExporterAdapter;
@@ -283,7 +283,7 @@ class SequalizeSdk {
 
   /**
    * MUST return a new object, and not a reference object
-   * sequalize mutates this when you pass it in
+   * sequelize mutates this when you pass it in
    * @returns {Promise<{indexes: {unique: string, fields: string[]}[]}>}
    */
   async createEventIndexes() {
@@ -346,7 +346,7 @@ class SequalizeSdk {
       }
     });
 
-    const sequalizeSchema = {};
+    const sequelizeSchema = {};
     _.forEach(fields, (attribute, normalizedAttributeKey) => {
       if (/^\d+$/.test(normalizedAttributeKey)) {
         return;
@@ -355,36 +355,36 @@ class SequalizeSdk {
       // arrays are inferred, and can be arrays of any of the data types
 
       const type = attribute.type;
-      let sequalizeDataType = Sequelize.STRING;
+      let sequelizeDataType = Sequelize.STRING;
 
       // TODO check impact of using string for external id after external_id
       //      was synced as a number
       if (attribute.key === "external_id") {
-        sequalizeSchema["external_id"] = Sequelize.STRING;
+        sequelizeSchema["external_id"] = Sequelize.STRING;
       } else if (type === "date") {
-        sequalizeDataType = Sequelize.DATE;
+        sequelizeDataType = Sequelize.DATE;
       } else if (type === "number") {
-        sequalizeDataType = Sequelize.DOUBLE;
+        sequelizeDataType = Sequelize.DOUBLE;
       } else if (type === "boolean") {
-        sequalizeDataType = Sequelize.BOOLEAN;
+        sequelizeDataType = Sequelize.BOOLEAN;
       } else if (this.use_native_json && type === "json") {
-        sequalizeDataType = Sequelize.JSON;
+        sequelizeDataType = Sequelize.JSON;
       } else if (attribute.key === "anonymous_ids") {
-        sequalizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(Sequelize.STRING);
+        sequelizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(Sequelize.STRING);
       }
 
-      sequalizeSchema[normalizedAttributeKey] = sequalizeDataType;
+      sequelizeSchema[normalizedAttributeKey] = sequelizeDataType;
     });
 
-    sequalizeSchema.id = {
+    sequelizeSchema.id = {
       type: Sequelize.STRING,
       primaryKey: true
     };
     // for account and user segments
-    sequalizeSchema.segments = {
+    sequelizeSchema.segments = {
       type: Sequelize.TEXT
     };
-    return sequalizeSchema;
+    return sequelizeSchema;
   }
 
   containsNewAttribute(params: { messages: Array<any>, schema: any, path: string }) {
@@ -603,7 +603,7 @@ class SequalizeSdk {
 }
 
 const sqlSdk = (adapter): CustomApi => ({
-  initialize: (context, api) => new SequalizeSdk(context, api, adapter),
+  initialize: (context, api) => new SequelizeSdk(context, api, adapter),
   endpoints: {
     createUserSchema: {
       method: "createUserSchema",
@@ -616,6 +616,18 @@ const sqlSdk = (adapter): CustomApi => ({
       endpointType: "upsert",
       batch: true,
       input: SQLAccountSchema
+    },
+    upsertHullUser: {
+      method: "upsertHullUser",
+      endpointType: "upsert",
+      batch: true,
+      input: SQLUserWrite
+    },
+    upsertHullAccount: {
+      method: "upsertHullAccount",
+      endpointType: "upsert",
+      batch: true,
+      input: SQLAccountWrite
     }
   },
   error: {

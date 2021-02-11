@@ -145,6 +145,9 @@ describe("has matching segments computation", () => {
     const response = hasMatchingTriggers(ctx)({
       message: {
         ...message,
+        user: {
+          id: "1"
+        },
         changes: { is_new: true }
       },
       triggers: { is_new_user: true }

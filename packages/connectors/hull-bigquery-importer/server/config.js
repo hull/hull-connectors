@@ -2,7 +2,7 @@
 
 import type { HullConnectorConfig } from "hull";
 import Aws from "aws-sdk";
-import { handler } from "hull-sql";
+import { handler } from "hull-sql-importer";
 
 // TODO: Implement the DB Adapter in lib/adapter
 import * as adapter from "./lib/adapter";
