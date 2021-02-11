@@ -8,6 +8,7 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  source: "salesforce",
   access_token: "1",
   refresh_token: "1",
   fetch_resource_schema: false,
@@ -386,14 +387,6 @@ describe("Update Lead Tests", () => {
                 subjectType: "user"
               },
               {
-                "salesforce_lead/company": {
-                  value: "Krakow Traders",
-                  operation: "set"
-                },
-                "salesforce_lead/website": {
-                  value: "krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_lead/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"
@@ -659,34 +652,6 @@ describe("Update Lead Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_lead/company": {
-                  value: "Krakow Traders",
-                  operation: "set"
-                },
-                "salesforce_lead/email": {
-                  value: "adam.pietrzyk@krakowtraders.pl",
-                  operation: "set"
-                },
-                "salesforce_lead/website": {
-                  value: "krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_lead/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"
@@ -711,6 +676,7 @@ describe("Update Lead Tests", () => {
     const connector = {
       private_settings: {
         ...private_settings,
+        source: "salesforce_main",
         lead_synchronized_segments: ["59f09bc7f9c5a94af600076d"],
         lead_attributes_outbound: [
           {
@@ -892,11 +858,11 @@ describe("Update Lead Tests", () => {
                 name: "Adam Pietrzyk",
                 segment_ids: ["59f09bc7f9c5a94af600076d"],
                 traits_coconuts: 38,
-                "traits_salesforce_lead/email":
+                "traits_salesforce_main_lead/email":
                   "adam.pietrzyk@krakowtraders.pl",
-                "traits_salesforce_lead/first_name": "Adam",
-                "traits_salesforce_lead/id": "00Q1I000004WHchAAA",
-                "traits_salesforce_lead/last_name": "Pietrzyk",
+                "traits_salesforce_main_lead/first_name": "Adam",
+                "traits_salesforce_main_lead/id": "00Q1I000004WHchAAA",
+                "traits_salesforce_main_lead/last_name": "Pietrzyk",
                 indexed_at: "2017-12-27T18:15:54+00:00",
                 company: "Krakow Traders"
               },
@@ -947,7 +913,7 @@ describe("Update Lead Tests", () => {
                 request_id: expect.whatever(),
                 user_id: "5a43ce781f6d9f471d005d44",
                 user_email: "adam.pietrzyk@krakowtraders.pl",
-                user_anonymous_id: "salesforce-lead:00Q1I000004WHchAAA"
+                user_anonymous_id: "salesforce_main-lead:00Q1I000004WHchAAA"
               },
               {
                 record: {
@@ -973,20 +939,12 @@ describe("Update Lead Tests", () => {
                 asUser: {
                   id: "5a43ce781f6d9f471d005d44",
                   email: "adam.pietrzyk@krakowtraders.pl",
-                  anonymous_id: "salesforce-lead:00Q1I000004WHchAAA"
+                  anonymous_id: "salesforce_main-lead:00Q1I000004WHchAAA"
                 },
                 subjectType: "user"
               },
               {
-                "salesforce_lead/company": {
-                  value: "Krakow Traders",
-                  operation: "set"
-                },
-                "salesforce_lead/website": {
-                  value: "krakowtraders.pl",
-                  operation: "set"
-                },
-                "salesforce_lead/id": {
+                "salesforce_main_lead/id": {
                   value: "00Q1I000004WHchAAA",
                   operation: "setIfNull"
                 }

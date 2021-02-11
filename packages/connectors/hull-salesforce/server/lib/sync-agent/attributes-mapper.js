@@ -11,18 +11,6 @@ const _ = require("lodash");
 
 const { SUPPORTED_RESOURCE_TYPES, IAttributesMapper } = require("../types");
 
-const TOPLEVEL_ATTRIBUTES = {
-  Lead: [
-    { service: "FirstName", hull: "first_name" },
-    { service: "LastName", hull: "last_name" }
-  ],
-  Contact: [
-    { service: "FirstName", hull: "first_name" },
-    { service: "LastName", hull: "last_name" }
-  ],
-  Account: [{ service: "Name", hull: "name" }]
-};
-
 /**
  * Creates the Hull attribute name from a given salesforce field name.
  *
@@ -63,25 +51,16 @@ class AttributesMapper implements IAttributesMapper {
   constructor(connectorSettings: any) {
     this.source = _.get(connectorSettings, "source", "salesforce");
     this.mappingsOutbound = {};
-    this.mappingsInbound = {};
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
-      const attribPrefix =
-        r === "Account" ? "salesforce" : `salesforce_${r.toLowerCase()}`;
       const outgoingAttributes = _.cloneDeep(
         _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
-      );
-      const incomingAttributes = _.cloneDeep(
-        _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`, [])
       );
       const claims = _.cloneDeep(
         _.get(connectorSettings, `${_.toLower(r)}_claims`, [])
       );
 
       _.set(this.mappingsOutbound, r, _.concat(claims, outgoingAttributes));
-
-      incomingAttributes.push({ service: "Id", hull: `${attribPrefix}/id` });
-      _.set(this.mappingsInbound, r, incomingAttributes);
     });
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
@@ -157,8 +136,8 @@ class AttributesMapper implements IAttributesMapper {
     });
     const attribSfIdent =
       resource === "Account"
-        ? "salesforce/id"
-        : `salesforce_${resource.toLowerCase()}/id`;
+        ? `${this.source}/id`
+        : `${this.source}_${resource.toLowerCase()}/id`;
     mappings.push({ hull: attribSfIdent, service: "Id" });
 
     if (resource === "Contact") {
@@ -166,7 +145,7 @@ class AttributesMapper implements IAttributesMapper {
 
       if (accountIdMapping.length === 0) {
         mappings.push({
-          hull: "salesforce_contact/account_id",
+          hull: `${this.source}_contact/account_id`,
           service: "AccountId"
         });
       }
@@ -221,74 +200,18 @@ class AttributesMapper implements IAttributesMapper {
     return sObject;
   }
 
-  /**
-   * Maps a Salesforce object to an object of traits that can be sent to
-   * the Hull platform.
-   * Note: This is not a Hull user or account object!
-   *
-   * @param {TResourceType} resource The name of the Salesforce resource.
-   * @param {*} sObject The Salesforce object.
-   * @param resourceSchema
-   * @returns {*} The object containing the information about the traits to set.
-   * @memberof AttributesMapper
-   */
-  mapToHullAttributeObject(
-    resource: TResourceType,
-    sObject: any,
-    resourceSchema: Object
-  ): any {
-    const mappings = _.get(this.mappingsInbound, resource, []);
+  // incoming is handled in purplefusion
+  mapToHullAttributeObject(resource: TResourceType, sObject: any): any {
+    const hObject = {};
     const attribPrefix =
       resource === "Account"
         ? this.source
         : `${this.source}_${resource.toLowerCase()}`;
+    hObject[`${attribPrefix}/id`] = {
+      value: _.get(sObject, "Id"),
+      operation: "setIfNull"
+    };
 
-    const topLevelAttributes = TOPLEVEL_ATTRIBUTES[resource];
-    const topLevelAttributesSf = _.map(topLevelAttributes, "service");
-
-    const hObject = {};
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < _.size(mappings); i++) {
-      const mapping = mappings[i];
-      const { service, hull } = mapping;
-      if (!_.isEmpty(service) && !_.isEmpty(hull)) {
-        // eslint-disable-next-line no-await-in-loop
-        const sfdcValue = this.getSfdcValue(
-          sObject,
-          resourceSchema,
-          resource,
-          mapping.service
-        );
-
-        if (_.includes(topLevelAttributesSf, mapping.service)) {
-          if (!_.isNil(sfdcValue)) {
-            const tlAttribName = _.find(topLevelAttributes, tla => {
-              return tla.service === mapping.service;
-            });
-            _.set(hObject, _.get(tlAttribName, "hull"), {
-              value: sfdcValue,
-              operation: "setIfNull"
-            });
-            _.set(hObject, createAttributeName(attribPrefix, mapping.hull), {
-              value: sfdcValue,
-              operation: "set"
-            });
-          }
-        } else if (!_.isUndefined(sfdcValue)) {
-          let traitSet = { value: sfdcValue, operation: "set" };
-          if (mapping.service === "Id") {
-            traitSet = { value: sfdcValue, operation: "setIfNull" };
-          }
-          // All other attributes need to be lowercase and
-          // _created needs to be replaced by _created_at and __c needs to be removed
-          _.set(
-            hObject,
-            createAttributeName(attribPrefix, mapping.hull),
-            traitSet
-          );
-        }
-      }
-    }
     return hObject;
   }
 

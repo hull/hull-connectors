@@ -451,15 +451,19 @@ class SyncAgent {
           _.forEach(matchedMessages, message => {
             const { user, account } = message;
             if (!_.isEmpty(user)) {
-              _.set(user, "salesforce_contact/account_id", sfEntity.record.Id);
+              _.set(
+                user,
+                `${this.source}_contact/account_id`,
+                sfEntity.record.Id
+              );
             }
-            _.set(account, "salesforce/id", sfEntity.record.Id);
+            _.set(account, `${this.source}/id`, sfEntity.record.Id);
           });
         } else if (!_.isEmpty(matchedMessages)) {
           const { user } = matchedMessages[0];
           _.set(
             user,
-            `salesforce_${_.toLower(resourceType)}/id`,
+            `${this.source}_${_.toLower(resourceType)}/id`,
             sfEntity.record.Id
           );
         }
@@ -479,10 +483,10 @@ class SyncAgent {
 
     const findBy =
       hullType === "account"
-        ? _.set({}, "account.salesforce/id", sfEntity.record.Id)
+        ? _.set({}, `account.${this.source}/id`, sfEntity.record.Id)
         : _.set(
             {},
-            `user.salesforce_${_.toLower(resourceType)}/id`,
+            `user.${this.source}_${_.toLower(resourceType)}/id`,
             sfEntity.record.Id
           );
 
@@ -744,7 +748,6 @@ class SyncAgent {
     const { hullType, sfType, source, method, error, success } = params;
 
     const identityClaims = this.getIdentityClaims({ sfType });
-    const resourceSchema = await this.getResourceSchema(sfType);
 
     const identity = _.isNil(message)
       ? this.attributesMapper.mapToHullIdentityObject(
@@ -769,8 +772,7 @@ class SyncAgent {
 
     const traits = this.attributesMapper.mapToHullAttributeObject(
       sfType,
-      sfObject,
-      resourceSchema
+      sfObject
     );
 
     if (source === "hull") {

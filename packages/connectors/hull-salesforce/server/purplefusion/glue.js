@@ -255,11 +255,15 @@ const glue = {
 
       set("recordSize", ld("size", "${records}")),
       utils("print", "page size: ${recordSize}"),
-      iterateL(ld("chunk", "${records}", CHUNK_SIZE), { key: "recordChunk", async: false }, [
-        iterateL("${recordChunk}", { key: "record", async: true }, [
-          hull("${incoming_action}", cast("${transform_to}", "${record}"))
-        ]),
-      ]),
+      iterateL(
+        ld("chunk", "${records}", CHUNK_SIZE),
+        { key: "recordChunk", async: false },
+        [
+          iterateL("${recordChunk}", { key: "record", async: true }, [
+            hull("${incoming_action}", cast("${transform_to}", "${record}"))
+          ])
+        ]
+      ),
 
       ifL(cond("isEqual", "${done}", true), loopEndL())
     ])
@@ -331,7 +335,7 @@ const glue = {
             }),
             set(
               "identityPrefix",
-              ld("toLower", "salesforce-${record.Who.Type}")
+              ld("toLower", "${service_name}-${record.Who.Type}")
             ),
             hull("asUser", {
               ident: {
@@ -483,7 +487,7 @@ const glue = {
 
       ifL(cond("notEmpty", "${existingTask}"), {
         do: [
-          set("existingId", get("Id", "${existingTask}")),
+          set("existingId", get("Id", "${existingTask[0]}")),
           ld("set", "${transformedTask}", "Id", "${existingId}"),
           ex("${toUpdate}", "push", "${transformedTask}")
         ],
@@ -531,7 +535,7 @@ const glue = {
           [
             set(
               "identityPrefix",
-              ld("toLower", "salesforce-${record.Who.Type}")
+              ld("toLower", "${service_name}-${record.Who.Type}")
             ),
             ifL(
               cond("isEqual", "${record.IsDeleted}", true),
@@ -643,15 +647,15 @@ const glue = {
   fetchRecentDeletedContacts: ifL(
     cond("isEqual", settings("fetch_contacts"), true),
     [
-      set("service_name", "salesforce_contact"),
-      set("anon_id_prefix", "salesforce-contact"),
+      set("anon_id_prefix", "${service_name}-contact"),
+      set("service_name", "${service_name}_contact"),
       set("service_type", "contact"),
       route("fetchRecentDeletedUsers")
     ]
   ),
   fetchRecentDeletedLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
-    set("service_name", "salesforce_lead"),
-    set("anon_id_prefix", "salesforce-lead"),
+    set("anon_id_prefix", "${service_name}-lead"),
+    set("service_name", "${service_name}_lead"),
     set("service_type", "lead"),
     route("fetchRecentDeletedUsers")
   ]),
@@ -667,8 +671,7 @@ const glue = {
       set("op", "asAccount"),
       set("deletedOp", "accountDeletedInService"),
       set("incoming_type", HullIncomingAccount),
-      set("service_name", "salesforce"),
-      set("anon_id_prefix", "salesforce"),
+      set("anon_id_prefix", "${service_name}"),
       set("service_type", "account"),
       route("fetchRecentDeletedEntities")
     ]

@@ -174,11 +174,7 @@ export interface IAttributesMapper {
     segments: Array<Object>,
     accountSegments: Array<Object>
   ): any;
-  mapToHullAttributeObject(
-    resource: TResourceType,
-    sObject: any,
-    resourceSchema: Object
-  ): any;
+  mapToHullAttributeObject(resource: TResourceType, sObject: any): any;
 }
 
 export interface IQueryUtil {

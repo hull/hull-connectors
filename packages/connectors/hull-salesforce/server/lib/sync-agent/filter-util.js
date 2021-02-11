@@ -41,12 +41,15 @@ class FilterUtil implements IFilterUtil {
 
   allowShortDomains: boolean;
 
+  source: string;
+
   /**
    * Creates an instance of FilterUtil.
    * @param {Object} privateSettings The private settings from the connector.
    * @memberof FilterUtil
    */
   constructor(privateSettings: Object) {
+    this.source = _.get(privateSettings, "source", "salesforce");
     this.contactSynchronizedSegments = _.get(
       privateSettings,
       "contact_synchronized_segments",
@@ -162,7 +165,7 @@ class FilterUtil implements IFilterUtil {
     }
 
     if (
-      _.get(hullAccount, "salesforce/deleted_at", null) !== null &&
+      _.get(hullAccount, `${this.source}/deleted_at`, null) !== null &&
       !this.sendDeletedObjects
     ) {
       _.set(
@@ -191,9 +194,10 @@ class FilterUtil implements IFilterUtil {
     }
 
     if (_.has(hullAccount, "id")) {
-      if (_.has(hullAccount, "salesforce/id")) {
+      if (_.has(hullAccount, `${this.source}/id`)) {
         if (
-          _.get(sfAccount, "Id", null) === _.get(hullAccount, "salesforce/id")
+          _.get(sfAccount, "Id", null) ===
+          _.get(hullAccount, `${this.source}/id`)
         ) {
           if (!this.accountInArray(results.toUpdate, hullAccount)) {
             results.toUpdate.push(envelope);
@@ -251,7 +255,7 @@ class FilterUtil implements IFilterUtil {
       return this.filterAccountEnvelopes(envelopes, isBatch);
     }
 
-    const traitGroup = `salesforce_${_.toLower(resourceType)}`;
+    const traitGroup = `${this.source}_${_.toLower(resourceType)}`;
     const results: TFilterResults = {
       toSkip: [],
       toUpdate: [],

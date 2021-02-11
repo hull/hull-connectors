@@ -28,6 +28,7 @@ describe("Update Tasks Tests", () => {
     const connector = {
       private_settings: {
         ...private_settings,
+        source: "salesforce_main",
         lead_synchronized_segments: [],
         contact_synchronized_segments: ["segment_1"],
         account_synchronized_segments: [],
@@ -113,11 +114,11 @@ describe("Update Tasks Tests", () => {
         ],
         task_references_outbound: [
           {
-            hull: "salesforce_contact/id",
+            hull: "salesforce_main_contact/id",
             service: "WhoId"
           },
           {
-            hull: "salesforce_contact/owner_id",
+            hull: "salesforce_main_contact/owner_id",
             service: "OwnerId"
           }
         ]
@@ -246,19 +247,21 @@ describe("Update Tasks Tests", () => {
             });
             nock("https://na98.salesforce.com")
               .post("/services/Soap/u/39.0", body => {
-                return body.indexOf(
-                  "" +
-                    "<create>" +
-                    "<sObjects>" +
-                    "<type>Task</type>" +
-                    "<WhoId>contact_id_1</WhoId>" +
-                    "<Subject>Hubspot-Event-3</Subject>" +
-                    "<Description>837382</Description>" +
-                    "<ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate>" +
-                    "<Type>Email</Type>" +
-                    "<ExternalEventId__c>hubspot_email_3</ExternalEventId__c>" +
-                    "</sObjects>" +
-                    "</create>"
+                return (
+                  body.indexOf(
+                    "<update>" +
+                      "<sObjects>" +
+                      "<type>Task</type>" +
+                      "<WhoId>contact_id_1</WhoId>" +
+                      "<Subject>Hubspot-Event-3</Subject>" +
+                      "<Description>837382</Description>" +
+                      "<ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate>" +
+                      "<Type>Email</Type>" +
+                      "<ExternalEventId__c>hubspot_email_3</ExternalEventId__c>" +
+                      "<Id>aOuvlns903760</Id>" +
+                      "</sObjects>" +
+                      "</update>"
+                  ) !== -1
                 );
               })
               .reply(200, respBodyC2, {
@@ -378,7 +381,7 @@ describe("Update Tasks Tests", () => {
                 request_id: expect.whatever(),
                 user_id: "user_id_1",
                 user_email: "user_1@hull.com",
-                user_anonymous_id: "salesforce-contact:contact_id_1"
+                user_anonymous_id: "salesforce_main-contact:contact_id_1"
               },
               {
                 record: {
@@ -468,32 +471,12 @@ describe("Update Tasks Tests", () => {
                 asUser: {
                   id: "user_id_1",
                   email: "user_1@hull.com",
-                  anonymous_id: "salesforce-contact:contact_id_1"
+                  anonymous_id: "salesforce_main-contact:contact_id_1"
                 },
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_contact/email": {
-                  value: "user_1@hull.com",
-                  operation: "set"
-                },
-                "salesforce_contact/id": {
+                "salesforce_main_contact/id": {
                   value: "contact_id_1",
                   operation: "setIfNull"
                 }
