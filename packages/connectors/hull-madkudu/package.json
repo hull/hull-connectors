@@ -17,7 +17,7 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "@segment/loosely-validate-event": "^1.1.2"
+    "@segment/loosely-validate-event": "^2.0.0"
   },
   "devDependencies": {}
 }

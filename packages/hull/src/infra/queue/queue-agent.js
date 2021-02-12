@@ -8,7 +8,6 @@ const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
 // const KueAdapter = require("./adapter/kue");
 const BullAdapter = require("./adapter/bull");
-const SQSAdapter = require("./adapter/sqs");
 
 /**
  * By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue](https://github.com/Automattic/kue) or [Bull](https://github.com/OptimalBits/bull) adapters which you can initiate in a following way:
@@ -53,7 +52,6 @@ const SQSAdapter = require("./adapter/sqs");
  * ```
  */
 
-const SQS_REQUIRED_KEYS = ["region", "accessKeyId", "secretAccessKey", "url"];
 const REDIS_REQUIRED_KEYS = ["name", "url"];
 const missingKeys = config => (required: Array<string>) => {
   const missing = _.filter(required, k => config[k] === undefined);
@@ -70,10 +68,7 @@ class QueueAgent {
     const { store } = config;
     const missing = missingKeys(config);
     debug("New Queue", { config });
-    if (store === "sqs") {
-      missing(SQS_REQUIRED_KEYS);
-      this.adapter = new SQSAdapter(_.pick(config, SQS_REQUIRED_KEYS));
-    } else if (store === "redis") {
+    if (store === "redis") {
       missing(REDIS_REQUIRED_KEYS);
       this.adapter = new BullAdapter(
         _.pick(config, ["name", "url", "settings"])

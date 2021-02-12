@@ -2,12 +2,11 @@
   "name": "hull-outgoing-user-webhooks",
   "description": "Outgoing User Webhooks connector",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'"
   },
-  "dependencies": {
-    "domready": "^1.0.8"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }

@@ -100,7 +100,7 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
                     }
                   }
                 ],
-                "@babel/preset-react"
+                ["@babel/preset-react", { "runtime": "automatic" }]
               ],
               plugins: ["lodash", "react-hot-loader/babel"]
             }

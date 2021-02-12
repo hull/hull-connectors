@@ -150,7 +150,17 @@ class SyncAgent {
   }
 
   fetchLeadAssignmentRules() {
-    return this.sf.fetchAssignmentRules("Lead");
+    return this.cache
+      .wrap("leadAssignmentRules", () => {
+        return this.sf.fetchAssignmentRules("Lead");
+      })
+      .then((lars = []) => {
+        const rules = lars.map(r => {
+          return { value: r.id, label: r.name };
+        });
+        rules.unshift({ value: "none", label: "- Not specified -" });
+        return { options: rules };
+      });
   }
 
   relatedEntityFields(resourceType) {

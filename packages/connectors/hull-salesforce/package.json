@@ -1,6 +1,7 @@
 {
   "name": "hull-salesforce",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Hull Salesforce integration",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",

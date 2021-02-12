@@ -177,9 +177,7 @@ class HubspotClient {
       this.client.logger.error(
         "checkToken: Ship private settings lack token information"
       );
-      token_fetched_at = moment()
-        .utc()
-        .format("x");
+      token_fetched_at = moment().utc().format("x");
       expires_in = 0;
     }
 
@@ -201,9 +199,7 @@ class HubspotClient {
         this.agent.set("Authorization", `Bearer ${res.body.access_token}`);
         return this.settingsUpdate({
           expires_in: res.body.expires_in,
-          token_fetched_at: moment()
-            .utc()
-            .format("x"),
+          token_fetched_at: moment().utc().format("x"),
           token: res.body.access_token
         });
       });

@@ -1,6 +1,7 @@
 {
   "name": "hull-google-analytics",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
