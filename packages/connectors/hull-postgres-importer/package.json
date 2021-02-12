@@ -1,5 +1,5 @@
 {
-  "name": "hull-postgresql-importer",
+  "name": "hull-postgres-importer",
   "version": "0.1.40-monorepo",
   "license": "MIT",
   "description": "Import Users, Events and Accounts from PostgreSQL",

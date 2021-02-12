@@ -1,5 +1,5 @@
 {
-  "name": "hull-postgresql-exporter",
+  "name": "hull-postgres-exporter",
   "version": "0.1.40-monorepo",
   "description": "Connector description",
   "scripts": {

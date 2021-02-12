@@ -7,7 +7,7 @@ const handler = (adapter): HullHandlersConfiguration => {
   return new HullRouter({
     glue: require("./glue"),
     services: {
-      sql: require("./sql-sequalize-service")(adapter)
+      sql: require("./sql-sequelize-service")(adapter)
     },
     transforms: require("./transforms-to-service"),
     ensureHook: "ensureHook"

@@ -480,7 +480,7 @@ const glue = {
 
       ifL(cond("notEmpty", "${existingTask}"), {
         do: [
-          set("existingId", get("Id", "${existingTask}")),
+          set("existingId", get("Id", "${existingTask[0]}")),
           ld("set", "${transformedTask}", "Id", "${existingId}"),
           ex("${toUpdate}", "push", "${transformedTask}")
         ],

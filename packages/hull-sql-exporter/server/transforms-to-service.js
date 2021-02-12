@@ -168,7 +168,7 @@ const transformsToService: ServiceTransforms = [
     output: SQLUserWrite,
     strategy: "AtomicReaction",
     direction: "outgoing",
-    target: { component: "input" },
+    target: { component: "cloneInitialInput" },
     asPipeline: true,
     batchTransform: true,
     condition: isEqual(
@@ -306,7 +306,7 @@ const transformsToService: ServiceTransforms = [
     output: SQLAccountWrite,
     strategy: "AtomicReaction",
     direction: "outgoing",
-    target: { component: "input" },
+    target: { component: "cloneInitialInput" },
     asPipeline: true,
     batchTransform: true,
     condition: isEqual(
