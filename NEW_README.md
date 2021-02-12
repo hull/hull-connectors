@@ -1158,13 +1158,6 @@ Newer versions deprecate exposing a Queue at the top level, instead opting to ex
 ```js
 const connectorConfig = {
   ...(queueConfig = {
-      store: "sqs",
-      region: string,
-      accessKeyId: string,
-      secretAccessKey: string,
-      queueUrl: string
-    }
-  | {
       store: "redis",
       url: string,
       name: string,

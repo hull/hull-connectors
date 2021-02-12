@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import { Component } from "react";
 
 import Nav from "react-bootstrap/Nav";
 import ButtonGroup from "react-bootstrap/ButtonGroup";

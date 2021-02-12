@@ -24,10 +24,7 @@ class MailchimpAgent {
   getEmailHash(email) {
     return (
       !_.isEmpty(email) &&
-      crypto
-        .createHash("md5")
-        .update(email.toLowerCase())
-        .digest("hex")
+      crypto.createHash("md5").update(email.toLowerCase()).digest("hex")
     );
   }
 

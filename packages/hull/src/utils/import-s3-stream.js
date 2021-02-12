@@ -1,7 +1,8 @@
 // @flow
+import { v1 as uuid } from "uuid";
+
 const { Writable, PassThrough } = require("stream");
 const AWS = require("aws-sdk");
-const uuid = require("uuid/v1");
 const zlib = require("zlib");
 const _ = require("lodash");
 const debug = require("debug")("hull-import-s3-stream");

@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import Code from "./code";

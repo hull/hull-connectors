@@ -7,7 +7,6 @@ import type {
 import BluebirdPromise from "bluebird";
 import _ from "lodash";
 
-// import Promise from "bluebird";
 import { performProspect } from "../clearbit/prospect";
 
 const prospect = async (
