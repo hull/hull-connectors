@@ -138,13 +138,7 @@ const glue = {
         ]
       ),
 
-      sqlJdbc(
-        "upsertHullAccount",
-        transformTo(
-          SQLAccountWrite,
-          cast(HullOutgoingAccount, "${message}")
-        )
-      )
+      sqlJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}"))
     ])
   ),
   userUpdate: ifL(
@@ -181,10 +175,7 @@ const glue = {
         ]
       ),
 
-      sqlJdbc(
-        "upsertHullUser",
-        transformTo(SQLUserWrite, cast(HullOutgoingUser, "${message}"))
-      ),
+      sqlJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
 
       iterateL(
         ld("filter", "${message.events}", { event_type: "user_merged" }),
@@ -219,7 +210,6 @@ const glue = {
         utils("hashObject", settings("outgoing_account_attributes"))
       )
     ),
-    set("bLAH", "${connector.private_settings.db_username}"),
     set(
       "currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +

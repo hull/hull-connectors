@@ -1,5 +1,5 @@
 {
-  "name": "hull-sql",
+  "name": "hull-sql-importer",
   "description": "Hull Sql Base",
   "version": "0.1.40-monorepo",
   "license": "MIT",

@@ -32,7 +32,7 @@ packages/connectors/hull-bigquery
 packages/connectors/hull-snowflake-importer
 packages/connectors/hull-bigquery-importer
 packages/connectors/hull-redshift-importer
-packages/connectors/hull-postgresql-importer
+packages/connectors/hull-postgres-importer
 packages/connectors/hull-mysql-importer
 packages/connectors/hull-mssql-importer
 
@@ -41,7 +41,7 @@ packages/connectors/hull-hubspot/server/purplefusion
 packages/connectors/hull-salesforce/server/purplefusion
 packages/hull-connector-framework
 packages/hull-sql-exporter
-packages/hull-sql
+packages/hull-sql-importer
 
 packages/connectors/hull-facebook-audiences/src/alias.js
 packages/connectors/hull-google-analytics/src/alias.js

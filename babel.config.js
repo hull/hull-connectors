@@ -28,9 +28,9 @@ module.exports = api => {
       "packages/hull-sql-exporter/server",
       "packages/hull-sql-exporter/test",
 
-      "packages/hull-sql/src",
-      "packages/hull-sql/server",
-      "packages/hull-sql/test",
+      "packages/hull-sql-importer/src",
+      "packages/hull-sql-importer/server",
+      "packages/hull-sql-importer/test",
 
       "packages/hullrepl/src",
       "packages/hull-client/src",

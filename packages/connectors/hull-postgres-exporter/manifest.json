@@ -1,7 +1,7 @@
 {
-  "name": "PostgreSQL Exporter",
+  "name": "Postgres Exporter",
   "description": "Outgoing integration to PostgreSQL for Users, Accounts and Events",
-  "source": "outreach",
+  "source": "postgres",
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.1.40-monorepo",
