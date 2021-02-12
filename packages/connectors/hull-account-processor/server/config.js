@@ -8,8 +8,8 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE || 100,
-      flow_in: FLOW_CONTROL_IN || 10
+      flow_size: parseInt(FLOW_CONTROL_SIZE, 10) || 100,
+      flow_in: parseInt(FLOW_CONTROL_IN, 10) || 10
     })
   };
 }

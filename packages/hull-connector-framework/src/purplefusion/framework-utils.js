@@ -4,13 +4,12 @@ import Hull from "hull";
 
 const _ = require("lodash");
 const momentConstructor = require("moment");
-const hash = require('object-hash');
+const hash = require("object-hash");
 const jwt = require("jwt-simple");
 
 const uri = require("urijs");
 
 class FrameworkUtils {
-
   createWebhookUrl(context: Object, params: any): string {
     const client = context.client;
     const { organization, id, secret } = client.configuration();
@@ -25,7 +24,10 @@ class FrameworkUtils {
   }
 
   createWebhookUrlWithEncryptedToken(context: Object, params: any): string {
-    const clientCredentialsEncryptedToken = _.get(context, "clientCredentialsEncryptedToken");
+    const clientCredentialsEncryptedToken = _.get(
+      context,
+      "clientCredentialsEncryptedToken"
+    );
     const search = {
       hullToken: clientCredentialsEncryptedToken
     };
@@ -73,7 +75,7 @@ class FrameworkUtils {
   }
 
   base64Encode(context: Object, params: any) {
-    return Buffer.from(params).toString('base64');
+    return Buffer.from(params).toString("base64");
   }
 
   hashObject(context: Object, params: any) {
@@ -85,17 +87,16 @@ class FrameworkUtils {
   }
 
   logError(context: Object, params: any) {
-    context.client.logger.error(JSON.stringify(params));
+    context.client.logger.error(params.message, params.data);
   }
 
   logInfo(context: Object, params: any) {
-    context.client.logger.info(JSON.stringify(params));
+    context.client.logger.info(params.message, params.data);
   }
 
   jwtEncode(context: Object, params: any) {
     return jwt.encode(params.payload, params.secret, params.algorithm);
   }
-
 }
 module.exports = {
   FrameworkUtils

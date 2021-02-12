@@ -55,7 +55,7 @@ const oauth2 = {
     // and the more detailed variables are in a params object below req.account
     const { account = {} } = message;
     const { refreshToken, params } = account;
-    const { access_token, expires_in, created_at, refresh_token } = params || {};
+    const { access_token, expires_in, created_at, refresh_token, organization } = params || {};
 
     if (cacheCredentials && credentialsKeyPath && serviceKey) {
       const credentialsKey = _.get(account, credentialsKeyPath, null);
@@ -65,6 +65,7 @@ const oauth2 = {
     }
     return {
       private_settings: {
+        service_organization: organization,
         token_expires_in: expires_in,
         token_created_at: created_at,
         refresh_token: refreshToken || refresh_token,

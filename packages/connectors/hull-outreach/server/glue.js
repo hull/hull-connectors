@@ -308,6 +308,10 @@ const glue = {
         ])
     }),
 
+  ensure: [
+    set("arrayStrategy", ld("get", "${connector.private_settings}", "array_strategy", "send_raw_array")),
+    route("ensureWebhooks")
+  ],
   ensureWebhooks: ifL(settings("access_token"),
     ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
 

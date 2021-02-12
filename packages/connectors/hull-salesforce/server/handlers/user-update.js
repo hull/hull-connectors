@@ -35,6 +35,7 @@ export default async (
 
   const filteredMessages = deduplicateMessages(messages, "user");
 
+  const batchPolicy = _.get(privateSettings, "batch_policy", "strict");
   const synchronizedUserSegments = _.get(
     privateSettings,
     "contact_synchronized_segments",
@@ -46,16 +47,26 @@ export default async (
     []
   );
 
+  const isBatch = _.get(ctx.notification, "is_export", false);
+
   let userMessages = filterMessagesBySegments(
     filteredMessages,
     synchronizedUserSegments
   );
-  const leadMessages = filterMessagesBySegments(
+  let leadMessages = filterMessagesBySegments(
     filteredMessages,
     synchronizedLeadSegments
   );
 
   userMessages = _.difference(userMessages, leadMessages);
+
+  if (isBatch && batchPolicy === "defaultToLead") {
+    const filteredOutMessages = _.difference(
+      messages,
+      _.concat(userMessages, leadMessages)
+    );
+    leadMessages = _.concat(leadMessages, filteredOutMessages);
+  }
 
   const userRoute = "userUpdate";
   const leadRoute = "leadUpdate";

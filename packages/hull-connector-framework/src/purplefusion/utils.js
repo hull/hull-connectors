@@ -181,25 +181,59 @@ function createAnonymizedObject(object, pathsToAnonymize = {
   }, 2);
 }
 
+function getFilters(
+  entity: HullEntityName,
+  private_settings: PrivateSettings
+): HullTriggerSet {
+
+  return {
+    [`${entity}_segments_whitelist`]: private_settings[`synchronized_${entity}_segments`],
+    [`${entity}_segments_blacklist`]: private_settings[`blocked_${entity}_segments`]
+  };
+}
+
 function getTriggers(
   entity: HullEntityName,
   serviceName: string,
-  private_settings: PrivateSettings
+  private_settings: PrivateSettings,
+  options?: Object
 ): HullTriggerSet {
   // TODO fill out user/lead/account triggers/filters
 
-  const { link_users_in_service } = private_settings;
+  const { sendOnAnySegmentChanges = false } = options || {};
+  const {
+    link_users_in_service = false,
+    send_if_any_segment_change = false,
+    send_all_user_attributes = false,
+    send_all_account_attributes = false
+  } = private_settings;
 
   const triggers = {};
+
+  triggers[`${entity}_segments_entered`] = private_settings[`synchronized_${entity}_segments`];
 
   if (entity !== "account") {
     triggers[`${entity}_events`] = private_settings[`outgoing_${entity}_events`] || private_settings["outgoing_events"] || [];
 
     if (link_users_in_service) {
-      triggers[`${entity}_account_linked`] = ["id"];
+      triggers[`${entity}_account_linked`] = [true];
       triggers["account_attribute_updated"] = [`${serviceName}/id`];
     }
+
+    if (send_all_user_attributes) {
+      triggers[`${entity}_attribute_updated`] = ["all_attributes"];
+      triggers[`${entity}_events`] = ["all_events"];
+    }
+  } else {
+    if (send_all_account_attributes) {
+      triggers[`${entity}_attribute_updated`] = ["all_attributes"];
+    }
   }
+
+  if (sendOnAnySegmentChanges || send_if_any_segment_change) {
+    triggers[`${entity}_segments_updated`] = ["all_segments"];
+  }
+
   return triggers;
 }
 
@@ -225,15 +259,16 @@ function toSendMessage(
   const { helpers } = context;
   const { hasMatchingTriggers } = helpers;
 
-  const synchronizedUserSegments = _.get(
-    context,
-    "connector.private_settings.synchronized_user_segments"
-  );
-  const synchronizedLeadSegments = _.get(
-    context,
-    "connector.private_settings.synchronized_lead_segments"
-  );
-  const isUserLeadConnector = !_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments);
+  const hullType = targetEntity === "account" ? "account" : "user";
+
+  const filters = getFilters(targetEntity, privateSettings);
+  const matchesFilters = hasMatchingTriggers({ mode: "all", message, matchOnBatch: true, triggers: filters });
+  if (!matchesFilters) {
+    context.client[`as${_.upperFirst(hullType)}`](message[hullType]).logger.debug(`outgoing.${hullType}.skip`, {
+      reason: `${_.upperFirst(hullType)} is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the ${hullType} is present in the settings page, or add the ${hullType} to an existing synchronized segment`
+    });
+    return false;
+  }
 
   // Entered segment
   // First: entered segment notification (no attribute change)
@@ -256,6 +291,16 @@ function toSendMessage(
   // right? or should we just send the identifiers?
   // we'll keep it for now.
   if (context.isBatch) {
+    const synchronizedUserSegments = _.get(
+      context,
+      "connector.private_settings.synchronized_user_segments"
+    );
+    const synchronizedLeadSegments = _.get(
+      context,
+      "connector.private_settings.synchronized_lead_segments"
+    );
+    const isUserLeadConnector = !_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments);
+
     if (isUserLeadConnector) {
       const sendBatchAs = _.get(context, "connector.private_settings.send_batch_as");
 
@@ -272,34 +317,12 @@ function toSendMessage(
     return true;
   }
 
-  let segmentAttribute;
-  let synchronizedSegmentPath;
-  let outgoingAttributesPath;
-  if (targetEntity === "user") {
-    segmentAttribute = "segments";
-    (synchronizedSegmentPath =
-      "connector.private_settings.synchronized_user_segments"),
-      (outgoingAttributesPath =
-        "connector.private_settings.outgoing_user_attributes");
-  } else if (targetEntity === "account") {
-    segmentAttribute = "account_segments";
-    (synchronizedSegmentPath =
-      "connector.private_settings.synchronized_account_segments"),
-      (outgoingAttributesPath =
-        "connector.private_settings.outgoing_account_attributes");
-  } else if (targetEntity === "lead") {
-    segmentAttribute = "segments";
-    (synchronizedSegmentPath =
-      "connector.private_settings.synchronized_lead_segments"),
-      (outgoingAttributesPath =
-        "connector.private_settings.outgoing_lead_attributes");
-  } else {
+  if (!_.includes(["user", "lead", "account"], targetEntity)) {
     throw new Error(
       `Invalid input for target entity, option not supported: ${targetEntity}`
     );
   }
 
-  const hullType = targetEntity === "account" ? "account" : "user";
   const entity: any = _.get(message, hullType);
 
   const serviceName = _.get(options, "serviceName");
@@ -335,41 +358,11 @@ function toSendMessage(
     }
   }
 
-  const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
-  const enteredAnySegments = !_.isEmpty(enteredSegments);
-
-  if (enteredAnySegments) {
-    const enteredSegmentIds = enteredSegments.map(segment => segment.id);
-    const enteredSynchronizedSegment =
-      _.intersection(enteredSegmentIds, _.get(context, synchronizedSegmentPath))
-        .length >= 1;
-
-    if (enteredSynchronizedSegment) {
-      return true;
-    }
-  }
-
-  const entityInSegments = _.get(message, segmentAttribute, []);
-  const entityInSegmentIds = entityInSegments.map( segment => segment.id );
-
-  // All is the default segment that everyone is in, so if it's selected, it should mean this thing should go
-  entityInSegmentIds.push("ALL");
-
-  const matchesSegments = _.intersection(
-    entityInSegmentIds,
-    _.get(context, synchronizedSegmentPath)
-  ).length >= 1;
-
-  // I think we can maybe take out the is_export logic because we're trying to only use isBatch
-  if (!matchesSegments && !context.notification.is_export) {
-    if (hullType === "user") {
-      debug(`User does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
-    } else if (hullType === "account") {
-      debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asAccount(entity).logger.debug("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
-    }
-    return false;
+  // TODO expand use of triggers to include all user/lead/account triggers and filters
+  const triggers = getTriggers(targetEntity, serviceName, privateSettings, options);
+  const matchesTriggers = hasMatchingTriggers({ mode: "any", message, triggers });
+  if (matchesTriggers) {
+    return true;
   }
 
   if (hullType === "user") {
@@ -389,25 +382,7 @@ function toSendMessage(
       if (!_.isEmpty(changedAccountIdOnAccount)) {
         return true;
       }
-
     }
-  }
-
-  // Do not have to normalize this field with regard to array index at the end [1]...
-  // because this field does not do the diff like the other fields, it gives a { left: [{}...], entered:} syntax
-  if (_.get(options, "sendOnAnySegmentChanges", false) === true
-      || _.get(context, "connector.private_settings.send_if_any_segment_change", false) === true) {
-    const segmentChanges = _.get(message.changes, segmentAttribute);
-    if (!_.isEmpty(segmentChanges)) {
-      return true;
-    }
-  }
-
-  // TODO expand use of triggers to include all user/lead/account triggers and filters
-  const triggers = getTriggers(targetEntity, serviceName, privateSettings);
-  const matchesTriggers = hasMatchingTriggers({ mode: "any", message, triggers });
-  if (matchesTriggers) {
-    return true;
   }
 
   // This is a special flag where we send all attributes regardless of change
@@ -427,15 +402,10 @@ function toSendMessage(
       });
       return false;
     }
-
-    return true;
   }
 
-  const send_all_account_attributes = _.get(context, "connector.private_settings.send_all_account_attributes");
-  if (send_all_account_attributes === true && hullType === "account") {
-    return true;
-  }
-
+  const outgoingAttributesPath =
+    `connector.private_settings.outgoing_${targetEntity}_attributes`;
   const outgoingAttributes = _.get(context, outgoingAttributesPath);
   if (_.isEmpty(outgoingAttributes)) {
     if (hullType === "user") {
@@ -466,6 +436,8 @@ function toSendMessage(
     }
   }
 
+
+  // TODO - move attribute-changed validations to triggers
   const attributesToSync = outgoingAttributes.map(attr => attr.hull);
   const entityAttributeChanges = _.get(message.changes, hullType, {});
 

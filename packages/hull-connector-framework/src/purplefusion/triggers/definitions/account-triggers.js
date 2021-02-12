@@ -10,7 +10,8 @@ const {
   validateSegments,
   excludeSegments,
   validateChanges,
-  required
+  required,
+  empty
 } = require("../validations");
 
 const {
@@ -28,6 +29,7 @@ const accountTriggers = (entityType) => {
         "changes.is_new": [filterNew]
       },
       validations: {
+        user: [empty],
         account: [required],
         changes: { is_new: true }
       }
@@ -65,6 +67,7 @@ const accountTriggers = (entityType) => {
         "changes.account_segments.entered": [filterSegments]
       },
       validations: {
+        user: [empty],
         "changes.account_segments.entered": [required, validateSegments]
       }
     },
@@ -74,7 +77,16 @@ const accountTriggers = (entityType) => {
         "changes.account_segments.left": [filterSegments]
       },
       validations: {
+        user: [empty],
         "changes.account_segments.left": [required, validateSegments]
+      }
+    },
+    [`${entityType}_segments_updated`]: {
+      type: HullAccountSegmentChangedTrigger,
+      filters: {},
+      validations: {
+        user: [empty],
+        "changes.account_segments": [required]
       }
     },
     //TODO: Deprecate to have uniform naming
@@ -93,6 +105,7 @@ const accountTriggers = (entityType) => {
         "changes.account_segments.entered": [filterSegments]
       },
       validations: {
+        user: [empty],
         "changes.account_segments.entered": [required, validateSegments]
       }
     },
@@ -102,6 +115,7 @@ const accountTriggers = (entityType) => {
         "changes.account_segments.left": [filterSegments]
       },
       validations: {
+        user: [empty],
         "changes.account_segments.left": [required, validateSegments]
       }
     }

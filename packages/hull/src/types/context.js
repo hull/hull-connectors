@@ -124,6 +124,14 @@ export type HullContext = {|
       message: HullUserUpdateMessage | HullAccountUpdateMessage,
       triggers: HullTriggerSet
     }) => boolean,
+    hasMatchingSegments: ({
+      matchOnBatch?: boolean,
+      entity: "user" | "account",
+      whitelist: Array<string>,
+      blacklist: Array<string>
+    }) => (
+      message: HullUserUpdateNotification | HullAccountUpdateNotification
+    ) => boolean,
     segmentChangesToEvents: (
       HullAccountUpdateMessage | HullUserUpdateMessage,
       Array<HullSegment>
