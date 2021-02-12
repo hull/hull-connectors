@@ -1,29 +1,29 @@
 {
   "name": "hullrepl",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "exit 0; echo 'No Tests here'",
     "documentation": "exit 0"
   },
   "bin": {
     "hullrepl": "src/index.js"
   },
   "author": "",
-  "license": "MIT",
   "dependencies": {
-    "csv-parse": "^4.6.3",
-    "faker": "^4.1.0",
+  },
+  "devDependencies": {
+    "csv-parse": "^4.15.1",
     "highland": "^2.13.5",
     "inquirer": "^7.0.0",
     "lowdb": "^1.0.0",
-    "minimist": "^1.2.0",
-    "node-mocks-http": "^1.8.0",
+    "node-mocks-http": "^1.10.1",
     "promisepipe": "^3.0.0",
     "s3": "^4.4.0",
     "shelljs": "^0.8.3",
-    "stream-transform": "^2.0.1",
+    "stream-transform": "^2.0.4",
     "superagent-prefix": "0.0.2",
     "supply": "0.0.4"
   }

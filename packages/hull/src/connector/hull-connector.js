@@ -16,7 +16,7 @@ import type {
   HullContextGetter,
   HullJsonConfig,
   HullWorkerConfig,
-  HullConnectorConfig,
+  HullCompleteConnectorConfig,
   HullClient,
   HullCredentialsObject,
   HullRouterFactory,
@@ -40,11 +40,8 @@ import buildConfigurationFromEnvironment from "../utils/config-from-env";
 import mergeConfig from "../utils/merge-config";
 
 const { compose } = require("compose-middleware");
-
-const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
-
 const winston = require("winston");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
@@ -130,31 +127,34 @@ const transportsFromConfig = (transports: Array<TransportConfig>): Array<any> =>
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
 export default class HullConnector {
-  middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
+  middlewares: $PropertyType<HullCompleteConnectorConfig, "middlewares">;
 
-  handlers: $PropertyType<HullConnectorConfig, "handlers">;
+  handlers: $PropertyType<HullCompleteConnectorConfig, "handlers">;
 
-  _handlers: $PropertyType<HullConnectorConfig, "handlers">;
+  _handlers: $PropertyType<HullCompleteConnectorConfig, "handlers">;
 
-  manifest: $PropertyType<HullConnectorConfig, "manifest">;
+  manifest: $PropertyType<HullCompleteConnectorConfig, "manifest">;
 
   serverConfig: HullServerConfig;
 
   workerConfig: HullWorkerConfig;
 
-  httpClientConfig: $PropertyType<HullConnectorConfig, "httpClientConfig">;
+  httpClientConfig: $PropertyType<
+    HullCompleteConnectorConfig,
+    "httpClientConfig"
+  >;
 
-  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
+  clientConfig: $PropertyType<HullCompleteConnectorConfig, "clientConfig">;
 
-  jsonConfig: $PropertyType<HullConnectorConfig, "jsonConfig">;
+  jsonConfig: $PropertyType<HullCompleteConnectorConfig, "jsonConfig">;
 
-  metricsConfig: $PropertyType<HullConnectorConfig, "metricsConfig">;
+  metricsConfig: $PropertyType<HullCompleteConnectorConfig, "metricsConfig">;
 
-  logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
+  logsConfig: $PropertyType<HullCompleteConnectorConfig, "logsConfig">;
 
-  cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
+  cacheConfig: $PropertyType<HullCompleteConnectorConfig, "cacheConfig">;
 
-  connectorConfig: HullConnectorConfig;
+  connectorConfig: HullCompleteConnectorConfig;
 
   jsonConfig: HullJsonConfig;
 

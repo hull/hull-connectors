@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import _ from "lodash";
 import ClaimLine from "./claim-line";
 

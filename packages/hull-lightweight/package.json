@@ -1,11 +1,12 @@
 {
   "name": "hull-lightweight",
   "description": "Hull Lightweight Connectors",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "exit 0; echo 'No Tests here'"
   },
   "dependencies": {},
   "devDependencies": {}

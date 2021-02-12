@@ -1,16 +1,13 @@
 {
   "name": "hull-google-sheets",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Import data from Google Sheets",
-  "version": "0.1.39-monorepo",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
   "dependencies": {
-    "domready": "^1.0.8",
-    "material-ui": "^0.20.2",
-    "prop-types": "^15.7.2",
-    "supertest": "^4.0.2",
     "svg-inline-loader": "^0.8.2"
   }
 }

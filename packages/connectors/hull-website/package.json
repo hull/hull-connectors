@@ -1,20 +1,22 @@
 {
   "name": "hull-website",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Track web traffic and integrate with other client side services.",
   "main": "index.js",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
-    "test": "exit 0; echo 'No Tests here' Sad Panda"
+    "test": "exit 0; echo 'No Tests here'"
   },
   "dependencies": {
+    "bluebird": "^3.5.3",
     "eventemitter2": "^6.4.3",
     "jwt-simple": "^0.5.1",
-    "query-string": "^6.13.8",
+    "query-string": "^6.14.0",
     "redis": "^3.0.2",
     "redis-lru": "^0.6.0",
-    "socket.io": "^2.4.0",
-    "socket.io-client": "^2.4.0",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4",
     "socket.io-redis": "^5.4.0"
   },
   "devDependencies": {}

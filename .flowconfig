@@ -1,4 +1,5 @@
 [ignore]
+.*/node_modules/.*
 .*/node_modules/.*/\(lib\|test\|examples\).*\.json$
 .*/node_modules/documentation/.*
 <PROJECT_ROOT>/dist/*.
@@ -14,3 +15,4 @@ all=warn
 [options]
 include_warnings=true
 esproposal.optional_chaining=enable
+react.runtime=automatic

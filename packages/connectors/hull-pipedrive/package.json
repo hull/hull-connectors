@@ -1,6 +1,7 @@
 {
   "name": "hull-pipedrive",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",

@@ -1,6 +1,6 @@
 // @noflow
 // import _ from "lodash";
-import Liquid from "liquidjs";
+import { Liquid } from "liquidjs";
 import buildAttachments from "./build-attachments";
 import { getUserName, getAccountName } from "./get-name";
 

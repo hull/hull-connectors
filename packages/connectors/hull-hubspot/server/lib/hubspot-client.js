@@ -177,9 +177,7 @@ class HubspotClient {
       this.client.logger.error(
         "checkToken: Ship private settings lack token information"
       );
-      token_fetched_at = moment()
-        .utc()
-        .format("x");
+      token_fetched_at = moment().utc().format("x");
       expires_in = 0;
     }
 
@@ -201,9 +199,7 @@ class HubspotClient {
         this.agent.set("Authorization", `Bearer ${res.body.access_token}`);
         return this.settingsUpdate({
           expires_in: res.body.expires_in,
-          token_fetched_at: moment()
-            .utc()
-            .format("x"),
+          token_fetched_at: moment().utc().format("x"),
           token: res.body.access_token
         });
       });
@@ -546,7 +542,7 @@ class HubspotClient {
   }
 
   getCompanyById(companyId: string): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/companies/v2/companies/{{companyId}}")
         .tmplVar({
@@ -561,7 +557,7 @@ class HubspotClient {
   }
 
   getContactByEmail(email: string): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/contacts/v1/contact/email/{{email}}/profile")
         .tmplVar({
@@ -572,7 +568,7 @@ class HubspotClient {
   }
 
   getContactById(contactId: string): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/contacts/v1/contact/vid/{{contactId}}/profile")
         .tmplVar({
@@ -583,7 +579,7 @@ class HubspotClient {
   }
 
   getVisitor(utk: string): Promise<*> {
-    return this.retryUnauthorized(() => {
+    return this.sendRequest(() => {
       return this.agent
         .get("/contacts/v1/contact/utk/{{utk}}/profile")
         .tmplVar({
