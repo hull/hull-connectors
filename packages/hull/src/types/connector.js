@@ -127,7 +127,8 @@ export type HullClientCredentials = {
   secret: string,
   organization: string
 };
-export type HullConnectorConfig = {
+
+export type HullCompleteConnectorConfig = {
   clientConfig: HullClientConfig,
   serverConfig?: HullServerConfig,
   workerConfig?: HullWorkerConfig,
@@ -152,6 +153,34 @@ export type HullConnectorConfig = {
     | (HullConnector => HullHandlersConfiguration),
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
+  manifest?: HullManifest
+  // handlers: HullHandlers // eslint-disable-line no-use-before-define
+};
+export type HullConnectorConfig = {
+  clientConfig?: HullClientConfig,
+  serverConfig?: HullServerConfig,
+  workerConfig?: HullWorkerConfig,
+  metricsConfig?: HullMetricsConfig,
+  cacheConfig?: HullCacheConfig,
+  httpClientConfig?: HullHTTPClientConfig,
+  logsConfig?: HullLogsConfig,
+  jsonConfig?: HullJsonConfig,
+  queueConfig?: HullQueueConfig,
+  hostSecret?: string,
+  port?: number | string,
+  connectorName?: string,
+  skipSignatureValidation?: boolean,
+  timeout?: number | string,
+  disableOnExit?: boolean,
+  trustProxy?: boolean,
+  disableWebpack?: boolean,
+  devMode?: boolean,
+  instrumentation?: HullInstrumentation,
+  handlers:
+    | HullHandlersConfiguration
+    | (HullConnector => HullHandlersConfiguration),
+  notificationValidatorHttpClient?: Object,
+  middlewares?: Array<Middleware>,
   manifest?: HullManifest
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
 };

@@ -1,0 +1,23 @@
+{
+  "name": "hull-madkudu",
+  "description": "Enrich User and Accounts with Madkudu",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "keywords": [
+    "hull",
+    "ship",
+    "hull-ship",
+    "madkudu",
+    "enrichment",
+    "sync"
+  ],
+  "scripts": {
+    "test": "yarn run test:integration",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "@segment/loosely-validate-event": "^1.1.2"
+  },
+  "devDependencies": {}
+}

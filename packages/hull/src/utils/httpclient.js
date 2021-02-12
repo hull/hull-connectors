@@ -18,13 +18,12 @@ export default function httpRequestLibrary(ctx: HullContext) {
     throttle = {},
     timeout = 10000,
     prefix = "",
-    retries
+    retries = 0
   } = httpClientConfig;
   const { logger } = client;
-
   const agent = superagent
     .agent()
-    .set({ "Content-Type": "application/json" })
+    .set("Content-Type", "application/json")
     .use(superagentInstrumentationPlugin({ logger, metric }))
     .ok(res => res.status === 200);
 
@@ -47,7 +46,7 @@ export default function httpRequestLibrary(ctx: HullContext) {
     agent.use(throttle_pool[id].plugin());
   }
 
-  if (retries) {
+  if (retries > 0) {
     agent.retry(retries);
   }
 

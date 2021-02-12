@@ -6,20 +6,13 @@ const _ = require("lodash");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
 export default function connectorConfig(): HullConnectorConfig {
-  const { CLIENT_ID, CLIENT_SECRET, CACHE_MAX_ENTRIES } = process.env;
-
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error("Can't find Client ID and/or Client Secret, check env vars");
-  }
+  const { CACHE_MAX_ENTRIES } = process.env;
 
   return {
       handlers: new HullRouter({
       glue: require("./glue"),
       services: {
-        postgres: require("./postgres-sequalize-service")({
-          clientID: CLIENT_ID,
-          clientSecret: CLIENT_SECRET
-        })
+        postgres: require("./postgres-sequalize-service")()
       },
       transforms: require("./transforms-to-service"),
       ensureHook: "ensureHook"

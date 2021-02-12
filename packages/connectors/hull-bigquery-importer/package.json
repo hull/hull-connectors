@@ -1,11 +1,14 @@
 {
   "name": "hull-bigquery-importer",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "description": "Integration with Bigquery",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@google-cloud/bigquery": "^5.5.0",
+    "google-auth-library": "^6.1.4"
+  },
   "devDependencies": {}
 }

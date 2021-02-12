@@ -1,7 +1,7 @@
 {
   "name": "hull-customerio",
   "description": "Sync users within customer.io service",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"

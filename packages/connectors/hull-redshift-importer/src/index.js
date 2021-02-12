@@ -1,3 +1,3 @@
-import { boot } from "hull-sql/src";
+import { boot } from "hull-sql-importer/src";
 
 boot();

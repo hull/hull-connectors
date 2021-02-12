@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -234,6 +234,20 @@
       "type": "boolean",
       "format": "hidden",
       "default": true
+    },
+    {
+      "name": "outgoing_user_events",
+      "title": "Send User Events",
+      "description": "Send these events to Warehouse. By default, all events are sent.\nIf you update this list, be sure to include \"User Merged\" or you will end up with duplicate users",
+      "type": "array",
+      "format": "event",
+      "default": ["all_events", "User merged"],
+      "options": {
+        "standard": {
+          "all_events": "ALL",
+          "User merged": "User merged"
+        }
+      }
     }
   ],
   "settings": [],
@@ -348,6 +362,7 @@
       "description": "This section configures what User data will be send out to Warehouse, start by whitelisting User segments and then decide which attributes to send.",
       "properties": [
         "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_events",
         "private_settings.send_all_user_attributes",
         "private_settings.outgoing_user_attributes"
       ]

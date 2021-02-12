@@ -1,0 +1,157 @@
+{
+  "name": "Calendly",
+  "description": "Receive Calendly Events",
+  "source": "calendly",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Credentials",
+      "description": "Authenticate with Calendly",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": true,
+        "name": "Calendly",
+        "strategy": {
+          "authorizationURL": "https://auth.calendly.com/oauth/authorize",
+          "tokenURL": "https://auth.calendly.com/oauth/token",
+          "grant_type": "authorization_code",
+          "scope": []
+        }
+      }
+    },
+    {
+      "name": "access_token",
+      "title": "Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "webhook_id",
+      "title": "Calendly webhook id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["email"]
+          },
+          "service": {
+            "title": "Calendly Identifier",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
+    },
+    {
+      "name": "incoming_events",
+      "title": "Events To Receive From Calendly",
+      "format": "select",
+      "type": "array",
+      "uniqueItems": true,
+      "default": ["invitee.created", "invitee.canceled"],
+      "items": {
+        "type": "string",
+        "enum": [
+          "invitee.created",
+          "invitee.canceled"
+        ]
+      }
+    },
+    {
+      "name": "receive_events",
+      "title": "Receive Events",
+      "description": "Should Receive Events",
+      "type": "boolean",
+      "default": true
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "60",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "60",
+    "handler": "status"
+  },
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
+  "batches": [],
+  "json": [],
+  "schedules": [],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Calendly",
+      "description": "Please begin by authenticating this connector with Calendly.",
+      "properties": ["private_settings.oauth"]
+    },
+    {
+      "title": "User Identity",
+      "description": "",
+      "properties": ["private_settings.user_claims"]
+    },
+    {
+      "title": "Receive Events from Calendly",
+      "description": "Define which events will be received from Calendly",
+      "properties": [
+        "private_settings.receive_events",
+        "private_settings.incoming_events"
+      ]
+    }
+  ]
+}

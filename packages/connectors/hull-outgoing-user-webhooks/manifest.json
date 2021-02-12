@@ -3,7 +3,7 @@
   "description": "Send Hull Users updates as Webhooks",
   "tags": ["batch", "smart-notifier", "kraken-exports"],
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "tabs": [
     {
       "title": "Code Editor",

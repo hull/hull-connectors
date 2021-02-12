@@ -3,6 +3,7 @@
 import type { HullConnectorConfig } from "hull";
 import _ from "lodash";
 import handlers from "./handlers";
+import manifest from "../manifest.json";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {

@@ -2,7 +2,7 @@
   "name": "Redshift Importer",
   "description": "Import data from your Redshift databases",
   "picture": "picture.png",
-  "version": "0.1.39-monorepo",
+  "version": "0.1.40-monorepo",
   "source": "redshift",
   "tags": [
     "incoming",
@@ -33,12 +33,6 @@
       "type": "string",
       "default": "180",
       "enum": ["30", "60", "180", "360", "720", "1440", "43800"]
-    },
-    {
-      "name": "overwrite",
-      "title": "Use SQL value in case of data conflict",
-      "type": "boolean",
-      "default": "true"
     },
     {
       "name": "import_days",
@@ -142,6 +136,12 @@
       "type": "string",
       "format": "textarea",
       "title": "SSH private key"
+    },
+    {
+      "name" : "dedupe_lines_from_previous_import",
+      "title" : "Dedupe lines from previous import",
+      "type" : "boolean",
+      "default" : false
     }
   ],
   "settings_sections": [
@@ -164,7 +164,7 @@
         "private_settings.import_type",
         "private_settings.enabled",
         "private_settings.sync_interval",
-        "private_settings.overwrite",
+        "private_settings.dedupe_lines_from_previous_import",
         "private_settings.import_days"
       ]
     },

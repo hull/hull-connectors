@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.1.40-monorepo (2020-01-12)
+
+- [hull-calendly] Add calendly connector
+
 ## v0.1.39-monorepo (2020-11-23)
 
 - [hull-bigquery-importer] Allow customizing import group
