@@ -8,7 +8,6 @@ import cluster from "cluster";
 import type { Server } from "http";
 import express from "express";
 import https from "http";
-import repl from "hullrepl";
 import minimist from "minimist";
 import type {
   HullContext,
@@ -318,6 +317,8 @@ export default class HullConnector {
   }
 
   async repl(credentials: {}) {
+    // eslint-disable-next-line global-require
+    const repl = require("hullrepl");
     return repl({
       credentials,
       middlewares: this.baseComposedMiddleware()
