@@ -159,11 +159,14 @@ class HubspotPropertyUtil {
       return Promise.resolve(existing);
     }
 
-    if (this.serviceType === "contact") {
-      return this.hubspotClient.createContactProperty(property);
-    }
-    if (this.serviceType === "company") {
-      return this.hubspotClient.createCompanyProperty(property);
+    // TODO remove hubspot_entity_id from attribute mapping
+    if (property.name !== "hubspot_entity_id") {
+      if (this.serviceType === "contact") {
+        return this.hubspotClient.createContactProperty(property);
+      }
+      if (this.serviceType === "company") {
+        return this.hubspotClient.createCompanyProperty(property);
+      }
     }
 
     return [];

@@ -15,5 +15,19 @@
         "readOnlyValue": false
       }
     ]
+  },
+  // TODO remove hubspot_entity_id from attribute mapping
+  {
+    "name": "hull_reference",
+    "displayName": "Hull Reference Properties",
+    "properties": [
+      {
+        "name": "hubspot_entity_id",
+        "label": "Id",
+        "groupName": "hullreference",
+        "type": "string",
+        "fieldType": "string"
+      }
+    ]
   }
 ]

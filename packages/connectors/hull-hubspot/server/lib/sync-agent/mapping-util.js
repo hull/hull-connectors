@@ -81,6 +81,8 @@ class MappingUtil {
 
   sendOnlyChanges: boolean;
 
+  source: string;
+
   constructor({
     ctx,
     connector,
@@ -107,9 +109,11 @@ class MappingUtil {
       link_users_in_service,
       incoming_user_claims = [],
       incoming_account_claims = [],
-      send_only_changes
+      send_only_changes,
+      source = "hubspot"
     } = this.connector.private_settings;
 
+    this.source = source;
     this.isBatch = _.get(ctx.notification, "is_export", false);
     this.sendOnlyChanges = send_only_changes || false;
     this.outgoingLinking = link_users_in_service || false;
@@ -180,7 +184,7 @@ class MappingUtil {
       serviceSchema: this.incomingCompanySchema
     });
 
-    hullTraits["hubspot/id"] = accountData.companyId;
+    hullTraits[`${this.source}/id`] = accountData.companyId;
 
     const hubspotName = _.get(accountData, "properties.name.value");
     if (!_.isEmpty(hubspotName)) {
@@ -202,20 +206,20 @@ class MappingUtil {
       serviceSchema: this.incomingConctactSchema
     });
 
-    hullTraits["hubspot/id"] =
+    hullTraits[`${this.source}/id`] =
       hubspotReadContact["canonical-vid"] || hubspotReadContact.vid;
 
-    if (hullTraits["hubspot/first_name"]) {
+    if (hullTraits[`${this.source}/first_name`]) {
       hullTraits.first_name = {
         operation: "setIfNull",
-        value: hullTraits["hubspot/first_name"]
+        value: hullTraits[`${this.source}/first_name`]
       };
     }
 
-    if (hullTraits["hubspot/last_name"]) {
+    if (hullTraits[`${this.source}/last_name`]) {
       hullTraits.last_name = {
         operation: "setIfNull",
-        value: hullTraits["hubspot/last_name"]
+        value: hullTraits[`${this.source}/last_name`]
       };
     }
     return hullTraits;
@@ -235,8 +239,8 @@ class MappingUtil {
     const hubspotWriteContact: HubspotWriteContact = {
       properties: hubspotWriteProperties
     };
-    if (message.user["hubspot/id"]) {
-      hubspotWriteContact.vid = message.user["hubspot/id"];
+    if (message.user[`${this.source}/id`]) {
+      hubspotWriteContact.vid = message.user[`${this.source}/id`];
     }
 
     if (message.user.email) {
@@ -259,8 +263,10 @@ class MappingUtil {
     const hubspotWriteCompany: HubspotWriteCompany = {
       properties: hubspotWriteProperties
     };
-    if (message.account["hubspot/id"]) {
-      hubspotWriteCompany.objectId = message.account["hubspot/id"].toString();
+    if (message.account[`${this.source}/id`]) {
+      hubspotWriteCompany.objectId = message.account[
+        `${this.source}/id`
+      ].toString();
     }
 
     const domainProperties = _.filter(hubspotWriteCompany.properties, {
@@ -283,7 +289,7 @@ class MappingUtil {
 
     // TODO need to account for the 5+ minutes between insert and when Hull fetches
     // the hubspot id
-    const hubspotId = _.get(message[hullType], "hubspot/id");
+    const hubspotId = _.get(message, `${hullType}.${this.source}/id`);
     const isInsert = _.isNil(hubspotId);
 
     const attributeMapping = this[`${_.toLower(serviceType)}OutgoingMapping`];
@@ -336,7 +342,12 @@ class MappingUtil {
     const properties = _.reduce(
       rawHubspotProperties,
       (r, value, property) => {
-        if (_.isNil(value) || value === "") {
+        // TODO remove hubspot_entity_id from attribute mapping
+        if (
+          _.isNil(value) ||
+          value === "" ||
+          property === "hubspot_entity_id"
+        ) {
           return r;
         }
         return [...r, transform({ property, value })];
@@ -346,7 +357,7 @@ class MappingUtil {
 
     // link to company
     if (serviceType === "contact" && this.outgoingLinking && message.account) {
-      let companyId = message.account["hubspot/id"];
+      let companyId = message.account[`${this.source}/id`];
       if (!companyId && message.account.domain) {
         const domain = message.account.domain;
         try {
@@ -413,7 +424,12 @@ class MappingUtil {
 
     return outgoingMapping.reduce((schema, mapping) => {
       const { hull, service } = mapping;
-      if (_.isEmpty(hull) || _.isEmpty(service)) {
+      // TODO remove hubspot_entity_id from attribute mapping
+      if (
+        _.isEmpty(hull) ||
+        _.isEmpty(service) ||
+        service === "hubspot_entity_id"
+      ) {
         return schema;
       }
       const hubspotPropertyName = slug(service, {

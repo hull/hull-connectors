@@ -18,8 +18,11 @@ class FilterUtil {
 
   isBatch: boolean;
 
+  source: string;
+
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
+    this.source = ctx.connector.private_settings.source || "hubspot";
     this.isBatch = ctx.isBatch;
   }
 
@@ -89,7 +92,7 @@ class FilterUtil {
       // TODO need to be careful with this logic.  If multiple changes came in at the same time
       // could be blocking good changes from going...
       if (
-        _.get(changes, "user['hubspot/fetched_at'][1]", false) &&
+        _.get(changes, `user['${this.source}/fetched_at'][1]`, false) &&
         _.isEmpty(_.get(changes, "segments"))
       ) {
         envelope.skipReason = "User just touched by hubspot connector";
@@ -119,7 +122,7 @@ class FilterUtil {
     envelopes.forEach(envelope => {
       const { changes = {} } = envelope.message;
       if (
-        _.get(changes, "account['hubspot/fetched_at'][1]", false) &&
+        _.get(changes, `account['${this.source}/fetched_at'][1]`, false) &&
         _.isEmpty(_.get(changes, "segments"))
       ) {
         envelope.skipReason = "Account just touched by hubspot connector";
@@ -130,7 +133,7 @@ class FilterUtil {
         return filterUtilResults.toSkip.push(envelope);
       }
 
-      if (envelope.message.account["hubspot/id"]) {
+      if (envelope.message.account[`${this.source}/id`]) {
         return filterUtilResults.toUpdate.push(envelope);
       }
 

@@ -72,6 +72,8 @@ class SyncAgent {
 
   portal_id: string;
 
+  source: string;
+
   ctx: HullContext;
 
   constructor(ctx: HullContext) {
@@ -100,6 +102,7 @@ class SyncAgent {
     this.shouldSendEvents = ctx.connector.private_settings.send_events;
     this.shouldFetchVisitors = ctx.connector.private_settings.fetch_visitors;
     this.portalId = ctx.connector.private_settings.portal_id;
+    this.source = ctx.connector.private_settings.source || "hubspot";
     this.ctx = ctx;
   }
 
@@ -190,7 +193,7 @@ class SyncAgent {
       groups:
         direction === "incoming"
           ? _.concat(groups, defaultIncomingGroupMapping.contact)
-          : groups,
+          : _.concat(groups, defaultOutgoingGroupMapping),
       direction
     });
   }
@@ -364,7 +367,7 @@ class SyncAgent {
       contacts.map(async contact => {
         const traits = this.mappingUtil.mapToHullEntity(contact, "user");
         const ident = this.helpers.incomingClaims("user", contact, {
-          anonymous_id_prefix: "hubspot",
+          anonymous_id_prefix: this.source,
           anonymous_id_service: "vid"
         });
         if (ident.error) {
@@ -386,13 +389,13 @@ class SyncAgent {
 
         const mergedVids = _.get(contact, "merged-vids", []);
         _.forEach(mergedVids, vid => {
-          asUser.alias({ anonymous_id: `hubspot:${vid}` });
+          asUser.alias({ anonymous_id: `${this.source}:${vid}` });
         });
 
         if (this.connector.private_settings.link_users_in_hull === true) {
           if (contact.properties.associatedcompanyid) {
             const linkingClient = this.hullClient.asUser(ident.claims).account({
-              anonymous_id: `hubspot:${contact.properties.associatedcompanyid.value}`
+              anonymous_id: `${this.source}:${contact.properties.associatedcompanyid.value}`
             });
             await linkingClient
               .traits({})
@@ -471,7 +474,7 @@ class SyncAgent {
 
       filterResults.toInsert.forEach(envelope => {
         const toSend = toSendMessage(this.ctx, "user", envelope.message, {
-          serviceName: "hubspot",
+          serviceName: this.source,
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
@@ -519,7 +522,8 @@ class SyncAgent {
       messages,
       (eventsToSend, message) => {
         const userEmail =
-          _.get(message, "user.hubspot/email") || _.get(message, "user.email");
+          _.get(message, `user.${this.source}/email`) ||
+          _.get(message, "user.email");
         if (!userEmail) {
           return eventsToSend;
         }
@@ -614,7 +618,7 @@ class SyncAgent {
       );
       upsertResults.forEach(envelope => {
         const toSend = toSendMessage(this.ctx, "account", envelope.message, {
-          serviceName: "hubspot",
+          serviceName: this.source,
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
@@ -680,7 +684,7 @@ class SyncAgent {
                 "account",
                 envelope.hubspotReadCompany,
                 {
-                  anonymous_id_prefix: "hubspot",
+                  anonymous_id_prefix: this.source,
                   anonymous_id_service: "companyId"
                 }
               );
@@ -938,7 +942,7 @@ class SyncAgent {
       companies.map(async company => {
         const traits = this.mappingUtil.mapToHullEntity(company, "account");
         const ident = this.helpers.incomingClaims("account", company, {
-          anonymous_id_prefix: "hubspot",
+          anonymous_id_prefix: this.source,
           anonymous_id_service: "companyId"
         });
         if (ident.error) {
@@ -961,7 +965,7 @@ class SyncAgent {
         const { mergeAudits } = company;
         if (!_.isNil(mergeAudits)) {
           _.forEach(_.map(mergeAudits, "mergedCompanyId"), companyId => {
-            asAccount.alias({ anonymous_id: `hubspot:${companyId}` });
+            asAccount.alias({ anonymous_id: `${this.source}:${companyId}` });
           });
         }
 
@@ -1168,18 +1172,18 @@ class SyncAgent {
     return Promise.map(visitorMessages, async message => {
       const { user } = message;
       const utkAnonIds = _.filter(_.get(user, "anonymous_ids", []), aid =>
-        aid.startsWith("hubspot-utk:")
+        aid.startsWith(`${this.source}-utk:`)
       );
 
       return Promise.map(utkAnonIds, async utkAnonId => {
         try {
-          const utk = _.replace(utkAnonId, "hubspot-utk:", "");
+          const utk = _.replace(utkAnonId, `${this.source}-utk:`, "");
           const contact = await this.getVisitor({ utk });
           const { vid } = contact;
           if (vid) {
             return this.hullClient
               .asUser(user)
-              .alias({ anonymous_id: `hubspot:${vid}` });
+              .alias({ anonymous_id: `${this.source}:${vid}` });
           }
           return this.hullClient
             .asUser(user)
