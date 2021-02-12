@@ -350,10 +350,9 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
-      /*if (attribute.key === "external_id") {
+      if (attribute.key === "external_id" || normalizedAttributeKey === "external_id") {
         sequalizeSchema["external_id"] = Sequelize.STRING;
-      } else */
-      if (type === "date") {
+      } else if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
       } else if (type === "number") {
         sequalizeDataType = Sequelize.DOUBLE;
@@ -538,6 +537,9 @@ class SequalizeSdk {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
+                // Automatic conversion not working anymore.
+                // event_id is set as Sequelize.STRING in EVENT_SCHEMA, received as number in notifs
+                event.event_id = event.event_id && event.event_id.toString();
                 return this.getSequelizeConnection().then((sequelizeConnection) => {
                   return sequelizeConnection.model(this.eventTableName).upsert(event);
                 });
