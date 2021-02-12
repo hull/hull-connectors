@@ -141,6 +141,7 @@
     "file-loader": "^6.2.0",
     "glob": "^7.1.4",
     "hashmap": "^2.3.0",
+    "highland": "^2.13.5",
     "immutable": "^4.0.0-rc.12",
     "jquery": "^3.4.1",
     "kue": "^0.11.6",
