@@ -109,7 +109,7 @@ const glue = {
         ld("set", "${message}", "account", route("buildBatchObject", { message: "${message}", attributes: "${accountAttributes}", entity: "account" })),
       ]),
 
-      postgresJdbc("upsertHullAccount", transformTo(WarehouseAccountWrite, cast(HullOutgoingAccount,"${message}"))),
+      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount,"${message}")),
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
@@ -128,7 +128,7 @@ const glue = {
         ld("set", "${message}", "user", route("buildBatchObject", { message: "${message}", attributes: "${userAttributes}", entity: "user" })),
       ]),
 
-      postgresJdbc("upsertHullUser", transformTo(WarehouseUserWrite, cast(HullOutgoingUser,"${message}"))),
+      postgresJdbc("upsertHullUser", cast(HullOutgoingUser,"${message}")),
 
       iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
         postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})

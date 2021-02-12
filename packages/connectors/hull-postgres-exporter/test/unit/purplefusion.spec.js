@@ -8,7 +8,7 @@ const {
 describe("Postgres Exporter User Tests", () => {
   let harness = new PurpleFusionTestHarness(
     require("hull-sql-exporter/server/glue"),
-    { sql: require("hull-sql-exporter/server/sql-sequalize-service") },
+    { sql: require("hull-sql-exporter/server/sql-sequelize-service") },
     [],
     "ensureHook"
   );
@@ -23,7 +23,7 @@ describe("Postgres Exporter User Tests", () => {
 
   harness = new PurpleFusionTestHarness(
     require("hull-sql-exporter/server/glue"),
-    { sql: require("hull-sql-exporter/server/sql-sequalize-service") },
+    { sql: require("hull-sql-exporter/server/sql-sequelize-service") },
     require("hull-sql-exporter/server/transforms-to-service"),
     ""
   );

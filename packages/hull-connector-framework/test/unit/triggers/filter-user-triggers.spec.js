@@ -1578,3 +1578,131 @@ describe("Outgoing User Created Filtering Tests", () => {
     expect(_.size(triggers)).toEqual(0);
   });
 });
+
+
+describe("Outgoing Account Update On User Update Message Filtering Tests", () => {
+
+  it("Account Entered Valid Segment. Message Is Propagated Down To User. Should filter out trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1"
+            },
+            inputData: {
+              account_segments_entered: ["account_segment_1", "account_segment_2"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      changes: {
+        account_segments: {
+          entered: [{ id: "account_segment_1" }, { id: "account_segment_3" }]
+        }
+      },
+      account: {
+        id: "1"
+      },
+      user: {
+        id: "2"
+      },
+      events: [],
+      account_segments: [{ id: "account_segment_1" }],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
+  it("Account Left Valid Segment. Message Is Propagated Down To User. Should filter out trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1"
+            },
+            inputData: {
+              account_segments_left: ["account_segment_1", "account_segment_2"]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      changes: {
+        account_segments: {
+          left: [{ id: "account_segment_1" }, { id: "account_segment_3" }]
+        }
+      },
+      account: {
+        id: "1"
+      },
+      user: {
+        id: "2"
+      },
+      events: [],
+      account_segments: [{ id: "account_segment_1" }],
+      segments: [{ id: "user_segment_1" }],
+      message_id: "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+
+  it("Account Is New. Message Is Propagated Down To User. Should filter out trigger.", () => {
+    const context = new ContextMock({
+      private_settings: {
+        triggers: [
+          {
+            serviceAction: {
+              webhook:
+                "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1"
+            },
+            inputData: {
+              is_new_account: true,
+              account_segments: [ "account_segment_1", "account_segment_3" ]
+            }
+          }
+        ]
+      }
+    });
+    const message = {
+      "changes": {
+        "is_new": true,
+        "account": {
+          "id": "5bd329d5e2bcf3eeaf000099"
+        },
+        "user": {},
+        "account_segments": {},
+        "segments": {}
+      },
+      "user": {
+        "id": "1"
+      },
+      "account": {
+        "id": "5bd329d5e2bcf3eeaf000099"
+      },
+      "segments": [],
+      "account_segments": [{ "id": "account_segment_1" }],
+      "message_id": "message_1"
+    };
+    const triggers = getEntityTriggers(
+      message,
+      context.connector.private_settings.triggers
+    );
+    expect(_.size(triggers)).toEqual(0);
+  });
+});
