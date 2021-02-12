@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, PureComponent } from "react";
+import { Fragment, PureComponent } from "react";
 import SVG from "react-inlinesvg";
 import type { ImportType } from "../../types";
 

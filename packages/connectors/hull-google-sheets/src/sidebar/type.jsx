@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, Component } from "react";
+import { Fragment, Component } from "react";
 import type { ImportType } from "../../types";
 
 type Props = {

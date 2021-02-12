@@ -149,10 +149,7 @@ class MetricAgent {
       },
       {}
     );
-    const hullHost = organization
-      .split(".")
-      .slice(1)
-      .join(".");
+    const hullHost = organization.split(".").slice(1).join(".");
     const tags = {
       source: "ship",
       ship_version: this.manifest.version,

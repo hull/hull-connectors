@@ -147,10 +147,7 @@ class EventsAgent {
   getEmailId(email) {
     return (
       !_.isEmpty(email) &&
-      crypto
-        .createHash("md5")
-        .update(email.toLowerCase())
-        .digest("hex")
+      crypto.createHash("md5").update(email.toLowerCase()).digest("hex")
     );
   }
 
@@ -225,9 +222,7 @@ class EventsAgent {
     if (last_track_at) {
       emailActivites = emailActivites.map(e => {
         e.activity = _.get(e, "activity", []).filter(a => {
-          return moment(a.timestamp)
-            .utc()
-            .isAfter(last_track_at);
+          return moment(a.timestamp).utc().isAfter(last_track_at);
         });
         return e;
       });

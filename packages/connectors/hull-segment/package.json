@@ -2,6 +2,7 @@
   "name": "hull-segment",
   "description": "Install Segment in your site",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "homepage": "https://github.com/hull-ships/hull-segment",
   "license": "MIT",
   "main": "src/index.js",
@@ -16,7 +17,7 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "analytics-node": "^3.3.0",
+    "analytics-node": "^3.5.0",
     "camelize": "^1.0.0"
   }
 }

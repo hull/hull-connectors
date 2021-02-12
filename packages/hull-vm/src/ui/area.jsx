@@ -1,5 +1,4 @@
 // @flow
-import React from "react";
 import stringify from "json-stable-stringify";
 import CodeEditor from "./ace";
 

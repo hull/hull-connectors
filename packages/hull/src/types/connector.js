@@ -101,13 +101,6 @@ export type HullCacheConfig =
 
 export type HullQueueConfig =
   | {
-      store: "sqs",
-      region: string,
-      accessKeyId: string,
-      secretAccessKey: string,
-      url: string
-    }
-  | {
       store: "redis",
       url: string,
       name: string,

@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, Component } from "react";
+import { Fragment, Component } from "react";
 import MappingLine from "./mapping-line";
 
 import type {
