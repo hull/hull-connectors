@@ -22,8 +22,8 @@ const update = (handler: HandlerFunc) => async (
           asUser.logger.info("outgoing.user.success", { response });
           return true;
         } catch (err) {
-          asUser.logger.error("outgoing.user.error", { error: err.message });
           if (err && err.name === "SkippableError") {
+            asUser.logger.error("outgoing.user.error", { error: err.message });
             return true;
           }
           throw err;
@@ -36,7 +36,7 @@ const update = (handler: HandlerFunc) => async (
       }
     };
   } catch (err) {
-    client.logger.error("incoming.user.error", { error: err.message });
+    client.logger.error("outgoing.user.error", { error: err.message });
     return {
       flow_control: {
         type: "retry"

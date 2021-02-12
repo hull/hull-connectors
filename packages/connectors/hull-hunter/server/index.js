@@ -60,35 +60,45 @@ export default async function handle({ request, client, connector }, message) {
   if (!payload['domain'] && !payload['company']) {
     throw new SkippableError("Domain or company name not present on this user.");
   }
+  const userClaims = {
+    external_id: user.external_id,
+    anonymous_id: _.first(user.anonymous_ids)
+  };
+  try {
+    const response = await request
+      .get("https://api.hunter.io/v2/email-finder")
+      .query(payload);
 
-  const response = await request
-    .get("https://api.hunter.io/v2/email-finder")
-    .query(payload);
 
-  if (response.status === 200 && response.body) {
-    const userClaims = {
-      external_id: user.external_id,
-      anonymous_id: _.first(user.anonymous_ids)
-    };
-    if (response.body.data && response.body.data.email) {
-      if (response.body.data.score > 90) {
-        userClaims.email = response.body.data.email;
+    if (response.status === 200 && response.body) {
+      if (response.body.data && response.body.data.email) {
+        if (response.body.data.score > 90) {
+          userClaims.email = response.body.data.email;
+        } else {
+          client.asUser(userClaims).logger.warn("outgoing.user.warning", {
+            warning: `Hunter.io returned score below 90: ${response.body.data.score}, saving enriched_at attributed and ignoring the email.`
+          });
+        }
       } else {
         client.asUser(userClaims).logger.warn("outgoing.user.warning", {
-          warning: `Hunter.io returned score below 90: ${response.body.data.score}, saving enriched_at attributed and ignoring the email.`
+          warning: `Hunter.io returned no email for this user, saving enriched_at attribute and skipping.`
         });
       }
-    } else {
-      client.asUser(userClaims).logger.warn("outgoing.user.warning", {
-        warning: `Hunter.io returned no email for this user, saving enriched_at attribute and skipping.`
-      });
+      const traits = {
+        "hunter/enriched_at": moment().format(),
+        "hunter/email": response.body.data.email,
+        "hunter/score": response.body.data.score
+      };
+      return client.asUser(userClaims).traits(traits);
     }
-    const traits = {
-      "hunter/enriched_at": moment().format(),
-      "hunter/email": response.body.data.email,
-      "hunter/score": response.body.data.score
-    };
-    return client.asUser(userClaims).traits(traits);
+    return client.asUser(userClaims).logger.error("outgoing.user.error", {
+      error: "Hunter.io returned unknown API response, if error persist contact Hull support."
+    });
+  } catch (error) {
+    if (error.response && error.response.body && error.response.body.errors) {
+      const errorMessage = _.get(error, "response.body.errors[0].details");
+      throw new SkippableError(errorMessage);
+    }
+    throw error;
   }
-  throw new Error("Hunter.io returned unknown API response, if error persist contact Hull support.");
 }
