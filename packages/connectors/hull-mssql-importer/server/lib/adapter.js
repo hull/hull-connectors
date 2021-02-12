@@ -1,14 +1,11 @@
 /**
  * Module dependencies.
  */
-// import tedious from "tedious";
-import Promise from "bluebird";
+import tedious from "tedious";
 import _ from "lodash";
 import Readable from "readable-stream";
 import SequelizeUtils from "sequelize/lib/utils";
 import validateResultColumns from "./validate-result-columns";
-
-const tedious = require("tedious");
 
 /**
  * MS SQL adapter.
@@ -83,12 +80,21 @@ export function parseConnectionConfig(settings) {
 export function openConnection(settings) {
   const config = parseConnectionConfig(settings);
   const connection = new tedious.Connection(config);
+  connection.on('connect', (err) => {
+    if (err) {
+      console.log(`Connection Failed: ${JSON.stringify(error)}`);
+      throw err;
+    }
+
+    executeStatement();
+  });
   connection.on("debug", message => {
     console.log(`DEBUG: ${message}`);
   });
   connection.on("error", error => {
     console.log(`MSSQL Connection Error: ${JSON.stringify(error)}`);
   });
+  connection.connect();
   return connection;
 }
 
@@ -97,8 +103,8 @@ export function openConnection(settings) {
  *
  * @param {tedious.Connection} client The MSSQL client
  */
-export function closeConnection(client) {
-  client.close();
+export function closeConnection(connection) {
+  connection.close();
 }
 
 /**

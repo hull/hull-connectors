@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import rangeCheck from "range_check";
+import { isIP, inRange } from "range_check";
 import type { HullAccount, HullUser } from "hull";
 import excludes from "../excludes";
 import type { ClearbitConnectorSettings } from "../types";
@@ -48,10 +48,5 @@ export function now() {
 }
 
 export function isValidIpAddress(ip?: string) {
-  return (
-    !!ip &&
-    ip !== "0" &&
-    rangeCheck.isIP(ip) &&
-    !rangeCheck.inRange(ip, excludes.ip_ranges)
-  );
+  return !!ip && ip !== "0" && isIP(ip) && !inRange(ip, excludes.ip_ranges);
 }

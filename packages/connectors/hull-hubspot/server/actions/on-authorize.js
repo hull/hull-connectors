@@ -37,9 +37,7 @@ const onAuthorize = async (
       refresh_token: refreshToken,
       token: accessToken,
       expires_in,
-      token_fetched_at: moment()
-        .utc()
-        .format("x")
+      token_fetched_at: moment().utc().format("x")
     }
   };
 };

@@ -11,6 +11,7 @@ type ModelParams = {
 export default function Entry({ mongoUrl, collectionName }: ModelParams) {
   mongoose.Promise = global.Promise;
   mongoose.connect(mongoUrl, {
+    useUnifiedTopology: true,
     useNewUrlParser: true,
     useCreateIndex: true
   });

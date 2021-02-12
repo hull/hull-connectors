@@ -1,5 +1,4 @@
 // @flow
-import React from "react";
 import _ from "lodash";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";

@@ -1,6 +1,6 @@
 // @flow
 /* eslint-disable jsx-a11y/accessible-emoji */
-import React, { Component } from "react";
+import { Component } from "react";
 import Modal from "react-bootstrap/Modal";
 
 type Props = {

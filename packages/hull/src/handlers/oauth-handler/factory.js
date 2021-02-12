@@ -190,14 +190,14 @@ function OAuthHandlerFactory({
     }
   );
   /* failed auth */
-  router.get(FAILURE_URL, function failure(
-    req: HullRequest,
-    res: HullResponse
-  ) {
-    const { client } = req.hull;
-    client.logger.debug("connector.oauth.failure", req.body);
-    return res.render(FAILURE_VIEW, { name, urls: getURLs(req) });
-  });
+  router.get(
+    FAILURE_URL,
+    function failure(req: HullRequest, res: HullResponse) {
+      const { client } = req.hull;
+      client.logger.debug("connector.oauth.failure", req.body);
+      return res.render(FAILURE_VIEW, { name, urls: getURLs(req) });
+    }
+  );
 
   /* receives the data from the services, saves it and redirects to next step */
   router.get(
@@ -234,14 +234,14 @@ function OAuthHandlerFactory({
   );
 
   /* successful auth */
-  router.get(SUCCESS_URL, function success(
-    req: HullRequest,
-    res: HullResponse
-  ) {
-    const { client } = req.hull;
-    client.logger.debug("connector.oauth.success");
-    return res.render(SUCCESS_VIEW, { name, urls: getURLs(req) });
-  });
+  router.get(
+    SUCCESS_URL,
+    function success(req: HullRequest, res: HullResponse) {
+      const { client } = req.hull;
+      client.logger.debug("connector.oauth.success");
+      return res.render(SUCCESS_VIEW, { name, urls: getURLs(req) });
+    }
+  );
 
   /* Error Handler */
   router.use(

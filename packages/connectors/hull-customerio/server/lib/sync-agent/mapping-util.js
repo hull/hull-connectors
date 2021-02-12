@@ -60,10 +60,7 @@ class MappingUtil {
       return "hull_id";
     }
     if (_.startsWith(traitName, "traits_")) {
-      return traitName
-        .substr(7)
-        .split("/")
-        .join("-");
+      return traitName.substr(7).split("/").join("-");
     }
 
     return traitName.split("/").join("-");

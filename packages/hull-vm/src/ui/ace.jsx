@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import { createRef, Component } from "react";
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -62,7 +62,7 @@ class CodeEditor extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.code = React.createRef();
+    this.code = createRef();
   }
 
   focusCodeInput() {

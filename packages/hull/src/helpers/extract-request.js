@@ -65,10 +65,7 @@ const extractRequest = (ctx: HullContext) => async ({
   if (segment) {
     search.segment_id = segment.id;
   }
-  const url = URI(`https://${hostname}`)
-    .path(path)
-    .search(search)
-    .toString();
+  const url = URI(`https://${hostname}`).path(path).search(search).toString();
 
   const { query } = await getSegmentQuery(client, segment);
   const params = { query, format, url, fields };

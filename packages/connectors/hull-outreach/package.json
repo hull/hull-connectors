@@ -1,6 +1,7 @@
 {
   "name": "hull-outreach",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
@@ -8,9 +9,8 @@
   },
   "dependencies": {
     "luxon": "^1.3.0",
-    "passport-oauth2": "1.4.0",
-    "superagent-prefix": "^0.0.2",
-    "urijs": "^1.18.0"
+    "passport-oauth2": "1.5.0",
+    "superagent-prefix": "^0.0.2"
   },
   "devDependencies": {}
 }
