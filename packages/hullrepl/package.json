@@ -13,8 +13,9 @@
   },
   "author": "",
   "dependencies": {
+  },
+  "devDependencies": {
     "csv-parse": "^4.15.1",
-    "faker": "^5.3.1",
     "highland": "^2.13.5",
     "inquirer": "^7.0.0",
     "lowdb": "^1.0.0",
