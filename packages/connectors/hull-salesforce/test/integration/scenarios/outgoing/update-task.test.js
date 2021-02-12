@@ -246,9 +246,9 @@ describe("Update Tasks Tests", () => {
             });
             nock("https://na98.salesforce.com")
               .post("/services/Soap/u/39.0", body => {
-                return body.indexOf(
-                  "" +
-                    "<create>" +
+                return (
+                  body.indexOf(
+                    "<update>" +
                     "<sObjects>" +
                     "<type>Task</type>" +
                     "<WhoId>contact_id_1</WhoId>" +
@@ -257,8 +257,10 @@ describe("Update Tasks Tests", () => {
                     "<ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate>" +
                     "<Type>Email</Type>" +
                     "<ExternalEventId__c>hubspot_email_3</ExternalEventId__c>" +
+                    "<Id>aOuvlns903760</Id>" +
                     "</sObjects>" +
-                    "</create>"
+                    "</update>"
+                  ) !== -1
                 );
               })
               .reply(200, respBodyC2, {
