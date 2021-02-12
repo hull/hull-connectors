@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, Component } from "react";
+import { Fragment, Component } from "react";
 import _ from "lodash";
 import Settings from "./settings";
 import Spinner from "./spinner";

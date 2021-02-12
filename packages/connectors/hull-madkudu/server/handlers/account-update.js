@@ -35,10 +35,7 @@ export default async function accountUpdate(
   });
 
   await Promise.all(
-    messages
-      .filter(hasDomain)
-      .filter(matchesSegments)
-      .map(enrichAccount(ctx))
+    messages.filter(hasDomain).filter(matchesSegments).map(enrichAccount(ctx))
   );
   return true;
 }

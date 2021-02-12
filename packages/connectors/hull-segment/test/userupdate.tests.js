@@ -186,7 +186,7 @@ const segment_payload = payloads =>
       context: {
         active: false,
         ip: 0,
-        library: { name: "analytics-node", version: "3.3.0" },
+        library: { name: "analytics-node", version: "3.5.0" },
         ...p.context
       }
     })),

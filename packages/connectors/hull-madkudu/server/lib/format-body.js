@@ -1,6 +1,6 @@
 // @flow
 
-const uuidV4 = require("uuid/v4");
+import { v4 as uuidV4 } from "uuid";
 
 export default function formatBody(type: string, payload: {}): Object | null {
   if (!payload) {
