@@ -5,7 +5,7 @@ import snowflake from "snowflake-sdk";
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
-import { validateResultColumns } from "hull-sql";
+import { validateResultColumns } from "hull-sql-importer";
 
 /**
  * SnowFlake adapter.

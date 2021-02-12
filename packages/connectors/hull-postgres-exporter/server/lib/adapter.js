@@ -5,7 +5,7 @@ export function getConnectionOptions({ private_settings }) {
     db_username: username,
     db_password: password,
     db_hostname: host,
-    db_name: name,
+    db_name: database,
     db_port: port
   } = private_settings;
 
@@ -13,7 +13,7 @@ export function getConnectionOptions({ private_settings }) {
     username,
     password,
     host,
-    name,
+    database,
     port,
     dialect: "postgres",
     dialectOptions: {

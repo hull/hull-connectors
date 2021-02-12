@@ -11,7 +11,7 @@ const admin = adapter => {
       const query = agent.getQuery();
 
       return {
-        pageLocation: "../../../hull-sql/views/connected.html",
+        pageLocation: "../../../hull-sql-importer/views/connected.html",
         data: {
           query,
           preview_timeout,
@@ -23,7 +23,7 @@ const admin = adapter => {
       };
     }
     return {
-      pageLocation: "../../../hull-sql/views/home.html",
+      pageLocation: "../../../hull-sql-importer/views/home.html",
       data: {
         connector_name: manifest.name
       }

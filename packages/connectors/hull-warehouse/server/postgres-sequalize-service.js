@@ -23,7 +23,9 @@ const HullVariableContext = require("hull-connector-framework/src/purplefusion/v
 
 const {
   PostgresUserSchema,
-  PostgresAccountSchema
+  PostgresAccountSchema,
+  WarehouseUserWrite,
+  WarehouseAccountWrite
 } = require("./service-objects");
 
 // class UserModel extends Sequelize.Model {};
@@ -348,10 +350,9 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
-      /*if (attribute.key === "external_id") {
+      if (attribute.key === "external_id" || normalizedAttributeKey === "external_id") {
         sequalizeSchema["external_id"] = Sequelize.STRING;
-      } else */
-      if (type === "date") {
+      } else if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
       } else if (type === "number") {
         sequalizeDataType = Sequelize.DOUBLE;
@@ -536,6 +537,9 @@ class SequalizeSdk {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
+                // Automatic conversion not working anymore.
+                // event_id is set as Sequelize.STRING in EVENT_SCHEMA, received as number in notifs
+                event.event_id = event.event_id && event.event_id.toString();
                 return this.getSequelizeConnection().then((sequelizeConnection) => {
                   return sequelizeConnection.model(this.eventTableName).upsert(event);
                 });
@@ -592,10 +596,7 @@ class SequalizeSdk {
   }
 }
 
-const postgresSdk = ({ clientID, clientSecret } : {
-  clientID: string,
-  clientSecret: string
-}): CustomApi => ({
+const postgresSdk = (): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
   endpoints: {
     createUserSchema: {
@@ -609,6 +610,18 @@ const postgresSdk = ({ clientID, clientSecret } : {
       endpointType: "upsert",
       batch: true,
       input: PostgresAccountSchema
+    },
+    upsertHullUser: {
+      method: "upsertHullUser",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseUserWrite
+    },
+    upsertHullAccount: {
+      method: "upsertHullAccount",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseAccountWrite
     }
   },
   error: {

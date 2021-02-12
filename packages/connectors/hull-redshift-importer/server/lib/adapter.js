@@ -6,7 +6,7 @@ import QueryStream from "pg-query-stream";
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
-import { parseConnectionConfig, validateResultColumns } from "hull-sql";
+import { parseConnectionConfig, validateResultColumns } from "hull-sql-importer";
 
 /**
  * PostgreSQL adapter.
