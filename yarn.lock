@@ -9171,13 +9171,6 @@ hex-color-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
   integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
 
-highland@^2.13.5:
-  version "2.13.5"
-  resolved "https://registry.yarnpkg.com/highland/-/highland-2.13.5.tgz#d55cd8ac3f67a00fad79918668d51493222cfcc2"
-  integrity sha512-dn2flPapIIAa4BtkB2ahjshg8iSJtrJtdhEb9/oiOrS5HMQTR/GuhFpqJ+11YBdtnl3AwWKvbZd1Uxr8uAmA7A==
-  dependencies:
-    util-deprecate "^1.0.2"
-
 highlight.js@^10.5.0:
   version "10.6.0"
   resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-10.6.0.tgz#0073aa71d566906965ba6e1b7be7b2682f5e18b6"
