@@ -16,7 +16,6 @@
       }
     ]
   },
-  // TODO remove hubspot_entity_id from attribute mapping
   {
     "name": "hull_reference",
     "displayName": "Hull Reference Properties",
