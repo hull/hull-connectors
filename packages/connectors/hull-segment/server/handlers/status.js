@@ -1,23 +1,27 @@
+// @flow
 import _ from "lodash";
+import type { HullContext } from "hull";
 
-export default function statusCheck(req, res) {
-  const { ship, client } = req.hull;
-  const { private_settings, settings } = ship;
+export default async function statusCheck(ctx: HullContext) {
+  const { connector } = ctx;
+  const { private_settings = {}, settings = {} } = connector;
   const messages = [];
   let status = "ok";
+
   const {
     write_key,
     handle_pages,
     handle_accounts,
     ignore_segment_userId,
     public_id_field,
-    public_account_id_field,
+    public_account_id_field
   } = settings;
+
   const {
     send_events,
     synchronized_account_properties,
     synchronized_properties,
-    synchronized_segments,
+    synchronized_segments
   } = private_settings;
 
   if (!write_key && _.size(synchronized_segments)) {
@@ -37,9 +41,9 @@ export default function statusCheck(req, res) {
 
   if (
     write_key &&
-    (!_.size(synchronized_properties) &&
-      !_.size(synchronized_account_properties) &&
-      !_.size(send_events))
+    !_.size(synchronized_properties) &&
+    !_.size(synchronized_account_properties) &&
+    !_.size(send_events)
   ) {
     status = "warning";
     messages.push(
@@ -93,6 +97,5 @@ export default function statusCheck(req, res) {
     );
   }
 
-  res.json({ messages, status });
-  return client.put(`${req.hull.ship.id}/status`, { status, messages });
+  return { messages, status };
 }

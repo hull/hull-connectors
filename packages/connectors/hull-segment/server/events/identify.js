@@ -1,5 +1,8 @@
-import { isEmpty, reduce, includes } from "lodash";
+// @flow
+
+import _, { isEmpty, reduce, includes } from "lodash";
 import scoped from "../scope-hull-client";
+import type { HullContext } from "hull";
 
 const ALIASED_FIELDS = {
   lastname: "last_name",
@@ -15,106 +18,102 @@ const IGNORED_TRAITS = [
   "visitToken"
 ];
 
-function updateUser(hull, user, shipSettings, active) {
-  try {
-    const { userId, anonymousId, traits = {} } = user;
-    const { email } = traits || {};
-
-    const asUser = hull.asUser({
-      external_id: userId,
-      email,
-      anonymous_id: anonymousId
-    });
-
-    if (shipSettings.ignore_segment_userId === true && !email && !anonymousId) {
-      const logPayload = { id: user.id, anonymousId, email };
-      asUser.logger.debug("incoming.user.skip", {
-        reason:
-          "No email address or anonymous ID present when ignoring segment's user ID.",
-        logPayload
-      });
-      return Promise.resolve({ skip: true });
-    } else if (!userId && !anonymousId) {
-      const logPayload = { id: user.id, userId, anonymousId };
-      asUser.logger.debug("incoming.user.skip", {
-        reason: "No user ID or anonymous ID present.",
-        logPayload
-      });
-      return Promise.resolve({ skip: true });
-    }
-
-    return scoped(hull, user, shipSettings, { active })
-      .traits(traits)
-      .then(
-        (/* response */) => ({ skip: false, traits }),
-        (error) => {
-          error.params = traits;
-          throw error;
-        }
-      );
-  } catch (err) {
-    return Promise.reject(err);
-  }
-}
-
-export default function handleIdentify(payload, { hull, metric, ship }) {
-  const { context, traits, userId, anonymousId, integrations = {} } = payload;
-  const { active = false } = context || {};
-  const user = reduce(
-    traits || {},
-    (u, v, k) => {
-      if (v == null) return u;
+const alias_traits = traits =>
+  _.reduce(
+    traits,
+    (t, v, k) => {
+      if (v == null) return t;
       if (ALIASED_FIELDS[k.toLowerCase()]) {
-        u.traits[ALIASED_FIELDS[k.toLowerCase()]] = v;
+        t[ALIASED_FIELDS[k.toLowerCase()]] = v;
       } else if (!includes(IGNORED_TRAITS, k)) {
-        u.traits[k] = v;
+        t[k] = v;
       }
       return u;
     },
-    { userId, anonymousId, traits: {} }
+    {}
   );
 
-  if (integrations.Hull && integrations.Hull.id === true) {
-    user.hullId = user.userId;
-    delete user.userId;
+export default async function handleIdentify(ctx: HullContext, payload) {
+  const { client, metric, connector } = ctx;
+  const { settings } = connector;
+  const { ignore_segment_userId } = settings;
+  const {
+    context = {},
+    traits = {},
+    userId,
+    anonymousId,
+    integrations = {}
+  } = payload;
+  const { active = false } = context;
+
+  const data = {
+    userId,
+    anonymousId,
+    traits: alias_traits(traits)
+  };
+
+  if (integrations?.Hull?.id === true) {
+    data.hullId = data.userId;
+    delete data.userId;
   }
-  if (!isEmpty(user.traits)) {
-    const updating = updateUser(hull, user, ship.settings, active);
 
-    updating.then(
-      ({ skip = false, traits: t = {} }) => {
-        metric("request.identify.updateUser");
-
-        const scopedClient = hull
-          .asUser({
-            email: t.email,
-            external_id: userId,
-            anonymous_id: anonymousId
-          });
-
-        scopedClient.logger.debug(`incoming.user.${skip ? "skip" : "success"}`, {
-          payload,
-          traits: t
-        });
-
-        try {
-          const topLevelEmail = payload.email;
-          if (topLevelEmail) {
-            scopedClient.logger.debug(`Contains a top level email in identify call: ${topLevelEmail}`);
-          }
-        } catch (error) {
-          console.log(`Error logging toplevel email ${payload.email}`);
-        }
-      },
-      (error) => {
-        metric("request.identify.updateUser.error");
-        hull
-          .asUser({ external_id: userId, anonymous_id: anonymousId })
-          .logger.error("incoming.user.error", { payload, errors: error });
-      }
-    );
-
-    return updating;
+  if (_.isEmpty(data.traits)) {
+    return true;
   }
-  return user;
+
+  try {
+    const asUser = client.asUser({
+      email: t.email,
+      external_id: userId,
+      anonymous_id: anonymousId
+    });
+
+    if (ignore_segment_userId === true && !email && !anonymousId) {
+      return asUser.logger.debug("incoming.user.skip", {
+        reason:
+          "No email address or anonymous ID present when ignoring segment's user ID.",
+        payload,
+        userId,
+        anonymousId,
+        email,
+        traits
+      });
+    }
+
+    if (!userId && !anonymousId) {
+      return asUser.logger.debug("incoming.user.skip", {
+        reason: "No user ID or anonymous ID present.",
+        id: user.id,
+        userId,
+        anonymousId
+      });
+    }
+    try {
+      await scoped(hull, user, shipSettings, { active }).traits(traits);
+      asUser.logger.debug("incoming.user.success", {
+        payload,
+        traits: t
+      });
+      metric("request.identify.updateUser");
+    } catch (error) {
+      error.params = traits;
+      throw error;
+    }
+
+    // try {
+    //   const topLevelEmail = payload.email;
+    //   if (topLevelEmail) {
+    //     scopedClient.logger.debug(
+    //       `Contains a top level email in identify call: ${topLevelEmail}`
+    //     );
+    //   }
+    // } catch (error) {
+    //   console.log(`Error logging toplevel email ${payload.email}`);
+    // }
+  } catch (error) {
+    metric("request.identify.updateUser.error");
+    client
+      .asUser({ external_id: userId, anonymous_id: anonymousId })
+      .logger.error("incoming.user.error", { payload, errors: error });
+  }
 }

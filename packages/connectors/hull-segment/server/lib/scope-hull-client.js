@@ -1,10 +1,5 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = scope;
 const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
+
 /**
  * Prepares a scoped hull-client-node to provided user object
  * @param  {Object} hull hull client instance
@@ -13,27 +8,21 @@ const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
  * @param  {Object} additionalClaims optional claims
  * @return {Object} scoped client instance
  */
-
-function scope(hull, user = {}, settings, additionalClaims = {}) {
-  const hullId = user.hullId,
-        userId = user.userId,
-        anonymousId = user.anonymousId,
-        _user$traits = user.traits,
-        traits = _user$traits === void 0 ? {} : _user$traits;
-
+export default function scope(ctx, user = {}, additionalClaims = {}) {
+  const { client, settings } = ctx;
+  const { hullId, userId, anonymousId, traits = {} } = user;
   if (!hullId && !userId && !anonymousId) {
-    return hull;
+    return client;
   }
+  const as = {};
 
-  const as = {}; // Allow to ignore segment's userId altogether
+  // Allow to ignore segment's userId altogether
   // via the `ignore_segment_userId` setting.
-
   if (settings.ignore_segment_userId !== true) {
     if (hullId || userId) {
       if (hullId) {
         as.id = hullId;
       }
-
       if (userId) {
         as.external_id = userId;
       }
@@ -48,5 +37,5 @@ function scope(hull, user = {}, settings, additionalClaims = {}) {
     as.anonymous_id = anonymousId;
   }
 
-  return hull.asUser(as, additionalClaims);
+  return client.asUser(as, additionalClaims);
 }

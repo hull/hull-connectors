@@ -173,12 +173,6 @@
     }
   ],
   "resources": [],
-  "status": {
-    "initial_value": "setupRequired",
-    "url": "/status",
-    "type": "interval",
-    "value": "5"
-  },
   "settings_sections": [
     {
       "title": "Incoming traffic",
@@ -213,11 +207,54 @@
       ]
     }
   ],
-  "subscriptions" : [
+  "incoming": {
+    "url": "/segment",
+    "handler": "segmentHandler",
+    "description": "",
+    "type": "string"
+  },
+  "json": [
     {
-      "url" : "/smart-notify",
+      "name": "credentials",
+      "handler": "credentialsHandler",
+      "url": "/credentials",
+      "title": "Segment Token",
+      "description": "Go to [Segment.com](https://segment.com) → Destinations → Hull and paste this API key into the Connection Settings",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
+  "statuses": [
+    {
+      "initial_value": "setupRequired",
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "interval",
+      "value": "5"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "handler": "statusHandler",
+    "value": "5"
+  },
+  "subscriptions": [
+    {
+      "url": "/smart-notify",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        }
+      ],
       "conditions": {
-        "channels": { "only": [ "user:update" ] },
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        },
         "segments": {
           "user:update": [
             "private_settings.synchronized_segments"

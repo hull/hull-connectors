@@ -1,22 +1,23 @@
+// @flow
+
 import track from "./track";
+import type { HullContext } from "hull";
 
-export default function handlePage(payload = {}, context = {}) {
-  const { ship = {} } = context;
-  const { handle_pages } = ship.settings || {};
-  if (handle_pages === false) { return false; }
+export default async function handlePage(ctx: HullContext, payload = {}) {
+  const { connector = {} } = ctx;
+  const { handle_pages } = connector.settings;
 
-  const { properties = {} } = payload;
-  if (!properties.name && payload.name) {
-    properties.name = payload.name;
+  if (handle_pages === false) {
+    return false;
   }
 
+  const { properties = {} } = payload;
+  properties.name ??= payload.name;
 
-  const page = {
+  return track(ctx, {
     ...payload,
     properties,
     event: "page",
     active: true
-  };
-
-  return track(page, context);
+  });
 }

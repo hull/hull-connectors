@@ -12,11 +12,9 @@
     "test:units": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./tests/index"
   },
   "dependencies": {
-    "analytics-node": "^3.2.0",
+    "analytics-node": "^3.5.0",
     "body-parser": "^1.15.2",
     "camelize": "^1.0.0",
-    "jwt-simple": "^0.5.1",
-    "librato-node": "^5.0.6",
     "raw-body": "^2.1.7"
   },
   "devDependencies": {}

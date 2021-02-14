@@ -8,15 +8,15 @@ function start(element, deployment, hull) {
   function getOptions() {
     const services = Hull.config("services.analytics") || {};
     const options = {
-      anonymousId: hull.config("anonymousId") || hull.config("browserId"),
+      anonymousId: hull.config("anonymousId") || hull.config("browserId")
     };
 
     if (services && services.intercom && services.intercom.credentials) {
       options.integrations = {
         Intercom: { user_hash: services.intercom.credentials.user_hash },
         Hull: {
-          id: true,
-        },
+          id: true
+        }
       };
     }
 

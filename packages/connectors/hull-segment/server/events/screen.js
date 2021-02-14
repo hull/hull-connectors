@@ -1,27 +1,23 @@
+// @flow
+
 import track from "./track";
+import type { HullContext } from "hull";
 
-export default function handleScreen(payload = {}, context = {}) {
-  const { ship = {} } = context;
-  const { handle_screens } = ship.settings || {};
-  if (handle_screens === false) { return false; }
+export default async function handleScreen(ctx: HullContext, payload = {}) {
+  const { connector = {} } = ctx;
+  const { handle_screens } = connector.settings;
 
-  const { properties } = payload;
-  if (!properties.name && payload.name) {
-    properties.name = payload.name;
+  if (handle_screens === false) {
+    return false;
   }
 
+  const { properties = {} } = payload;
+  properties.name ??= payload.name;
 
-  const screen = {
+  return track(ctx, {
     ...payload,
     properties,
     event: "screen",
     active: true
-  };
-
-  return track(screen, context)
-  .then(() => {
-    context.hull.asUser(payload).logger.debug("incoming.screen.success");
-  }, (error) => {
-    context.hull.asUser(payload).logger.error("incoming.screen.error", { errors: error });
   });
 }
