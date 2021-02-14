@@ -1,36 +1,23 @@
-// @flow
-
 import { reduce } from "lodash";
-import type { HullContext } from "hull";
-import scoped from "../lib/scope-hull-client";
-import type {
-  SegmentIncomingTrack,
-  SegmentIncomingPage,
-  SegmentIncomingScreen
-} from "../types";
+import scoped from "../scope-hull-client";
 
-export default async function handleTrack(
-  ctx: HullContext,
-  message: SegmentIncomingTrack | SegmentIncomingPage | SegmentIncomingScreen
-) {
+export default function handleTrack(payload, { hull, metric, ship }) {
   const {
     context = {},
-    anonymousId,
     active,
+    anonymousId,
     event,
     properties,
     userId,
     timestamp,
     originalTimestamp,
     sentAt,
-    receivedAt
-  } = message;
-
-  const { connector, metric, client } = ctx;
-  const { settings } = connector;
+    receivedAt,
+    integrations = {}
+  } = payload;
 
   const { page = {}, location = {}, userAgent, ip = "0" } = context;
-  const { url, referrer: referer } = page;
+  const { url, referrer } = page;
   const { latitude, longitude } = location;
 
   const created_at = timestamp || receivedAt || sentAt || originalTimestamp;
@@ -49,7 +36,7 @@ export default async function handleTrack(
       _bid,
       _sid,
       url,
-      referer,
+      referrer,
       useragent: userAgent,
       ip,
       latitude,
@@ -65,31 +52,26 @@ export default async function handleTrack(
     {}
   );
 
-  const errorPayload = { userId, anonymousId };
-
-  try {
-    const asUser = scoped(client, message, settings, {});
-    try {
-      if (!event) {
-        throw new Error("Event name is empty, can't track!");
-      }
-      await asUser.track(event, properties, trackContext);
-      return undefined;
-    } catch (err) {
-      asUser.logger.error("incoming.track.error", {
-        ...errorPayload,
-        message: err.message,
-        error: err
-      });
-      metric.increment("request.track.error");
-      throw err;
-    }
-  } catch (e) {
-    client.logger.error("incoming.user.error", {
-      message: e.message,
-      error: e
-    });
-    throw e;
+  if (integrations.Hull && integrations.Hull.id === true) {
+    payload.hullId = payload.userId;
+    delete payload.userId;
   }
-  // return undefined;
+
+  const scopedUser = scoped(hull, payload, ship.settings);
+  return scopedUser.track(event, properties, trackContext).then(
+    (result) => {
+      scopedUser.logger.debug("incoming.track.success", {
+        payload,
+        trackContext,
+        event,
+        properties
+      });
+      return result;
+    },
+    (message) => {
+      metric("request.track.error");
+      scopedUser.logger.error("incoming.track.error", { payload, errors: message });
+      return Promise.reject();
+    }
+  );
 }

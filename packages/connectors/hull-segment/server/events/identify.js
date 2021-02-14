@@ -1,9 +1,5 @@
-// @flow
-
 import { isEmpty, reduce, includes } from "lodash";
-import type { HullContext } from "hull";
-import scoped from "../lib/scope-hull-client";
-import type { SegmentIncomingIdentify } from "../types";
+import scoped from "../scope-hull-client";
 
 const ALIASED_FIELDS = {
   lastname: "last_name",
@@ -11,54 +7,114 @@ const ALIASED_FIELDS = {
   createdat: "created_at"
 };
 
-const IGNORED_TRAITS = ["id", "external_id"];
+const IGNORED_TRAITS = [
+  "id",
+  "external_id",
+  "guest_id",
+  "uniqToken",
+  "visitToken"
+];
 
-export default async function handleIdentify(
-  ctx: HullContext,
-  message: SegmentIncomingIdentify
-) {
-  const { client, connector, metric } = ctx;
-  const { settings } = connector;
-  const { context, traits = {}, userId, anonymousId } = message;
-  const { email } = traits;
-  const { active = false } = context || {};
-
-  const errorPayload = { userId, anonymousId, email };
-
+function updateUser(hull, user, shipSettings, active) {
   try {
-    const asUser = scoped(client, message, settings, { active });
-    try {
-      const user = reduce(
-        traits || {},
-        (u, v, k) => {
-          if (v == null) return u;
-          if (ALIASED_FIELDS[k.toLowerCase()]) {
-            u.traits[ALIASED_FIELDS[k.toLowerCase()]] = v;
-          } else if (!includes(IGNORED_TRAITS, k)) {
-            u.traits[k] = v;
-          }
-          return u;
-        },
-        { userId, anonymousId, traits: {} }
-      );
+    const { userId, anonymousId, traits = {} } = user;
+    const { email } = traits || {};
 
-      if (isEmpty(user.traits)) {
-        return asUser.logger.info("incoming.user.skip", {
-          message: "No traits found in Segment payload",
-          traits: user.traits
-        });
-      }
-      return await asUser.traits(user.traits);
-    } catch (err) {
-      asUser.logger.error("incoming.user.error", {
-        ...errorPayload,
-        message: err.message,
-        errors: err
+    const asUser = hull.asUser({
+      external_id: userId,
+      email,
+      anonymous_id: anonymousId
+    });
+
+    if (shipSettings.ignore_segment_userId === true && !email && !anonymousId) {
+      const logPayload = { id: user.id, anonymousId, email };
+      asUser.logger.debug("incoming.user.skip", {
+        reason:
+          "No email address or anonymous ID present when ignoring segment's user ID.",
+        logPayload
       });
-      metric.increment("request.identify.updateUser.error");
+      return Promise.resolve({ skip: true });
+    } else if (!userId && !anonymousId) {
+      const logPayload = { id: user.id, userId, anonymousId };
+      asUser.logger.debug("incoming.user.skip", {
+        reason: "No user ID or anonymous ID present.",
+        logPayload
+      });
+      return Promise.resolve({ skip: true });
     }
-  } catch (e) {
-    client.logger.error("incoming.user.error", { message: e.message });
+
+    return scoped(hull, user, shipSettings, { active })
+      .traits(traits)
+      .then(
+        (/* response */) => ({ skip: false, traits }),
+        (error) => {
+          error.params = traits;
+          throw error;
+        }
+      );
+  } catch (err) {
+    return Promise.reject(err);
   }
-  return undefined;
+}
+
+export default function handleIdentify(payload, { hull, metric, ship }) {
+  const { context, traits, userId, anonymousId, integrations = {} } = payload;
+  const { active = false } = context || {};
+  const user = reduce(
+    traits || {},
+    (u, v, k) => {
+      if (v == null) return u;
+      if (ALIASED_FIELDS[k.toLowerCase()]) {
+        u.traits[ALIASED_FIELDS[k.toLowerCase()]] = v;
+      } else if (!includes(IGNORED_TRAITS, k)) {
+        u.traits[k] = v;
+      }
+      return u;
+    },
+    { userId, anonymousId, traits: {} }
+  );
+
+  if (integrations.Hull && integrations.Hull.id === true) {
+    user.hullId = user.userId;
+    delete user.userId;
+  }
+  if (!isEmpty(user.traits)) {
+    const updating = updateUser(hull, user, ship.settings, active);
+
+    updating.then(
+      ({ skip = false, traits: t = {} }) => {
+        metric("request.identify.updateUser");
+
+        const scopedClient = hull
+          .asUser({
+            email: t.email,
+            external_id: userId,
+            anonymous_id: anonymousId
+          });
+
+        scopedClient.logger.debug(`incoming.user.${skip ? "skip" : "success"}`, {
+          payload,
+          traits: t
+        });
+
+        try {
+          const topLevelEmail = payload.email;
+          if (topLevelEmail) {
+            scopedClient.logger.debug(`Contains a top level email in identify call: ${topLevelEmail}`);
+          }
+        } catch (error) {
+          console.log(`Error logging toplevel email ${payload.email}`);
+        }
+      },
+      (error) => {
+        metric("request.identify.updateUser.error");
+        hull
+          .asUser({ external_id: userId, anonymous_id: anonymousId })
+          .logger.error("incoming.user.error", { payload, errors: error });
+      }
+    );
+
+    return updating;
+  }
+  return user;
 }

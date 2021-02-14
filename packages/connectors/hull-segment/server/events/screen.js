@@ -1,30 +1,27 @@
-// @flow
-
-import type { HullContext } from "hull";
 import track from "./track";
-import type { SegmentIncomingScreen } from "../types";
 
-export default function handleScreen(
-  ctx: HullContext,
-  message: SegmentIncomingScreen
-) {
-  const { connector /* , client */ } = ctx;
-  const { handle_screens } = connector.settings || {};
-  if (handle_screens === false) {
-    return false;
+export default function handleScreen(payload = {}, context = {}) {
+  const { ship = {} } = context;
+  const { handle_screens } = ship.settings || {};
+  if (handle_screens === false) { return false; }
+
+  const { properties } = payload;
+  if (!properties.name && payload.name) {
+    properties.name = payload.name;
   }
 
-  const { properties = {} } = message;
 
-  const screen: SegmentIncomingScreen = {
-    ...message,
-    properties: {
-      ...properties,
-      name: properties.name || message.name
-    },
+  const screen = {
+    ...payload,
+    properties,
     event: "screen",
     active: true
   };
 
-  return track(ctx, screen);
+  return track(screen, context)
+  .then(() => {
+    context.hull.asUser(payload).logger.debug("incoming.screen.success");
+  }, (error) => {
+    context.hull.asUser(payload).logger.error("incoming.screen.error", { errors: error });
+  });
 }

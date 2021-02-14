@@ -1,23 +1,23 @@
 {
   "name": "hull-segment",
-  "description": "Install Segment in your site",
   "version": "0.1.40-monorepo",
+  "description": "Install Segment in your site",
+  "main": "dist/ship.js",
+  "homepage": "https://github.com/hull/hull-connectors",
   "license": "MIT",
-  "homepage": "https://github.com/hull-ships/hull-segment",
-  "license": "MIT",
-  "main": "src/index.js",
-  "author": {
-    "name": "Hull",
-    "email": "contact@hull.io",
-    "url": "https://github.com/hull"
-  },
   "scripts": {
-    "test": "yarn test:integration",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+    "test": "npm run test:lint && npm run test:units",
+    "test:lint": "eslint server",
+    "test:modules": "npm outdated --depth=0",
+    "test:units": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./tests/index"
   },
   "dependencies": {
-    "analytics-node": "^3.5.0",
-    "camelize": "^1.0.0"
-  }
+    "analytics-node": "^3.2.0",
+    "body-parser": "^1.15.2",
+    "camelize": "^1.0.0",
+    "jwt-simple": "^0.5.1",
+    "librato-node": "^5.0.6",
+    "raw-body": "^2.1.7"
+  },
+  "devDependencies": {}
 }
