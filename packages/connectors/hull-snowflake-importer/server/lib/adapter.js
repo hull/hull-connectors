@@ -22,7 +22,7 @@ export function openConnection(settings) {
   // Known issue with nodejs sdk (today is Jan 15 2019)
   // https://stackoverflow.com/questions/54129786/snowflake-dw-conncetion-with-node-js-driver
   const conf = {
-    account: settings.db_account,
+    account: `${settings.db_account}.${settings.db_region}`,
     region: settings.db_region,
     username: settings.db_user,
     password: settings.db_password,
