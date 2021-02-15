@@ -1,8 +1,8 @@
 // @flow
 
-import _, { isEmpty, reduce, includes } from "lodash";
-import scoped from "../scope-hull-client";
 import type { HullContext } from "hull";
+import _ from "lodash";
+import scoped from "../lib/scope-hull-client";
 
 const ALIASED_FIELDS = {
   lastname: "last_name",
@@ -21,14 +21,14 @@ const IGNORED_TRAITS = [
 const alias_traits = traits =>
   _.reduce(
     traits,
-    (t, v, k) => {
-      if (v == null) return t;
+    (tt, v, k) => {
+      if (v == null) return tt;
       if (ALIASED_FIELDS[k.toLowerCase()]) {
-        t[ALIASED_FIELDS[k.toLowerCase()]] = v;
-      } else if (!includes(IGNORED_TRAITS, k)) {
-        t[k] = v;
+        tt[ALIASED_FIELDS[k.toLowerCase()]] = traits;
+      } else if (!_.includes(IGNORED_TRAITS, k)) {
+        tt[k] = v;
       }
-      return u;
+      return tt;
     },
     {}
   );
@@ -52,6 +52,8 @@ export default async function handleIdentify(ctx: HullContext, payload) {
     traits: alias_traits(traits)
   };
 
+  const { email } = data.traits;
+
   if (integrations?.Hull?.id === true) {
     data.hullId = data.userId;
     delete data.userId;
@@ -63,7 +65,7 @@ export default async function handleIdentify(ctx: HullContext, payload) {
 
   try {
     const asUser = client.asUser({
-      email: t.email,
+      email,
       external_id: userId,
       anonymous_id: anonymousId
     });
@@ -83,18 +85,18 @@ export default async function handleIdentify(ctx: HullContext, payload) {
     if (!userId && !anonymousId) {
       return asUser.logger.debug("incoming.user.skip", {
         reason: "No user ID or anonymous ID present.",
-        id: user.id,
+        id: userId,
         userId,
         anonymousId
       });
     }
     try {
-      await scoped(hull, user, shipSettings, { active }).traits(traits);
+      await scoped(ctx, data, { active }).traits(traits);
       asUser.logger.debug("incoming.user.success", {
         payload,
-        traits: t
+        data
       });
-      metric("request.identify.updateUser");
+      metric.increment("request.identify.updateUser");
     } catch (error) {
       error.params = traits;
       throw error;
@@ -111,9 +113,11 @@ export default async function handleIdentify(ctx: HullContext, payload) {
     //   console.log(`Error logging toplevel email ${payload.email}`);
     // }
   } catch (error) {
-    metric("request.identify.updateUser.error");
+    metric.increment("request.identify.updateUser.error");
     client
       .asUser({ external_id: userId, anonymous_id: anonymousId })
       .logger.error("incoming.user.error", { payload, errors: error });
+    throw error;
   }
+  return true;
 }

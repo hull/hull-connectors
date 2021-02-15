@@ -1,18 +1,18 @@
 // @flow
 import type { HullHandlersConfiguration, Connector } from "hull";
-import adminHandler from "./admin";
+import _ from "lodash";
+// import adminHandler from "./admin";
 import statusHandler from "./status";
 import updateUser from "./update-user";
 import segmentHandler from "./segment-handler";
-import analyticsClientFactory from "../handlers/analytics-client";
+import analyticsClientFactory from "../lib/analytics-client";
 import credentialsHandler from "./credentials-handler";
 
-const handlers = () => (_connector: Connector): HullHandlersConfiguration => {
+const handlers = (_connector: Connector): HullHandlersConfiguration => {
   const analyticsClient = analyticsClientFactory();
 
   return {
     statuses: { statusHandler },
-    tabs: { adminHandler },
     subscriptions: {
       updateUser: async (
         ctx: HullContext,

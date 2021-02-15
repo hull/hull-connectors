@@ -9,7 +9,7 @@
     "test": "npm run test:lint && npm run test:units",
     "test:lint": "eslint server",
     "test:modules": "npm outdated --depth=0",
-    "test:units": "NODE_ENV=test ./node_modules/.bin/mocha -R spec ./tests/index"
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration"
   },
   "dependencies": {
     "analytics-node": "^3.5.0",

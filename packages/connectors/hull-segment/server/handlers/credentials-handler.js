@@ -1,14 +1,12 @@
 // @flow
 import type { HullContext, HullExternalResponse } from "hull";
-import jwt from "jwt-simple";
 
 const credentials = (ctx: HullContext): HullExternalResponse => {
-  const { connectorConfig, hostSecret } = ctx;
-  const apiKey = jwt.encode(connectorConfig, hostSecret);
+  const { clientCredentialsEncryptedToken } = ctx;
   return {
     status: 200,
     data: {
-      url: Buffer.from(apiKey).toString("base64")
+      url: clientCredentialsEncryptedToken
     }
   };
 };

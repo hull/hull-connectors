@@ -1,6 +1,10 @@
 {
   "name": "Segment",
   "description": "Complete control over your customer data with Hull and Segment",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "tags": [
     "incoming",
     "outgoing",
@@ -11,20 +15,9 @@
   ],
   "index": "ship.js",
   "source": "segment",
-  "logo": "logo.png",
-  "picture": "picture.png",
   "ui": false,
   "admin": "admin.html",
-  "tabs": [
-    {
-      "title": "Credentials",
-      "url": "admin.html",
-      "size": "small",
-      "editable": false
-    }
-  ],
   "readme": "readme.md",
-  "version": "0.1.37",
   "deployment_settings": [
     {
       "name": "_selector",
@@ -175,20 +168,27 @@
   "resources": [],
   "settings_sections": [
     {
+      "title": "Credentials",
+      "description": "Configure your segment integration here.",
+      "properties": [
+        "json.credentials",
+        "settings.write_key"
+      ]
+    },
+    {
       "title": "Incoming traffic",
       "description": "",
       "properties": [
         "settings.handle_pages",
         "settings.handle_screens",
         "settings.handle_accounts",
-        "private_settings.ignore_segment_userId"
+        "settings.ignore_segment_userId"
       ]
     },
     {
       "title": "Outgoing Users",
       "description": "Users are only sent to segment.com when at least one identifier is present, this can be either the `External ID` or one or more `Anonymous IDs`.",
       "properties": [
-        "settings.write_key",
         "private_settings.synchronized_segments",
         "private_settings.synchronized_properties"
       ]
@@ -207,19 +207,24 @@
       ]
     }
   ],
-  "incoming": {
-    "url": "/segment",
-    "handler": "segmentHandler",
-    "description": "",
-    "type": "string"
-  },
+  "incoming": [
+    {
+      "url": "/segment",
+      "handler": "segmentHandler",
+      "description": "",
+      "options": {
+        "disableErrorHandling": true
+      },
+      "type": "string"
+    }
+  ],
   "json": [
     {
       "name": "credentials",
       "handler": "credentialsHandler",
       "url": "/credentials",
       "title": "Segment Token",
-      "description": "Go to [Segment.com](https://segment.com) → Destinations → Hull and paste this API key into the Connection Settings",
+      "description": "Receiving Data from Segment: Go to [Segment.com](https://segment.com) → Destinations → Hull and paste this API key into the Connection Settings",
       "format": "credentials",
       "type": "string"
     }

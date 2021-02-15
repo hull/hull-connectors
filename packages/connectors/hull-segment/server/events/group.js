@@ -1,17 +1,18 @@
 // @flow
-
-import _, { isEmpty, reduce, includes } from "lodash";
-import scoped from "../scope-hull-client";
+import _ from "lodash";
 import type { HullContext } from "hull";
 
-export default async function handleGroup({ metric, client }, payload = {}) {
+export default async function handleGroup(
+  { metric, client }: HullContext,
+  payload = {}
+) {
   const { groupId, userId, traits } = payload;
   if (groupId) {
     const accountIdentity = { external_id: groupId };
 
-    const domain = get(payload, "traits.domain");
+    const domain = _.get(payload, "traits.domain");
 
-    if (!isEmpty(domain)) {
+    if (!_.isEmpty(domain)) {
       accountIdentity.domain = domain;
     }
 
@@ -22,7 +23,7 @@ export default async function handleGroup({ metric, client }, payload = {}) {
     try {
       asAccount.logger.debug("incoming.account.success", { payload });
     } catch (error) {
-      metric("request.track.error");
+      metric.increment("request.track.error");
       asAccount.logger.error("incoming.group.error", {
         payload,
         errors: error

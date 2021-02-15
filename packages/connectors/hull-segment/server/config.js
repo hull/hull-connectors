@@ -1,17 +1,19 @@
 // @flow
 import type { HullConnectorConfig } from "hull";
 import handlers from "./handlers";
-import { parseRequest, fetchToken } from "./lib/fetch-token";
+import { fetchToken } from "./lib/fetch-token";
 
 export default function connectorConfig(): HullConnectorConfig {
   const { REDIS_URL } = process.env;
 
   if (!REDIS_URL) {
-    throw new Error("Missing REDIS_URL environment variable");
+    throw new Error(
+      "Missing REDIS_URL environment variable. Redis is mandatory for the Segment connector"
+    );
   }
 
   return {
-    handlers: handlers(),
+    handlers,
     middlewares: [/* parseRequest,  */ fetchToken]
   };
 }

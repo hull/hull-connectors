@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
-import eventHandlers from "../events";
+import handlers from "../events";
 
 const camelize = str => {
   const ret = str.replace(/[-_\s]+(.)?/g, (match, c) =>
@@ -30,12 +30,12 @@ export default async function segmentHandler(
   const { body } = message;
   try {
     const eventName = body.type;
-    client.logger.debug(`incoming.${eventName}.start`, { message });
-    metric(`request.${eventName}`, 1);
+    client.logger.debug(`incoming.${eventName}.start`, message.body);
+    metric.increment(`request.${eventName}`);
 
-    const eventHandlers = handlers[eventName];
+    const handler = handlers[eventName];
 
-    if (!eventHandlers?.length) {
+    if (!handler) {
       const err = new Error("Not Supported");
       err.status = 501;
       throw err;
@@ -43,11 +43,8 @@ export default async function segmentHandler(
 
     // Don't process if hull integrations explicitely disabled
     if (body?.integrations?.Hull !== false) {
-      const _body = camelizeObjectKeys(body);
       try {
-        const res = await Promise.all(
-          eventHandlers.map(handler => handler(ctx, _body))
-        );
+        await handler(ctx, camelizeObjectKeys(body));
       } catch (err) {
         // fix https://sentry.io/hull-dev/hull-segment/issues/415436300/
         if (_.isString(err)) {
@@ -72,9 +69,9 @@ export default async function segmentHandler(
     if (err.status === 500) {
       data.stack = err.stack;
     }
-    client.logger.error(err.message, data);
+    client.logger.error("incoming.bogus.error", data);
     return {
-      status: 500,
+      status: err.status,
       text: err.message
     };
   }

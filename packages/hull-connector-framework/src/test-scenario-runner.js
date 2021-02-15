@@ -416,8 +416,10 @@ class TestScenarioRunner extends EventEmitter {
               `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`
             );
         }
-        debug("response", response.body, response.statusCode);
-        expect(response.body).toEqual(this.scenarioDefinition.response);
+        debug("response", response.text, response.body, response.statusCode);
+        expect(!_.isEmpty(response.body) ? response.body : response.text).toEqual(
+          this.scenarioDefinition.response
+        );
         expect(response.statusCode).toEqual(
           this.scenarioDefinition.responseStatusCode || 200
         );

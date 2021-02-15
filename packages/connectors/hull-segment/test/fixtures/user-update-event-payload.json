@@ -9,12 +9,10 @@
         "tags": [],
         "source_url": "https://d9bb86b5.ngrok.io/",
         "private_settings": {
-          "synchronized_segments": [
-            "5ade25df4d257947aa001cd5"
-        ],
-          "synchronized_properties": [
-            "last_seen_at"
-        ]},
+            "synchronized_segments": [
+                "5ade25df4d257947aa001cd5"
+            ]
+        },
         "index": "https://d9bb86b5.ngrok.io/ship.js",
         "name": "Tims Local Ngrok",
         "extra": {},
@@ -22,7 +20,7 @@
             "public_id_field": "external_id",
             "handle_pages": true,
             "handle_screens": true,
-            "handle_accounts": true,
+            "handle_accounts": false,
             "ignore_segment_userId": false,
             "public_account_id_field": "external_id",
             "handle_groups": false,
@@ -245,7 +243,7 @@
     "messages": [
         {
             "user": {
-                "latest_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=44663b88fedfc2dc826f31dece7797d8&organization=ad793dc7.hullapp.io",
+                "latest_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=1234&organization=ad793dc7.hullapp.io",
                 "latest_session_platform_id": "5babcc36353acf92d90020ce",
                 "first_session_initial_referrer": "https://dashboard.hullapp.io/ad793dc7/ships/5babcc36353acf92d90020ce/overview/Y29kZSBlZGl0b3I=",
                 "first_seen_at": "2018-10-08T16:12:38Z",
@@ -263,11 +261,13 @@
                 "signup_session_platform_id": "5babcc36353acf92d90020ce",
                 "created_at": "2018-10-08T16:12:38Z",
                 "is_approved": false,
-                "signup_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=44663b88fedfc2dc826f31dece7797d8&organization=ad793dc7.hullapp.io",
+                "signup_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=1234&organization=ad793dc7.hullapp.io",
                 "latest_session_started_at": "2018-10-08T16:12:38Z",
                 "last_seen_at": "2018-10-08T16:33:15Z",
-                "first_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=44663b88fedfc2dc826f31dece7797d8&organization=ad793dc7.hullapp.io",
-                "segment_ids": ["5ade25df4d257947aa001cd5"]
+                "first_session_initial_url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=1234&organization=ad793dc7.hullapp.io",
+                "segment_ids": [
+                    "5ade25df4d257947aa001cd5"
+                ]
             },
             "changes": {
                 "is_new": false,
@@ -282,10 +282,8 @@
                 "account_segments": {}
             },
             "account": {
-                "id": "5bd329d4e2bcf3eeaf000078",
-                "name": "darksideinc.com",
-                "domain": "darksideinc.com",
-                "external_id": "someid"
+                "domain": "foo.com",
+                "external_id": "12345"
             },
             "segments": [
                 {
@@ -294,6 +292,74 @@
                     "updated_at": "2018-04-23T18:28:47Z",
                     "type": "users_segment",
                     "created_at": "2018-04-23T18:28:47Z"
+                }
+            ],
+            "events": [
+                {
+                    "properties": {},
+                    "event_id": "5bbb86cbec9eca9f72002de5",
+                    "user_id": "5bbb81f6eb1887abb700295d",
+                    "event_source": "track",
+                    "app_name": "Processor",
+                    "event": "page",
+                    "event_type": "page",
+                    "track_id": "5bbb86cbec9eca9f72002de5",
+                    "context": {
+                        "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+                        "device": {
+                            "name": "Other"
+                        },
+                        "referrer": {
+                            "url": "https://dashboard.hullapp.io/ad793dc7/ships/5babcc36353acf92d90020ce/overview/Y29kZSBlZGl0b3I=",
+                            "host": "dashboard.hullapp.io",
+                            "path": "/ad793dc7/ships/5babcc36353acf92d90020ce/overview/Y29kZSBlZGl0b3I=",
+                            "campaign": {
+                                "term": null,
+                                "medium": null,
+                                "name": null,
+                                "content": null,
+                                "source": null
+                            }
+                        },
+                        "os": {
+                            "name": "Mac OS X",
+                            "version": "10.13.6"
+                        },
+                        "browser": {
+                            "major": 69,
+                            "name": "Chrome",
+                            "version": "69.0.3497"
+                        },
+                        "location": {
+                            "country": "US",
+                            "city": "Atlanta",
+                            "timezone": "America/New_York",
+                            "longitude": -84.3847,
+                            "latitude": 33.8379,
+                            "region": "GA",
+                            "countryname": "United States",
+                            "regionname": "Georgia",
+                            "zipcode": "30305"
+                        },
+                        "campaign": {
+                            "term": null,
+                            "medium": null,
+                            "name": null,
+                            "content": null,
+                            "source": null
+                        },
+                        "ip": "73.7.88.73",
+                        "page": {
+                            "url": "https://hull-processor.herokuapp.com/admin.html?ship=5babcc36353acf92d90020ce&secret=1234&organization=ad793dc7.hullapp.io",
+                            "host": "hull-processor.herokuapp.com",
+                            "path": "/admin.html"
+                        }
+                    },
+                    "anonymous_id": "1537214665-f537a0e8-c475-4f92-921a-d2d441f78d06",
+                    "ship_id": null,
+                    "created_at": "2018-10-08 16:33:15 UTC",
+                    "session_id": "1539015158-cdd0d00e-648a-4487-a24b-49420c9c3512",
+                    "app_id": "5babcc36353acf92d90020ce"
                 }
             ],
             "account_segments": [],

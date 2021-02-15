@@ -19,7 +19,7 @@ export function fetchToken(req, res, next) {
     const [authType, token64] = req.headers.authorization.split(" ");
     if (authType === "Basic" && token64) {
       try {
-        req.hull.token = Buffer.from(token64, "base64")
+        req.hull.clientCredentialsToken = Buffer.from(token64, "base64")
           .toString()
           .split(":")[0]
           .trim();

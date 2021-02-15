@@ -15,7 +15,6 @@ import updateUser from "../server/update-user";
 const server = require("../server/server");
 const { ContextMock } = require("./helper/connector-mock");
 
-
 const {
   track,
   identify,
@@ -62,17 +61,29 @@ function sendRequest({ query, body, headers, metric, endpoint }) {
   const app = express();
   const connector = new Hull.Connector({
     hostSecret,
-    clientConfig: { protocol: "http", flushAt: 1, flushAfter: 1, firehoseUrl: "firehose" }
+    clientConfig: {
+      protocol: "http",
+      flushAt: 1,
+      flushAfter: 1,
+      firehoseUrl: "firehose"
+    }
   });
   connector.setupApp(app);
-  const client = request(server(app, { clientMiddleware: connector.clientMiddleware(), hostSecret, onMetric: metric, Hull }));
-  return client.post(endpoint || "/segment")
+  const client = request(
+    server(app, {
+      clientMiddleware: connector.clientMiddleware(),
+      hostSecret,
+      onMetric: metric,
+      Hull
+    })
+  );
+  return client
+    .post(endpoint || "/segment")
     .query(query || config)
     .set(headers || {})
     .type("json")
     .send(body || track);
 }
-
 
 describe("Segment Ship", () => {
   let requests = [];
@@ -82,11 +93,11 @@ describe("Segment Ship", () => {
     settings: { handle_pages: true }
   };
 
-  afterEach((done) => {
+  afterEach(done => {
     requests = [];
     testServer.close(done);
   });
-  beforeEach((done) => {
+  beforeEach(done => {
     testApp = express();
     testApp.use(bodyParser.json());
     testApp.use(bodyParser.text());
@@ -100,186 +111,7 @@ describe("Segment Ship", () => {
     testServer = testApp.listen(8070, done);
   });
 
-  describe("Error payloads", () => {
-    it("Invalid body", (done) => {
-      sendRequest({ body: "{boom" })
-          .expect({ message: "Not Supported" })
-          .expect(501, done);
-    });
-
-    it("Missing credentials", (done) => {
-      sendRequest({ body: track, query: {} })
-          .expect({ message: "Missing Credentials" })
-          .expect(400, done);
-    });
-  });
-
-  describe("With credentials - webhook style", () => {
-    it("should return 200 with valid claims", (done) => {
-      sendRequest({ body: track, query: config })
-          .expect({ message: "thanks" })
-          .expect(200, done);
-    });
-  });
-
-  describe("With credentials - direct style", () => {
-    it("should return 200 with a valid token", (done) => {
-      const token = jwt.encode(config, hostSecret);
-      sendRequest({ body: track, headers: { authorization: `Basic ${new Buffer(token).toString("base64")}` } })
-          .expect({ message: "thanks" })
-          .expect(200, done);
-    });
-
-    it("should trim the token when passed with extra spaces", (done) => {
-      const token = jwt.encode(config, hostSecret);
-      sendRequest({ body: track, headers: { authorization: `Basic ${new Buffer(` ${token} `).toString("base64")}` } })
-          .expect({ message: "thanks" })
-          .expect(200, done);
-    });
-
-    it("should return Invalid token with a token signed with an invalid signature", (done) => {
-      const token = jwt.encode(config, `${hostSecret}invalid`);
-      sendRequest({ body: track, headers: { authorization: `Basic ${new Buffer(token).toString("base64")}` } })
-          .expect({ message: "Invalid Token" })
-          .expect(401, done);
-    });
-
-    it("should return Missing credentials with a token with missing claims", (done) => {
-      const token = jwt.encode({ organization: "abc.boom", secret: hullSecret }, hostSecret);
-      sendRequest({
-        query: { foo: "bar" },
-        body: track,
-        headers: {
-          authorization: `Basic ${new Buffer(token).toString("base64")}`
-        }
-      })
-      .expect({ message: "Missing Credentials" })
-      .expect(400, done);
-    });
-  });
-
-  describe("Ship not found", () => {
-    it("should return 401 if ship is not found", (done) => {
-      sendRequest({ body: track, query: { ...config, ship: "not_found" } })
-          .expect({ message: "id property in Configuration is invalid: not_found" })
-          .expect(401, done);
-    });
-  });
-
-  describe("Call type not supported", () => {
-    it("should return 401 if ship is not found", (done) => {
-      sendRequest({ body: { type: "bogus" }, query: config })
-          .expect({ message: "Not Supported" })
-          .expect(501, done);
-    });
-  });
-
-  describe("Handling events", () => {
-    it("call Hull.track on track event", (done) => {
-      sendRequest({ body: track, query: config })
-        .expect({ message: "thanks" })
-        .expect(200)
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            assert(tReq.body.batch[0].type === "track");
-            assert(tReq.body.batch[0].body.event === "Viewed Checkout Step");
-            done();
-          }, 10);
-        });
-    }).timeout(90000);
-    it("call Hull.track on page event", (done) => {
-      sendRequest({ body: page, query: config })
-        .expect({ message: "thanks" })
-        .expect(200)
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            assert(tReq.body.batch[0].type === "track");
-            assert(tReq.body.batch[0].body.event === "page");
-            done();
-          }, 10);
-        });
-    }).timeout(90000);
-    it("should Hull.track on page event by default", (done) => {
-      shipData = {
-        settings: {}
-      };
-      sendRequest({ body: page, query: config })
-        .expect({ message: "thanks" })
-        .expect(200)
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            assert(tReq);
-            done();
-          }, 10);
-        });
-    }).timeout(90000);
-    it("call Hull.track on screen event", (done) => {
-      // const postSpy = sinon.spy();
-      // const MockHull = mockHullFactory(postSpy, API_RESPONSES.screen);
-      // sendRequest({ body: screen, query: config, Hull: MockHull })
-      //     .expect({ message: "thanks" })
-      //     .expect(200)
-      //     .end(() => {
-      //       assert(postSpy.firstCall.args[3].active === true);
-      //       assert(postSpy.withArgs("/t", "screen").calledOnce);
-      shipData = {
-        settings: {
-          handle_screens: true
-        }
-      };
-      sendRequest({ body: screen, query: config })
-        .expect({ message: "thanks" })
-        .expect(200)
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            assert(tReq.body.batch[0].type === "track");
-            assert(tReq.body.batch[0].body.active === true);
-            assert(tReq.body.batch[0].body.event === "screen");
-            done();
-          }, 10);
-        });
-    }).timeout(90000);
-
-    it("Ignores incoming userId if settings.ignore_segment_userId is true", (done) => {
-      shipData = {
-        settings: { ignore_segment_userId: true }
-      };
-      sendRequest({ body: { ...identify }, query: config })
-        .expect(200)
-        .expect({ message: "thanks" })
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            const tokenClaims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], hullSecret);
-            assert(_.isEqual(tokenClaims["io.hull.asUser"], { email: identify.traits.email }));
-            assert(tReq.body.batch[0].type === "traits");
-            done();
-          }, 10);
-        });
-    });
-
-    it("Skip if settings.ignore_segment_userId is true and we have no email", (done) => {
-      shipData = {
-        settings: { ignore_segment_userId: true }
-      };
-      const traits = { first_name: "Bob" };
-      sendRequest({ body: { ...identify, traits }, query: config })
-        .expect(200)
-        .expect({ message: "thanks" })
-        .end(() => {
-          setTimeout(() => {
-            const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            assert(_.isNil(tReq));
-            done();
-          }, 10);
-        });
-    });
-
-    it("call Hull.traits on identify event", (done) => {
+    it("call Hull.traits on identify event", done => {
       shipData = {
         settings: {}
       };
@@ -308,9 +140,21 @@ describe("Segment Ship", () => {
           };
           setTimeout(() => {
             const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            const tokenClaims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], hullSecret);
-            assert(_.isEqual(tokenClaims["io.hull.asUser"], { email: payload.email, external_id: identify.user_id }));
-            const claims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], null, true);
+            const tokenClaims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              hullSecret
+            );
+            assert(
+              _.isEqual(tokenClaims["io.hull.asUser"], {
+                email: payload.email,
+                external_id: identify.user_id
+              })
+            );
+            const claims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              null,
+              true
+            );
             assert(claims["io.hull.active"] === false);
             assert(tReq.body.batch[0].type === "traits");
             assert(_.isEqual(tReq.body.batch[0].body, payload));
@@ -319,7 +163,7 @@ describe("Segment Ship", () => {
         });
     });
 
-    it("call Hull.traits on identify event", (done) => {
+    it("call Hull.traits on identify event", done => {
       shipData = {
         settings: {}
       };
@@ -355,9 +199,21 @@ describe("Segment Ship", () => {
           };
           setTimeout(() => {
             const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            const tokenClaims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], hullSecret);
-            assert(_.isEqual(tokenClaims["io.hull.asUser"], { email: payload.email, external_id: identify.user_id }));
-            const claims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], null, true);
+            const tokenClaims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              hullSecret
+            );
+            assert(
+              _.isEqual(tokenClaims["io.hull.asUser"], {
+                email: payload.email,
+                external_id: identify.user_id
+              })
+            );
+            const claims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              null,
+              true
+            );
             assert(claims["io.hull.active"] === true);
             assert(tReq.body.batch[0].type === "traits");
             assert(_.isEqual(tReq.body.batch[0].body, payload));
@@ -366,7 +222,7 @@ describe("Segment Ship", () => {
         });
     });
 
-    it("group call from segment should pull domain from traits", (done) => {
+    it("group call from segment should pull domain from traits", done => {
       shipData = {
         settings: { handle_accounts: true }
       };
@@ -378,7 +234,8 @@ describe("Segment Ship", () => {
           }
         },
         groupId: "BggDBQ4EBAMBDQkLBAcCDA",
-        messageId: "node-74f9cac816a0076169db7321e5956638-0beacb8e-f988-4797-9320-dc3a55688b15",
+        messageId:
+          "node-74f9cac816a0076169db7321e5956638-0beacb8e-f988-4797-9320-dc3a55688b15",
         timestamp: "2018-10-25T14:49:26.269Z",
         traits: {
           account_status: "activated",
@@ -407,9 +264,21 @@ describe("Segment Ship", () => {
 
           setTimeout(() => {
             const tReq = _.find(requests, { url: "/api/v1/firehose" });
-            const tokenClaims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], hullSecret);
-            assert(_.isEqual(tokenClaims["io.hull.asAccount"], { domain: "somedomain.com", external_id: "BggDBQ4EBAMBDQkLBAcCDA" }));
-            const claims = jwt.decode(tReq.body.batch[0].headers["Hull-Access-Token"], null, true);
+            const tokenClaims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              hullSecret
+            );
+            assert(
+              _.isEqual(tokenClaims["io.hull.asAccount"], {
+                domain: "somedomain.com",
+                external_id: "BggDBQ4EBAMBDQkLBAcCDA"
+              })
+            );
+            const claims = jwt.decode(
+              tReq.body.batch[0].headers["Hull-Access-Token"],
+              null,
+              true
+            );
             assert(claims["io.hull.subjectType"] === "account");
             assert(tReq.body.batch[0].type === "traits");
             assert(_.isEqual(tReq.body.batch[0].body, payload));
@@ -418,8 +287,7 @@ describe("Segment Ship", () => {
         });
     });
 
-
-    it("should Hull.track on screen event by default", (done) => {
+    it("should Hull.track on screen event by default", done => {
       shipData = {
         settings: {}
       };
@@ -435,7 +303,7 @@ describe("Segment Ship", () => {
         });
     });
 
-    it("send update message to batch endpoint", (done) => {
+    it("send update message to batch endpoint", done => {
       // nock the endpoint for batch url
       nock("http://somefakewebsite.com")
         .get("/getBatchPayload")
@@ -451,11 +319,13 @@ describe("Segment Ship", () => {
 
       // nock the segment endpoint that we send to..
       nock("https://api.segment.io")
-        .post("/v1/batch", (body) => {
-          return body.batch.length === 1
-          && body.batch[0].type === "identify"
-          && body.batch[0].anonymousId === "outreach:16"
-          && _.isEqual(body.batch[0].traits, traits);
+        .post("/v1/batch", body => {
+          return (
+            body.batch.length === 1 &&
+            body.batch[0].type === "identify" &&
+            body.batch[0].anonymousId === "outreach:16" &&
+            _.isEqual(body.batch[0].traits, traits)
+          );
         })
         .reply(200);
 
@@ -466,9 +336,8 @@ describe("Segment Ship", () => {
           handle_accounts: true
         },
         private_settings: {
-          synchronized_properties: [
-            "created_at"
-          ] }
+          synchronized_properties: ["created_at"]
+        }
       };
       sendRequest({
         body: userBatchUpdateRaw,
@@ -485,21 +354,21 @@ describe("Segment Ship", () => {
     });
 
     describe("Collecting metric", () => {
-      it("call metric collector", (done) => {
+      it("call metric collector", done => {
         const metricHandler = sinon.spy();
         sendRequest({ metric: metricHandler })
-            .expect({ message: "thanks" })
-            .expect(200)
-            .end(() => {
-              assert(metricHandler.withArgs("request.track").calledOnce);
-              done();
-            });
+          .expect({ message: "thanks" })
+          .expect(200)
+          .end(() => {
+            assert(metricHandler.withArgs("request.track").calledOnce);
+            done();
+          });
       });
     });
   });
 
   describe("Outgoing User Update Messages", () => {
-    it("Event sent in User Update - Not in Segment", (done) => {
+    it("Event sent in User Update - Not in Segment", done => {
       const ctxMock = new ContextMock();
       ctxMock.ship = userUpdateEventPayload.connector;
       ctxMock.connector = userUpdateEventPayload.connector;
@@ -511,7 +380,7 @@ describe("Segment Ship", () => {
         enqueue: () => {},
         page: () => {},
         track: () => {},
-        identify: () => true,
+        identify: () => true
       };
 
       sinon.spy(analytics, "group");
@@ -544,8 +413,14 @@ describe("Segment Ship", () => {
       assert(analytics.track.getCalls().length === 0);
       assert(analytics.group.getCalls().length === 0);
       assert(analytics.identify.getCalls().length === 0);
-      assert(infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.event.success");
-      assert(debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.user.skip");
+      assert(
+        infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.event.success"
+      );
+      assert(
+        debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.user.skip"
+      );
 
       ctxMock.ship.private_settings.synchronized_segments = ["notarealsegment"];
 
@@ -567,7 +442,10 @@ describe("Segment Ship", () => {
       assert(analytics.track.getCalls().length === 0);
       assert(analytics.group.getCalls().length === 0);
       assert(analytics.identify.getCalls().length === 0);
-      assert(debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.user.skip");
+      assert(
+        debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.user.skip"
+      );
 
       ctxMock.ship.private_settings.synchronized_segments = ["ALL"];
 
@@ -590,8 +468,14 @@ describe("Segment Ship", () => {
       assert(analytics.track.getCalls().length === 0);
       assert(analytics.group.getCalls().length === 0);
       assert(analytics.identify.getCalls().length === 0);
-      assert(infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.event.success");
-      assert(debugLogMock.getCalls()[infoLogMock.getCalls().length - 2].args[0] === "outgoing.user.skip");
+      assert(
+        infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.event.success"
+      );
+      assert(
+        debugLogMock.getCalls()[infoLogMock.getCalls().length - 2].args[0] ===
+          "outgoing.user.skip"
+      );
 
       ctxMock.ship.private_settings.synchronized_segments = [];
 
@@ -613,12 +497,15 @@ describe("Segment Ship", () => {
       assert(analytics.track.getCalls().length === 0);
       assert(analytics.group.getCalls().length === 0);
       assert(analytics.identify.getCalls().length === 0);
-      assert(debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.user.skip");
+      assert(
+        debugLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.user.skip"
+      );
 
       done();
     });
 
-    it("Event sent in User Update - Simulated batch call, no group", (done) => {
+    it("Event sent in User Update - Simulated batch call, no group", done => {
       const ctxMock = new ContextMock();
       ctxMock.ship = userBatchUpdateMockMessage.connector;
       ctxMock.connector = userBatchUpdateMockMessage.connector;
@@ -630,7 +517,7 @@ describe("Segment Ship", () => {
         enqueue: () => {},
         page: () => {},
         track: () => {},
-        identify: () => true,
+        identify: () => true
       };
 
       sinon.spy(analytics, "group");
@@ -669,8 +556,14 @@ describe("Segment Ship", () => {
       assert(analytics.identify.getCalls().length === 1);
 
       // both the user and account are successful
-      assert(infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.user.success");
-      assert(infoLogMock.getCalls()[infoLogMock.getCalls().length - 2].args[0] === "outgoing.account.success");
+      assert(
+        infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.user.success"
+      );
+      assert(
+        infoLogMock.getCalls()[infoLogMock.getCalls().length - 2].args[0] ===
+          "outgoing.account.success"
+      );
 
       const updatedAttributes2 = updateUserFunction(
         {
@@ -698,11 +591,17 @@ describe("Segment Ship", () => {
       assert(analytics.identify.getCalls().length === 2);
 
       // user gets updated
-      assert(infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] === "outgoing.user.success");
+      assert(
+        infoLogMock.getCalls()[infoLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.user.success"
+      );
 
       // skipping account because no properties in account_synchronized_properties
       // and no longer synchronizing segments anymore either...
-      assert(debugLogMock.getCalls()[debugLogMock.getCalls().length - 1].args[0] === "outgoing.account.skip");
+      assert(
+        debugLogMock.getCalls()[debugLogMock.getCalls().length - 1].args[0] ===
+          "outgoing.account.skip"
+      );
 
       done();
     });

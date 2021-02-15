@@ -1,7 +1,7 @@
 // @flow
 
-import track from "./track";
 import type { HullContext } from "hull";
+import track from "./track";
 
 export default async function handleScreen(ctx: HullContext, payload = {}) {
   const { connector = {} } = ctx;

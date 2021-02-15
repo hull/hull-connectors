@@ -9,7 +9,8 @@ const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
  * @return {Object} scoped client instance
  */
 export default function scope(ctx, user = {}, additionalClaims = {}) {
-  const { client, settings } = ctx;
+  const { client, connector } = ctx;
+  const { settings = {} } = connector;
   const { hullId, userId, anonymousId, traits = {} } = user;
   if (!hullId && !userId && !anonymousId) {
     return client;
