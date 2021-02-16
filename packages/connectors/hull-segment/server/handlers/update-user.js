@@ -3,6 +3,7 @@
 import _ from "lodash";
 import type { HullContext, HullUserUpdateMessage } from "hull";
 import shouldSkip from "../lib/should-skip-update";
+import hasChanges from "../lib/has-changes";
 
 const mapTraits = ({ synchronized_properties, user = {}, account = {} }) =>
   _.reduce(
@@ -53,38 +54,37 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
       account = {},
       events = [],
       segments = [],
-      segment_ids,
       account_segments = []
     } = message;
+    console.log(user);
 
     // Empty payload ?
     if (!user.id || !connector.id) {
       return false;
     }
 
-    const asUser = client.asUser(user, ["email", "id", "external_id"]);
-
     // Build traits that will be sent to Segment
     // Use hull_segments by default
+    const integrations = { Hull: false };
+    const context = { active: false, ip: 0 };
     const traits = {
       hull_segments: _.map(segments, "name"),
       ...mapTraits({ synchronized_properties, user, account })
     };
-
-    const analytics = analyticsClient(write_key);
 
     // Look for an anonymousId
     // if we have events in the payload, we take the annymousId of the first event
     // Otherwise, we look for known anonymousIds attached to the user and we take the last one
     const anonymousId =
       (_.first(events) || {}).anonymous_id || getFirstAnonymousId(user);
-
     const userId = user[public_id_field || "external_id"];
-    const groupId = user["traits_group/id"];
+    const legacyGroupId = user["traits_group/id"];
 
     const publicAccountIdField =
       public_account_id_field === "id" ? "id" : "external_id";
-    const accountId = account && account[publicAccountIdField];
+    const groupId = account && account[publicAccountIdField];
+
+    const asUser = client.asUser(user);
 
     // We have no identifier for the user, we have to skip
     if (!userId && !anonymousId) {
@@ -94,18 +94,13 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
       });
     }
 
+    // Early return if user isn't in the Allowed segments
     const skip = shouldSkip(ctx, message);
     if (skip) {
-      return asUser.logger.debug("outgoing.user.skip", {
-        reason: skip,
-        segment_ids,
-        traits
-      });
+      return asUser.logger.debug("outgoing.user.skip", skip);
     }
 
-    const integrations = { Hull: false };
-    const context = { active: false, ip: 0 };
-
+    // Override Library name [Advanced use case]
     if (context_library) {
       try {
         const library = JSON.parse(context_library);
@@ -124,113 +119,25 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
       }
     }
 
-    analytics.identify({
-      anonymousId,
-      userId,
-      traits,
-      context,
-      integrations
-    });
-    asUser.logger.info("outgoing.user.success", { userId, traits });
+    const analytics = analyticsClient(write_key);
 
-    try {
-      const asAccount = asUser.account();
-      // Add group if available
-      if (handle_groups && groupId && userId) {
-        context.groupId = groupId;
-        const groupTraits = _.reduce(
-          user,
-          (group, value, key) => {
-            const mk = key.match(/^traits_group\/(.*)/);
-            const groupKey = mk && mk[1];
-            if (groupKey && groupKey !== "id") {
-              group[groupKey] = value;
-            }
-            return group;
-          },
-          {}
-        );
-
-        // isBatch is checked in this case because of a limitation in the platform
-        // the platform doesn't send account segments for user updates
-        // So do not put it in, otherwise will blank out hull segment trait on the other side
-        if (!isBatch) {
-          // Add account segments
-          _.set(groupTraits, "hull_segments", _.map(account_segments, "name"));
-        }
-        if (!_.isEmpty(groupTraits)) {
-          asUser.logger.info("outgoing.group.success", {
-            groupId,
-            traits: groupTraits,
-            context
-          });
-          analytics.group({
-            groupId,
-            anonymousId,
-            userId,
-            traits: groupTraits,
-            context,
-            integrations
-          });
-        }
-      } else if (handle_accounts && accountId) {
-        const accountTraits = synchronized_account_properties
-          .map(k => k.replace(/^account\./, ""))
-          .reduce((props, prop) => {
-            props[prop.replace("/", "_")] = account[prop];
-            return props;
-          }, {});
-
-        // Please see comment above for why we only set this on !isBatch
-        if (!isBatch) {
-          // Add account segments
-          _.set(
-            accountTraits,
-            "hull_segments",
-            _.map(account_segments, "name")
-          );
-        }
-        if (!_.isEmpty(accountTraits)) {
-          client.logger.debug("group.send", {
-            groupId: accountId,
-            traits: accountTraits,
-            context
-          });
-          analytics.group({
-            groupId: accountId,
-            anonymousId,
-            userId,
-            traits: accountTraits,
-            context,
-            integrations
-          });
-          asAccount.logger.info("outgoing.account.success", {
-            groupId: accountId,
-            traits: accountTraits,
-            context
-          });
-        } else {
-          asAccount.logger.debug("outgoing.account.skip", {
-            reason: "Empty traits payload",
-            groupId: accountId,
-            traits: accountTraits,
-            context
-          });
-        }
-      } else {
-        asAccount.logger.debug("outgoing.account.skip", {
-          reason: "doesn't match rules for sending",
-          handle_groups,
-          handle_accounts,
-          groupId,
-          accountId,
-          publicAccountIdField
-        });
-      }
-    } catch (err) {
-      console.warn("Error processing group update", err);
+    // Skip identify call if user hasn't got any changes and isn't in a batch call
+    if (hasChanges(ctx, message)) {
+      analytics.identify({
+        anonymousId,
+        userId,
+        traits,
+        context,
+        integrations
+      });
+      asUser.logger.info("outgoing.user.success", { userId, traits });
+    } else {
+      asUser.logger.debug("outgoing.user.skip", {
+        reason: "no changes to emit"
+      });
     }
 
+    // Event call
     if (events && events.length > 0) {
       events.map(
         ({
@@ -278,7 +185,7 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
             integrations,
             context: {
               ip,
-              groupId,
+              groupId: handle_groups ? legacyGroupId : groupId,
               os,
               page,
               traits,
@@ -318,6 +225,112 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
         }
       );
     }
+
+    // Account / Group call
+    // // Add group if available
+    // if (handle_groups && groupId && userId) {
+    //   context.groupId = groupId;
+    //   const groupTraits = _.reduce(
+    //     user,
+    //     (group, value, key) => {
+    //       const mk = key.match(/^traits_group\/(.*)/);
+    //       const groupKey = mk && mk[1];
+    //       if (groupKey && groupKey !== "id") {
+    //         group[groupKey] = value;
+    //       }
+    //       return group;
+    //     },
+    //     {}
+    //   );
+
+    //   // isBatch is checked in this case because of a limitation in the platform
+    //   // the platform doesn't send account segments for user updates
+    //   // So do not put it in, otherwise will blank out hull segment trait on the other side
+    //   if (!isBatch) {
+    //     // Add account segments
+    //     _.set(groupTraits, "hull_segments", _.map(account_segments, "name"));
+    //   }
+    //   if (!_.isEmpty(groupTraits)) {
+    //     asUser.logger.info("outgoing.group.success", {
+    //       groupId,
+    //       traits: groupTraits,
+    //       context
+    //     });
+    //     analytics.group({
+    //       groupId,
+    //       anonymousId,
+    //       userId,
+    //       traits: groupTraits,
+    //       context,
+    //       integrations
+    //     });
+    //   }
+    // } else
+    const asAccount = client.asAccount(account);
+    try {
+      if (!handle_accounts) {
+        return asUser.logger.debug("outgoing.account.skip", {
+          reason: "handle_accounts not enabled"
+        });
+      }
+      if (!groupId) {
+        return asUser.logger.debug("outgoing.account.skip", {
+          reason: "No groupId",
+          data: {
+            legacyGroupId,
+            publicAccountIdField,
+            account
+          }
+        });
+      }
+
+      const accountTraits = _.reduce(
+        synchronized_account_properties,
+        (props, key) => {
+          const k = key.replace(/^account\./, "");
+          props[k.replace("/", "_")] = account[key];
+          return props;
+        },
+        {}
+      );
+
+      // Please see comment above for why we only set this on !isBatch
+      if (!isBatch) {
+        // Add account segments
+        accountTraits.hull_segments = _.map(account_segments, "name");
+      }
+
+      if (_.isEmpty(accountTraits)) {
+        return asAccount.logger.debug("outgoing.account.skip", {
+          reason: "Empty account traits payload",
+          data: {
+            accountTraits,
+            groupId,
+            context
+          }
+        });
+      }
+
+      analytics.group({
+        groupId,
+        anonymousId,
+        userId,
+        traits: accountTraits,
+        context,
+        integrations
+      });
+
+      asAccount.logger.info("outgoing.account.success", {
+        groupId,
+        accountTraits,
+        context
+      });
+    } catch (err) {
+      asAccount.logger.error("outgoing.account.error", {
+        reason: err.message
+      });
+    }
+
     return true;
   };
 }

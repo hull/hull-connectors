@@ -7,17 +7,10 @@ const shouldSkip = (ctx: HullContext, message: HullUserUpdateMessage) => {
   const { private_settings } = connector;
 
   // Custom properties to be synchronized
-  const {
-    synchronized_properties = [],
-    synchronized_segments = [],
-    synchronized_account_properties = []
-  } = private_settings;
+  const { synchronized_segments = [] } = private_settings;
 
-  const { segment_ids, changes = {} } = message;
-  const {
-    user: changedUserAttributes = {},
-    account: changedAccountAttributes = {}
-  } = changes;
+  const { segments } = message;
+  const segment_ids = _.map(segments, "id");
 
   // Only potentially skip if we are NOT ignoring filters if we ARE ignoring filters, then don't skip ever
   if (isBatch) {
@@ -30,25 +23,19 @@ const shouldSkip = (ctx: HullContext, message: HullUserUpdateMessage) => {
     // if this user does not belong to any of the synchronized segments
     !_.intersection(segment_ids, synchronized_segments).length
   ) {
-    return "not matching any segment";
+    ctx.client.logger.info("not matching any segment", {
+      segment_ids,
+      synchronized_segments
+    });
+    return {
+      reason: "not matching any segment",
+      data: {
+        segment_ids,
+        synchronized_segments
+      }
+    };
   }
 
-  /**
-   * isBatch is a special boolean which is set on BATCH notifications
-   * for batch notifications we do NOT want to filter, which is why it is used
-   * in this case to bypass all the segment filtering
-   */
-  if (
-    _.isEmpty(changes.segments) &&
-    _.isEmpty(changes.account_segments) &&
-    _.intersection(synchronized_properties, changedUserAttributes).length ===
-      0 &&
-    _.intersection(synchronized_account_properties, changedAccountAttributes)
-      .length === 0
-  ) {
-    // Filter if no interesting changes.
-    return "No changes detected that would require a synchronization to segment.com";
-  }
   return false;
 };
 export default shouldSkip;

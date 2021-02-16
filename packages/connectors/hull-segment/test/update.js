@@ -60,17 +60,12 @@ describe("Send Payloads", () => {
             synchronized_properties: ["created_at"]
           }
         },
-        externalApiMock: () => {
-          nock("http://somefakewebsite.com")
-            .get("/getBatchPayload")
-            .reply(200, userUpdateEventPayload);
-
-          // Right now the mock batch isn't pulling in the hull_segments
-
-          // nock the segment endpoint that we send to..
-          const scope = nock("https://api.segment.io")
-            .post("/v1/batch", body => {
-              return (
+        // nock the segment endpoint that we send to..
+        externalApiMock: () =>
+          nock("https://api.segment.io")
+            .post(
+              "/v1/batch",
+              body =>
                 body.batch.length === 1 &&
                 body.batch[0].type === "identify" &&
                 body.batch[0].anonymousId === "outreach:16" &&
@@ -78,12 +73,8 @@ describe("Send Payloads", () => {
                   hull_segments: [],
                   created_at: "2018-10-26T14:51:01Z"
                 })
-              );
-            })
-            .reply(200);
-
-          return scope;
-        },
+            )
+            .reply(200),
         externalIncomingRequest: () => {},
         responseStatusCode: 200,
         response: {
@@ -113,7 +104,7 @@ describe("Send Payloads", () => {
         platformApiCalls: []
       })
     ));
-  it("Event sent in User Update - Not in Segment", () =>
+  it("Should send event but not identify in the case of no attribute changes", () =>
     testScenario(
       { manifest, connectorConfig },
       ({ handlers, nock, expect }) => ({
@@ -122,14 +113,30 @@ describe("Send Payloads", () => {
         channel: "user:update",
         connector: {
           settings: {
-            write_key: "1234"
+            write_key: "1234",
+            handle_accounts: true
           },
           private_settings: {
             synchronized_properties: ["created_at"],
-            synchronized_segments: ["notarealsegment"]
+            synchronized_segments: ["5ade25df4d257947aa001cd5"]
           }
         },
-        externalApiMock: () => {},
+        // nock the segment endpoint that we send to..
+        externalApiMock: () =>
+          nock("https://api.segment.io")
+            .post("/v1/batch", body => {
+              console.log("NOCK", body);
+              return (
+                body.batch.length === 1 &&
+                body.batch[0].type === "identify" &&
+                body.batch[0].anonymousId === "outreach:16" &&
+                _.isEqual(body.batch[0].traits, {
+                  hull_segments: [],
+                  created_at: "2018-10-26T14:51:01Z"
+                })
+              );
+            })
+            .reply(200),
         externalIncomingRequest: () => {},
         responseStatusCode: 200,
         response: {
@@ -137,15 +144,45 @@ describe("Send Payloads", () => {
             type: "next"
           }
         },
-        messages: [{ user: userBatchUpdatePayload, segment_ids: ["a_real_segment"] }],
+        messages: [
+          {
+            ...userUpdateEventPayload.messages[0],
+            changes: {
+              user: {},
+              account: {}
+            }
+          }
+        ],
         usersSegments: [],
         accountsSegments: [],
         logs: [
-          ["debug", "outgoing.user.skip", expect.whatever(), {
-            reason: "not matching any segment",
-            segment_ids: ["a_real_segment"],
-            traits: expect.whatever()
-          }],
+          [
+            "debug",
+            "outgoing.user.skip",
+            expect.whatever(),
+            {
+              reason: "no changes to emit",
+              traits: expect.whatever()
+            }
+          ],
+          [
+            "debug",
+            "outgoing.event.skip",
+            expect.whatever(),
+            {
+              reason: "not included in event list",
+              event: "page"
+            }
+          ],
+          [
+            "debug",
+            "outgoing.account.skip",
+            expect.whatever(),
+            {
+              reason: "no changes to emit",
+              traits: expect.whatever()
+            }
+          ]
         ],
         metrics: [METRIC_CONNECTOR_REQUEST],
         firehoseEvents: [],
