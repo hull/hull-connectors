@@ -1,11 +1,11 @@
 // @flow
 
 import supertest from "supertest";
+import jwt from "jwt-simple";
 import _ from "lodash";
 import testScenario from "hull-connector-framework/src/test-scenario";
-import connectorConfig from "../server/config";
-import manifest from "../manifest.json";
-import jwt from "jwt-simple";
+import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 const {
   track,
