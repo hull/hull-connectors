@@ -282,6 +282,16 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
           }
         });
       }
+      if (!anonymousId && !userId) {
+        return asUser.logger.debug("outgoing.account.skip", {
+          reason: "At least userId or anonymousId must be set for Group calls",
+          data: {
+            userId,
+            groupId,
+            anonymousId
+          }
+        });
+      }
 
       const accountTraits = _.reduce(
         synchronized_account_properties,
@@ -311,6 +321,7 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
           }
         });
       }
+
 
       analytics.group({
         groupId,

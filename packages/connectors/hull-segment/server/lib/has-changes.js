@@ -23,9 +23,8 @@ export default function hasChanges(ctx, message) {
     isBatch ||
     !_.isEmpty(segments) ||
     !_.isEmpty(account_segments) ||
-    !_.intersection(synchronized_properties, _.keys(user)).length === 0 ||
-    !_.intersection(synchronized_account_properties, _.keys(account)).length ===
-      0
+    !_.isEmpty(_.intersection(synchronized_properties, _.keys(user))) ||
+    !_.isEmpty(_.intersection(synchronized_account_properties, _.keys(account)))
   ) {
     // Filter if no interesting changes.
     return true;

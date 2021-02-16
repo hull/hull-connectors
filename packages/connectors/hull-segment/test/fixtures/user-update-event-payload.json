@@ -364,7 +364,10 @@
                     "app_id": "5babcc36353acf92d90020ce"
                 }
             ],
-            "account_segments": [],
+            "account_segments": [{
+                "id": "1234",
+                "name": "Account_Segment"
+            }],
             "message_id": "c5f98897cc20892e67c8cea9f693634a9f182be6"
         }
     ],

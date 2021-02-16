@@ -23,10 +23,6 @@ const shouldSkip = (ctx: HullContext, message: HullUserUpdateMessage) => {
     // if this user does not belong to any of the synchronized segments
     !_.intersection(segment_ids, synchronized_segments).length
   ) {
-    ctx.client.logger.info("not matching any segment", {
-      segment_ids,
-      synchronized_segments
-    });
     return {
       reason: "not matching any segment",
       data: {
