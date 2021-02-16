@@ -1,30 +1,38 @@
 // @flow
-import type { HullHandlersConfiguration } from "hull";
-import userUpdate from "./user-update";
-// import accountUpdate from "./account-update";
-import statusUpdate from "./status-handler";
-import incomingHandler from "./incoming-handler";
-import credentialsHandler from "./credentials";
-import connectHandler from "./connect";
+import type { HullHandlersConfiguration, Connector } from "hull";
+import statusHandler from "./status";
+import updateUser from "./update-user";
+import segmentHandler from "./segment-handler";
+import analyticsClientFactory from "../lib/analytics-client";
+import credentialsHandler from "./credentials-handler";
 
-export default function handler({
-  flow_size,
-  flow_in
-}: {
-  flow_size: string | number,
-  flow_in: string | number
-}): HullHandlersConfiguration {
+const handlers = (_connector: Connector): HullHandlersConfiguration => {
+  const analyticsClient = analyticsClientFactory();
+
   return {
+    statuses: { statusHandler },
     subscriptions: {
-      userUpdate: userUpdate({ flow_in, flow_size })
-      // Can't rely on AccountUpdate since we don't have a UserID available
-      // accountUpdate: accountUpdate({ flow_in, flow_size })
+      updateUser: async (
+        ctx: HullContext,
+        messages: Array<HullUserUpdateMessage>
+      ) => {
+        try {
+          await Promise.all(messages.map(updateUser(analyticsClient, ctx)));
+          return {
+            type: "next",
+            size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 100,
+            in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 1
+          };
+        } catch (err) {
+          return {
+            type: "retry"
+          };
+        }
+      }
     },
-    json: {
-      credentialsHandler,
-      connectHandler
-    },
-    incoming: { incomingHandler },
-    statuses: { statusUpdate }
+    json: { credentialsHandler },
+    incoming: { segmentHandler }
   };
-}
+};
+
+export default handlers;

@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "get-port": "^5.1.1",
-    "luxon": "^1.25.0",
     "pg": "^8.5.1",
     "sequelize": "^6.5.0",
     "ssh2": "^0.8.7"
