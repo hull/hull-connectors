@@ -5,19 +5,11 @@ import _ from "lodash";
 
 const isForbidden = ip => {
   if (!ip) {
-    return false;
+    return true;
   }
   const addr = Address6.fromAddress4(ip);
   const subnet = new Address6.fromAddress4("172.31.0.0/16");
-  if (
-    addr.isMulticast() ||
-    addr.isInSubnet(subnet) ||
-    addr.isLoopback() ||
-    addr.isLinkLocal()
-  ) {
-    return true;
-  }
-  return false;
+  return addr.isMulticast() || addr.isInSubnet(subnet) || addr.isLoopback() || addr.isLinkLocal();
 };
 
 export default async function ipCheck(url) {
@@ -28,7 +20,7 @@ export default async function ipCheck(url) {
       if (err) {
         return reject(err);
       }
-      if (_.some(addresses.map(isForbidden), true)) {
+      if (_.some(addresses, isForbidden)) {
         return reject(new Error("Forbidden Address"));
       }
       return resolve();
