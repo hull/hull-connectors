@@ -30,7 +30,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
       ),
       shipUpdate: shipUpdate(getThrottle)
     },
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler() },
     json: {
       configHandler: configHandler(configData({ entity: "account" })),
       entityHandler,
