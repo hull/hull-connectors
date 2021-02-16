@@ -5,7 +5,7 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import { compute } from "hull-vm";
+import { compute, ipCheck } from "hull-vm";
 import type { PrivateSettings } from "hull-webhooks/types";
 import {
   getHeaders,
@@ -68,6 +68,8 @@ const entityUpdate = (entity: HullEntityName) => (
                   preview: false,
                   code
                 });
+
+                await ipCheck(url);
 
                 const response = await request
                   .post(url)
