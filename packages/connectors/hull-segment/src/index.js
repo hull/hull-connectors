@@ -1,10 +1,11 @@
-/* global require, Hull*/
+/* global Hull*/
 
-const segment = require("./segment");
 const camelize = require("camelize");
+const segment = require("./segment");
+
 segment();
 
-function start(element, deployment, hull) {
+Hull.onEmbed(function start(element, deployment, hull) {
   function getOptions() {
     const services = Hull.config("services.analytics") || {};
     const options = {
@@ -30,7 +31,7 @@ function start(element, deployment, hull) {
 
   function identify(me) {
     if (window.analytics && me && me.id) {
-      const user = ["name", "email", "username"].reduce((u, k) => {
+      ["name", "email", "username"].reduce((u, k) => {
         if (me[k] != null) {
           u[k] = me[k];
         }
@@ -55,9 +56,7 @@ function start(element, deployment, hull) {
   Hull.on("hull.traits", traits);
   Hull.on("hull.user.*", identify);
   identify(hull.currentUser());
-  Hull.on("hull.user.logout", function () {
-    window.analytics && window.analytics.reset();
+  Hull.on("hull.user.logout", () => {
+    window?.analytics?.reset();
   });
-}
-
-Hull.onEmbed(start);
+});

@@ -330,7 +330,7 @@ describe("Error Payloads", () => {
             .type("json");
         },
         responseStatusCode: 501,
-        response: "Not Supported",
+        responseText: "Not Supported",
         usersSegments: [],
         accountsSegments: [],
         logs: [
@@ -387,7 +387,7 @@ describe("With credentials - direct style", () => {
             .send(track)
             .type("json"),
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.track.start", {}, track]],
@@ -427,7 +427,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.track.start", {}, track]],
@@ -469,7 +469,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.track.start", {}, track]],
@@ -511,7 +511,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.track.start", {}, track]],
@@ -553,7 +553,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.page.start", {}, expect.whatever()]],
@@ -595,7 +595,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [["debug", "incoming.screen.start", {}, expect.whatever()]],
@@ -637,7 +637,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [
@@ -695,7 +695,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [
@@ -769,7 +769,7 @@ describe("With credentials - direct style", () => {
             .type("json");
         },
         responseStatusCode: 200,
-        response: "thanks",
+        responseText: "thanks",
         usersSegments: [],
         accountsSegments: [],
         logs: [

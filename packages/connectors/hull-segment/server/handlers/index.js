@@ -1,7 +1,5 @@
 // @flow
 import type { HullHandlersConfiguration, Connector } from "hull";
-import _ from "lodash";
-// import adminHandler from "./admin";
 import statusHandler from "./status";
 import updateUser from "./update-user";
 import segmentHandler from "./segment-handler";

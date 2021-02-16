@@ -322,7 +322,6 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
         });
       }
 
-
       analytics.group({
         groupId,
         anonymousId,

@@ -417,9 +417,12 @@ class TestScenarioRunner extends EventEmitter {
             );
         }
         debug("response", response.text, response.body, response.statusCode);
-        expect(!_.isEmpty(response.body) ? response.body : response.text).toEqual(
-          this.scenarioDefinition.response
-        );
+        if (this.scenarioDefinition.response !== undefined) {
+          expect(response.body).toEqual(this.scenarioDefinition.response);
+        }
+        if (this.scenarioDefinition.responseText !== undefined) {
+          expect(response.text).toEqual(this.scenarioDefinition.responseText);
+        }
         expect(response.statusCode).toEqual(
           this.scenarioDefinition.responseStatusCode || 200
         );
