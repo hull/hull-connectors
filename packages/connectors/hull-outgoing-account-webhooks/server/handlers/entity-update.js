@@ -49,7 +49,7 @@ const entityUpdate = async (entity: HullEntityName) => (
         url,
         reason: "Forbidden host"
       });
-      return;
+      return undefined;
     }
 
     const throttle = getThrottle({
