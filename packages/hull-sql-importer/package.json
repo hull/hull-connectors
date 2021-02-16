@@ -18,7 +18,10 @@
     "s3-upload-stream": "^1.0.7",
     "sequelize": "^6.5.0",
     "sweetalert2": "^10.14.1",
-    "tedious": "^11.0.3"
+    "tedious": "^11.0.3",
+    "pg": "8.5.1",
+    "pg-query-stream": "^4.0.0",
+    "hull-mariadb": "1.0.0"
   },
   "devDependencies": {}
 }

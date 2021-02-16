@@ -72,6 +72,7 @@ COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/conn
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 COPY packages/connectors/hull-madkudu/package.json /app/packages/connectors/hull-madkudu/package.json
 COPY packages/connectors/hull-calendly/package.json /app/packages/connectors/hull-calendly/package.json
+COPY packages/connectors/hull-generic-sql-importer/package.json /app/packages/connectors/hull-generic-sql-importer/package.json
 COPY packages/connectors/hull-postgres-exporter/package.json /app/packages/connectors/hull-postgres-exporter/package.json
 # COPY packages/connectors/hull-mysql-exporter/package.json /app/packages/connectors/hull-mysql-exporter/package.json
 # COPY packages/connectors/hull-mssql-exporter/package.json /app/packages/connectors/hull-mssql-exporter/package.json

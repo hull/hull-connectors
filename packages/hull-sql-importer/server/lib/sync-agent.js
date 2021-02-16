@@ -63,9 +63,14 @@ export default class SyncAgent {
 
     const private_settings = this.ship.private_settings;
     this.import_type = private_settings.import_type || "users";
-    // Get the DB type.
-    const { output_type = "s3" } = private_settings;
-    this.adapter = { in: adapter, out: Adapters[output_type] };
+
+    const { db_type, output_type = "s3" } = private_settings;
+
+    // adapter[db_type] for legacy implementation
+    this.adapter = {
+      in: !_.isNil(db_type) && adapter[db_type]  ? adapter[db_type] : adapter,
+      out: Adapters[output_type]
+    };
 
     // Make sure the DB type is known.
     // If not, throw an error.
