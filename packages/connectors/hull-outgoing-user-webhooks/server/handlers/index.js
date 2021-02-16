@@ -28,7 +28,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
       userUpdate: entityUpdate("user")({ flow_in, flow_size }, getThrottle),
       shipUpdate: shipUpdate(getThrottle)
     },
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler() },
     json: {
       configHandler: configHandler(configData({ entity: "user" })),
       entityHandler,
