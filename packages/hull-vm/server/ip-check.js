@@ -9,7 +9,12 @@ const isForbidden = ip => {
   }
   const addr = Address6.fromAddress4(ip);
   const subnet = new Address6.fromAddress4("172.31.0.0/16");
-  return addr.isMulticast() || addr.isInSubnet(subnet) || addr.isLoopback() || addr.isLinkLocal();
+  return (
+    addr.isMulticast() ||
+    addr.isInSubnet(subnet) ||
+    addr.isLoopback() ||
+    addr.isLinkLocal()
+  );
 };
 
 export default async function ipCheck(url) {
