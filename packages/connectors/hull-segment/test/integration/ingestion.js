@@ -16,7 +16,7 @@ const {
   userBatchUpdateMockMessage,
   userBatchUpdateRaw,
   userBatchUpdatePayload
-} = require("./fixtures");
+} = require("../fixtures");
 
 const platformSegmentCall = (type, id) => [
   "GET",
