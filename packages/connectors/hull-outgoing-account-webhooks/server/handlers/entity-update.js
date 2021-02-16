@@ -20,7 +20,7 @@ type FlowControl = {
   flow_in?: number
 };
 // TODO move to outgoing-webhooks
-const entityUpdate = async (entity: HullEntityName) => (
+const entityUpdate = (entity: HullEntityName) => (
   { flow_in, flow_size }: FlowControl,
   getThrottle: Function
 ) => {
