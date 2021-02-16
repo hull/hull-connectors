@@ -1,7 +1,6 @@
 // @flow
 
 import { Client } from "clearbit";
-// import BluebirdPromise from "bluebird";
 import type { HullContext } from "hull";
 import type {
   ClearbitRevealResponse,

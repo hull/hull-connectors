@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import _ from "lodash";
 import fp from "lodash/fp";
 import Area from "./area";

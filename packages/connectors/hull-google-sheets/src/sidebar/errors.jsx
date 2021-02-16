@@ -1,7 +1,6 @@
 // @flow
 
 import SVG from "react-inlinesvg";
-import React from "react";
 
 const Errors = ({ errors }: { errors?: Array<string> }) =>
   errors && !!errors.length ? (

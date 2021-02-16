@@ -1,5 +1,5 @@
 // @noflow
-import React, { Component } from "react";
+import { Component } from "react";
 import EntityRow from "./entity-row";
 import ListGroup from "react-bootstrap/ListGroup";
 

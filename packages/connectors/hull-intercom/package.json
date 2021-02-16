@@ -1,6 +1,7 @@
 {
   "name": "hull-intercom",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Hull Intercom integration",
   "scripts": {
     "test": "yarn run test:integration",

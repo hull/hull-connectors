@@ -29,10 +29,7 @@ class CustomAudiences {
     if (!value) {
       return "";
     }
-    return crypto
-      .createHash("sha256")
-      .update(value)
-      .digest("hex");
+    return crypto.createHash("sha256").update(value).digest("hex");
   }
 
   /**

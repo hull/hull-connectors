@@ -18,6 +18,8 @@ class WebhookAgent {
       "user.deleted",
       "user.tag.created",
       "user.tag.deleted",
+      "contact.tag.created",
+      "contact.tag.deleted",
       "user.unsubscribed",
       "conversation.user.created",
       "conversation.user.replied",

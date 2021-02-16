@@ -9,10 +9,10 @@ const select2 = require("select2"); // eslint-disable-line no-unused-vars
 const bootstrapTable = require("bootstrap-table/src/bootstrap-table"); // eslint-disable-line no-unused-vars
 
 const renderError = err =>
-  `<div class="alert alert-error" role="alert">${
-    STRINGS.FETCH_ERROR
-  }: ${(err.responseJSON ? err.responseJSON.error : err.responseText) ||
-    err.toString()}.</div>`;
+  `<div class="alert alert-error" role="alert">${STRINGS.FETCH_ERROR}: ${
+    (err.responseJSON ? err.responseJSON.error : err.responseText) ||
+    err.toString()
+  }.</div>`;
 
 const renderResults = ({ container, data }) =>
   container.bootstrapTable("load", data);

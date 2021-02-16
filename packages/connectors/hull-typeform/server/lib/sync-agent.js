@@ -148,9 +148,7 @@ class SyncAgent {
   }
 
   async fetchRecentResponses() {
-    const fetchStartAt = moment()
-      .utc()
-      .format();
+    const fetchStartAt = moment().utc().format();
     const previousFetchStartAt = this.connector.private_settings
       .last_fetch_recent_responses_start_at;
 
