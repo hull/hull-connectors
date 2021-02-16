@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Fragment, Component } from "react";
+import { Fragment, Component } from "react";
 import Creatable from "react-select/creatable";
 import hasInvalidCharacters from "../lib/has-invalid-characters";
 import { toOptions } from "../lib/filter-utils";

@@ -1,7 +1,5 @@
 // @flow
 
-import React from "react";
-
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import { ConfigurationModal, Spinner, RecentEntriesUI } from "hull-vm/src/ui";

@@ -1,15 +1,14 @@
 {
   "name": "hull-hubspot-deals",
   "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
   "dependencies": {
-    "luxon": "^1.3.0",
-    "superagent-prefix": "^0.0.2",
-    "urijs": "^1.18.0"
+    "superagent-prefix": "^0.0.2"
   },
   "devDependencies": {}
 }

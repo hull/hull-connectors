@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 
 import Col from "react-bootstrap/Col";
 import Select, { components } from "react-select";

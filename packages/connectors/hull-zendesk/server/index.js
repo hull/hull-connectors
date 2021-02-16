@@ -60,9 +60,7 @@ export default async function handle({ hull, private_settings, request }) {
   }
 
   const tickets = ticketsRes.body.results;
-  const ids = _(tickets)
-    .map("requester_id")
-    .uniq();
+  const ids = _(tickets).map("requester_id").uniq();
 
   const usersRes = await request
     .get(`${supportUrl}/api/v2/users/show_many.json`)
@@ -75,10 +73,7 @@ export default async function handle({ hull, private_settings, request }) {
     );
   }
   const users = usersRes.body.users;
-  const usersById = _(users)
-    .groupBy("id")
-    .mapValues(_.first)
-    .value();
+  const usersById = _(users).groupBy("id").mapValues(_.first).value();
   hull.logger.info("incoming.job.progress", {
     tickets: tickets.length,
     users: users.length

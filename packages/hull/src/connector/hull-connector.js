@@ -8,7 +8,6 @@ import cluster from "cluster";
 import type { Server } from "http";
 import express from "express";
 import https from "http";
-import repl from "hullrepl";
 import minimist from "minimist";
 import type {
   HullContext,
@@ -288,9 +287,9 @@ export default class HullConnector {
           }
           return;
         }
-        console.log("Starting cluster in Secondary Mode");
+        debug("Starting cluster in Secondary Mode");
       } else {
-        console.log("Starting in Single process mode");
+        debug("Starting in Single process mode");
       }
 
       const app = express();
@@ -318,6 +317,8 @@ export default class HullConnector {
   }
 
   async repl(credentials: {}) {
+    // eslint-disable-next-line global-require
+    const repl = require("hullrepl");
     return repl({
       credentials,
       middlewares: this.baseComposedMiddleware()

@@ -31,12 +31,7 @@ export default function sendUpdateFactory({ io }: any) {
     if (socket) {
       socket.emit("user.update", payload);
     } else {
-      _.map(rooms, id =>
-        io
-          .of(namespace)
-          .in(id)
-          .emit("user.update", payload)
-      );
+      _.map(rooms, id => io.of(namespace).in(id).emit("user.update", payload));
     }
     return client.logger.info("outgoing.user.success", { rooms, payload });
   };
