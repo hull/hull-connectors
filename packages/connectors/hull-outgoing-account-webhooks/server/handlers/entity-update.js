@@ -42,7 +42,15 @@ const entityUpdate = (entity: HullEntityName) => (
       url
     } = private_settings;
 
-    await ipCheck(url);
+    try {
+      await ipCheck(url);
+    } catch (error) {
+      client.logger.error("outgoing.account.error", {
+        url,
+        reason: "Forbidden host"
+      });
+      return;
+    }
 
     const throttle = getThrottle({
       id,
