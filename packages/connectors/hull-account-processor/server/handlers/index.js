@@ -25,7 +25,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     subscriptions: {
       accountUpdate: accountUpdate({ flow_size, flow_in })
     },
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler() },
     json: {
       configHandler: configHandler(configData),
       entityHandler,
