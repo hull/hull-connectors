@@ -22,7 +22,7 @@
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.3",
     "botkit": "^4.0.2",
-    "liquidjs": "^9.22.1",
+    "liquidjs": "^9.23.0",
     "passport-slack": "0.0.7"
   }
 }
