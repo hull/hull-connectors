@@ -42,6 +42,8 @@ const entityUpdate = (entity: HullEntityName) => (
       url
     } = private_settings;
 
+    await ipCheck(url);
+
     const throttle = getThrottle({
       id,
       options: {
@@ -68,8 +70,6 @@ const entityUpdate = (entity: HullEntityName) => (
                   preview: false,
                   code
                 });
-
-                await ipCheck(url);
 
                 const response = await request
                   .post(url)

@@ -21,7 +21,7 @@ const isForbidden = ip => {
 
 export default async function ipCheck(url) {
   const hostname = new urijs(url).hostname();
-  return Promise((resolve, reject) => {
+  return Promise((resolve, reject) =>
     dns.resolve4(hostname, (err, addresses) => {
       if (err) {
         return reject(err);
@@ -30,6 +30,6 @@ export default async function ipCheck(url) {
         return reject(new Error("Forbidden Address"));
       }
       return resolve();
-    });
-  });
+    })
+  );
 }
