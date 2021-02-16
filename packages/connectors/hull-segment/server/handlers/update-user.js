@@ -56,7 +56,6 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
       segments = [],
       account_segments = []
     } = message;
-    console.log(user);
 
     // Empty payload ?
     if (!user.id || !connector.id) {
@@ -294,7 +293,9 @@ export default function updateUser(analyticsClient, ctx: HullContext) {
         {}
       );
 
-      // Please see comment above for why we only set this on !isBatch
+      // isBatch is checked in this case because of a limitation in the platform
+      // the platform doesn't send account segments for user updates
+      // So do not put it in, otherwise will blank out hull segment trait on the other side
       if (!isBatch) {
         // Add account segments
         accountTraits.hull_segments = _.map(account_segments, "name");

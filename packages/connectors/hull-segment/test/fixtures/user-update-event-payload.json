@@ -282,8 +282,10 @@
                 "account_segments": {}
             },
             "account": {
-                "domain": "foo.com",
-                "external_id": "12345"
+                "id": "5bd329d4e2bcf3eeaf000078",
+                "name": "darksideinc.com",
+                "domain": "darksideinc.com",
+                "external_id": "someid"
             },
             "segments": [
                 {

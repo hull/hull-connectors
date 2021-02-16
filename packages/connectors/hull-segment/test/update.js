@@ -114,9 +114,10 @@ describe("Send Payloads", () => {
         connector: {
           settings: {
             write_key: "1234",
-            handle_accounts: true
+            handle_accounts: false
           },
           private_settings: {
+            send_events: ["page"],
             synchronized_properties: ["created_at"],
             synchronized_segments: ["5ade25df4d257947aa001cd5"]
           }
@@ -125,14 +126,17 @@ describe("Send Payloads", () => {
         externalApiMock: () =>
           nock("https://api.segment.io")
             .post("/v1/batch", body => {
-              console.log("NOCK", body);
+              const e = userUpdateEventPayload.messages[0].events[0];
+              const b = body.batch[0];
               return (
                 body.batch.length === 1 &&
-                body.batch[0].type === "identify" &&
-                body.batch[0].anonymousId === "outreach:16" &&
-                _.isEqual(body.batch[0].traits, {
-                  hull_segments: [],
-                  created_at: "2018-10-26T14:51:01Z"
+                b.type === "page" &&
+                b.anonymousId === e.anonymous_id &&
+                _.isEqual(b.properties, {
+                  url: e.context.page.url,
+                  host: e.context.page.host,
+                  path: e.context.page.path,
+                  referrer: e.context.referrer.url
                 })
               );
             })
@@ -160,28 +164,19 @@ describe("Send Payloads", () => {
             "debug",
             "outgoing.user.skip",
             expect.whatever(),
-            {
-              reason: "no changes to emit",
-              traits: expect.whatever()
-            }
+            { reason: "no changes to emit" }
           ],
           [
-            "debug",
-            "outgoing.event.skip",
+            "info",
+            "outgoing.event.success",
             expect.whatever(),
-            {
-              reason: "not included in event list",
-              event: "page"
-            }
+            { type: "page", track: expect.whatever() }
           ],
           [
             "debug",
             "outgoing.account.skip",
             expect.whatever(),
-            {
-              reason: "no changes to emit",
-              traits: expect.whatever()
-            }
+            { reason: "handle_accounts not enabled" }
           ]
         ],
         metrics: [METRIC_CONNECTOR_REQUEST],
