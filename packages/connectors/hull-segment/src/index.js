@@ -57,6 +57,6 @@ Hull.onEmbed(function start(element, deployment, hull) {
   Hull.on("hull.user.*", identify);
   identify(hull.currentUser());
   Hull.on("hull.user.logout", () => {
-    window?.analytics?.reset();
+    return window?.analytics?.reset();
   });
 });

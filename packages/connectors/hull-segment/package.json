@@ -6,10 +6,9 @@
   "homepage": "https://github.com/hull/hull-connectors",
   "license": "MIT",
   "scripts": {
-    "test": "npm run test:lint && npm run test:units",
-    "test:lint": "eslint server",
-    "test:modules": "npm outdated --depth=0",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration"
+    "test": "yarn run test:unit && yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
     "analytics-node": "^3.5.0",
