@@ -8,6 +8,10 @@ const { createSimpleTriggerScenario } = require("hull-webhooks/test/trigger-scen
 import connectorConfig from "../../server/config";
 import manifest from "../../manifest.json";
 
+const VALID_URL = "http://example.com";
+const INVALID_LOCALHOST = "http://localhost";
+const INVALID_URL = "http://fake-url.io";
+
 describe("Outgoing Account Tests", () => {
 
   it("Account Created. Should Send Payload", () => {
@@ -20,7 +24,7 @@ describe("Outgoing Account Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "account:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock(VALID_URL);
 
           scope
             .post("/mock", {
@@ -51,7 +55,7 @@ describe("Outgoing Account Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "account:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock(VALID_URL);
 
           scope
             .post("/mock", {
@@ -82,7 +86,7 @@ describe("Outgoing Account Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "account:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock(VALID_URL);
 
           scope
             .post("/mock", {
@@ -113,7 +117,7 @@ describe("Outgoing Account Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "account:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock(VALID_URL);
 
           scope
             .post("/mock", {
@@ -126,6 +130,7 @@ describe("Outgoing Account Tests", () => {
           return scope;
         },
         response: triggerScenario.getExpectedResponse(),
+        
         logs: triggerScenario.getExpectedLogs(),
         firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
         metrics: triggerScenario.getExpectedMetrics(),
