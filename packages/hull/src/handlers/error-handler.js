@@ -28,7 +28,6 @@ function errorHandlerMiddlewareFactory({
     const { message, status } = err;
     const errorString = message || err.toString();
     debug("error", errorString, err.constructor.name, { respondWithError });
-
     // if we have a transient error
     if (err instanceof ConfigurationError) {
       req.hull.client.logger.error("ConfigurationError", err.message);

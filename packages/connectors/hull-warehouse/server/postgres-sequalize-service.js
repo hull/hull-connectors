@@ -113,6 +113,9 @@ class SequalizeSdk {
 
   constructor(globalContext: HullVariableContext, api: CustomApi) {
     const reqContext = globalContext.reqContext();
+
+    this.ipCheck = reqContext.helpers.ipCheck;
+
     this.ascii_encoded = globalContext.get("connector.private_settings.ascii_encoded_database") === true;
     this.use_native_json = globalContext.get("connector.private_settings.use_native_json_field_type") === true;
     this.api = api;
@@ -206,7 +209,7 @@ class SequalizeSdk {
 
   getSequelizeConnection(): Sequelize {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!databases[this.connectorId]) {
         const opts = {
           define: {
@@ -216,17 +219,30 @@ class SequalizeSdk {
           logging: false
         };
 
+        const { db_hostname, ssh_host } = this.privateSettings;
+
         if (this.requireSshTunnel()) {
           try {
-            return this.getSequelizeTunnelConnection().then((sequelizeConnection) => {
-              databases[this.connectorId] = sequelizeConnection;
-              return resolve(databases[this.connectorId]);
-            });
+            await this.ipCheck(ssh_host);
+            return this.getSequelizeTunnelConnection().then(
+              sequelizeConnection => {
+                databases[this.connectorId] = sequelizeConnection;
+                return resolve(databases[this.connectorId]);
+              }
+            );
           } catch (error) {
             reject(error);
           }
         } else {
-          databases[this.connectorId] = new Sequelize(this.connectionString, opts);
+          try {
+            await this.ipCheck(db_hostname);
+            databases[this.connectorId] = new Sequelize(
+              this.connectionString,
+              opts
+            );
+          } catch (error) {
+            reject(error);
+          }
         }
       }
 

@@ -1,0 +1,33 @@
+{
+  "account": {
+    "anonymous_ids": [
+      "outreach:20"
+    ],
+    "created_at": "2018-10-26T14:51:00Z",
+    "domain": "darksideinc.com",
+    "external_id": "darksideexternalkey",
+    "name": "darksideinc.com",
+    "outreach/created_at": "2018-10-24T16:06:22Z",
+    "outreach/custom_1": "65 Coresant Way",
+    "outreach/domain": "darksideinc.com",
+    "outreach/id": 20,
+    "outreach/name": "darksideinc.com",
+    "outreach/updated_at": "2018-10-24T16:06:22Z",
+    "updated_at": "2018-10-26T14:59:22Z",
+    "id": "5bd329d4e2bcf3eeaf000078",
+    "indexed_at": "2018-10-29T15:01:24+00:00"
+  },
+  "id": "5bd329d5e2bcf3eeaf000099",
+  "created_at": "2018-10-26T14:51:01Z",
+  "email": "darth@darksideinc.com",
+  "domain": "darksideinc.com",
+  "is_approved": false,
+  "anonymous_ids": [
+    "outreach:16"
+  ],
+  "segment_ids": [
+    "5bd720690026ca86b000004f"
+  ],
+  "traits_outreach/id": 16,
+  "indexed_at": "2018-10-29T15:01:24Z"
+}

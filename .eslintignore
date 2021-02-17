@@ -29,6 +29,7 @@ packages/connectors/hull-intercom
 packages/connectors/hull-intercom-legacy
 packages/connectors/hull-bigquery
 
+packages/connectors/hull-legacy-sql-importer
 packages/connectors/hull-snowflake-importer
 packages/connectors/hull-bigquery-importer
 packages/connectors/hull-redshift-importer
