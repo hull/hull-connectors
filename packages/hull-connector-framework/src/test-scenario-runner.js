@@ -399,15 +399,19 @@ class TestScenarioRunner extends EventEmitter {
             }
             break;
           case handlers.notificationHandler:
-            response = await this.minihull.notifyConnector(
-              this.connectorData,
-              `http://localhost:${connectorPort}/${handlerUrl}`,
-              channel,
-              this.scenarioDefinition.messages,
-              this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments,
-              this.scenarioDefinition.is_export
-            );
+            try {
+              response = await this.minihull.notifyConnector(
+                this.connectorData,
+                `http://localhost:${connectorPort}/${handlerUrl}`,
+                channel,
+                this.scenarioDefinition.messages,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments,
+                this.scenarioDefinition.is_export
+              );
+            } catch (err){
+              response = err.response;
+            }
             break;
           case undefined:
             throw new Error("Wrong handlerType");
