@@ -240,7 +240,7 @@ class SequalizeSdk {
               this.connectionString,
               opts
             );
-          } catch (err) {
+          } catch (error) {
             reject(error);
           }
         }
