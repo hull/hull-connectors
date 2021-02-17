@@ -219,7 +219,7 @@ class SequalizeSdk {
           logging: false
         };
 
-        const { db_hostname, ssh_host } = reqContext.connector.private_settings;
+        const { db_hostname, ssh_host } = this.privateSettings;
 
         if (this.requireSshTunnel()) {
           try {
