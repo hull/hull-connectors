@@ -110,13 +110,41 @@
     {
       "name": "script_enabled",
       "title": "Load scripts",
-      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js tag is loaded.",
+      "description": "When enabled, all external scripts, the embedded script, and selected third party scripts below will be injected and executed everytime a page with Hull.js is loaded.",
       "type": "boolean",
       "default": false
     },
     {
       "name": "subscribe_to_user_updates",
       "title": "Enable Personalization",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "facebook_alias",
+      "title": "Enable Facebook Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "intercom_alias",
+      "title": "Enable Intercom Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "google_analytics_alias",
+      "title": "Enable Google Analytics Aliasing",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "hubspot_utk_alias",
+      "title": "Enable Hubspot UTK Aliasing",
       "description": "",
       "type": "boolean",
       "default": false
@@ -160,6 +188,16 @@
         "settings.load_scripts",
         "settings.init_script"
       ]
+    },
+    {
+      "title": "Aliasing",
+      "description": "Alias a user in Hull with its third party tracking id",
+      "properties": [
+        "private_settings.facebook_alias",
+        "private_settings.google_analytics_alias",
+        "private_settings.intercom_alias",
+        "private_settings.hubspot_utk_alias"
+      ]
     }
   ],
   "status": {
@@ -178,5 +216,16 @@
       "handler": "statusHandler"
     }
   ],
-  "subscriptions": []
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions" : {},
+      "channels": [
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ]
+    }
+  ]
 }
