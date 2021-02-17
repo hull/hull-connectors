@@ -1,55 +1,48 @@
 // @flow
 
-import { reduce } from "lodash";
 import type { HullContext } from "hull";
-import scoped from "../lib/scope-hull-client";
-import type {
-  SegmentIncomingTrack,
-  SegmentIncomingPage,
-  SegmentIncomingScreen
-} from "../types";
 
-export default async function handleTrack(
-  ctx: HullContext,
-  message: SegmentIncomingTrack | SegmentIncomingPage | SegmentIncomingScreen
-) {
+import _ from "lodash";
+import scoped from "../lib/scope-hull-client";
+
+export default async function handleTrack(ctx: HullContext, payload = {}) {
   const {
     context = {},
-    anonymousId,
     active,
+    anonymousId,
     event,
     properties,
     userId,
     timestamp,
     originalTimestamp,
     sentAt,
-    receivedAt
-  } = message;
+    receivedAt,
+    messageId,
+    integrations = {}
+  } = payload;
 
-  const { connector, metric, client } = ctx;
-  const { settings } = connector;
-
+  const { metric } = ctx;
   const { page = {}, location = {}, userAgent, ip = "0" } = context;
-  const { url, referrer: referer } = page;
+  const { url, referrer } = page;
   const { latitude, longitude } = location;
-
   const created_at = timestamp || receivedAt || sentAt || originalTimestamp;
-
   const _bid = anonymousId || userId;
   let _sid = (created_at || new Date().toISOString()).substring(0, 10);
-
   if (_bid) {
     _sid = [_bid, _sid].join("-");
   }
 
-  const trackContext = reduce(
+  // console.log("----",messageId:);
+  const trackContext = _.reduce(
     {
       source: "segment",
+      event_id: messageId,
       created_at,
       _bid,
       _sid,
       url,
-      referer,
+      referer: referrer,
+      referrer,
       useragent: userAgent,
       ip,
       latitude,
@@ -65,31 +58,32 @@ export default async function handleTrack(
     {}
   );
 
-  const errorPayload = { userId, anonymousId };
-
-  try {
-    const asUser = scoped(client, message, settings, {});
-    try {
-      if (!event) {
-        throw new Error("Event name is empty, can't track!");
-      }
-      await asUser.track(event, properties, trackContext);
-      return undefined;
-    } catch (err) {
-      asUser.logger.error("incoming.track.error", {
-        ...errorPayload,
-        message: err.message,
-        error: err
-      });
-      metric.increment("request.track.error");
-      throw err;
-    }
-  } catch (e) {
-    client.logger.error("incoming.user.error", {
-      message: e.message,
-      error: e
-    });
-    throw e;
+  if (integrations?.Hull?.id === true) {
+    payload.hullId = payload.userId;
+    delete payload.userId;
   }
-  // return undefined;
+
+  const asUser = scoped(ctx, payload);
+  try {
+    const result = await asUser.track(event, properties, trackContext);
+    // asUser.logger.debug("incoming.track.success", {
+    //   payload,
+    //   trackContext,
+    //   event,
+    //   properties
+    // });
+    return result;
+  } catch (error) {
+    metric.increment("request.track.error");
+    asUser.logger.error(
+      `incoming.${
+        event === "screen" || event === "page" ? event : "track"
+      }.error`,
+      {
+        payload,
+        errors: error
+      }
+    );
+    throw error;
+  }
 }

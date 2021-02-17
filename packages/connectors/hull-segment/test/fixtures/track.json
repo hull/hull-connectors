@@ -2,6 +2,7 @@
   "anonymous_id": "d765ba53-51aa-5527-8cd1-30c96a636a78",
   "channel": "server",
   "context": {
+    "ip": "1234",
     "campaign": {
       "content": "image-link",
       "source": "Newsletter",
