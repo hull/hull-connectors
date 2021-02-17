@@ -10,8 +10,7 @@ const PROCESSOR_DEFINITIONS = {
   events: true,
   segment_ids: true,
   segments: true,
-  user: true,
-  variables: true
+  user: true
 };
 
 export default function statusFactory(definitions = PROCESSOR_DEFINITIONS) {

@@ -32,7 +32,8 @@ const COMMON_VARS = [
   "connector",
   "results",
   "errors",
-  "logs"
+  "logs",
+  "variables"
 ];
 
 const linter = new Linter();
