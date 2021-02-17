@@ -44,10 +44,18 @@ const isForbidden = ip => {
   return inRange(ip, FORBIDDEN_RANGES);
 };
 
+const getUrl = url => {
+  const protocolRegex = new RegExp("^(?:[a-z]+:)?//", "i");
+  if (!protocolRegex.test(url)) {
+    return `http://${url}`;
+  }
+  return url;
+};
+
 module.exports = (ctx: HullContext) =>
   async function ipCheck(url) {
     const { client } = ctx;
-    const hostname = new urijs(url).hostname();
+    const hostname = new urijs(getUrl(url)).hostname();
     return new Promise((resolve, reject) =>
       dns.resolve4(hostname, (err, addresses) => {
         if (err) {
