@@ -6,7 +6,7 @@ import type {
   HullNotificationResponse
 } from "hull";
 import type { PrivateSettings } from "hull-webhooks/types";
-import { compute, ipCheck } from "hull-vm";
+import { compute } from "hull-vm";
 
 import {
   getHeaders,
@@ -28,7 +28,8 @@ const entityUpdate = (entity: HullEntityName) => (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
   ): HullNotificationResponse => {
-    const { client, connector, request, clientCredentials } = ctx;
+    const { client, connector, request, clientCredentials, helpers } = ctx;
+    const { ipCheck } = helpers;
     const { id } = clientCredentials;
     const {
       private_settings = {}
@@ -42,15 +43,7 @@ const entityUpdate = (entity: HullEntityName) => (
       url
     } = private_settings;
 
-    try {
-      await ipCheck(url);
-    } catch (error) {
-      client.logger.error("outgoing.account.error", {
-        url,
-        reason: "Forbidden host"
-      });
-      return undefined;
-    }
+    await ipCheck(url);
 
     const throttle = getThrottle({
       id,

@@ -5,7 +5,7 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import { compute, ipCheck } from "hull-vm";
+import { compute } from "hull-vm";
 import type { PrivateSettings } from "hull-webhooks/types";
 import {
   getHeaders,
@@ -28,7 +28,8 @@ const entityUpdate = (entity: HullEntityName) => (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
   ): HullNotificationResponse => {
-    const { client, connector, request, clientCredentials } = ctx;
+    const { client, connector, request, helpers, clientCredentials } = ctx;
+    const { ipCheck } = helpers;
     const { id } = clientCredentials;
     const {
       private_settings = {}
