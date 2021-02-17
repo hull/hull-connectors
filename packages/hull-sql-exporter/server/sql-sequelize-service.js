@@ -114,6 +114,7 @@ class SequelizeSdk {
     this.ascii_encoded = globalContext.get("connector.private_settings.ascii_encoded_database") === true;
     this.use_native_json = globalContext.get("connector.private_settings.use_native_json_field_type") === true;
 
+    this.ipCheck = reqContext.helpers.ipCheck;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
     this.metricsClient = reqContext.metric;
@@ -201,7 +202,7 @@ class SequelizeSdk {
 
   getSequelizeConnection(): Sequelize {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!databases[this.connectorId]) {
         const defaultOptions = {
           ssl: true,
@@ -215,8 +216,11 @@ class SequelizeSdk {
           }
         };
 
+        const { db_hostname, ssh_host } = this.privateSettings
+
         if (this.requireSshTunnel()) {
           try {
+            await this.ipCheck(ssh_host);
             return this.getSequelizeTunnelConnection().then((sequelizeConnection) => {
               databases[this.connectorId] = sequelizeConnection;
               return resolve(databases[this.connectorId]);
@@ -225,6 +229,7 @@ class SequelizeSdk {
             reject(error);
           }
         } else {
+          await this.ipCheck(db_hostname);
           const opts = {
             ...defaultOptions,
             ...this.connectionOptions
