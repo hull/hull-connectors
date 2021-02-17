@@ -78,7 +78,7 @@ COPY packages/connectors/hull-mssql-importer/package.json /app/packages/connecto
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 COPY packages/connectors/hull-postgres-exporter/package.json /app/packages/connectors/hull-postgres-exporter/package.json
 COPY packages/connectors/hull-mysql-exporter/package.json /app/packages/connectors/hull-mysql-exporter/package.json
-COPY packages/connectors/hull-mssql-exporter/package.json /app/packages/connectors/hull-mssql-exporter/package.json
+# COPY packages/connectors/hull-mssql-exporter/package.json /app/packages/connectors/hull-mssql-exporter/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 
