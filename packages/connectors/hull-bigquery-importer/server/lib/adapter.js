@@ -11,7 +11,7 @@ import {
 import Promise from "bluebird";
 import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
-import { validateResultColumns } from "hull-sql";
+import { validateResultColumns } from "hull-sql-importer";
 
 const { BigQuery } = require("@google-cloud/bigquery");
 const { UserRefreshClient } = require("google-auth-library");

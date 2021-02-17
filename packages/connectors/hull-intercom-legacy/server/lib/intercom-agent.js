@@ -260,6 +260,18 @@ class IntercomAgent {
       });
   }
 
+  getLead(id) {
+    return this.intercomClient.get(`/contacts/${id}`).then(response => {
+      return response.body;
+    });
+  }
+
+  getUser(id) {
+    return this.intercomClient.get(`/users/${id}`).then(response => {
+      return response.body;
+    });
+  }
+
   /**
    * @see https://developers.intercom.com/reference#event-model
    * @see https://developers.intercom.com/reference#bulk-event-ops

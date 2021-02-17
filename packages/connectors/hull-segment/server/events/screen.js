@@ -2,29 +2,22 @@
 
 import type { HullContext } from "hull";
 import track from "./track";
-import type { SegmentIncomingScreen } from "../types";
 
-export default function handleScreen(
-  ctx: HullContext,
-  message: SegmentIncomingScreen
-) {
-  const { connector /* , client */ } = ctx;
-  const { handle_screens } = connector.settings || {};
+export default async function handleScreen(ctx: HullContext, payload = {}) {
+  const { connector = {} } = ctx;
+  const { handle_screens } = connector.settings;
+
   if (handle_screens === false) {
     return false;
   }
 
-  const { properties = {} } = message;
+  const { properties = {} } = payload;
+  properties.name ??= payload.name;
 
-  const screen: SegmentIncomingScreen = {
-    ...message,
-    properties: {
-      ...properties,
-      name: properties.name || message.name
-    },
+  return track(ctx, {
+    ...payload,
+    properties,
     event: "screen",
     active: true
-  };
-
-  return track(ctx, screen);
+  });
 }

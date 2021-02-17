@@ -1,17 +1,19 @@
 // @flow
-
 import type { HullConnectorConfig } from "hull";
 import handlers from "./handlers";
-import authMiddleware from "./lib/segment-auth-middleware";
+import { fetchToken } from "./lib/fetch-token";
 
 export default function connectorConfig(): HullConnectorConfig {
-  const { FLOW_CONTROL_IN, FLOW_CONTROL_SIZE } = process.env;
+  const { REDIS_URL } = process.env;
+
+  if (!REDIS_URL) {
+    throw new Error(
+      "Missing REDIS_URL environment variable. Redis is mandatory for the Segment connector"
+    );
+  }
 
   return {
-    handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE || 100,
-      flow_in: FLOW_CONTROL_IN || 10
-    }),
-    middlewares: [authMiddleware]
+    handlers,
+    middlewares: [/* parseRequest,  */ fetchToken]
   };
 }

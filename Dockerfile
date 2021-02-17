@@ -1,7 +1,7 @@
 # build: docker build .-t hull-connectors
 # launch shell: docker run -it hull-connectors /bin/sh
 
-FROM node:12.12-alpine
+FROM node:12.20-alpine
 
 RUN apk --no-cache add bash \
       g++ \
@@ -27,7 +27,7 @@ COPY yarn.lock /app/
 
 COPY packages/hull/package.json /app/packages/hull/
 COPY packages/hull-client/package.json /app/packages/hull-client/
-COPY packages/hull-sql/package.json /app/packages/hull-sql/
+COPY packages/hull-sql-importer/package.json /app/packages/hull-sql-importer/
 COPY packages/hull-sql-exporter/package.json /app/packages/hull-sql-exporter/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
 COPY packages/hull-vm/package.json /app/packages/hull-vm/
@@ -72,9 +72,9 @@ COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/conn
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 COPY packages/connectors/hull-madkudu/package.json /app/packages/connectors/hull-madkudu/package.json
 COPY packages/connectors/hull-calendly/package.json /app/packages/connectors/hull-calendly/package.json
+COPY packages/connectors/hull-postgres-exporter/package.json /app/packages/connectors/hull-postgres-exporter/package.json
 # COPY packages/connectors/hull-mysql-exporter/package.json /app/packages/connectors/hull-mysql-exporter/package.json
 # COPY packages/connectors/hull-mssql-exporter/package.json /app/packages/connectors/hull-mssql-exporter/package.json
-# COPY packages/connectors/hull-postgresql-exporter/package.json /app/packages/connectors/hull-postgresql-exporter/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 

@@ -1,6 +1,8 @@
 /* eslint-disable max-classes-per-file */
 // @flow
 
+import { v4 as uuid } from "uuid";
+
 import type {
   HullClientInstanceConfig,
   HullEntityAttributes,
@@ -22,7 +24,6 @@ import type {
 
 const _ = require("lodash");
 const winston = require("winston");
-const uuidV4 = require("uuid/v4");
 
 const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
@@ -457,6 +458,15 @@ class EntityScopedHullClient extends HullClient {
     });
   };
 
+  incinerate = (body: Object, context: HullFirehoseEventContext) => {
+    return this.batch({
+      type: "incinerate",
+      requestId: this.requestId,
+      body,
+      context
+    });
+  };
+
   /**
    * Issues ann `unalias` event on entity
    * @todo
@@ -547,7 +557,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
     context: HullFirehoseTrackContext = {}
   ): Promise<*> => {
     _.defaults(context, {
-      event_id: uuidV4()
+      event_id: uuid()
     });
     return this.batch({
       type: "track",

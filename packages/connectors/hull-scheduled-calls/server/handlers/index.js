@@ -16,6 +16,15 @@ import configData from "./config-data";
 import scheduledCallHandler from "./scheduledcall-handler";
 import apiCall from "./apicall-handler";
 
+const SCHEDULED_CALLS_DEFINITIONS = {
+  url: true,
+  sync_interval: true,
+  method: true,
+  format: true,
+  headers: true,
+  cookies: true,
+  body: true
+};
 const handler = ({ EntryModel }: { EntryModel: any }) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
@@ -23,7 +32,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler(SCHEDULED_CALLS_DEFINITIONS) },
     schedules: {
       scheduledCall: scheduledCallHandler(EntryModel),
       removeOldEntriesHandler: removeOldEntriesHandler(EntryModel)

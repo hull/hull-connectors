@@ -1,5 +1,7 @@
 /* flow... */
 
+import { v1 as uuid } from "uuid";
+
 const _ = require("lodash");
 const BatchStream = require("batch-stream");
 const csv = require('csv-stream');
@@ -9,7 +11,6 @@ const pumpPromise = require('pump-promise');
 const devnull = require('dev-null');
 
 const { Writable } = require("stream");
-const uuid = require("uuid/v1");
 const ps = require("promise-streams");
 const map = require("through2-map");
 const through2 = require("through2");

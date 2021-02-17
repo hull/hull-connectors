@@ -1,6 +1,5 @@
 // @flow
 
-import React from "react";
 import Button from "react-bootstrap/Button";
 import { ConfigurationModal, Spinner, RecentEntriesUI } from "hull-vm/src/ui";
 import _ from "lodash";

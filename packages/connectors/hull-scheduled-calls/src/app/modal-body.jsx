@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable jsx-a11y/accessible-emoji */
 
-import React, { Component, Fragment } from "react";
+import { Component, Fragment } from "react";
 import { InputGroup, FormControl, ListGroup } from "react-bootstrap";
 import _ from "lodash";
 

@@ -103,8 +103,9 @@ export const callTraits = async ({
           return undefined;
         } catch (err) {
           client.logger.error(`incoming.${entity}.error`, {
-            hull_summary: `Error saving Attributes: ${err.message ||
-              "Unexpected error"}`,
+            hull_summary: `Error saving Attributes: ${
+              err.message || "Unexpected error"
+            }`,
             [entity]: claims,
             errors: err
           });
@@ -145,8 +146,9 @@ export const callEvents = async ({
           return undefined;
         } catch (err) {
           client.logger.error("incoming.event.error", {
-            hull_summary: `Error processing Event: ${err.message ||
-              "Unexpected error"}`,
+            hull_summary: `Error processing Event: ${
+              err.message || "Unexpected error"
+            }`,
             user: claims,
             errors: err,
             event
@@ -188,8 +190,9 @@ export const callLinks = async ({
           return undefined;
         } catch (err) {
           client.logger.error(`incoming.${entity}.link.error`, {
-            hull_summary: `Error Linking User and account: ${err.message ||
-              "Unexpected error"}`,
+            hull_summary: `Error Linking User and account: ${
+              err.message || "Unexpected error"
+            }`,
             user: userClaims,
             account: accountClaims,
             errors: err
