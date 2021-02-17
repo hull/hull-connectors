@@ -4,7 +4,7 @@ import cors from "cors";
 import { Router } from "express";
 
 import HullClient from "hull-client/src";
-import uuid from "uuid/v1";
+import { v1 as uuid } from "uuid";
 import aliasHandler from "./alias-handler";
 import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
