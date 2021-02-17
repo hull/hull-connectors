@@ -49,7 +49,7 @@ describe("Validate IP Ranges", () => {
     testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) =>
       base_req({ ip: "192.168.10.6", hostname: "192.168.10.6", expect, handlers })
     ));
-    
+
   it("Should error out on multicast IP", () =>
     testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) =>
       base_req({ ip: "224.0.0.0", hostname: "224.0.0.0", expect, handlers })
@@ -76,7 +76,7 @@ describe("Validate IP Ranges", () => {
             "outgoing.error",
             expect.whatever(),
             {
-              reason: "queryA ENODATA localhost",
+              reason: "Forbidden Address",
               addresses: undefined,
               hostname: "localhost",
               url: `http://localhost/mock`
