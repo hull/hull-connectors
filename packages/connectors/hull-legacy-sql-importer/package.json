@@ -1,5 +1,5 @@
 {
-  "name": "hull-generic-sql-importer",
+  "name": "hull-legacy-sql-importer",
   "version": "0.1.40-monorepo",
   "license": "MIT",
   "description": "Import Users, Events and Accounts from MySQL",

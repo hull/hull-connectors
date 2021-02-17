@@ -71,7 +71,7 @@ COPY packages/connectors/hull-bigquery-importer/package.json /app/packages/conne
 COPY packages/connectors/hull-facebook-audiences/package.json /app/packages/connectors/hull-facebook-audiences/package.json
 COPY packages/connectors/hull-madkudu/package.json /app/packages/connectors/hull-madkudu/package.json
 COPY packages/connectors/hull-calendly/package.json /app/packages/connectors/hull-calendly/package.json
-COPY packages/connectors/hull-generic-sql-importer/package.json /app/packages/connectors/hull-generic-sql-importer/package.json
+COPY packages/connectors/hull-legacy-sql-importer/package.json /app/packages/connectors/hull-legacy-sql-importer/package.json
 COPY packages/connectors/hull-postgres-importer/package.json /app/packages/connectors/hull-postgres-importer/package.json
 COPY packages/connectors/hull-mysql-importer/package.json /app/packages/connectors/hull-mysql-importer/package.json
 COPY packages/connectors/hull-mssql-importer/package.json /app/packages/connectors/hull-mssql-importer/package.json
