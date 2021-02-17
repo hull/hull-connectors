@@ -6,7 +6,7 @@ const credentials = (ctx: HullContext): HullExternalResponse => {
   return {
     status: 200,
     data: {
-      url: Buffer.from(clientCredentialsEncryptedToken).toString("base64")
+      url: clientCredentialsEncryptedToken
     }
   };
 };

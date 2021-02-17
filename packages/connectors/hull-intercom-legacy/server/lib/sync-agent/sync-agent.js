@@ -792,6 +792,14 @@ class SyncAgent {
     });
   }
 
+  getLead(id) {
+    return this.intercomAgent.getLead(id);
+  }
+
+  getUser(id) {
+    return this.intercomAgent.getUser(id);
+  }
+
   deleteUser(deleteUserPayload) {
     return this.intercomAgent.deleteUser(deleteUserPayload).then(response => {
       const deleteRequestId = response.id;
