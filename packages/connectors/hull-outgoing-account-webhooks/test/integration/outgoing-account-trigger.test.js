@@ -77,7 +77,7 @@ describe("Validate IP Ranges", () => {
             expect.whatever(),
             {
               reason: "Forbidden Address",
-              addresses: undefined,
+              addresses: ["127.0.0.1"],
               hostname: "localhost",
               url: `http://localhost/mock`
             }
