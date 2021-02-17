@@ -298,14 +298,14 @@ class TriggerScenario {
       expect.arrayContaining([
         expect.objectContaining({
           "method": "POST",
-          "url": "http://fake-url.io/mock",
+          "url": "http://example.com/mock",
           "status": 200
         })
       ]),
       expect.arrayContaining([
         expect.stringMatching("outgoing\.(account)|(user)\.success"),
         expect.objectContaining({
-          "url": "http://fake-url.io/mock",
+          "url": "http://example.com/mock",
           "headers": [{ "key": "Accept", "value": "application/json" }],
           "payload": {
             "changes": this.getChanges(),
