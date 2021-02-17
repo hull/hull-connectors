@@ -189,6 +189,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     };
   }
 
+  app.post("/r", redirectHandler);
   app.post("/t", firehoseResponder(trackHandler));
   app.put("/me/traits", firehoseResponder(traitsHandler));
   app.post("/me/alias", firehoseResponder(aliasHandler));
