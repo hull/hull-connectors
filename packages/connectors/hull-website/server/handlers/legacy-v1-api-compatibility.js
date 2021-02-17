@@ -177,17 +177,14 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   });
 
   // Legacy hull-js tracking routes
-
-  function firehoseResponder(actionHandler) {
-    return async (req, res) => {
-      try {
-        await actionHandler(req);
-        res.status(204).send({ ok: true });
-      } catch (error) {
-        res.status(error.status || 503).send({ error });
-      }
-    };
-  }
+  const firehoseResponder = actionHandler => async (req, res) => {
+    try {
+      await actionHandler(req);
+      res.status(204).send({ ok: true });
+    } catch (error) {
+      res.status(error.status || 503).send({ error });
+    }
+  };
 
   app.post("/r", redirectHandler);
   app.post("/t", firehoseResponder(trackHandler));
