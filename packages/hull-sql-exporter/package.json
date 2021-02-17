@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "get-port": "^5.1.1",
-    "pg": "^7.18.2",
+    "luxon": "^1.25.0",
+    "hull-mariadb": "1.0.0",
+    "pg": "7.18.2",
     "sequelize": "^6.5.0",
-    "ssh2": "^0.8.7"
+    "ssh2": "^0.8.7",
+    "tedious":  "^11.0.3"
   },
   "devDependencies": {}
 }
