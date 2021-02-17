@@ -45,7 +45,7 @@ export default class SyncAgent {
    * @param adapter
    */
   constructor(
-    { connector, client, job, metric, batchSize = DEFAULT_BATCH_SIZE },
+    { helpers, connector, client, job, metric, batchSize = DEFAULT_BATCH_SIZE },
     adapter
   ) {
     // Expose the ship settings
@@ -61,6 +61,7 @@ export default class SyncAgent {
       _.get(this.ship.private_settings, "sync_interval", 120)
     );
 
+    this.ipCheck = helpers.ipCheck;
     const private_settings = this.ship.private_settings;
     this.import_type = private_settings.import_type || "users";
     // Get the DB type.
@@ -94,10 +95,13 @@ export default class SyncAgent {
     return this;
   }
 
-  createClient() {
+  async createClient() {
+    const { db_hostname, ssh_host } = this.ship.private_settings
     if (this.requiresSshTunnel()) {
+      await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
+    await this.ipCheck(db_hostname);
     return this.openClient();
   }
 

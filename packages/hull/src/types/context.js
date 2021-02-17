@@ -33,6 +33,7 @@ import {
   mappingToOptions,
   mapAttributes,
   streamRequest,
+  ipCheck,
   getStandardMapping,
   operations
 } from "../helpers";
@@ -116,6 +117,7 @@ export type HullContext = {|
     extractRequest: $Call<typeof extractRequest, HullContext>,
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
+    ipCheck: $Call<typeof ipCheck, HullContext>,
     streamRequest: $Call<typeof streamRequest, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
     hasMatchingTriggers: ({

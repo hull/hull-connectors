@@ -8,7 +8,7 @@
     "documentation": "exit 0"
   },
   "dependencies": {
-    "pg": "8.5.1",
+    "pg": "^7.18.2",
     "pg-query-stream": "^4.0.0"
   },
   "devDependencies": {}

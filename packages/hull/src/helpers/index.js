@@ -15,3 +15,4 @@ module.exports.segmentChangesToEvents = require("./segment-changes-to-events");
 module.exports.hasMatchingTriggers = require("./has-matching-triggers");
 module.exports.hasMatchingSegments = require("./has-matching-segments");
 module.exports.streamRequest = require("./stream-request");
+module.exports.ipCheck = require("./ip-check");
