@@ -12,7 +12,7 @@
       "concurrency": 10,
       "code": "{\n 'email': user.email,\n 'event_name': events[event='Viewed Page'].event,\n 'event_time': events[event='Viewed Page'].created_at\n }",
       "headers": [ { "key": "Accept", "value": "application/json" } ],
-      "url": "http://192.168.10.5/mock",
+      "url": "http://example.com/mock",
       "synchronized_events": [],
       "synchronized_segments_enter": [],
       "synchronized_segments_leave": [],
