@@ -1,7 +1,7 @@
-import * as postgres from "hull-postgres-importer/server/lib/adapter";
-import * as mysql from "hull-mysql-importer/server/lib/adapter";
-import * as mssql from "hull-mssql-importer/server/lib/adapter";
-import * as snowflake from "hull-snowflake-importer/server/lib/adapter";
+import * as postgres from "./postgres";
+import * as mysql from "./mysql";
+import * as mssql from "./mssql";
+import * as snowflake from "./snowflake";
 
 const redshift = postgres;
 
