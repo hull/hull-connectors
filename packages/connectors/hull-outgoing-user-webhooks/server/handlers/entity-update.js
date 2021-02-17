@@ -5,7 +5,7 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import { compute } from "hull-vm";
+import { compute, ipCheck } from "hull-vm";
 import type { PrivateSettings } from "hull-webhooks/types";
 import {
   getHeaders,
@@ -41,6 +41,8 @@ const entityUpdate = (entity: HullEntityName) => (
       headers,
       url
     } = private_settings;
+
+    await ipCheck(url);
 
     const throttle = getThrottle({
       id,
