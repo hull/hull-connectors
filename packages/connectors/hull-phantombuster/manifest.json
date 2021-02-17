@@ -1,0 +1,188 @@
+{
+  "name": "PhantomBuster",
+  "description": "Retrieve Phantombuster results",
+  "tags": ["incoming", "oneColumn"],
+  "source": "scheduled-calls",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "readme": "readme.md",
+  "version": "0.1.40-monorepo",
+  "private_settings": [
+    {
+      "name": "variables",
+      "title": "Custom Variables",
+      "description": "Define custom variables here. usually things you don't want to save in the Connector's code, such as API Keys, or values you want to allow non-technical users to be able to update. A variable you define as `foo` Will be available as `variables.foo` in the code editor. Only Strings are supported here",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "Variable Name",
+            "placeholder": "Variable Name",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Value",
+            "placeholder": "Variable Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    {
+      "name": "sync_interval",
+      "type": "number",
+      "title": "Check every:",
+      "description": "Interval in minutes between checks for new data in Phantombuster",
+      "default": 30,
+      "enum": [1, 5, 10, 15, 30, 60, 120, 240, 480, 960, 1440],
+      "required": true
+    },
+    {
+      "name": "api_key",
+      "description": "The Phantombuster API Key. [See how to find it here](https://support.phantombuster.com/hc/en-001/articles/360010229440-How-to-find-my-API-key)",
+      "title": "API Key",
+      "type": "string",
+      "format": "password"
+    },
+    {
+      "name": "agent_id",
+      "title": "Phantom to fetch",
+      "description": "Select which Phantom to fetch",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "allowCreate": false,
+        "loadOptions": "/agents"
+      }
+    },
+    {
+      "name": "code",
+      "title": "Code",
+      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "type": "string",
+      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: data.email }).traits({ coconuts: 12 });\n//hull.asAccount({ email: data.email }).traits(\"sample event\");",
+      "format": "hidden"
+    }
+  ],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "Configure Phantombuster. After you have entered the key, hit Save on the top right of the page, and RELOAD the current page to configure the Phantom to fetch",
+      "step": "credentials",
+      "properties": ["private_settings.api_key"]
+    },
+    {
+      "title": "Configuration",
+      "description": "Select the Phantom to fetch, and at which frequency",
+      "properties": [
+        "private_settings.agent_id",
+        "private_settings.sync_interval",
+        "json.run"
+      ]
+    },
+    {
+      "title": "Configuration",
+      "description": "Configure custom variables to pass to the connector (optional)",
+      "properties": ["private_settings.variables"]
+    }
+  ],
+  "json": [
+    {
+      "url": "/run",
+      "handler": "runHandler",
+      "format": "action",
+      "title": "Trigger Phantom",
+      "name": "run",
+      "description": "Run Phantom Now - Check on Phantombuster to see Progress",
+      "options": {
+        "confirm": {
+          "text": "You are about to trigger a Phantom on Phantombuster. Confirm?",
+          "button": "Trigger"
+        }
+      }
+    },
+    {
+      "url": "/agents",
+      "handler": "agentsHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/call",
+      "handler": "apiCall",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/recent",
+      "handler": "getRecent",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/config",
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/sync",
+      "type": "interval",
+      "handler": "scheduledCall",
+      "value_from": "private_settings.sync_interval",
+      "default": "30"
+    },
+    {
+      "url": "/remove-old-entries",
+      "type": "interval",
+      "value": "15",
+      "handler": "removeOldEntriesHandler"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "setupRequired",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

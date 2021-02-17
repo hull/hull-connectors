@@ -1,20 +1,20 @@
 {
-  "name": "Warehouse",
-  "description": "Outgoing integration to warehouses for Users, Accounts and Events",
+  "name": "PostgreSQL Exporter",
+  "description": "Outgoing integration to PostreSQL for Users, Accounts and Events",
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
-
+  "version": "0.1.40-monorepo",
   "tags": [
     "outgoing",
     "batch",
     "batch-accounts",
     "oneColumn",
     "smart-notifier",
-    "kraken-exports"
+    "kraken-exports",
+    "postgres",
+    "sql"
   ],
-
   "private_settings": [
     {
       "type": "string",
@@ -26,17 +26,15 @@
       "name": "type",
       "type": "string",
       "title": "Type",
-      "enum": [
-        "postgres"
-      ],
+      "enum": ["postgres"],
       "default": "postgres",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_hostname",
       "type": "string",
       "title": "Database Hostname",
-      "required" : true,
+      "required": true,
       "description": "The hostname of the postgres database to connect to"
     },
     {
@@ -44,14 +42,14 @@
       "type": "number",
       "title": "Database Port",
       "default": 5432,
-      "required" : true,
+      "required": true,
       "description": "The port that you want to connect to"
     },
     {
       "name": "db_name",
       "type": "string",
       "title": "Database Name",
-      "required" : true,
+      "required": true,
       "description": "The name of the database that you want to connect to"
     },
     {
@@ -64,13 +62,13 @@
       "name": "db_username",
       "type": "string",
       "title": "Username",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_password",
       "type": "string",
       "title": "Password",
-      "required" : true,
+      "required": true,
       "format": "password"
     },
     {
@@ -97,14 +95,14 @@
     },
     {
       "name": "user_outgoing_sync_title",
-      "title": "Outgoing User Synchronization Options (Hull to Warehouse)",
+      "title": "Outgoing User Synchronization Options (Hull to PostgreSQL)",
       "format": "title",
       "type": "string"
     },
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send *Users* to your warehouse when belonging to one of these segments",
+      "description": "Send *Users* to your postgreSQL database when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment",
@@ -117,27 +115,27 @@
     {
       "name": "send_all_user_attributes",
       "title": "Send all user attributes",
-      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
       "type": "boolean",
       "default": true
     },
     {
       "name": "send_all_account_attributes",
       "title": "Send all account attributes",
-      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
       "type": "boolean",
       "default": true
     },
     {
       "name": "account_outgoing_synch_title",
-      "title": "Outgoing Account Synchronization Options (Hull to Warehouse)",
+      "title": "Outgoing Account Synchronization Options (Hull to PostreSQL)",
       "format": "title",
       "type": "string"
     },
     {
       "name": "synchronized_account_segments",
       "title": "Account Filter",
-      "description": "Send *Accounts* to your warehouse when belonging to one of these segments",
+      "description": "Send *Accounts* to your PostgreSQL database when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "accountSegment",
@@ -158,7 +156,7 @@
       "type": "string",
       "title": "User Table Name",
       "default": "hullusers",
-      "required" : true,
+      "required": true,
       "description": "The User table will contain all user attributes in columns. You may join to the account table using the \"accountId\" field.  As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -166,7 +164,7 @@
       "type": "string",
       "title": "Events Table Name",
       "default": "hullevents",
-      "required" : true,
+      "required": true,
       "description": "The Event table is a static schema which can be joined to the user table using the \"userId\" column.  The properties and context columns are JSON columns which contain attributes associated with the event"
     },
     {
@@ -174,7 +172,7 @@
       "type": "string",
       "title": "Account Table Name",
       "default": "hullaccounts",
-      "required" : true,
+      "required": true,
       "description": "The Account table will contain all account attributes in columns. As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -207,11 +205,12 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "title": "User Attributes to send to Warehouse",
+      "title": "User Attributes to send to PostgreSQL",
       "type": "array",
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": true,
         "placeholder": "Warehouse user field",
         "allowCreate": true
@@ -219,11 +218,12 @@
     },
     {
       "name": "outgoing_account_attributes",
-      "title": "Account Attributes to send to Warehouse",
+      "title": "Account Attributes to send to PostgreSQL",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": true,
         "placeholder": "Warehouse account field",
         "allowCreate": true
@@ -234,6 +234,20 @@
       "type": "boolean",
       "format": "hidden",
       "default": true
+    },
+    {
+      "name": "outgoing_user_events",
+      "title": "Send User Events",
+      "description": "Send these events to Warehouse. By default, all events are sent.\nIf you update this list, be sure to include \"User Merged\" or you will end up with duplicate users",
+      "type": "array",
+      "format": "event",
+      "default": ["all_events", "User merged"],
+      "options": {
+        "standard": {
+          "all_events": "ALL",
+          "User merged": "User merged"
+        }
+      }
     }
   ],
   "settings": [],
@@ -257,28 +271,30 @@
     "value": "5",
     "handler": "status"
   },
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "channels": [
-      {
-        "channel": "user:update",
-        "handler": "userUpdate"
-      },
-      {
-        "channel": "account:update",
-        "handler": "accountUpdate"
-      }
-    ],
-    "conditions": {
-      "channels": {
-        "only": [
-          "ship:update",
-          "user:update",
-          "account:update"
-        ]
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        },
+        "channels": {
+          "only": ["ship:update", "user:update", "account:update"]
+        }
       }
     }
-  }],
+  ],
   "batches": [
     {
       "url": "/batch",
@@ -309,7 +325,6 @@
         "private_settings.db_hostname",
         "private_settings.db_port",
         "private_settings.db_name"
-
       ]
     },
     {
@@ -347,6 +362,7 @@
       "description": "This section configures what User data will be send out to Warehouse, start by whitelisting User segments and then decide which attributes to send.",
       "properties": [
         "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_events",
         "private_settings.send_all_user_attributes",
         "private_settings.outgoing_user_attributes"
       ]

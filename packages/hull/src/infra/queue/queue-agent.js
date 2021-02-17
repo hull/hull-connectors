@@ -1,9 +1,13 @@
 // @flow
 
-import type { HullContext } from "../../types";
+import _ from "lodash";
+import type { HullContext, HullQueueConfig } from "../../types";
 
+const debug = require("debug")("hull:queue-agent");
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
+// const KueAdapter = require("./adapter/kue");
+const BullAdapter = require("./adapter/bull");
 
 /**
  * By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue](https://github.com/Automattic/kue) or [Bull](https://github.com/OptimalBits/bull) adapters which you can initiate in a following way:
@@ -47,15 +51,31 @@ const MemoryAdapter = require("./adapter/memory");
  * const connector = new Hull.Connector({ queue });
  * ```
  */
+
+const REDIS_REQUIRED_KEYS = ["name", "url"];
+const missingKeys = config => (required: Array<string>) => {
+  const missing = _.filter(required, k => config[k] === undefined);
+  if (missing.length) {
+    throw new Error(`Missing key in queueConfig: ${_.join(missing)}, Can't boot.
+    Either define a queue Name in "connectorConfig.queueConfig" or use store: 'memory'`);
+  }
+};
+
 class QueueAgent {
   adapter: any;
 
-  constructor(adapter: any) {
-    this.adapter = adapter;
-    if (!this.adapter) {
+  constructor(config: HullQueueConfig) {
+    const { store } = config;
+    const missing = missingKeys(config);
+    debug("New Queue", { config });
+    if (store === "redis") {
+      missing(REDIS_REQUIRED_KEYS);
+      this.adapter = new BullAdapter(
+        _.pick(config, ["name", "url", "settings"])
+      );
+    } else {
       this.adapter = new MemoryAdapter();
     }
-
     this.getEnqueue = this.getEnqueue.bind(this);
   }
 

@@ -5,7 +5,8 @@ import Sequelize from "sequelize";
 const getPort = require('get-port');
 
 const {
-  isUndefinedOrNull
+  isUndefinedOrNull,
+  removeTraitsPrefix
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
@@ -22,7 +23,9 @@ const HullVariableContext = require("hull-connector-framework/src/purplefusion/v
 
 const {
   PostgresUserSchema,
-  PostgresAccountSchema
+  PostgresAccountSchema,
+  WarehouseUserWrite,
+  WarehouseAccountWrite
 } = require("./service-objects");
 
 // class UserModel extends Sequelize.Model {};
@@ -98,6 +101,12 @@ class SequalizeSdk {
 
   accountTableName: string;
 
+  sendAllUserAttributes: boolean;
+
+  sendAllAccountAttributes: boolean;
+
+  sendNull: boolean;
+
   ascii_encoded: boolean;
 
   use_native_json: boolean;
@@ -129,6 +138,13 @@ class SequalizeSdk {
       reqContext.connector.private_settings.db_account_table_name;
     this.eventTableName =
       reqContext.connector.private_settings.db_events_table_name;
+    this.sendNull =
+      reqContext.connector.private_settings.send_null || false;
+    this.sendAllUserAttributes =
+      reqContext.connector.private_settings.send_all_user_attributes || false;
+    this.sendAllAccountAttributes =
+      reqContext.connector.private_settings.send_all_account_attributes || false;
+
   }
 
   async closeDatabaseConnectionIfExists() {
@@ -226,6 +242,25 @@ class SequalizeSdk {
     return this.generateSequelizeSchema(hullAccountSchema);
   }
 
+  async buildBatchObject({ message, attributes, entity }) {
+    const entityObj = {};
+
+    _.forEach(attributes, attribute => {
+      if (
+        attribute.key.indexOf("account.") < 0 &&
+        attribute.visible &&
+        attribute.type !== "event"
+      ) {
+        entityObj[removeTraitsPrefix(attribute.key)] = null
+      }
+    });
+
+    return {
+      ...entityObj,
+      ...message[entity]
+    };
+  }
+
   async createUserSchema(hullUserSchema: Array<any>) {
     const userSchema = this.generateSequelizeSchema(hullUserSchema);
 
@@ -315,7 +350,9 @@ class SequalizeSdk {
 
       const type = attribute.type;
       let sequalizeDataType = Sequelize.STRING;
-      if (type === "date") {
+      if (attribute.key === "external_id" || normalizedAttributeKey === "external_id") {
+        sequalizeSchema["external_id"] = Sequelize.STRING;
+      } else if (type === "date") {
         sequalizeDataType = Sequelize.DATE;
       } else if (type === "number") {
         sequalizeDataType = Sequelize.DOUBLE;
@@ -323,6 +360,8 @@ class SequalizeSdk {
         sequalizeDataType = Sequelize.BOOLEAN;
       } else if (this.use_native_json && type === "json") {
         sequalizeDataType = Sequelize.JSON;
+      } else if (attribute.key === "anonymous_ids") {
+        sequalizeSchema["anonymous_ids_array"] = Sequelize.ARRAY(Sequelize.STRING);
       }
 
       sequalizeSchema[normalizedAttributeKey] = sequalizeDataType;
@@ -374,6 +413,9 @@ class SequalizeSdk {
       let valueToUpsert = value;
       if (Array.isArray(value)) {
         if (value.length > 0) {
+          if (normalizedName === "anonymous_ids") {
+            objectToUpsert["anonymous_ids_array"] = value;
+          }
           valueToUpsert = JSON.stringify(value);
         } else {
           valueToUpsert = null;
@@ -391,6 +433,11 @@ class SequalizeSdk {
           objectToUpsert[normalizedName] = parsedDate;
         }
       } else {
+
+        if ("external_id" === normalizedName && !_.isNil(valueToUpsert)) {
+          valueToUpsert = _.toString(valueToUpsert);
+        }
+
         if (typeof valueToUpsert === "string") {
 
           if (this.ascii_encoded) {
@@ -409,6 +456,16 @@ class SequalizeSdk {
 
   async upsertHullAccount(message: any) {
     const sequelizedAccount = this.createSequelizedObject(message.account);
+
+    if (this.sendAllAccountAttributes && this.sendNull && !_.isEmpty(message.changes)) {
+      const { account = {} } = message.changes;
+      _.forEach(account, (change, attribute) => {
+        if (_.isNil(change[1])) {
+          sequelizedAccount[normalizeFieldName(attribute)] = null;
+        }
+      });
+    }
+
     if (message.account_segments) {
       const segments = [];
       _.forEach(message.account_segments, segment => {
@@ -442,6 +499,15 @@ class SequalizeSdk {
       sequelizedUser.account_id = message.account.id;
     }
 
+    if (this.sendAllUserAttributes && this.sendNull && !_.isEmpty(message.changes)) {
+      const { user = {} } = message.changes;
+      _.forEach(user, (change, attribute) => {
+        if (_.isNil(change[1])) {
+          sequelizedUser[normalizeFieldName(attribute)] = null;
+        }
+      });
+    }
+
     if (message.segments) {
       const segments = [];
       _.forEach(message.segments, segment => {
@@ -460,11 +526,20 @@ class SequalizeSdk {
         .upsert(sequelizedUser)
         .then(() => {
           if (message.events) {
+            const eventInclusionList = this.privateSettings.outgoing_user_events || [];
+            const filteredEvents = _.filter(message.events, event =>
+              _.includes(eventInclusionList, "all_events") ||
+              _.includes(eventInclusionList, "ALL") ||
+              _.includes(eventInclusionList, event.event)
+            );
             return Promise.all(
-              message.events.map(event => {
+              filteredEvents.map(event => {
                 if (typeof event.event !== "string") {
                   event.event = "Invalid Name";
                 }
+                // Automatic conversion not working anymore.
+                // event_id is set as Sequelize.STRING in EVENT_SCHEMA, received as number in notifs
+                event.event_id = event.event_id && event.event_id.toString();
                 return this.getSequelizeConnection().then((sequelizeConnection) => {
                   return sequelizeConnection.model(this.eventTableName).upsert(event);
                 });
@@ -521,10 +596,7 @@ class SequalizeSdk {
   }
 }
 
-const postgresSdk = ({ clientID, clientSecret } : {
-  clientID: string,
-  clientSecret: string
-}): CustomApi => ({
+const postgresSdk = (): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
   endpoints: {
     createUserSchema: {
@@ -538,26 +610,22 @@ const postgresSdk = ({ clientID, clientSecret } : {
       endpointType: "upsert",
       batch: true,
       input: PostgresAccountSchema
+    },
+    upsertHullUser: {
+      method: "upsertHullUser",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseUserWrite
+    },
+    upsertHullAccount: {
+      method: "upsertHullAccount",
+      endpointType: "upsert",
+      batch: true,
+      input: WarehouseAccountWrite
     }
   },
   error: {
-    templates: [
-      {
-        truthy: { name: "SequelizeDatabaseError" },
-        errorType: SkippableError,
-        message: "Unable to upsert entity"
-      },
-      {
-        truthy: { name: "SequelizeConnectionRefusedError" },
-        errorType: SkippableError,
-        message: "Database not accessible"
-      },
-      {
-        truthy: { name: "SequelizeConnectionError" },
-        errorType: SkippableError,
-        message: "Unknown error"
-      }
-    ]
+    templates: []
   }
 });
 

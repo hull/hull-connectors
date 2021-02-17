@@ -1,0 +1,17 @@
+{
+  "name": "hull-postgres-exporter",
+  "version": "0.1.40-monorepo",
+  "description": "Connector description",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "get-port": "^5.1.1",
+    "pg": "^8.5.1",
+    "sequelize": "^6.5.0",
+    "ssh2": "^0.8.7",
+    "superagent-prefix": "^0.0.2"
+  },
+  "devDependencies": {}
+}

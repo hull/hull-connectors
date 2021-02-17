@@ -524,14 +524,8 @@ class MiniHull extends MiniApplication {
    */
   mimicDashboard(connectorId) {
     const connector = connectorId
-      ? this.db
-          .get("connectors")
-          .find({ id: connectorId })
-          .value()
-      : this.db
-          .get("connectors")
-          .get(0)
-          .value();
+      ? this.db.get("connectors").find({ id: connectorId }).value()
+      : this.db.get("connectors").get(0).value();
 
     if (!connector.manifest.admin) {
       return console.log("No dashboard available");
@@ -549,14 +543,8 @@ class MiniHull extends MiniApplication {
    */
   mimicPostConnector(url, connectorId) {
     const connector = connectorId
-      ? this.db
-          .get("connectors")
-          .find({ id: connectorId })
-          .value()
-      : this.db
-          .get("connectors")
-          .get(0)
-          .value();
+      ? this.db.get("connectors").find({ id: connectorId }).value()
+      : this.db.get("connectors").get(0).value();
 
     return this.postConnector(connector, connector._url);
   }
@@ -595,10 +583,7 @@ class MiniHull extends MiniApplication {
    * @return {Object}       Built `UserReport`
    */
   mimicUserReport(ident) {
-    const user = this.db
-      .get("users")
-      .find(ident)
-      .value();
+    const user = this.db.get("users").find(ident).value();
     const userSegments = this._getMatchingUsersSegments(user).value();
     const account = this.db
       .get("accounts")
@@ -631,9 +616,7 @@ class MiniHull extends MiniApplication {
     const segments = this._getMatchingUsersSegments(user).value();
     const changes = {
       segments: {
-        enter: this.segments()
-          .filter({ id: segmentId })
-          .value()
+        enter: this.segments().filter({ id: segmentId }).value()
       }
     };
     return this.mimicSendNotification("user:update", [
@@ -655,9 +638,7 @@ class MiniHull extends MiniApplication {
     const segments = this._getMatchingUsersSegments(user).value();
     const changes = {
       segments: {
-        left: this.segments()
-          .filter({ id: segmentId })
-          .value()
+        left: this.segments().filter({ id: segmentId }).value()
       }
     };
     return this.mimicSendNotification("user:update", [
@@ -692,14 +673,8 @@ class MiniHull extends MiniApplication {
    */
   mimicUpdateConnector(settings, connectorId) {
     const connector = connectorId
-      ? this.db
-          .get("connectors")
-          .find({ id: connectorId })
-          .value()
-      : this.db
-          .get("connectors")
-          .get(0)
-          .value();
+      ? this.db.get("connectors").find({ id: connectorId }).value()
+      : this.db.get("connectors").get(0).value();
     connector.private_settings = _.merge(
       connector.private_settings || {},
       settings
@@ -716,14 +691,8 @@ class MiniHull extends MiniApplication {
    */
   mimicUpdateUserSegment(segmentName, segmentId) {
     const segment = segmentId
-      ? this.db
-          .get("users_segments")
-          .find({ id: segmentId })
-          .value()
-      : this.db
-          .get("users_segments")
-          .get(0)
-          .value();
+      ? this.db.get("users_segments").find({ id: segmentId }).value()
+      : this.db.get("users_segments").get(0).value();
     segment.name = segmentName;
     return this.mimicSendNotification("segment:update", [segment]);
   }
@@ -736,14 +705,8 @@ class MiniHull extends MiniApplication {
    */
   mimicUsersBatchCall(connectorId) {
     const connector = connectorId
-      ? this.db
-          .get("connectors")
-          .find({ id: connectorId })
-          .value()
-      : this.db
-          .get("connectors")
-          .get(0)
-          .value();
+      ? this.db.get("connectors").find({ id: connectorId }).value()
+      : this.db.get("connectors").get(0).value();
     return this.batchUsersConnector(
       connector,
       `${connector._url}/batch`,
@@ -790,9 +753,10 @@ class MiniHull extends MiniApplication {
     if (!user._segment_ids) {
       user = this._findUser(user);
     }
-    const matchingSegments = this.db
-      .get("users_segments")
-      .intersectionBy((user._segment_ids || []).map(id => ({ id })), "id");
+    const matchingSegments = this.db.get("users_segments").intersectionBy(
+      (user._segment_ids || []).map(id => ({ id })),
+      "id"
+    );
     return matchingSegments;
   }
 
@@ -801,9 +765,10 @@ class MiniHull extends MiniApplication {
       account = this._findAccount(account);
     }
     console.log("_getMatchingAccountsSegments", account);
-    const matchingSegments = this.db
-      .get("accounts_segments")
-      .intersectionBy((account._segment_ids || []).map(id => ({ id })), "id");
+    const matchingSegments = this.db.get("accounts_segments").intersectionBy(
+      (account._segment_ids || []).map(id => ({ id })),
+      "id"
+    );
     return matchingSegments;
   }
 
@@ -836,10 +801,7 @@ class MiniHull extends MiniApplication {
     if (_.isString(ident)) {
       findObject = { id: ident };
     }
-    return this.db
-      .get("users")
-      .find(findObject)
-      .value();
+    return this.db.get("users").find(findObject).value();
   }
 }
 

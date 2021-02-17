@@ -1,4 +1,4 @@
-// @noflow
+// @flow
 import _ from "lodash";
 import type { HullContext } from "hull";
 

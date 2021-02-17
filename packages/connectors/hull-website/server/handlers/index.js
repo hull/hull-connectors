@@ -1,26 +1,23 @@
 // @flow
 import type {
-  HullHandlersConfiguration,
   Connector,
-  HullFirehoseKafkaTransport
+  HullFirehoseKafkaTransport,
+  HullHandlersConfiguration
 } from "hull";
-import bluebird from "bluebird";
+
 import Redis from "redis";
-import SocketIO from "socket.io";
-import socketIOredis from "socket.io-redis";
-import Store from "../lib/store";
-import statusHandlerFactory from "./status";
-import userUpdateFactory from "./user-update";
-import shipUpdate from "./ship-update";
-import connectorUpdateFactory from "./connector-update";
+import redisAdapter from "socket.io-redis";
+import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
 import onConnectionFactory from "../lib/on-connection";
 import sendPayloadFactory from "../lib/send-payload";
+import Store from "../lib/store";
+import statusHandlerFactory from "./status";
+import connectorUpdateFactory from "./connector-update";
 import credentialsHandler from "./credentials-handler";
+import userUpdateFactory from "./user-update";
 
-import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
-
-bluebird.promisifyAll(Redis.RedisClient.prototype);
-bluebird.promisifyAll(Redis.Multi.prototype);
+const debug = require("debug")("hull-website");
+const SocketIO = require("socket.io");
 
 const handlers = ({
   redisUri,
@@ -31,16 +28,32 @@ const handlers = ({
   redisUri: string,
   firehoseTransport: HullFirehoseKafkaTransport
 }) => async (connector: Connector): HullHandlersConfiguration => {
-  const { app, server, Client, getContext } = connector;
+  const { app, server, getContext } = connector;
   const redis = Redis.createClient(redisUri);
+  const pubClient = redis.duplicate();
+  const subClient = pubClient.duplicate();
+
   const store = Store(redis);
+
   const io = SocketIO(server, {
-    pingInterval: 15000,
-    pingTimeout: 30000
-  }).adapter(socketIOredis(redisUri));
+    transports: ["websocket"],
+    pingInterval: 5000,
+    pingTimeout: 3000,
+    adapter: redisAdapter({ pubClient, subClient })
+  });
+
+  io.of(/^\w+$/).on("connection", socket => {
+    const { nsp } = socket;
+    debug("Connection to unknown Namespace", nsp);
+    nsp.emit("connection.error", { error: "Invalid Namespace " });
+  });
+
+  // io.on("connection", socket => {
+  //   console.log("On Connection", socket.handshake.query); // prints { x: "42", EIO: "4", transport: "polling" }
+  // });
+
   const sendPayload = sendPayloadFactory({ io });
   const onConnection = onConnectionFactory({
-    Client,
     getContext,
     store,
     sendPayload
@@ -59,8 +72,7 @@ const handlers = ({
     },
     subscriptions: {
       connectorUpdate,
-      userUpdate,
-      shipUpdate
+      userUpdate
     },
     json: {
       credentialsHandler: credentialsHandler(REMOTE_DOMAIN)

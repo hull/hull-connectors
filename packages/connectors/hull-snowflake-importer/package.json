@@ -1,0 +1,14 @@
+{
+  "name": "hull-snowflake-importer",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "description": "Import Users, Events and Accounts from Snowflake",
+  "scripts": {
+    "test": "exit 0",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "snowflake-sdk": "^1.5.3"
+  },
+  "devDependencies": {}
+}

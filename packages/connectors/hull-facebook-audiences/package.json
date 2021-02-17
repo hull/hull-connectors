@@ -1,0 +1,19 @@
+{
+  "name": "hull-facebook-audiences",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "description": "Target your Leads with Facebook Ads",
+  "scripts": {
+    "test": "yarn run test:unit && yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js"
+  },
+  "dependencies": {
+    "country-data": "0.0.31",
+    "fbgraph": "^1.2.0",
+    "passport-facebook": "^3.0.0"
+  },
+  "resolutions": {
+    "minihull/**/sinon": "6.1.2"
+  }
+}

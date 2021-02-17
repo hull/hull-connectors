@@ -27,6 +27,10 @@ module.exports = {
         "claims": {
           "email": "email_1@gmail.com"
         },
+        "account_claims": {
+          "account_domain": "google.com",
+          "account_external_id": "account-external-id-1"
+        },
         "attributes":
           {
             "pipedrive/department": "marketing"
@@ -42,6 +46,10 @@ module.exports = {
       "input": {
         "ident": {
           "email": "email_1@gmail.com"
+        },
+        "accountIdent": {
+          "domain": "google.com",
+          "external_id": "account-external-id-1"
         },
         "attributes": {
           "pipedrive/department": "marketing",

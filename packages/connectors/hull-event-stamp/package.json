@@ -1,0 +1,12 @@
+{
+  "name": "hull-event-stamp",
+  "description": "SAMPLE",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

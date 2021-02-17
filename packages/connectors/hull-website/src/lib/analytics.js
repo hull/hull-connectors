@@ -1,5 +1,3 @@
-/* global window */
-
 import isEmpty from "lodash/isEmpty";
 import { Promise } from "es6-promise";
 import intercom from "./intercom";

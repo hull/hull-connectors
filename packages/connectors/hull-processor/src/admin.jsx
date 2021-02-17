@@ -1,9 +1,6 @@
-/* global document */
-
 import ready from "domready";
-import React from "react";
+import { hot } from "react-hot-loader/root";
 import ReactDOM from "react-dom";
-import { AppContainer } from "react-hot-loader";
 import Engine from "./app/engine";
 import App from "./app";
 
@@ -25,24 +22,16 @@ const render = Component => {
   const root = document.getElementById("app");
   const engine = new Engine();
   ReactDOM.render(
-    <AppContainer>
-      <Component
-        engine={engine}
-        strings={{
-          leftColumnTitle: "Enter Email or ID to preview User",
-          leftColumnPreview: EMPTY,
-          leftColumnEmpty: NOT_FOUND
-        }}
-      />
-    </AppContainer>,
+    <Component
+      engine={engine}
+      strings={{
+        leftColumnTitle: "Enter Email or ID to preview User",
+        leftColumnPreview: EMPTY,
+        leftColumnEmpty: NOT_FOUND
+      }}
+    />,
     root
   );
 };
 
-ready(() => render(App));
-
-if (module.hot) {
-  module.hot.accept("./app", () => {
-    render(App);
-  });
-}
+ready(() => render(hot(App)));

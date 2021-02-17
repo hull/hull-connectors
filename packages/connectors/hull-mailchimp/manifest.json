@@ -1,6 +1,7 @@
 {
   "name": "Mailchimp",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -152,13 +153,15 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
-        "channels": { "only": [
-          "user:update",
-          "ship:update",
-          "users_segment:update",
-          "users_segment:delete"
-        ] },
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update",
+            "users_segment:update",
+            "users_segment:delete"
+          ]
+        },
         "segments": {
           "user:update": ["private_settings.synchronized_user_segments"]
         }
@@ -209,16 +212,27 @@
   ],
   "json": [
     {
-      "url": "/sync",
-      "handler": "sync",
-      "name": "syncIn",
+      "url": "/import-batch",
+      "handler": "importBatch",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/build-email-batch",
+      "handler": "createEmailBatch"
+    },
+    {
+      "url": "/fetch-list",
+      "handler": "fetchAllUsers",
+      "name": "fetchList",
       "title": "Fetch List",
       "format": "action",
       "options": {
         "confirm": {
           "action": "fetch",
-          "text": "You are going to resync Mailchimp with Hull. This will empty the list you picked ? This will remove all interest groups and static segments (possibly breaking any automation configuration) and can generate a lot of traffic. Are you sure?",
-          "button": "Start Fetching",
+          "text": "Fetch all Mailchimp contacts. This will remove all interest groups and static segments (possibly breaking any automation configuration) and may generate significant traffic. Are you sure?",
+          "button": "Fetch List",
           "entity": "users"
         }
       }
@@ -232,47 +246,49 @@
     {
       "title": "Connect with Mailchimp",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Select List",
       "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
       "step": "credentials",
-      "properties": [
-        "private_settings.mailchimp_list_id"
-      ]
+      "properties": ["private_settings.mailchimp_list_id"]
     },
     {
       "title": "Fetch Data from Mailchimp",
       "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
-      "properties": [
-        "json.syncIn"
-      ]
+      "properties": ["json.fetchList"]
     },
     {
       "title": "User Filter",
       "description": "Send users to Mailchimp when belonging to at least one of these segments.  If this segment list is empty, no users will be sent.  If \"All Users\" is selected, all users are sent",
-      "properties": [
-        "private_settings.synchronized_user_segments"
-      ]
+      "properties": ["private_settings.synchronized_user_segments"]
     },
     {
       "title": "Outgoing Sync",
       "step": "actions",
       "description": "Configure how the data is sent to Mailchimp",
-      "properties": [
-        "private_settings.outgoing_user_attributes"
-      ]
+      "properties": ["private_settings.outgoing_user_attributes"]
     }
   ],
   "schedules": [
     {
-      "url": "/track",
+      "url": "/create-email-batch",
+      "handler": "createEmailBatch",
       "type": "cron",
-      "handler": "track",
       "value": "7 */6 * * *"
+    },
+    {
+      "url": "/import-email-batch",
+      "handler": "importEmailBatch",
+      "type": "interval",
+      "value": "33"
+    },
+    {
+      "url": "/import-member-batch",
+      "handler": "importMemberBatch",
+      "type": "interval",
+      "value": "60"
     }
   ],
   "status": {

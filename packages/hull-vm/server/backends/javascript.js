@@ -1,30 +1,39 @@
 // @flow
 
 import type { HullContext } from "hull";
-import { VM } from "vm2";
-import moment from "moment";
-import urijs from "urijs";
+import { VM, VMScript } from "vm2";
 import _ from "lodash";
 import type { Result, ComputeOptions } from "../../types";
 import scopedUserMethods from "../sandbox/user_methods";
-import getRequest from "../sandbox/request";
 import getConsole from "../sandbox/console";
 import check from "../check";
+import getLibs from "../sandbox/libs";
 
-const LIBS = { _, moment, urijs };
+const CODECACHE = new Map();
 
-export default async function(
+const getScript = (id, code) => {
+  const c = check.wrapCode(code);
+  const key = `${id}__${c}`;
+  if (CODECACHE.has(key)) {
+    return CODECACHE.get(key);
+  }
+  const compiled = new VMScript(c);
+  CODECACHE.set(key, compiled);
+  return compiled;
+};
+
+export default async function javascript(
   ctx: HullContext,
   { payload, code, preview, claims, entity }: ComputeOptions,
   result: Result,
   hull: any
 ) {
   const { connector } = ctx;
+  const { id } = connector;
   const frozen = {
     ...payload,
-    ...LIBS,
+    ...getLibs(ctx),
     ...(claims ? scopedUserMethods(payload) : {}),
-    request: getRequest(ctx, result),
     hull,
     console: getConsole(result, preview),
     connector,
@@ -54,8 +63,8 @@ export default async function(
       vm.freeze(l, key);
     });
   }
-
-  await vm.run(check.wrapCode(code));
+  const script = getScript(id, code);
+  await vm.run(script);
 
   // Only lint in Preview mode.
   if (preview) {

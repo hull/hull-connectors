@@ -12,7 +12,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
   "private_settings": [
     {
       "name": "triggers",
@@ -54,9 +54,7 @@
           "ALL": "All Users"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     },
     {
       "name": "synchronized_account_segments",
@@ -69,27 +67,16 @@
           "ALL": "All Accounts"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     }
   ],
   "resources": [],
   "settings_sections": [
     {
-      "title": "Connect to Zapier",
-      "description": "Please follow the link to begin using our Zapier integration",
-      "properties": [
-        "private_settings.invitation"
-      ]
-    },
-    {
       "title": "Credentials",
       "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
-      "properties": [
-        "json.credentials"
-      ]
+      "properties": ["json.credentials"]
     }
   ],
   "incoming": [
@@ -160,11 +147,7 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "ship:update",
-            "account:update"
-          ]
+          "only": ["user:update", "ship:update", "account:update"]
         },
         "segments": {
           "user:update": ["private_settings.synchronized_user_segments"],
@@ -183,20 +166,19 @@
       ]
     }
   ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "60",
+      "handler": "status"
+    }
+  ],
   "status": {
     "initial_value": "ok",
     "url": "/status",
-    "type": "cron",
-    "value": "*/30 * * * *",
-    "handler": "statusHandler"
-  },
-  "statuses": [
-    {
-      "initial_value": "ok",
-      "url": "/status",
-      "type": "cron",
-      "value": "*/30 * * * *",
-      "handler": "statusHandler"
-    }
-  ]
+    "type": "interval",
+    "value": "60",
+    "handler": "status"
+  }
 }

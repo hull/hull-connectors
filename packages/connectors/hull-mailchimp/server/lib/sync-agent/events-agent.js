@@ -30,6 +30,7 @@ class EventsAgent {
     return this.mailchimpClient
       .get("/automations")
       .query({
+        count: 1000,
         fields: "automations.id,automations.status,automations.send_time"
       })
       .then(({ body }) => {
@@ -76,6 +77,7 @@ class EventsAgent {
         fields:
           "campaigns.id,campaigns.status,campaigns.title,campaigns.send_time,campaigns.settings.title",
         list_id: this.listId,
+        count: 1000,
         since_send_time: weekAgo.format()
       })
       .then(response => {
@@ -145,10 +147,7 @@ class EventsAgent {
   getEmailId(email) {
     return (
       !_.isEmpty(email) &&
-      crypto
-        .createHash("md5")
-        .update(email.toLowerCase())
-        .digest("hex")
+      crypto.createHash("md5").update(email.toLowerCase()).digest("hex")
     );
   }
 
@@ -223,9 +222,7 @@ class EventsAgent {
     if (last_track_at) {
       emailActivites = emailActivites.map(e => {
         e.activity = _.get(e, "activity", []).filter(a => {
-          return moment(a.timestamp)
-            .utc()
-            .isAfter(last_track_at);
+          return moment(a.timestamp).utc().isAfter(last_track_at);
         });
         return e;
       });

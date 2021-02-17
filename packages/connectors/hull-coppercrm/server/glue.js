@@ -7,6 +7,7 @@ const {
   set,
   ifL,
   iterateL,
+  loopEndL,
   input,
   Svc,
   settings,
@@ -21,14 +22,20 @@ const {
   cast,
   utils,
   not,
-  moment
+  moment,
+  cacheGet,
+  cacheSet,
+  cacheLock,
+  or
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
   HullIncomingDropdownOption,
+  HullOutgoingDropdownOption,
   HullConnectorAttributeDefinition,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -142,6 +149,28 @@ const glue = {
       ]
     })
   ),
+  leadUpdate: ifL(route("isConfigured"),[
+    set("service_name", "coppercrm"),
+    iterateL(input(), { key: "message", async: true }, [
+      cacheLock("${message.user.id}", [
+        ifL(or([
+          set("leadId", cacheGet("lead-${message.user.id}")),
+          set("leadId", "${message.user.coppercrm_lead/id}")
+        ]), {
+          do: set("copperLead", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
+          eldo: [
+            ifL(cond("notEmpty", set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}")))),
+              cacheSet({ key: "lead-${message.user.id}" }, "${copperLead.id}")
+            )
+          ]
+        }),
+        ifL("${copperLead.id}",
+          hull("asUser", "${copperLead}")
+        )
+      ])
+    ])
+  ]),
+  userUpdate: {},
 
   // Incremental polling logic
   fetchAllLeads: ifL(route("isConfigured"),
@@ -276,6 +305,8 @@ const glue = {
   getActivityTypes: cacheWrap(StandardEnumTimeout, coppercrm("getActivityTypes")),
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
+  // currently don't support custom fields with no call to customLeadFields
+  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./fields/lead_fields"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),

@@ -1,6 +1,7 @@
 {
   "name": "hull-client",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
   "description": "A barebones Node.js API client for hull.io",
   "main": "src",
   "scripts": {
@@ -12,8 +13,7 @@
   },
   "dependencies": {
     "jwt-simple": "^0.5.0",
-    "node-rdkafka": "^2.7.4",
-    "winston": "^2.2.0"
+    "winston": "^3.3.3"
   },
   "devDependencies": {}
 }

@@ -1,7 +1,9 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
@@ -12,22 +14,18 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
+      { hull: "name", service: "name", overwrite: true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
   }
 };
-const accountsSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
-];
+const accountsSegments = [{ name: "testSegment", id: "hullSegmentId" }];
 
 it("should send out a new hull account to hubspot found existing", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -37,7 +35,7 @@ it("should send out a new hull account to hubspot found existing", () => {
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope
           .post("/companies/v2/domains/hull.io/companies", {
             requestOptions: {
@@ -49,18 +47,9 @@ it("should send out a new hull account to hubspot found existing", () => {
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "184896670"
             }
@@ -89,14 +78,11 @@ it("should send out a new hull account to hubspot found existing", () => {
             domain,
             name: "New Name"
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -181,10 +167,7 @@ it("should send out a new hull account to hubspot found existing", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

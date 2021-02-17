@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Router } from "express";
@@ -176,11 +177,20 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   });
 
   // Legacy hull-js tracking routes
-  app.post("/t", trackHandler);
-  app.put("/me/traits", traitsHandler);
-  app.post("/me/alias", aliasHandler);
 
-  // Legacy hull-js redirect routes
-  app.get("/r", redirectHandler);
+  function firehoseResponder(actionHandler) {
+    return async (req, res) => {
+      try {
+        await actionHandler(req);
+        res.status(204).send({ ok: true });
+      } catch (error) {
+        res.status(error.status || 503).send({ error });
+      }
+    };
+  }
+
+  app.post("/t", firehoseResponder(trackHandler));
+  app.put("/me/traits", firehoseResponder(traitsHandler));
+  app.post("/me/alias", firehoseResponder(aliasHandler));
   return app;
 };

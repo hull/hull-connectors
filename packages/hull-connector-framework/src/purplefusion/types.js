@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullAccount, HullUser } from "hull";
+import type { HullServiceObjectDefinition, HullAccount, HullUser } from "hull";
 
 /*
  *** Outreach.io Types, specific to this connector
@@ -7,10 +7,18 @@ import type { HullAccount, HullUser } from "hull";
 
 export type OutreachObjectType = "Account" | "Prospect";
 
-export type PropertyTransformationStrategy = "PropertyKeyedValue" | "PropertyKeyedGroup" | "ArrayPropertyGroup" | "Jsonata";
-export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas" | "pick_first";
+export type PropertyTransformationStrategy =
+  | "PropertyKeyedValue"
+  | "PropertyKeyedGroup"
+  | "ArrayPropertyGroup"
+  | "Jsonata";
+export type ArrayTransformationStrategy =
+  | "send_raw_array"
+  | "append_index"
+  | "json_stringify"
+  | "join_with_commas"
+  | "pick_first";
 export type Direction = "incoming" | "outgoing";
-export type StreamType = "csv" | "json";
 
 export type TransformRule = $Shape<{
   inputPath: string,
@@ -21,18 +29,14 @@ export type TransformRule = $Shape<{
   condition: any
 }>;
 
-export type ServiceObjectDefinition = {
-  name: string,
-  service_name: string,
-  stream?: StreamType
-}
+export type ServiceObjectDefinition = HullServiceObjectDefinition;
 
 export type Transform = {
   input: ServiceObjectDefinition,
   output: ServiceObjectDefinition,
   strategy: PropertyTransformationStrategy,
   arrayStrategy: ArrayTransformationStrategy,
-  direction: Direction;
+  direction: Direction,
   transforms: Array<TransformRule>
 };
 
@@ -44,7 +48,20 @@ export type ServiceTransforms = Array<Transform>;
  * May not end up being useful...
  * @type {String}
  */
-export type EndpointType = "fetchAll" | "webhook" | "byLastSync" | "byId" | "byIds" | "byProperty" | "byProperties" | "create" | "createAll" | "update" | "updateAll" | "upsert" | "upsertAll";
+export type EndpointType =
+  | "fetchAll"
+  | "webhook"
+  | "byLastSync"
+  | "byId"
+  | "byIds"
+  | "byProperty"
+  | "byProperties"
+  | "create"
+  | "createAll"
+  | "update"
+  | "updateAll"
+  | "upsert"
+  | "upsertAll";
 export type RequestType = "post" | "get" | "patch" | "delete" | "put";
 
 export type RawRestApi = {
@@ -71,15 +88,9 @@ export type RawRestApi = {
 
 export type CustomApi = {
   initialize: Function,
-  isAuthenticated: {
-
-  },
-  retry: {
-
-  },
-  error: {
-
-  },
+  isAuthenticated: {},
+  retry: {},
+  error: {},
   endpoints: {
     [propertyName: string]: {
       method: string | Function,
@@ -90,11 +101,16 @@ export type CustomApi = {
   }
 };
 
+export type SqlExporterAdapter = {
+  getConnectionOptions: Function,
+  isValidConfiguration: Function
+};
+
 export type Connector = {
   glue: Object,
   service: RawRestApi,
   transformations: Array<Transform>,
-  ensure: string;
+  ensure: string
 };
 
 // // Takes hull objects, transforms them using transforms-to-service

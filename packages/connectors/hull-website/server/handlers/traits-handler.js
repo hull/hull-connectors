@@ -2,7 +2,7 @@
 
 const EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
-export default (req, res) => {
+export default async req => {
   let traits = req.body;
 
   // legacy format sent by hull.js v0.10
@@ -22,10 +22,5 @@ export default (req, res) => {
     );
   }
 
-  return req.hull
-    .traits(traits, req.firehoseEventContext)
-    .then(
-      ok => res.status(204).send({ ok: !!ok }),
-      error => res.status(503).send({ error })
-    );
+  return req.hull.traits(traits, req.firehoseEventContext);
 };

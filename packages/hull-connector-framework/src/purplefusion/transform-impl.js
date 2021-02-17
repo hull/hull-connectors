@@ -208,11 +208,11 @@ class TransformImpl {
           // unless reading back and can somehow do a natural key (or ordered) lookup/join
           result = await this.transformInput(dispatcher, variableContext, result, executeTransform);
         }
-
-        debug("Transform: " + JSON.stringify(result));
       });
 
     });
+
+    debug("Transform: " + JSON.stringify(result));
 
     if (!isUndefinedOrNull(result)) {
       setHullDataType(result, desiredOutputClass);
@@ -292,7 +292,7 @@ class TransformImpl {
       if (!_.isEmpty(transforms)) {
         _.forEach(transforms, transform => {
 
-          const arrayStrategy = transform.arrayStrategy || transformation.arrayStrategy;
+          const arrayStrategy = globalContext.resolveVariables(transform.arrayStrategy || transformation.arrayStrategy);
 
           let mapping;
 
@@ -436,10 +436,15 @@ class TransformImpl {
                   } else {
                     const valueArray = [];
                     _.forEach(context.value, (value) => {
-                      const finalValue = globalContext.resolveVariables(transform.outputFormat, {value});
+
+                      // TODO is variable resolution within an array needed?
+                      const finalValue = transform.arrayValueResolution === "post" ? value : globalContext.resolveVariables(transform.outputFormat, {value});
                       valueArray.push(finalValue);
                     });
-                    _.set(output, context.outputPath, valueArray);
+                    const valueOutput = transform.arrayValueResolution === "post" ?
+                      globalContext.resolveVariables(transform.outputFormat, { value: valueArray }) :
+                      valueArray;
+                    _.set(output, context.outputPath, valueOutput);
                   }
 
                 } else if (arrayStrategy === "append_index") {

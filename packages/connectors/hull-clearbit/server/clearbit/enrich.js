@@ -24,9 +24,11 @@ import type {
  * @return {Boolean}
  */
 function lookupIsPending(entity) {
-  const fetched_at = entity["clearbit/fetched_at"];
+  // $FlowFixMe
+  const enriched_at: string = entity["clearbit/enriched_at"];
+
   const one_hour_ago = moment().subtract(1, "hours");
-  return fetched_at && moment(fetched_at).isAfter(one_hour_ago);
+  return enriched_at && moment(enriched_at).isAfter(one_hour_ago);
 }
 
 export const shouldEnrichUser = (
@@ -68,17 +70,18 @@ export const shouldEnrichUser = (
         message: "User is in Enrichment blacklist"
       };
     }
+
     // Skip if we are waiting for the webhook
     if (lookupIsPending(user)) {
       return { should: false, message: "Waiting for webhook" };
     }
 
     // Skip if we have a Clearbit ID already
-    // Disable so we can rely on Audience Segments
-    // const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
-    // if (clearbit_id) {
-    //   return { should: false, message: "Clearbit ID present" };
-    // }
+    const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
+    if (!enrich_refresh && clearbit_id) {
+      return { should: false, message: "Clearbit ID present" };
+    }
+
     // Skip if we have already tried enriching and we aren't on auto-refresh mode.
     if (!enrich_refresh && user["clearbit/enriched_at"]) {
       return {
@@ -103,6 +106,7 @@ export function shouldEnrichAccount(
 ): ShouldAction {
   const { account, account_segments = [] } = message;
   const {
+    enrich_refresh,
     enrich_account_segments = [],
     enrich_account_segments_exclusion = []
   } = settings;
@@ -148,12 +152,13 @@ export function shouldEnrichAccount(
       "clearbit",
       account
     );
-    if (clearbit_id) {
+
+    if (!enrich_refresh && clearbit_id) {
       return { should: false, message: "Clearbit ID present" };
     }
 
     // Skip if we have already tried enriching
-    if (account["clearbit/enriched_at"]) {
+    if (!enrich_refresh && account["clearbit/enriched_at"]) {
       return { should: false, message: "enriched_at present" };
     }
   }
@@ -211,28 +216,22 @@ export const enrich = async (
   const { hostname, metric, clientCredentialsEncryptedToken } = ctx;
   const { connector } = ctx;
   const { private_settings } = connector;
-  try {
-    metric.increment("enrich");
-    const { person, company } = await performEnrich({
-      ctx,
-      settings: private_settings,
-      token: clientCredentialsEncryptedToken,
-      subscribe: true,
-      hostname,
-      message
-    });
-    if (!person && !company) {
-      return undefined;
-    }
-    // if (!response || !response.source) return undefined;
-    // const { person, company } = enrichment;
-    await Promise.all([
-      user && saveUser(ctx, { user, person, source: "enrich" }),
-      account &&
-        saveAccount(ctx, { user, person, account, company, source: "enrich" })
-    ]);
-  } catch (err) {
-    throw err;
-  }
+  metric.increment("enrich");
+  const { person, company } = await performEnrich({
+    ctx,
+    settings: private_settings,
+    token: clientCredentialsEncryptedToken,
+    subscribe: true,
+    hostname,
+    message
+  });
+  // if (!response || !response.source) return undefined;
+  // const { person, company } = enrichment;
+
+  const source = "enrich";
+  await Promise.all([
+    user && saveUser(ctx, { user, person, source }),
+    account && saveAccount(ctx, { user, person, account, company, source })
+  ]);
   return undefined;
 };

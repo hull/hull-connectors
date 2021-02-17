@@ -13,9 +13,10 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 test("incoming fetch all responses basic", () => {
-  return testScenario({ connectorConfig }, ({ handlers, requireFixture, expect, nock }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, requireFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",

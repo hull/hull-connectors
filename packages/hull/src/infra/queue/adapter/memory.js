@@ -23,7 +23,7 @@ class MemoryAdapter {
    * @param {Object} jobPayload
    * @return {Promise}
    */
-  create(jobName, jobPayload = {}) {
+  create(ctx, jobName, jobPayload = {}) {
     // if (delay) {
     //   setTimeout(this.enqueue.bind(this, jobName, jobPayload), delay);
     //   return Promise.resolve();
@@ -35,6 +35,7 @@ class MemoryAdapter {
   enqueue(jobName, jobPayload) {
     this.queue[jobName] = this.queue[jobName] || [];
     this.queue[jobName].push({
+      progress: () => {},
       id: this.queue[jobName].length,
       data: _.merge(
         {
@@ -45,6 +46,8 @@ class MemoryAdapter {
     });
     return this.processQueues();
   }
+
+  setupUiRouter(_router) {}
 
   /**
    * @param {string} jobName

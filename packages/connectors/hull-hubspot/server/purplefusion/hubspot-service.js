@@ -53,6 +53,11 @@ class HubspotSdk {
     return this.syncAgent.saveContacts(contacts);
   }
 
+  async saveCompanies(companies) {
+    await this.syncAgent.initialize();
+    return this.syncAgent.saveCompanies(companies);
+  }
+
   // async getRecentContactsPage() {
   //   return this.syncAgent.getRecentContactsPage();
   // }

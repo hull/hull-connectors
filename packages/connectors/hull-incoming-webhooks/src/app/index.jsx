@@ -1,7 +1,5 @@
 // @flow
 
-import React from "react";
-
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import { ConfigurationModal, Spinner, RecentEntriesUI } from "hull-vm/src/ui";
@@ -20,12 +18,21 @@ type State = EngineState & {};
 export default class App extends RecentEntriesUI<Props, State> {
   renderSetupMessage() {
     const { initializing, initialized, showConfig, recent, url } = this.state;
-    if (!initialized) return;
+    if (!initialized) return null;
     const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
-    const content = hasRecent
-      ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
-      : "We haven't received data from the outside yet. Copy the URL below and configure your external service to POST a valid JSON-formatted payload to it.";
+    const content = hasRecent ? (
+      <p>
+        Copy the URL below and configure your external service to send a valid
+        JSON-formatted payload to it as a HTTP POST call
+      </p>
+    ) : (
+      <p>
+        We haven&apos;t received data from the outside yet. Copy the URL below
+        and configure your external service to POST a valid JSON-formatted
+        payload to it.
+      </p>
+    );
     const actions = hasRecent && (
       <Button onClick={this.hideInstructions}>Close</Button>
     );

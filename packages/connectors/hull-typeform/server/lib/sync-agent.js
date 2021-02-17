@@ -148,9 +148,7 @@ class SyncAgent {
   }
 
   async fetchRecentResponses() {
-    const fetchStartAt = moment()
-      .utc()
-      .format();
+    const fetchStartAt = moment().utc().format();
     const previousFetchStartAt = this.connector.private_settings
       .last_fetch_recent_responses_start_at;
 
@@ -189,8 +187,8 @@ class SyncAgent {
   }
 
   async getForms() {
-    const response = await this.serviceClient.getForms();
-    return response.body.items.map(f => ({ label: f.title, value: f.id }));
+    const forms = await this.serviceClient.getForms();
+    return forms.map(f => ({ label: f.title, value: f.id }));
   }
 
   async getFormResponsesCount() {

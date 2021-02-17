@@ -1,20 +1,14 @@
-/* global window, */
-
-import { Promise } from "es6-promise";
-
 export function getLocalStorage() {
-  return new Promise(function getId(resolve) {
-    if (typeof Storage !== "undefined") {
-      const response = JSON.parse(window.localStorage.getItem("hull_browser"));
-      if (!response) return resolve({});
-      return resolve(response);
-    }
-    return resolve({});
-  });
+  if (typeof Storage !== "undefined") {
+    const response = JSON.parse(window.localStorage.getItem("hull_browser"));
+    return response;
+  }
+  return {};
 }
 export function getLocalStorageId() {
   const response = getLocalStorage();
-  return response && response.user && response.user.id;
+  const id = response?.user?.id;
+  return id ? { id } : undefined;
 }
 
 export function setLocalStorage(value) {

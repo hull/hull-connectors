@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+.envrc
 .env.*
 *.log
 tmp
@@ -19,3 +20,4 @@ _ignored/
 .cache
 .yarn
 tmp
+/.husky

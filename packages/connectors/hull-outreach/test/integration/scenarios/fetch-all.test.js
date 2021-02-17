@@ -7,10 +7,11 @@ process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 // import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 const connectorConfig = require("../../../server/config").default
 
 test("fetch all accounts and prospects from outreach", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch",
@@ -42,7 +43,7 @@ test("fetch all accounts and prospects from outreach", () => {
                 "service": "emails"
             },
             {
-                "hull": "traits_outreach/tag",
+                "hull": "traits_outreach/tags",
                 "service": "tags"
             },
           ],
@@ -78,7 +79,7 @@ test("fetch all accounts and prospects from outreach", () => {
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
         scope
-          .get("/api/v2/users/")
+          .get("/api/v2/users/?page[limit]=1000&page[offset]=0")
           .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
         // scope
         //   .get("/api/v2/stages/")
@@ -107,12 +108,69 @@ test("fetch all accounts and prospects from outreach", () => {
         ["info", "incoming.job.success", {}, {"jobName": "Incoming Data", "type": "webpayload"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "SomeHullCompany"}, "outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "NoProspectsHullCompany"}, "outreach/custom1": {"operation": "set", "value": null}, "outreach/custom10": {"operation": "set", "value": null}, "outreach/id": {"operation": "set", "value": 4}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/email_0": {"operation": "set", "value": "ceo@somehullcompany.com"}, "outreach/email_1": {"operation": "set", "value": "ceosomehull@somehullcompany.co"}, "outreach/email_2": {"operation": "set", "value": "mrceo@gmail.com"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag"}, "outreach/tag_1": {"operation": "set", "value": "anothertag"}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/custom1": { "operation": "set", "value": null }, "outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/personalNote1": {"operation": "set", "value": null}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:1"}, "asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "account"}, {}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:3"}, "asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "account"}, {}]
+        [
+          "traits", { "asAccount": { "anonymous_id": "outreach:1", "domain": "somehullcompany.com" }, "subjectType": "account" },
+          {
+            "name": { "operation": "setIfNull", "value": "SomeHullCompany" },
+            "outreach/custom1": { "operation": "set", "value": "some custom value" },
+            "outreach/custom10": { "operation": "set", "value": "another custom value" },
+            "outreach/id": { "operation": "set", "value": 1 }
+          }
+        ],
+        [
+          "traits", { "asAccount": { "anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com" }, "subjectType": "account" },
+          {
+            "name": { "operation": "setIfNull", "value": "NoProspectsHullCompany" },
+            "outreach/custom1": { "operation": "set", "value": null },
+            "outreach/custom10": { "operation": "set", "value": null },
+            "outreach/id": { "operation": "set", "value": 4 }
+          }
+        ],
+        [
+          "traits", { "asUser": { "anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com" }, "subjectType": "user" },
+          {
+            "outreach/custom1": { "operation": "set", "value": "He's cool" },
+            "outreach/emails": { "operation": "set", "value": ["ceo@somehullcompany.com", "ceosomehull@somehullcompany.co", "mrceo@gmail.com"] },
+            "outreach/id": { "operation": "set", "value": 1 },
+            "outreach/personalNote1": { "operation": "set", "value": "he's a cool guy I guess...." },
+            "outreach/tags": { "operation": "set", "value": ["somehullcompanytag", "anothertag"]
+            }
+          }
+        ],
+        [
+          "traits", { "asUser": { "anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com" }, "subjectType": "user" },
+          {
+            "outreach/custom1": { "operation": "set", "value": null },
+            "outreach/emails": { "operation": "set", "value": ["noAccountProspect@noaccount.com"] },
+            "outreach/id": { "operation": "set", "value": 2 },
+            "outreach/personalNote1": { "operation": "set", "value": null },
+            "outreach/tags": { "operation": "set", "value": ["somehullcompanytag2"] }
+          }
+        ],
+        [
+          "traits",
+          {
+            "asAccount": {
+              "anonymous_id": "outreach:1"
+            },
+            "asUser": {
+              "anonymous_id": "outreach:1",
+              "email": "ceo@somehullcompany.com"
+            },
+            "subjectType": "account" }, {}
+        ],
+        [
+          "traits",
+          {
+            "asAccount": {
+              "anonymous_id": "outreach:3"
+            },
+            "asUser": {
+              "anonymous_id": "outreach:2",
+              "email": "noAccountProspect@noaccount.com"
+            },
+            "subjectType": "account" }, {}
+        ]
       ],
       metrics: [
         ["increment", "connector.request", 1],
@@ -141,7 +199,7 @@ test("fetch all accounts and prospects from outreach", () => {
         // ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
         // ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}], "incoming_user_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}, {"hull": "traits_outreach/emails", "service": "emails"}, {"hull": "traits_outreach/tag", "service": "tags"}], "link_users_in_hull": true, "user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "webhook_id": 3}, "refresh_status": false}]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}], "incoming_user_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}, {"hull": "traits_outreach/emails", "service": "emails"}, {"hull": "traits_outreach/tags", "service": "tags"}], "link_users_in_hull": true, "user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "webhook_id": 3}, "refresh_status": false}]
       ]
     };
   });

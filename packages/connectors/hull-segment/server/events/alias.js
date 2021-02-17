@@ -1,3 +1,3 @@
-// @flow
-
-export default function handleAlias(/* alias ,{ hull, ship } */) {}
+export default async function handleAlias(/* alias ,{ hull, ship } */) {
+  return true;
+}

@@ -3,7 +3,7 @@
 import Hull from "hull-client/src";
 import cacheManager from "cache-manager";
 
-const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
+const HULL_JS_URL = "https://js.hull.io/0.11.0/hull.js.gz";
 
 const buildConfig = app => {
   return {
@@ -22,7 +22,7 @@ function getRemoteConfigFromHullApi(organization, id) {
   );
 }
 
-function fetchRemoteConfig(cache, organization: string, id: string) {
+async function fetchRemoteConfig(cache, organization: string, id: string) {
   return cache.wrap(`${organization}/${id}`, () =>
     getRemoteConfigFromHullApi(organization, id)
   );
@@ -64,16 +64,22 @@ function renderError() {
 
 const remoteHandler = () => {
   const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 60 });
-  return (req, res) => {
+  return async (req, res) => {
     const appId = req.params.id;
 
     const browserId = req["hull-bid"];
     const sessionId = req["hull-sid"];
 
-    fetchRemoteConfig(CACHE, req.organization, appId).then(
-      remoteConfig => renderRemote(res, remoteConfig, { browserId, sessionId }),
-      err => res.status(err.status || 500).send(renderError(err))
-    );
+    try {
+      const remoteConfig = await fetchRemoteConfig(
+        CACHE,
+        req.organization,
+        appId
+      );
+      return renderRemote(res, remoteConfig, { browserId, sessionId });
+    } catch (err) {
+      return res.status(err.status || 500).send(renderError(err));
+    }
   };
 };
 

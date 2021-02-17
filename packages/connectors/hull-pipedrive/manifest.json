@@ -4,7 +4,7 @@
   "source": "pipedrive",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -61,16 +61,11 @@
         "properties": {
           "service": {
             "title": "Person Field ID",
-            "enum": [
-              "email"
-            ]
+            "enum": ["email"]
           },
           "hull": {
             "title": "Hull User Ident",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["external_id", "email"]
           }
         }
       },
@@ -168,16 +163,11 @@
         "properties": {
           "service": {
             "title": "Account Field ID",
-            "enum": [
-              "name"
-            ]
+            "enum": ["name"]
           },
           "hull": {
             "title": "Hull Account",
-            "enum": [
-              "external_id",
-              "domain"
-            ]
+            "enum": ["external_id", "domain"]
           }
         }
       },
@@ -323,11 +313,7 @@
       ],
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       }
     }
@@ -337,16 +323,12 @@
       "title": "Connect with Pipedrive",
       "description": "Please begin by authenticating this connector with Pipedrive. You must have appropriate privileges to grant access. Hull accesses to only the endpoint required to do User and Account synchronization",
       "step": "credentials",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "User - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Pipedrive as well as the data we pull from Pipedrive.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Pipedrive rejects user emails with the domain of the customer as well as pipedrivemail.com domains.</b>",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "User - Fetching from Pipedrive",
@@ -371,9 +353,7 @@
     {
       "title": "Account - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for account identity should correspond to unique fields across systems.  This identity applies to both the data we send to Pipedrive as well as the data we pull from Pipedrive.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /><b>Please be aware that Pipedrive will reject accounts sent without a name</b>",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
       "title": "Account - Fetching from Pipedrive",

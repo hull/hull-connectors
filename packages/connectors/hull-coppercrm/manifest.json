@@ -1,11 +1,10 @@
 {
-  "name": "CopperCrm",
-  "description": "Two-way CopperCrm integration for Leads",
-  "source": "coppercrm",
+  "name": "Copper",
+  "description": "Two-way Copper integration for Leads",
+  "source": "copper",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
-
+  "version": "0.1.40-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -21,13 +20,27 @@
   "private_settings": [
     {
       "name": "coppercrm_api_key",
-      "title": "CopperCrm Api Key",
+      "title": "Copper Api Key",
       "type": "string"
     },
     {
       "name": "coppercrm_email",
-      "title": "CopperCrm Associated Email",
+      "title": "Copper Associated Email",
       "type": "string"
+    },
+    {
+      "name": "ignore_deleted_users",
+      "title": "Ignore Deleted Users",
+      "description": "",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore Deleted Accounts",
+      "description": "",
+      "type": "boolean",
+      "default": true
     },
     {
       "name": "lead_claims",
@@ -56,16 +69,37 @@
     },
     {
       "name": "incoming_lead_attributes",
-      "title": "Incoming Lead Fields to Sync (CopperCrm to Hull)",
+      "title": "Incoming Lead Fields to Sync (Copper to Hull)",
       "type": "array",
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
         "showOverwriteToggle": true,
-        "placeholder": "CopperCrm Lead Field",
+        "placeholder": "Copper Lead Field",
         "allowCreate": true,
         "loadOptions": "/attributes-leads-incoming",
         "source": "coppercrm_lead"
+      }
+    },
+    {
+      "name": "synchronized_lead_segments",
+      "title": "Lead Filter",
+      "description": "Send *Users* as Leads to CopperCrm when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_lead_attributes",
+      "title": "User Attributes to send to CopperCrm",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCRM Lead Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-leads-outgoing"
       }
     },
     {
@@ -95,13 +129,13 @@
     },
     {
       "name": "incoming_person_attributes",
-      "title": "Incoming People Fields to Sync (CopperCrm to Hull)",
+      "title": "Incoming People Fields to Sync (Copper to Hull)",
       "type": "array",
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
         "showOverwriteToggle": true,
-        "placeholder": "CopperCrm People Field",
+        "placeholder": "Copper People Field",
         "allowCreate": true,
         "loadOptions": "/attributes-people-incoming",
         "source": "coppercrm_person"
@@ -110,7 +144,7 @@
     {
       "name": "link_person_in_hull",
       "title": "Link People to Accounts in Hull",
-      "description": "Do you want to let CopperCrm update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY CopperCrm Account any Prospect is linked to (refer to documentation for more details).",
+      "description": "Do you want to let Copper update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Copper Account any Prospect is linked to (refer to documentation for more details).",
       "type": "boolean",
       "default": false
     },
@@ -141,13 +175,13 @@
     },
     {
       "name": "incoming_account_attributes",
-      "title": "Incoming People Fields to Sync (CopperCrm to Hull)",
+      "title": "Incoming People Fields to Sync (Copper to Hull)",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
         "direction": "incoming",
         "showOverwriteToggle": true,
-        "placeholder": "CopperCrm Company Field",
+        "placeholder": "Copper Company Field",
         "allowCreate": true,
         "loadOptions": "/attributes-companies-incoming",
         "source": "coppercrm"
@@ -165,7 +199,7 @@
     },
     {
       "name": "incoming_opportunity_attributes",
-      "title": "Incoming Opportunity Fields to Sync (CopperCrm to Hull)",
+      "title": "Incoming Opportunity Fields to Sync (Copper to Hull)",
       "type": "array",
       "format": "table",
       "items": {
@@ -190,7 +224,6 @@
             "type": "boolean",
             "title": "Overwrite In Hull",
             "format": "select",
-            "required": true,
             "default": true
           }
         }
@@ -211,7 +244,7 @@
       "format": "hidden"
     },
     {
-      "title": "Activities To Fetch From CopperCrm",
+      "title": "Activities To Fetch From Copper",
       "name": "activities_to_fetch",
       "type": "array",
       "format": "select",
@@ -249,7 +282,7 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all leads from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "text": "You are about to pull all leads from Copper, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
           "button": "Start Fetching Leads",
           "entity": "users"
         }
@@ -266,7 +299,7 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all people from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "text": "You are about to pull all people from Copper, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
           "button": "Start Fetching People",
           "entity": "users"
         }
@@ -283,7 +316,7 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all companies from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "text": "You are about to pull all companies from Copper, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
           "button": "Start Fetching Companies",
           "entity": "users"
         }
@@ -300,7 +333,7 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all opportunities from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "text": "You are about to pull all opportunities from Copper, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
           "button": "Start Fetching Opportunities",
           "entity": "users"
         }
@@ -317,7 +350,7 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all events from CopperCrm into Hull.",
+          "text": "You are about to pull all events from Copper into Hull.",
           "button": "Start Fetching Events",
           "entity": "events"
         }
@@ -326,6 +359,10 @@
     {
       "url": "/attributes-leads-incoming",
       "handler": "attributesLeadsIncoming"
+    },
+    {
+      "url": "/attributes-leads-outgoing",
+      "handler": "attributesLeadsOutgoing"
     },
     {
       "url": "/attributes-people-incoming",
@@ -408,26 +445,38 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_lead_segments"]
+        }
+      },
       "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
         {
           "channel": "ship:update",
           "handler": "shipUpdate"
         }
-      ],
-      "conditions": {
-        "channels": {
-          "only": [
-            "ship:update"
-          ]
-        }
-      }
+      ]
     }
   ],
-  "batches": [],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
   "settings_sections": [
     {
-      "title": "Connect with CopperCrm",
-      "description": "The following information is required in order to connect with your CopperCrm instance.  You can find these values in your CopperCrm instance by clicking `Settings` then in the `Integrations` section click `API Keys`",
+      "title": "Connect with Copper",
+      "description": "The following information is required in order to connect with your Copper instance.  You can find these values in your Copper instance by clicking `Settings` then in the `Integrations` section click `API Keys`",
       "properties": [
         "private_settings.coppercrm_api_key",
         "private_settings.coppercrm_email"
@@ -436,28 +485,32 @@
     {
       "title": "Lead - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for leads.  If you need another identifier please contact your Hull customer success representative",
-      "properties": [
-        "private_settings.lead_claims"
-      ]
+      "properties": ["private_settings.lead_claims"]
     },
     {
-      "title": "Lead - Fetching Leads from CopperCrm",
-      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "title": "Lead - Fetching Leads from Copper",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Copper below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_lead_attributes",
         "json.fetch_all_leads"
       ]
     },
     {
-      "title": "Person - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
+      "title": "Lead - Send Leads to CopperCrm",
+      "description": "Hull gives it's customers the ability to send leads to copper crm",
       "properties": [
-        "private_settings.person_claims"
+        "private_settings.synchronized_lead_segments",
+        "private_settings.outgoing_lead_attributes"
       ]
     },
     {
-      "title": "Person - Fetching People from CopperCRM",
-      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "title": "Person - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
+      "properties": ["private_settings.person_claims"]
+    },
+    {
+      "title": "Person - Fetching People from Copper",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Copper below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_person_attributes",
         "private_settings.link_person_in_hull",
@@ -467,13 +520,11 @@
     {
       "title": "Company - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email_domain is configured as the primary identifier for companies.  If you need another identifier please contact your Hull customer success representative",
-      "properties": [
-        "private_settings.account_claims"
-      ]
+      "properties": ["private_settings.account_claims"]
     },
     {
-      "title": "Company - Fetching Companies from CopperCRM",
-      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "title": "Company - Fetching Companies from Copper",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Copper below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_account_attributes",
         "json.fetch_all_companies"
@@ -482,20 +533,18 @@
     {
       "title": "Opportunity - Identity",
       "description": "<b>Identity</b> is one of the most important concepts in Hull.  For Opportunities, you must specify the \"Type\" of opportunity.  This could be a field which represents New, Upsell, Growth.  The Opportunity Type is used as a way to group opportunity attributes together on accounts or users.  That way you're more efficiently able to segment accounts and users by the different types of opportunities.  If the Opportunity Type field is blank on the Opportunity, Hull will not ingest it.  Additionally if you have multiple opportunities of the same type on an account or user, the attributes will likely overwrite each other, so be careful what field you use.  Please contact your Hull representative for more guidance if needed",
-      "properties": [
-        "private_settings.incoming_opportunity_type"
-      ]
+      "properties": ["private_settings.incoming_opportunity_type"]
     },
     {
       "title": "Opportunity - Fetching Opportunities from CopperCRM",
-      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Copper below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_opportunity_attributes",
         "json.fetch_all_opportunities"
       ]
     },
     {
-      "title": "Activities - Fetching Activities from CopperCrm",
+      "title": "Activities - Fetching Activities from Copper",
       "description": "",
       "properties": [
         "private_settings.activities_to_fetch",

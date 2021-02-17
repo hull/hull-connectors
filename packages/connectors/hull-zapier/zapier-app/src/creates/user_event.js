@@ -2,10 +2,26 @@ const _ = require("lodash");
 const sample = require("../../samples/user");
 const { createUrl } = require("../config");
 const { post } = require("../lib/request");
+const { isValidClaims } = require("../lib/utils");
 
 const perform = async (z, { inputData }) => {
-  const { external_id, email, event_name, properties } = inputData;
-  const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
+  const { anonymous_id, external_id, email, event_name, properties } = inputData;
+  const claims = _.pickBy({ email, external_id, anonymous_id }, (v, _k) => !!v);
+
+  if (_.isNil(event_name)) {
+    throw new z.errors.HaltedError("Missing Event Name");
+  }
+
+  if (!isValidClaims({ external_id, email, anonymous_id })) {
+    const errorMessage = {
+      "message": !_.every({ external_id, email, anonymous_id }, v => !!v) ? "Missing Identity Claims": "Invalid Identity Claims",
+      external_id,
+      email,
+      anonymous_id
+    };
+    throw new z.errors.HaltedError(JSON.stringify(errorMessage));
+  }
+
   return post(z,{
     url: createUrl,
     body: { entityType: "user_event", claims, event_name, properties }
@@ -41,6 +57,15 @@ const user_event = {
           "The external_id of the user to associate the event to. Takes precedence over the email if present",
         label: "External ID",
         required: false
+      },
+      {
+        required: false,
+        list: false,
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string',
+        altersDynamicFields: false
       },
       {
         key: "event_name",

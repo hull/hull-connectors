@@ -11,13 +11,22 @@ export default async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  // if (ctx.smartNotifierResponse) {
-  //   ctx.smartNotifierResponse.setFlowControl();
-  // }
   try {
     const syncAgent = new SyncAgent(ctx);
-    await syncAgent.sendUserUpdateMessages(messages);
-    return {};
+
+    if (!syncAgent.isConfigured()) {
+      ctx.client.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve();
+    }
+
+    try {
+      await Promise.resolve(syncAgent.fetchVisitors(messages));
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
+
+    return syncAgent.sendUserUpdateMessages(messages);
   } catch (err) {
     return {
       flow_control: { type: "retry" }

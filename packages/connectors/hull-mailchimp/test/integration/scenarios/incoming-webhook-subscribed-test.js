@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
@@ -12,6 +13,7 @@ it("should handle incoming webhook for subscribe event", () => {
   const email = "";
   return testScenario(
     {
+      manifest,
       connectorConfig
     },
     ({ handlers, nock, expect }) => {
@@ -51,6 +53,7 @@ it("should handle incoming webhook for subscribe event", () => {
               traits: {
                 first_name: { operation: "setIfNull", value: "First" },
                 last_name: { operation: "setIfNull", value: "Last" },
+                "mailchimp/archived": false,
                 "mailchimp/email": "subscribed@user.com",
                 "mailchimp/fname": "First",
                 "mailchimp/lname": "Last",
@@ -74,6 +77,7 @@ it("should handle incoming webhook for subscribe event", () => {
             {
               first_name: { operation: "setIfNull", value: "First" },
               last_name: { operation: "setIfNull", value: "Last" },
+              "mailchimp/archived": false,
               "mailchimp/email": "subscribed@user.com",
               "mailchimp/fname": "First",
               "mailchimp/lname": "Last",

@@ -43,6 +43,7 @@ class MetricAgent {
     );
     this.metrics = instrumentationAgent.metrics;
     this.dogapi = instrumentationAgent.dogapi;
+    this.flattenTags = !!this.dogapi;
     this.manifest = instrumentationAgent.manifest;
     this.ctx = ctx;
     this.logFunction = process.env.CONNECTOR_METRIC_LOGS
@@ -60,16 +61,13 @@ class MetricAgent {
    * @return {mixed}
    */
   value(metric: string, value: number = 1, additionalTags: Array<string> = []) {
-    this.logFunction("metric.value", { metric, value, additionalTags });
+    const tags = this.getTags(additionalTags);
+    this.logFunction("metric.value", { metric, value, tags });
     if (!this.metrics) {
       return null;
     }
     try {
-      return this.metrics.gauge(
-        metric,
-        parseFloat(value),
-        _.union(this.getMetricTagsArray(), additionalTags)
-      );
+      return this.metrics.gauge(metric, parseFloat(value), tags);
     } catch (err) {
       console.warn("metricVal.error", err);
     }
@@ -90,16 +88,13 @@ class MetricAgent {
     value: number = 1,
     additionalTags: Array<string> = []
   ) {
-    this.logFunction("metric.increment", { metric, value, additionalTags });
+    const tags = this.getTags(additionalTags);
+    this.logFunction("metric.increment", { metric, value, tags });
     if (!this.metrics) {
       return null;
     }
     try {
-      return this.metrics.increment(
-        metric,
-        parseFloat(value),
-        _.union(this.getMetricTagsArray(), additionalTags)
-      );
+      return this.metrics.increment(metric, parseFloat(value), tags);
     } catch (err) {
       console.warn("metricInc.error", err);
     }
@@ -115,6 +110,7 @@ class MetricAgent {
    * @return {mixed}
    */
   event(title: string, text: string = "", properties: Object = {}) {
+    // TODO: deprecate calls to event as it's not supported by statsd
     this.logFunction("metric.event", { title, text, properties });
     if (!this.dogapi) {
       return null;
@@ -136,13 +132,24 @@ class MetricAgent {
     );
   }
 
-  getMetricTagsObject() {
+  getTags(additionalTags: Array<string> = []) {
+    return this.flattenTags
+      ? this.getMetricTagsArray(additionalTags)
+      : this.getMetricTagsObject(additionalTags);
+  }
+
+  getMetricTagsObject(additionalTags: Array<string> = []) {
     const { organization = "none", id = "none" } =
       this.ctx.client !== undefined ? this.ctx.client.configuration() : {};
-    const hullHost = organization
-      .split(".")
-      .slice(1)
-      .join(".");
+    const moreTags = _.reduce(
+      additionalTags,
+      (ts, t) => {
+        const [k, v] = t.split(":");
+        return { ...ts, [k]: v };
+      },
+      {}
+    );
+    const hullHost = organization.split(".").slice(1).join(".");
     const tags = {
       source: "ship",
       ship_version: this.manifest.version,
@@ -158,11 +165,11 @@ class MetricAgent {
       connector: id,
       handler_name: this.ctx.handlerName || "none"
     };
-    return tags;
+    return { ...tags, ...moreTags };
   }
 
-  getMetricTagsArray() {
-    const tagsObject = this.getMetricTagsObject();
+  getMetricTagsArray(additionalTags: Array<string> = []) {
+    const tagsObject = this.getMetricTagsObject(additionalTags);
     return _.toPairs(tagsObject).map(([key, value]) => `${key}:${value}`);
   }
 }

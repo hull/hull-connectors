@@ -26,7 +26,9 @@ const {
   not,
   jsonata,
   cacheWrap,
-  moment
+  moment,
+  cacheDel,
+  returnValue
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -38,6 +40,10 @@ const {
   WebPayload,
   HullConnectorEnumDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const {
+  fetchAllIntoIdMap
+} = require("hull-connector-framework/src/purplefusion/glue-predefined")
 
 const { OutreachEventRead, OutreachWebEventRead } = require("./service-objects");
 
@@ -302,6 +308,10 @@ const glue = {
         ])
     }),
 
+  ensure: [
+    set("arrayStrategy", ld("get", "${connector.private_settings}", "array_strategy", "send_raw_array")),
+    route("ensureWebhooks")
+  ],
   ensureWebhooks: ifL(settings("access_token"),
     ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
 
@@ -344,10 +354,72 @@ const glue = {
         })
       )
     ]),
+
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
-  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
-  getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id, \"sequence_step\": data.relationships.sequenceStep.data.id}", outreach("getMailingDetails")),
-  getSequences: jsonata("$ {$string(id): attributes.name}", cacheWrap(6000, outreach("getSequences"))),
+  getOwnerIdToEmailMap: cacheWrap(60000, route("paginateUsers")),
+  forceGetOwnerIdToEmailMap: returnValue(cacheDel(route("paginateUsers")), route("paginateUsers")),
+  getOwnerEmailToIdMap: cacheWrap(60000, route("paginateUsersEmail")),
+  forceGetOwnerEmailToIdMap: returnValue(cacheDel(route("paginateUsersEmail")), route("paginateUsersEmail")),
+
+  paginateUsersEmail: fetchAllIntoIdMap({
+    serviceName: "outreach",
+    fetchEndpoint: "getUsersPaged",
+    pageSize: 1000,
+    offsetParameter: "id",
+    jsonExpression: "$ {attributes.email: $string(id)}"
+  }),
+
+  //route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getUsersPaged", jsonataExpression: "$ {$string(id): attributes.email}"}),
+  paginateUsers: fetchAllIntoIdMap({
+    serviceName: "outreach",
+    fetchEndpoint: "getUsersPaged",
+    pageSize: 1000,
+    offsetParameter: "id",
+    jsonExpression: "$ {$string(id): attributes.email}"
+  }),
+
+  getSequences: cacheWrap(60000, route("paginateSequences")),
+  forceGetSequences: returnValue(cacheDel(route("paginateSequences")), route("paginateSequences")),
+
+  //route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getSequencesPaged", jsonataExpression: "$ {$string(id): attributes.name}"}),
+  paginateSequences: fetchAllIntoIdMap({
+    serviceName: "outreach",
+    fetchEndpoint: "getSequencesPaged",
+    pageSize: 1000,
+    offsetParameter: "id",
+    jsonExpression: "$ {$string(id): attributes.name}"
+  }),
+
+
+  getSequenceSteps: cacheWrap(60000, route("paginateSequenceSteps")),
+  forceGetSequenceSteps: returnValue(cacheDel(route("paginateSequenceSteps")), route("paginateSequenceSteps")),
+
+  // route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getSequenceStepsPaged", jsonataExpression: "$ {$string(id): attributes.displayName}"}),
+  paginateSequenceSteps: fetchAllIntoIdMap({
+    serviceName: "outreach",
+    fetchEndpoint: "getSequenceStepsPaged",
+    pageSize: 1000,
+    offsetParameter: "id",
+    jsonExpression: "$ {$string(id): attributes.displayName}"
+  }),
+
+  setMailingDetails: [
+    set("mailingIdsArray", jsonata("data.attributes.mailingId[$boolean($)][]", input("events"))),
+    ifL(not(cond("isEmpty", "${mailingIdsArray}")), [
+        set("mailingIds", ex("${mailingIdsArray}", "join", ",")),
+        set("mailingDetails",
+          jsonata("$.data {\n" +
+            "    $string(id): {\n" +
+            "        \"email_subject\": attributes.subject, \n" +
+            "        \"sequence_id\": relationships.sequence.data.id,\n" +
+            "        \"sequence_step\": relationships.sequenceStep.data.id\n" +
+            "    }\n" +
+            "}",
+            outreach("getMailingDetailsBatch")))
+      ]
+    )
+  ],
+
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
       set("id_offset", 0),
@@ -355,13 +427,18 @@ const glue = {
       set("service_name", "outreach"),
       loopL([
         set("outreachEvents", outreach("getEventsPaged")),
-        iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
+        route("setMailingDetails", { events: "${outreachEvents}"}),
+        iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true},
           hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
         ),
-        ifL(cond("isEqual", ld("size", "${outreachEvents.data}"), 1000), {
-          do: set("id_offset", "${outreachEvents.data[999].id}"),
-          eldo: loopEndL()
-        })
+
+        set("id_offset", get("id", ld("last", "${outreachEvents.data}"))),
+        ifL(cond("lessThan", "${outreachEvents.data.length}", "${page_limit}"), loopEndL())
+
+        // ifL(cond("isEqual", ld("size", "${outreachEvents.data}"), 1000), {
+        //   do: set("id_offset", "${outreachEvents.data[999].id}"),
+        //   eldo: loopEndL()
+        // })
       ])
     ]),
   eventsFetchRecent:
@@ -374,6 +451,7 @@ const glue = {
       set("filterLimits", "${eventsLastFetch}..${sync_end}"),
       set("outreachEvents", outreach("getRecentEvents")),
       loopL([
+        route("setMailingDetails", { events: "${outreachEvents}"}),
         iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
           ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
             hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
@@ -389,7 +467,13 @@ const glue = {
         })
       ]),
       settingsUpdate({events_last_fetch_at: "${sync_end}"})
-    ])
+    ]),
+  testCaching: [
+    route("getOwnerIdToEmailMap"),
+    route("getSequences"),
+    route("getOwnerIdToEmailMap"),
+    route("getSequences"),
+  ]
 };
 
 module.exports = glue;

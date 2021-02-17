@@ -1,11 +1,6 @@
 // @flow
 
-export default (req, res) => {
+export default async req => {
   const { anonymous_id } = req.body;
-  return req.hull
-    .alias({ anonymous_id }, req.firehoseEventContext)
-    .then(
-      ok => res.status(204).send({ ok: !!ok }),
-      error => res.status(503).send({ error })
-    );
+  return req.hull.alias({ anonymous_id }, req.firehoseEventContext);
 };

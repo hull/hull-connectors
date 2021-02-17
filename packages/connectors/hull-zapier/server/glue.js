@@ -27,6 +27,10 @@ function zapier(op: string, param?: any): Svc {
 }
 
 const glue = {
+  status: {
+    status: "ok",
+    message: "allgood"
+  },
   userUpdate: [],
   accountUpdate: [],
   performTrigger: [
@@ -43,7 +47,7 @@ const glue = {
     zapier("sendZap", input("data"))
   ],
   unsubscribeFromError: [
-    route("unsubscribe", jsonata(`$.{"body": {"url": url}}`, input("response.req")))
+    route("unsubscribe", jsonata(`$.{"body": {"url": url}}`, { "url": "${zap_url}" }))
   ],
   credentials: returnValue([
     set("api_key", get("clientCredentialsEncryptedToken", input("context")))
@@ -115,7 +119,7 @@ const glue = {
       hull("asAccount", jsonata(`$.{"ident": {"external_id": claims.external_id, "domain": claims.domain}, "attributes": attributes}`, input("body")))
     ]),
     ifL(cond("isEqual", "${entityType}", "user"), [
-      hull("asUser", jsonata(`$.{"ident": {"external_id": claims.external_id, "email": claims.email}, "attributes": attributes}`, input("body")))
+      hull("asUser", jsonata(`$.{"accountIdent": {"anonymous_id": account_claims.account_anonymous_id, "external_id": account_claims.account_external_id, "domain": account_claims.account_domain}, "ident": {"anonymous_id": claims.anonymous_id, "external_id": claims.external_id, "email": claims.email}, "attributes": attributes}`, input("body")))
     ]),
     ifL(cond("isEqual", "${entityType}", "user_event"), [
       hull("asUser", jsonata(`{"ident":{"external_id": claims.external_id, "email": claims.email},"attributes": attributes, "events": [$merge({"eventName": event_name, "context": {"source": "zapier"}, "properties": properties})]}`, input("body")))

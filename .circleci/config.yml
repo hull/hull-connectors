@@ -16,7 +16,7 @@ jobs:
             docker push hull/hull-connectors:$CIRCLE_SHA1
   test:
     docker:
-      - image: circleci/node:10.15
+      - image: circleci/node:12.12.0
       - image: circleci/redis:5.0.4
       - image: circleci/mongo:3.6.12
     steps:

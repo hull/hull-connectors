@@ -1,0 +1,207 @@
+{
+  "name": "Snowflake Importer",
+  "description": "Import data from your Snowflake Warehouse",
+  "picture": "picture.png",
+  "source": "snowflake",
+  "logo": "logo.png",
+  "version": "0.1.40-monorepo",
+  "tags": ["incoming", "oneColumn", "sql-accounts"],
+  "private_settings": [
+    {
+      "type": "string",
+      "format": "title",
+      "name": "connector_info",
+      "title": "Connector Configuration"
+    },
+    {
+      "name": "import_type",
+      "title": "Import type",
+      "description": "What do you want to import to Hull ?",
+      "type": "string",
+      "enum": ["users", "accounts", "events"],
+      "default": "users",
+      "required": true
+    },
+    {
+      "name": "enabled",
+      "title": "Enable Sync (default interval is 3 hours)",
+      "type": "boolean",
+      "default": "false"
+    },
+    {
+      "name": "sync_interval",
+      "title": "Sync interval (in minutes)",
+      "type": "string",
+      "default": "180",
+      "enum": ["30", "60", "180", "360", "720", "1440"]
+    },
+    {
+      "name": "import_days",
+      "title": "Incremental Queries - Start Date (x days ago)",
+      "description": "Enter the number of days and the connector will make a variable called 'import_start_date' available to your query that allows you to run incremental queries. If your SQL query does not use this variable at all, this setting has no effect.",
+      "type": "number",
+      "default": "5"
+    },
+    {
+      "type": "string",
+      "format": "title",
+      "name": "db_info",
+      "title": "Database connection"
+    },
+    {
+      "name": "db_account",
+      "type": "string",
+      "title": "Snowflake Account Name",
+      "required": true,
+      "description": "The account name is in your instance url before '.snowflakecomputing.com'. For example, if your instance is at https://ab1234.us-east-2.aws.snowflakecomputing.com', the account name is ab1234.us-east-2.aws"
+    },
+    {
+      "name": "db_region",
+      "type": "string",
+      "title": "Region",
+      "required": true,
+      "description": "Region of the database"
+    },
+    {
+      "name": "db_name",
+      "type": "string",
+      "title": "Database name",
+      "required": true
+    },
+    {
+      "type": "string",
+      "format": "title",
+      "name": "db_info_login",
+      "title": "Database Login"
+    },
+    {
+      "name": "db_login_hero",
+      "type": "string",
+      "headerTemplate": "***Security Recommendation***<br>We recommend to grant the user below read-only access to dedicated tables to keep your information safe. Please refer to the manual of your database server for additional security recommendations.",
+      "format": "information",
+      "title": " "
+    },
+    {
+      "name": "db_user",
+      "type": "string",
+      "title": "Username",
+      "required": true
+    },
+    {
+      "name": "db_password",
+      "type": "string",
+      "title": "Password",
+      "required": true
+    },
+    {
+      "name": "query",
+      "title": "Query to run",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_sync_at",
+      "title": "Last sync",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_updated_at",
+      "title": "Last updated_at",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_job_id",
+      "title": "Last job ID",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name" : "dedupe_lines_from_previous_import",
+      "title" : "Dedupe lines from previous import",
+      "type" : "boolean",
+      "default" : false
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "settings_sections": [
+    {
+      "title": "Database connection",
+      "description": "***Security Recommendation***<br>We recommend to grant the user below read-only access to dedicated tables to keep your information safe. Please refer to the manual of your database server for additional security recommendations.",
+      "properties": [
+        "private_settings.db_account",
+        "private_settings.db_region",
+        "private_settings.db_name",
+        "private_settings.db_login_hero",
+        "private_settings.db_user",
+        "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "Connector Configuration",
+      "description": "To write your query, go to the **Overview** tab and click the **Query Editor** button **AFTER** saving these settings",
+      "properties": [
+        "private_settings.import_type",
+        "private_settings.enabled",
+        "private_settings.sync_interval",
+        "private_settings.dedupe_lines_from_previous_import",
+        "private_settings.import_days"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Query Editor",
+      "url": "/admin.html",
+      "handler": "admin",
+      "size": "large",
+      "editable": true
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
+  },
+  "ui": false,
+  "schedules": [
+    {
+      "url": "/sync",
+      "type": "interval",
+      "handler": "sync",
+      "value_from": "private_settings.sync_interval",
+      "default": "180"
+    }
+  ],
+  "json": [
+    {
+      "url": "/run",
+      "handler": "run",
+      "options": {}
+    },
+    {
+      "url": "/import",
+      "handler": "importResults",
+      "options": {}
+    },
+    {
+      "url": "/storedquery",
+      "handler": "storedquery",
+      "options": {}
+    }
+  ]
+}

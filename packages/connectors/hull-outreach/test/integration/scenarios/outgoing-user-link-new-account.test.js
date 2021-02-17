@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const _ = require("lodash");
 
@@ -9,7 +10,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 test("send smart-notifier user update to outreach and link account", () => {
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(
       require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json")
     );
@@ -51,9 +52,6 @@ test("send smart-notifier user update to outreach and link account", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10
         }
       },
       logs: [

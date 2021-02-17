@@ -10,6 +10,11 @@ export default class ReplEngine extends Engine {
     }
   };
 
+  constructor() {
+    super();
+    this.initialize();
+  }
+
   async callAPI() {
     this.setState({ computing: true });
     const current = await this.request({

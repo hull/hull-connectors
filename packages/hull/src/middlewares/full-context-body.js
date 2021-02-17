@@ -23,7 +23,7 @@ function fullContextBodyMiddlewareFactory({
     res: HullResponse,
     next: NextFunction
   ) {
-    bodyParser.json({ limit: "10mb" })(req, res, err => {
+    bodyParser.json({ limit: "50mb" })(req, res, err => {
       if (err !== undefined) {
         return next(err);
       }
@@ -84,9 +84,9 @@ function fullContextBodyMiddlewareFactory({
       const { manifest } = req.hull.connectorConfig;
       applyConnectorSettingsDefaults(connector, manifest);
       trimTraitsPrefixFromConnector(connector);
-
       // $FlowFixMe
       req.hull = Object.assign(req.hull, {
+        __contextFetched: !!connector && !!usersSegments && !!accountsSegments,
         // $FlowFixMe
         connector,
         // $FlowFixMe

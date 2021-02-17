@@ -1,0 +1,975 @@
+{
+  "name": "Salesforce",
+  "description": "Enrich your Leads and Contacts in Salesforce and Trigger Powerful Workflows",
+  "source": "salesforce",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "kraken-exports",
+    "first-install",
+    "single-install"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Credentials",
+      "description": "Authenticate with Salesforce",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": true,
+        "name": "Salesforce",
+        "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
+        "tokenURL": "https://login.salesforce.com/services/oauth2/token",
+        "scope": ["refresh_token", "api"],
+        "strategy": {
+          "tokenInUrl": true,
+          "name": "Salesforce",
+          "authorizationURL": "https://login.salesforce.com/services/oauth2/authorize",
+          "tokenURL": "https://login.salesforce.com/services/oauth2/token",
+          "scope": ["refresh_token", "api"]
+        }
+      }
+    },
+    {
+      "name": "refresh_token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "access_token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "instance_url",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "salesforce_oauth_url",
+      "title": "Salesforce Login Url",
+      "type": "string",
+      "default": "https://login.salesforce.com",
+      "description": "Use 'https://login.salesforce.com' to connect to your production environment."
+    },
+    {
+      "name": "outgoing_contacts_section",
+      "title": "Contacts",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "lead_synchronized_segments",
+      "title": "Lead Filter",
+      "description": "Send users as leads when they belong to one of these segments to Salesforce. Only users in the specified segments are sent. Updates from Salesforce are always fetched for all users.",
+      "type": "array",
+      "format": "segment",
+      "default": []
+    },
+    {
+      "name": "contact_synchronized_segments",
+      "title": "Contact Filter",
+      "description": "Send users as contacts when they belong to one of these segments to Salesforce. Only users in the specified segments are sent. Updates from Salesforce are always fetched for all users.",
+      "type": "array",
+      "format": "segment",
+      "default": []
+    },
+    {
+      "name": "account_synchronized_segments",
+      "title": "Account Filter",
+      "description": "Send accounts when they belong to one of these segments to Salesforce. Only accounts in the specified segments are sent. Updates from Salesforce are always fetched for all accounts.",
+      "type": "array",
+      "format": "accountSegment",
+      "default": []
+    },
+    {
+      "name": "ignore_deleted_objects",
+      "type": "boolean",
+      "title": "Ignore deleted Salesforce objects",
+      "default": true,
+      "description": "When objects are deleted in Salesforce, avoid recreating them."
+    },
+    {
+      "name": "ignore_users_withoutemail",
+      "type": "boolean",
+      "title": "Ignore users without email",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "ignore_users_withoutchanges",
+      "type": "boolean",
+      "title": "Ignore users without changes in the mapped attributes.",
+      "default": false
+    },
+    {
+      "name": "ignore_accounts_withoutchanges",
+      "type": "boolean",
+      "title": "Ignore accounts without changes in the mapped attributes.",
+      "default": false
+    },
+    {
+      "name": "link_accounts",
+      "type": "boolean",
+      "title": "If true the connector will link saved contacts to accounts",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "allow_short_domains",
+      "type": "boolean",
+      "title": "If true allow find on SFDC API for short domains",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "contact_claims",
+      "title": "Contact Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Salesforce Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/contact_updateable"
+            }
+          },
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["external_id", "email"]
+          },
+          "required": {
+            "type": "boolean",
+            "title": "required?",
+            "format": "select"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "Email",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "lead_claims",
+      "title": "Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Salesforce Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/lead_updateable"
+            }
+          },
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["external_id", "email"]
+          },
+          "required": {
+            "type": "boolean",
+            "title": "required?",
+            "format": "select"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "Email",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "lead_attributes_outbound",
+      "title": "Lead Outgoing Fields",
+      "description": "List of Lead fields to send from Hull to Salesforce",
+      "type": "array",
+      "format": "traitMapping",
+      "default": [
+        {
+          "hull": "first_name",
+          "service": "FirstName",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        },
+        {
+          "hull": "last_name",
+          "service": "LastName",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        }
+      ],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/lead_updateable"
+      }
+    },
+    {
+      "name": "lead_outgoing_user_segments",
+      "title": "Lead Outgoing User Segments Attribute",
+      "description": "Select a lead attribute where Hull will push a list of concatenated User Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "loadOptions": "/schema/lead_updateable"
+      }
+    },
+    {
+      "name": "lead_outgoing_account_segments",
+      "title": "Lead Outgoing Account Segments Attribute",
+      "description": "Select a lead attribute where Hull will push a list of concatenated Account Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "loadOptions": "/schema/lead_updateable"
+      }
+    },
+    {
+      "name": "lead_assignmentrule",
+      "title": "Lead Assignment Rule - create",
+      "description": "The lead assignment rule to use when **creating** leads",
+      "type": "string",
+      "format": "select",
+      "default": "none",
+      "options": {
+        "loadOptions": "/assignmentrules/lead"
+      }
+    },
+    {
+      "name": "lead_assignmentrule_update",
+      "title": "Lead Assignment Rule - update",
+      "description": "The lead assignment rule to use when **updating** leads",
+      "type": "string",
+      "format": "select",
+      "default": "none",
+      "options": {
+        "loadOptions": "/assignmentrules/lead"
+      }
+    },
+    {
+      "name": "fetch_leads",
+      "title": "Lead Fetch",
+      "description": "Enable fetching Salesforce Leads to Hull",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "lead_attributes_inbound",
+      "title": "Lead Incoming Fields",
+      "description": "List of Lead fields to fetch from Salesforce.",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Lead Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/lead",
+        "source": "salesforce_lead"
+      }
+    },
+    {
+      "name": "contacts",
+      "title": "Contacts sync",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "contact_attributes_outbound",
+      "title": "Contact Outgoing Fields",
+      "description": "List of Contact fields to send from Hull to Salesforce",
+      "type": "array",
+      "format": "traitMapping",
+      "default": [
+        {
+          "hull": "first_name",
+          "service": "FirstName",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        },
+        {
+          "hull": "last_name",
+          "service": "LastName",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        }
+      ],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/contact_updateable"
+      }
+    },
+    {
+      "name": "contact_outgoing_user_segments",
+      "title": "Contact Outgoing User Segments",
+      "description": "Select a contact attribute where Hull will push a list of concatenated User Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "loadOptions": "/schema/contact_updateable"
+      }
+    },
+    {
+      "name": "contact_outgoing_account_segments",
+      "title": "Contact Outgoing Account Segments",
+      "description": "Select a contact attribute where Hull will push a list of concatenated Account Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "loadOptions": "/schema/contact_updateable"
+      }
+    },
+    {
+      "name": "fetch_contacts",
+      "title": "Contact Fetch",
+      "description": "Enable fetching Salesforce Contacts to Hull",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "contact_attributes_inbound",
+      "title": "Contact Incoming Fields",
+      "description": "List of Contact fields to fetch from Salesforce",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Contact Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact",
+        "source": "salesforce_contact"
+      }
+    },
+    {
+      "name": "accounts",
+      "title": "Accounts sync",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "account_claims",
+      "title": "Account Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["external_id", "domain"]
+          },
+          "service": {
+            "title": "Salesforce Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/account_updateable"
+            }
+          },
+          "required": {
+            "type": "boolean",
+            "format": "select",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "domain",
+          "service": "Website",
+          "required": true
+        }
+      ],
+      "options": {
+        "itemsPerRow": 3
+      }
+    },
+    {
+      "name": "account_attributes_outbound",
+      "title": "Account Outgoing Fields",
+      "description": "List of Account fields to push to Salesforce",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "default": [
+        {
+          "hull": "domain",
+          "service": "Website",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        },
+        {
+          "hull": "name",
+          "service": "Name",
+          "default_value": "[Unknown]",
+          "overwrite": false
+        }
+      ],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/account_updateable"
+      }
+    },
+    {
+      "name": "account_outgoing_account_segments",
+      "title": "Account Outgoing Account Segments",
+      "description": "Select an account attribute where Hull will push a list of concatenated Account Segments from a given Hull Account",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "loadOptions": "/schema/account_updateable"
+      }
+    },
+    {
+      "name": "fetch_accounts",
+      "title": "Account Fetch",
+      "description": "Enable fetching Salesforce Accounts to Hull",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "account_attributes_inbound",
+      "title": "Account Incoming Fields",
+      "description": "List of Account fields to fetch from Salesforce",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": true,
+        "placeholder": "Salesforce Account Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/account",
+        "source": "salesforce"
+      }
+    },
+    {
+      "name": "tasks",
+      "title": "Tasks Sync",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "fetch_tasks",
+      "title": "Task Fetch",
+      "description": "Enable fetching Salesforce Tasks to Hull as events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "send_outgoing_tasks",
+      "title": "Send Events",
+      "description": "Global toggle to start sending Hull Events as Salesforce Tasks.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "hull_event_id",
+      "title": "Hull Event Identifier",
+      "description": "Define which Salesforce Task Property should carry unique Hull Event Identifier. This is required to avoid duplicates. Usually default value is the best option.",
+      "type": "string",
+      "default": "event_id"
+    },
+    {
+      "name": "salesforce_external_id",
+      "title": "Salesforce External Id Property",
+      "format": "select",
+      "type": "string",
+      "options": {
+        "loadOptions": "/schema/task_unique"
+      },
+      "description": "The unique field in Salesforce which is used to avoid duplicates. This field must be updateable and unique."
+    },
+    {
+      "name": "task_references_outbound",
+      "title": "Task References Mapping",
+      "description": "Define which Tasks Fields reference Salesforce Contacts or Leads.",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Salesforce Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/task_reference"
+      }
+    },
+    {
+      "name": "task_attributes_outbound",
+      "title": "Task Fields Mapping",
+      "description": "Define how to map Hull User Event properties into Salesforce Tasks fields",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "type": "string",
+            "format": "string",
+            "title": "Hull Event Property"
+          },
+          "service": {
+            "type": "string",
+            "title": "Salesforce Field",
+            "format": "select",
+            "options": {
+              "loadOptions": "/schema/task_updateable"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "events_mapping",
+      "title": "Task Type Mapping",
+      "description": "Define which Hull Events should be send as specific Salesforce Tasks Types.",
+      "type": "array",
+      "format": "table",
+      "default": [],
+      "required": false,
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "title": "Event Name",
+            "description": "Event to send",
+            "type": "string",
+            "format": "event",
+            "options": {
+              "allowCreate": true
+            }
+          },
+          "task_type": {
+            "title": "Type of Task to Create",
+            "description": "Task type to create",
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "task_attributes_inbound",
+      "title": "Task Incoming Fields",
+      "description": "List of Task fields to fetch from Salesforce",
+      "type": "array",
+      "default": [
+        { "service": "Id", "hull": "Id" },
+        { "service": "Subject", "hull": "Subject" },
+        { "service": "WhoId", "hull": "WhoId" },
+        { "service": "Status", "hull": "Status" },
+        { "service": "AccountId", "hull": "AccountId" },
+        { "service": "CreatedDate", "hull": "CreatedDate_at" },
+        { "service": "IsArchived", "hull": "IsArchived" },
+        { "service": "OwnerId", "hull": "OwnerId" },
+        { "service": "CallDurationInSeconds", "hull": "CallDurationInSeconds" },
+        { "service": "CallObject", "hull": "CallObject" },
+        { "service": "CallDisposition", "hull": "CallDisposition" },
+        { "service": "CallType", "hull": "CallType" },
+        { "service": "IsClosed", "hull": "IsClosed" },
+        { "service": "Description", "hull": "Description" },
+        { "service": "IsRecurrence", "hull": "IsRecurrence" },
+        { "service": "CreatedById", "hull": "CreatedById" },
+        { "service": "IsDeleted", "hull": "IsDeleted" },
+        { "service": "ActivityDate", "hull": "ActivityDate_at" },
+        { "service": "RecurrenceEndDateOnly", "hull": "RecurrenceEndDateOnly" },
+        { "service": "IsHighPriority", "hull": "IsHighPriority" },
+        { "service": "LastModifiedById", "hull": "LastModifiedById" },
+        { "service": "LastModifiedDate", "hull": "LastModifiedDate_at" },
+        { "service": "Priority", "hull": "Priority" },
+        { "service": "RecurrenceActivityId", "hull": "RecurrenceActivityId" },
+        { "service": "RecurrenceDayOfMonth", "hull": "RecurrenceDayOfMonth" },
+        {
+          "service": "RecurrenceDayOfWeekMask",
+          "hull": "RecurrenceDayOfWeekMask"
+        },
+        { "service": "RecurrenceInstance", "hull": "RecurrenceInstance" },
+        { "service": "RecurrenceInterval", "hull": "RecurrenceInterval" },
+        { "service": "RecurrenceMonthOfYear", "hull": "RecurrenceMonthOfYear" },
+        {
+          "service": "RecurrenceTimeZoneSidKey",
+          "hull": "RecurrenceTimeZoneSidKey"
+        },
+        { "service": "RecurrenceType", "hull": "RecurrenceType" },
+        { "service": "WhatId", "hull": "WhatId" },
+        { "service": "ReminderDateTime", "hull": "ReminderDateTime" },
+        { "service": "IsReminderSet", "hull": "IsReminderSet" },
+        {
+          "service": "RecurrenceRegeneratedType",
+          "hull": "RecurrenceRegeneratedType"
+        },
+        {
+          "service": "RecurrenceStartDateOnly",
+          "hull": "RecurrenceStartDateOnly_at"
+        },
+        { "service": "Type", "hull": "Type" }
+      ]
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "incoming": [],
+  "json": [
+    {
+      "url": "/fetch-all-leads",
+      "handler": "fetchAllLeads",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_leads",
+      "title": "Fetch All Leads",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all leads from Salesforce into Hull. Please make sure you've configured your user identity properly and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Fetch Leads",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetch-all-contacts",
+      "handler": "fetchAllContacts",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_contacts",
+      "title": "Fetch All Contacts",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all contacts from Salesforce into Hull. Please make sure you've configured your user identity properly and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Fetch Contacts",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetch-all-accounts",
+      "handler": "fetchAllAccounts",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_accounts",
+      "title": "Fetch All Accounts",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all accounts from Salesforce into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Fetch Accounts",
+          "entity": "accounts"
+        }
+      }
+    },
+    {
+      "url": "/fetch-all-tasks",
+      "handler": "fetchAllTasks",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_tasks",
+      "title": "Fetch All Tasks",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all tasks from Salesforce into Hull. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.event.success messages as tasks are ingested",
+          "button": "Fetch Tasks",
+          "entity": "events"
+        }
+      }
+    },
+    {
+      "url": "/schema/lead",
+      "handler": "fieldsSalesforceLeadInbound"
+    },
+    {
+      "url": "/schema/lead_updateable",
+      "handler": "fieldsSalesforceLeadOutbound"
+    },
+    {
+      "url": "/schema/contact",
+      "handler": "fieldsSalesforceContactInbound"
+    },
+    {
+      "url": "/schema/contact_updateable",
+      "handler": "fieldsSalesforceContactOutbound"
+    },
+    {
+      "url": "/schema/account",
+      "handler": "fieldsSalesforceAccountInbound"
+    },
+    {
+      "url": "/schema/account_updateable",
+      "handler": "fieldsSalesforceAccountOutbound"
+    },
+    {
+      "url": "/schema/task_updateable",
+      "handler": "fieldsSalesforceTaskOutbound"
+    },
+    {
+      "url": "/schema/task_unique",
+      "handler": "fieldsSalesforceTaskUnique"
+    },
+    {
+      "url": "/schema/task_reference",
+      "handler": "fieldsSalesforceTaskReference"
+    },
+    {
+      "url": "/assignmentrules/lead",
+      "handler": "leadAssignmentRules"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/fetch-recent-contacts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentContacts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-leads",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-accounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-tasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentTasks",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-deleted-contacts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedContacts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-deleted-leads",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-deleted-accounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-deleted-tasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedTasks",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "segments": {
+          "user:update": [
+            "private_settings.lead_synchronized_segments",
+            "private_settings.contact_synchronized_segments"
+          ],
+          "account:update": ["private_settings.account_synchronized_segments"]
+        },
+        "channels": {
+          "only": ["user:update", "account:update", "ship:update"]
+        }
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Salesforce",
+      "description": "Please begin by authenticating this connector with Salesforce.",
+      "properties": ["private_settings.oauth"]
+    },
+    {
+      "title": "Lead Identity",
+      "description": "Lead Identity",
+      "properties": ["private_settings.lead_claims"]
+    },
+    {
+      "title": "Users - Fetching Leads from Salesforce",
+      "description": "Hull gives it's customers the ability to capture a subset of Leads fields in order to have fine grain control over the dataflow. Please configure the fields that you would like to be pulled from Salesforce below. See connector documentation (Docs tab above) for attributes mapping best practices.",
+      "properties": [
+        "private_settings.fetch_leads",
+        "private_settings.lead_attributes_inbound",
+        "json.fetch_all_leads"
+      ]
+    },
+    {
+      "title": "Users - Sending Leads to Salesforce",
+      "description": "Configuring this section will result in automated data flows which will create and update your Leads in Salesforce. That's why we provide fine grain control over the updates that you send to Salesforce. By default no users are sent from Hull to Salesforce, so first configure a \"Segment\" as a user filter to control which users get sent to Salesforce as Leads.<br />Check connector documentation (Docs tab above) for more details about how Hull determines if a user is a Lead or Contact.<br /><br />Then configure the attributes you want synchronized.",
+      "properties": [
+        "private_settings.lead_synchronized_segments",
+        "private_settings.lead_attributes_outbound",
+        "private_settings.lead_outgoing_user_segments",
+        "private_settings.lead_outgoing_account_segments",
+        "private_settings.lead_assignmentrule",
+        "private_settings.lead_assignmentrule_update"
+      ]
+    },
+    {
+      "title": "Contact Identity",
+      "description": "Contact Identity",
+      "properties": ["private_settings.contact_claims"]
+    },
+    {
+      "title": "Users - Fetching Contacts from Salesforce",
+      "description": "Hull gives it's customers the ability to capture a subset of Contacts fields in order to have fine grain control over the dataflow. Please configure the fields that you would like pulled from Salesforce below. See connector documentation (Docs tab above) for attributes mapping best practices.",
+      "properties": [
+        "private_settings.fetch_contacts",
+        "private_settings.contact_attributes_inbound",
+        "json.fetch_all_contacts"
+      ]
+    },
+    {
+      "title": "Users - Sending Contacts to Salesforce",
+      "description": "Configuring this section will result in automated data flows which will create and update your Contacts in Salesforce. That's why we provide fine grain control over the updates that you send to Salesforce. By default no users are sent from Hull to Salesforce, so first configure a \"Segment\" as a user filter to control which users get sent to Salesforce as Contact.<br />Check connector documentation (Docs tab above) for more details about how Hull determines if a user is a Lead or Contact.<br /><br />Then configure the attributes you want synchronized.",
+      "properties": [
+        "private_settings.contact_synchronized_segments",
+        "private_settings.contact_attributes_outbound",
+        "private_settings.contact_outgoing_user_segments",
+        "private_settings.contact_outgoing_account_segments"
+      ]
+    },
+    {
+      "title": "Accounts - Identity",
+      "description": "**Identity** is one of the most important concepts in Hull. The field mapping for account identity should correspond to unique fields across systems. This identity applies to both the data we send to Salesforce as well as the data we pull from Salesforce. To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471).",
+      "properties": ["private_settings.account_claims"]
+    },
+    {
+      "title": "Accounts - Fetching from Salesforce",
+      "description": "Hull gives it's customers the ability to decide if to fetch any Accounts from Salesforce and select a subset of Accounts fields in order to have fine grain control over the dataflow. Please configure the fields that you would like pulled from Salesforce below.",
+      "properties": [
+        "private_settings.fetch_accounts",
+        "private_settings.account_attributes_inbound",
+        "json.fetch_all_accounts"
+      ]
+    },
+    {
+      "title": "Accounts - Sending to Salesforce",
+      "description": "Configuring this section will result in automated data flows which will create and update your Accounts in Salesforce. That's why we provide fine grain control over the updates that you send to Salesforce. First configure a \"Segment\" as an account filter to control which accounts get sent to Salesforce as Accounts. By default no accounts are sent from Hull to Salesforce.<br /><br />Then configure the attributes you want synchronized.",
+      "properties": [
+        "private_settings.account_synchronized_segments",
+        "private_settings.account_attributes_outbound",
+        "private_settings.account_outgoing_account_segments"
+      ]
+    },
+    {
+      "title": "Events - Fetching Tasks from Salesforce",
+      "description": "Hull gives it's customers the ability to decide if to fetch any Tasks from Salesforce. <b><p> - All standard attributes on the task will be fetched.</p><b><p> - If a Task was created via an event from Hull, that Task will not be fetched, neither on deletion nor update, given that the reference from the Salesforce Task to the Hull Event is not removed. </p>",
+      "properties": ["private_settings.fetch_tasks", "json.fetch_all_tasks"]
+    },
+    {
+      "title": "Events - Sending Events as Tasks to Salesforce",
+      "description": "Configure this section in order to send selected Hull User Events as Salesforce Tasks.\n\nReview all fields here before toggling the traffic since there is a specific prerequsite for the setup:\n\n- If an event is imported into Salesforce as a Task, the id of that event must be stored on a field of the Task to guarantee that the Hull Event and the Salesforce Task remain in sync.\n- This field needs to be set up in your salesforce instance as a unique external id on the Task.\n- If this field is not set, Hull will not send the event to Salesforce.\n- If this field is ever removed, the task will be imported back into Hull as a separate and new event, given that 'Fetch Tasks' is turned on.",
+      "properties": [
+        "private_settings.send_outgoing_tasks",
+        "private_settings.hull_event_id",
+        "private_settings.salesforce_external_id",
+        "private_settings.events_mapping",
+        "private_settings.task_references_outbound",
+        "private_settings.task_attributes_outbound"
+      ]
+    },
+    {
+      "title": "Advanced",
+      "description": "You can configure the Connector to connect to a specific Sandbox system. Before proceeding please read carefully \"Connect with a Sandbox Environment\" section in Docs available above.<br /><br />When you are ready enter the login url of your Sandbox environment here and click “Save” to persist your changes. Switch to the tab \"Overview\" and click on \"Credentials\" to authenticate against your Sandbox system.",
+      "properties": ["private_settings.salesforce_oauth_url"]
+    }
+  ]
+}

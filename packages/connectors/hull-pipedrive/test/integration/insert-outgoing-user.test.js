@@ -5,13 +5,14 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 
 
 describe("Insert User Tests", () => {
 
   it("Insert Single User Fails", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = {
         "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
         "configuration": {
@@ -62,7 +63,7 @@ describe("Insert User Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -106,7 +107,7 @@ describe("Insert User Tests", () => {
   });
 
   it("Insert Single User To Pipedrive", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = {
         "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
         "configuration": {
@@ -235,7 +236,7 @@ describe("Insert User Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },

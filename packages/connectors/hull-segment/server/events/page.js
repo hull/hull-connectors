@@ -2,30 +2,22 @@
 
 import type { HullContext } from "hull";
 import track from "./track";
-import type { SegmentIncomingPage } from "../types";
 
-export default function handlePage(
-  ctx: HullContext,
-  message: SegmentIncomingPage
-) {
-  const { connector /* , client */ } = ctx;
-  const { handle_pages } = connector.settings || {};
+export default async function handlePage(ctx: HullContext, payload = {}) {
+  const { connector = {} } = ctx;
+  const { handle_pages } = connector.settings;
+
   if (handle_pages === false) {
     return false;
   }
 
-  const { properties = {} } = message;
+  const { properties = {} } = payload;
+  properties.name ??= payload.name;
 
-  const name = properties.name || message.name;
-  const page: SegmentIncomingPage = {
-    ...message,
-    properties: {
-      ...properties,
-      ...(name ? { name } : {})
-    },
+  return track(ctx, {
+    ...payload,
+    properties,
     event: "page",
     active: true
-  };
-
-  return track(ctx, page);
+  });
 }

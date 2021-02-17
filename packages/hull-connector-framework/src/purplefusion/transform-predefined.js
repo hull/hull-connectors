@@ -1,14 +1,22 @@
 const { isUndefinedOrNull } = require("./utils");
-const { varEqual, not, isServiceAttributeInVarList, varNull, varUndefinedOrNull } = require("./conditionals");
+const {
+  varEqual,
+  not,
+  isServiceAttributeInVarList,
+  varNull,
+  varUndefinedOrNull,
+  varInArray,
+  or
+} = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
   return {
     target: { component: "new" },
-    then: serviceUserTransforms(entityType)
+    then: serviceUserTransforms({ entityType })
   };
 }
 
-function serviceUserTransforms(entityType) {
+function serviceUserTransforms({ entityType, attributeExclusions = [] }) {
   let anonymousIdPostFix = "";
   let anonymousIdPrefix = "";
   let anonymousIdAttributePostfix = "";
@@ -26,7 +34,7 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: not(varEqual("serviceValue", undefined)),
+        condition: not(varUndefinedOrNull("serviceValue")),
         writeTo: {
           // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
           path: "ident.${mapping.hull}"
@@ -38,7 +46,13 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: not(varEqual("serviceValue", undefined)),
+        condition: [
+          or(
+            varEqual(attributeExclusions, []),
+            not(varInArray("mapping.service", attributeExclusions))
+          ),
+          not(varEqual("serviceValue", undefined))
+        ],
         then: [
           {
             condition: varEqual("mapping.overwrite", false),
@@ -122,9 +136,60 @@ function createEnumTransformWithAttributeList({ attribute, attributeId, attribut
   }
 }
 
+function createEnumTransformOutgoing({ attribute, writePath, attributeList, route, forceRoute, format, formatOnNull }) {
+  const onUndefined = forceRoute ? { component: "glue", route: forceRoute, select: "${attributeValue}", onUndefined: null} : undefined;
+
+  return {
+    operateOn: { component: "settings", select: [attributeList, { service: attribute }, "[0]", "hull" ], name: "attributeId" },
+    condition: not(varEqual("attributeId", undefined)),
+    then:{
+      operateOn: { component: "context", select: "message.user.${attributeId}", name: "attributeValue", onUndefined: null },
+      then: [
+        {
+          operateOn: {
+            component: "glue",
+            route: route,
+            select: "${attributeValue}",
+            onUndefined
+          },
+          // default null?
+          writeTo: {
+            path: writePath,
+            format
+          }
+        },
+        {
+          condition: varNull("operateOn"),
+          writeTo: {
+            path: writePath,
+            format: formatOnNull
+          }
+        }
+      ]
+    }
+  };
+}
+
+function createEnumTransformWithAttributeListOutgoing({
+    attribute,
+    attributeList,
+    route,
+    forceRoute,
+    format,
+    formatOnNull,
+    writePath
+}) {
+  return {
+    condition: isServiceAttributeInVarList(attribute, attributeList),
+    then: createEnumTransformOutgoing({ attribute, attributeList, route, forceRoute, format, formatOnNull, writePath })
+  }
+}
+
 
 module.exports = {
+  createEnumTransformWithAttributeListOutgoing,
   createIncomingServiceUserTransform,
   createEnumTransformWithAttributeList,
-  createEnumTransform
+  createEnumTransform,
+  serviceUserTransforms
 };

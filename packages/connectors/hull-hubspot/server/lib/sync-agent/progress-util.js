@@ -8,9 +8,7 @@ class ProgressUtil {
 
   start() {
     return this.settingsUpdate({
-      last_fetch_started_at: moment()
-        .utc()
-        .format(),
+      last_fetch_started_at: moment().utc().format(),
       is_fetch_completed: false,
       fetch_count: 0,
       fetch_account_count: 0

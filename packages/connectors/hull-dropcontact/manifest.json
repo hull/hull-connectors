@@ -1,0 +1,418 @@
+{
+  "name": "Dropcontact",
+  "description": "Find and validate emails through Dropcontact",
+  "tags": ["outgoing", "oneColumn", "batch", "kraken-exports"],
+  "source": "dropcontact",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [],
+  "readme": "readme.md",
+  "version": "0.1.40-monorepo",
+  "private_settings": [
+    {
+      "name": "api_key",
+      "description": "The Dropcontact API Key. [Find it here](https://app.dropcontact.io/app/receipts/)",
+      "title": "API Key",
+      "type": "string",
+      "format": "password"
+    },
+    {
+      "title": "email",
+      "description": "Which user attribute to use for the email field in Dropcontact",
+      "name": "email",
+      "default": "email",
+      "required": false,
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "title": "last_name",
+      "description": "Which user attribute to use for the last_name field in Dropcontact",
+      "name": "last_name",
+      "default": "last_name",
+      "required": true,
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "title": "first_name",
+      "description": "Which user attribute to use for the first_name field in Dropcontact",
+      "name": "first_name",
+      "default": "first_name",
+      "required": true,
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "title": "phone",
+      "description": "Which user attribute to use for the phone field in Dropcontact",
+      "name": "phone",
+      "default": "phone",
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "title": "company",
+      "description": "Which user attribute to use for the company field in Dropcontact",
+      "name": "company",
+      "default": "account.name",
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "title": "website",
+      "description": "Which user attribute to use for the website field in Dropcontact",
+      "name": "website",
+      "default": "account.domain",
+      "type": "string",
+      "format": "trait"
+    },
+    {
+      "name": "incoming_user_attributes",
+      "title": "Incoming User Attribute Mapping",
+      "description": "Define how User attributes from Dropcontact are captured",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "source": "dropcontact",
+        "direction": "incoming",
+        "allowExpression": true,
+        "showOverwriteToggle": true,
+        "placeholder": "Dropcontact Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/dropcontact-attributes"
+      },
+      "url": "/schema/dropcontact-attributes",
+      "handler": "dropcontactAttributesHandler",
+      "default": [
+        {
+          "service": "first_name",
+          "hull": "first_name",
+          "readOnly": true,
+          "overwrite": false
+        },
+        {
+          "service": "last_name",
+          "hull": "last_name",
+          "readOnly": true,
+          "overwrite": false
+        },
+        {
+          "service": "email.email",
+          "hull": "dropcontact/emails",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "email",
+          "hull": "dropcontact/emails_raw",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "first_name",
+          "hull": "dropcontact/first_name",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "last_name",
+          "hull": "dropcontact/last_name",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "civility",
+          "hull": "dropcontact/civility",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "full_name",
+          "hull": "dropcontact/full_name",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "phone",
+          "hull": "dropcontact/phone",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "company",
+          "hull": "dropcontact/company",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "website",
+          "hull": "dropcontact/website",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "linkedin",
+          "hull": "dropcontact/linkedin",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "siren",
+          "hull": "dropcontact/siren",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "siret",
+          "hull": "dropcontact/siret",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "siret_address",
+          "hull": "dropcontact/siret_address",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "vat",
+          "hull": "dropcontact/vat",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "nb_employees",
+          "hull": "dropcontact/nb_employees",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "naf5_code",
+          "hull": "dropcontact/naf5_code",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "naf5_des",
+          "hull": "dropcontact/naf5_des",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "company_linkedin",
+          "hull": "dropcontact/company_linkedin",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "company_turnover",
+          "hull": "dropcontact/company_turnover",
+          "readOnly": false,
+          "overwrite": true
+        },
+        {
+          "service": "company_results",
+          "hull": "dropcontact/company_results",
+          "readOnly": false,
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Inclusion List",
+      "description": "Enrich with Dropcontact when users match these segments (Users with a Dropcontact email will still be skipped)",
+      "type": "array",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "excluded_user_segments",
+      "title": "User Exclusion List",
+      "description": "Do NOT enrich with dropcontact users matching these segments (Batch updates will ignore this filter)",
+      "type": "array",
+      "options": {},
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "link_user_in_hull",
+      "title": "Link Users to Accounts in Hull",
+      "description": "Do you want to let Dropcontact create links between Users and Accounts created from Dropcontact? If inactive, the mapping below will be ignored. Be careful about conflicts with other connectors that would link users too. When this option is active, users might be re-linked to different accounts than their original account.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Incoming Account Attribute Mapping",
+      "description": "Define how Account attributes from Dropcontact are captured. Only applied if the `Link Users to Accounts in Hull` option above is active",
+      "type": "array",
+      "url": "/schema/dropcontact-attributes",
+      "handler": "dropcontactAttributesHandler",
+      "format": "accountTraitMapping",
+      "options": {
+        "source": "dropcontact",
+        "direction": "incoming",
+        "allowExpression": true,
+        "showOverwriteToggle": true,
+        "allowCreate": true,
+        "placeholder": "Dropcontact Field",
+        "loadOptions": "/schema/dropcontact-attributes"
+      },
+      "default": [
+        {
+          "service": "website",
+          "hull": "domain",
+          "readOnly": false,
+          "overwrite": false
+        },
+        {
+          "service": "company",
+          "hull": "name",
+          "readOnly": false,
+          "overwrite": false
+        },
+        {
+          "service": "website",
+          "hull": "dropcontact/website",
+          "overwrite": true
+        },
+        {
+          "service": "company",
+          "hull": "dropcontact/company",
+          "overwrite": true
+        },
+        {
+          "service": "siren",
+          "hull": "dropcontact/siren",
+          "overwrite": true
+        },
+        {
+          "service": "siret",
+          "hull": "dropcontact/siret",
+          "overwrite": true
+        },
+        {
+          "service": "siret_address",
+          "hull": "dropcontact/siret_address",
+          "overwrite": true
+        },
+        {
+          "service": "vat",
+          "hull": "dropcontact/vat",
+          "overwrite": true
+        },
+        {
+          "service": "nb_employees",
+          "hull": "dropcontact/nb_employees",
+          "overwrite": true
+        },
+        {
+          "service": "naf5_code",
+          "hull": "dropcontact/naf5_code",
+          "overwrite": true
+        },
+        {
+          "service": "naf5_des",
+          "hull": "dropcontact/naf5_des",
+          "overwrite": true
+        },
+        {
+          "service": "company_linkedin",
+          "hull": "dropcontact/company_linkedin",
+          "overwrite": true
+        },
+        {
+          "service": "company_turnover",
+          "hull": "dropcontact/company_turnover",
+          "overwrite": true
+        },
+        {
+          "service": "company_results",
+          "hull": "dropcontact/company_results",
+          "overwrite": true
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "Configure Dropcontact. Enter your API Key below",
+      "step": "credentials",
+      "properties": ["private_settings.api_key"]
+    },
+    {
+      "title": "Filtering",
+      "description": "Select which users will be enriched with Dropcontact. Users with a `dropcontact/email` attribute will be skipped anyways",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.excluded_user_segments"
+      ]
+    },
+    {
+      "title": "Lookup mapping",
+      "description": "Configure Dropcontact. Define which attributes to lookup data in Dropcontact",
+      "options": {
+        "itemsPerRow": 2
+      },
+      "properties": [
+        "private_settings.last_name",
+        "private_settings.first_name",
+        "private_settings.company",
+        "private_settings.email",
+        "private_settings.website",
+        "private_settings.phone"
+      ]
+    },
+    {
+      "title": "Result data mapping",
+      "description": "Define how the attributes coming from Dropcontact are mapped",
+      "properties": [
+        "private_settings.incoming_user_attributes",
+        "private_settings.link_user_in_hull",
+        "private_settings.incoming_account_attributes"
+      ]
+    }
+  ],
+  "json": [],
+  "subscriptions": [
+    {
+      "url": "/kraken",
+      "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "schedules": [],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "setupRequired",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ type UserUpdateParams = {
   changes: any
 };
 
-export default function({
+export default function userUpdate({
   emitter,
   debug,
   payload,
@@ -32,7 +32,7 @@ export default function({
       changes
     };
 
-    debug("emitting user.update", update);
+    debug("received user.update, emitting", update);
     emitter.emit("user.update", update);
 
     eval(

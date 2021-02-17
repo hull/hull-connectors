@@ -9,10 +9,10 @@ const select2 = require("select2"); // eslint-disable-line no-unused-vars
 const bootstrapTable = require("bootstrap-table/src/bootstrap-table"); // eslint-disable-line no-unused-vars
 
 const renderError = err =>
-  `<div class="alert alert-error" role="alert">${
-    STRINGS.FETCH_ERROR
-  }: ${(err.responseJSON ? err.responseJSON.error : err.responseText) ||
-    err.toString()}.</div>`;
+  `<div class="alert alert-error" role="alert">${STRINGS.FETCH_ERROR}: ${
+    (err.responseJSON ? err.responseJSON.error : err.responseText) ||
+    err.toString()
+  }.</div>`;
 
 const renderResults = ({ container, data }) =>
   container.bootstrapTable("load", data);
@@ -106,11 +106,11 @@ export default function boot() {
 
     const updateState = () => {
       const data = {};
-      const titles = $titles
+      data.titles = $titles
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      const domains = $domains
+      data.domains = $domains
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
@@ -120,12 +120,12 @@ export default function boot() {
           data[k] = val;
         }
       });
-      if (titles.length && domains.length) {
+      if (data.titles.length && data.domains.length) {
         enableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       } else {
         disableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       }
-      return { domains, titles };
+      return data;
     };
 
     $roles

@@ -10,10 +10,7 @@ function sign(config, data) {
     throw new Error("Signatures can only be generated for Strings");
   }
   const sha1 = getSecret(config);
-  return crypto
-    .createHmac("sha1", sha1)
-    .update(data)
-    .digest("hex");
+  return crypto.createHmac("sha1", sha1).update(data).digest("hex");
 }
 function checkConfig(config) {
   if (!config || !_.isObject(config) || !config.id || !config.secret) {

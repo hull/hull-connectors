@@ -1,0 +1,11 @@
+{
+  "name": "hull-zendesk",
+  "description": "Zendesk connector",
+  "version": "0.1.38-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'No Tests here'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

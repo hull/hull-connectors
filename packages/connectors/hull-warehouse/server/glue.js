@@ -19,7 +19,9 @@ const {
   ld,
   utils,
   transformTo,
-  not
+  ex,
+  settingsUpdate,
+  moment,
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -90,16 +92,43 @@ const glue = {
     cond("notEmpty", settings("db_port")),
     cond("notEmpty", settings("db_name"))
   ]),
-
+  buildBatchObject: postgresJdbc("buildBatchObject", input()),
   accountUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
-      postgresJdbc("upsertHullAccount", transformTo(WarehouseAccountWrite, cast(HullOutgoingAccount,"${message}"))),
+
+      ifL([
+        cond("isEqual", "${isBatch}", true),
+        cond("isEqual", settings("send_all_account_attributes"), true),
+        cond("isEqual", settings("send_null"), true)
+      ], [
+        ifL(cond("isEmpty", "${accountAttributes}"), set("accountAttributes", cacheGet("accountAttributes"))),
+        ifL(cond("isEmpty", "${accountAttributes}"), [
+          set("accountAttributes", hull("getAccountAttributes")),
+          cacheSet({ key: "accountAttributes", ttl: 99999999 }, "${accountAttributes}")
+        ]),
+        ld("set", "${message}", "account", route("buildBatchObject", { message: "${message}", attributes: "${accountAttributes}", entity: "account" })),
+      ]),
+
+      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount,"${message}")),
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
 
-      postgresJdbc("upsertHullUser", transformTo(WarehouseUserWrite, cast(HullOutgoingUser,"${message}"))),
+      ifL([
+        cond("isEqual", "${isBatch}", true),
+        cond("isEqual", settings("send_all_user_attributes"), true),
+        cond("isEqual", settings("send_null"), true)
+      ], [
+        ifL(cond("isEmpty", "${userAttributes}"), set("userAttributes", cacheGet("userAttributes"))),
+        ifL(cond("isEmpty", "${userAttributes}"), [
+          set("userAttributes", hull("getUserAttributes")),
+          cacheSet({ key: "userAttributes", ttl: 99999999 }, "${userAttributes}")
+        ]),
+        ld("set", "${message}", "user", route("buildBatchObject", { message: "${message}", attributes: "${userAttributes}", entity: "user" })),
+      ]),
+
+      postgresJdbc("upsertHullUser", cast(HullOutgoingUser,"${message}")),
 
       iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
         postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})
@@ -138,6 +167,10 @@ const glue = {
       ]),
       elif: [
         ifL([
+          // only check if "containsNewAttribute" if we're sending everything
+          // otherwise, it wouldn't make sense to check because if we were selecting the attributes we know it's in the schema
+          // and we would have gotten a ship:update if the outgoing attributes were changed, so would have resync'd anyway
+            cond("isEqual", "${connector.private_settings.send_all_user_attributes}", true),
             cond("notEmpty", input("[0].user")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
@@ -148,6 +181,7 @@ const glue = {
           lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
         ifL([
+            cond("isEqual", "${connector.private_settings.send_all_account_attributes}", true),
             cond("notEmpty", input("[0].account")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
@@ -181,7 +215,10 @@ const glue = {
       tableName: settings("db_events_table_name"),
       indexes: postgresJdbc("createEventIndexes")
     }),
-    postgresJdbc("syncTableSchema", settings("db_events_table_name"))
+    ifL(cond("isEmpty", settings("event_table_synced_at")), [
+      postgresJdbc("syncTableSchema", settings("db_events_table_name")),
+      settingsUpdate({ event_table_synced_at: ex(moment(), "valueOf") }),
+    ])
   ],
   // currently need to do this so ship:update doesn't fail, but ensure hook will see if we really need to reinit
   shipUpdate: {}

@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import { createRef, Component } from "react";
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -32,7 +32,6 @@ ace.require("ace/snippets/javascript");
 ace.require("ace/snippets/jsonata");
 ace.require("ace/snippets/json");
 
-
 ace.require("ace/ext/beautify");
 ace.require("ace/ext/error_marker");
 ace.require("ace/ext/searchbox");
@@ -63,7 +62,7 @@ class CodeEditor extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.code = React.createRef();
+    this.code = createRef();
   }
 
   focusCodeInput() {
@@ -81,7 +80,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  onValidate = (annotations: any) => {
+  onValidate = (_annotations: any) => {
     // console.log(annotations);
   };
 
@@ -91,7 +90,7 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
-  componentWillReceiveProps = (nextProps: Props) => {
+  UNSAFE_componentWillReceiveProps = (nextProps: Props) => {
     /* eslint-disable-next-line react/destructuring-assignment */
     if (nextProps.value !== this.state.value) {
       this.setState({ value: nextProps.value });

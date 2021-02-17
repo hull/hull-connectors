@@ -1,7 +1,6 @@
 // @flow
 
 import { Client } from "clearbit";
-// import BluebirdPromise from "bluebird";
 import type { HullContext } from "hull";
 import type {
   ClearbitRevealResponse,
@@ -24,21 +23,28 @@ export default class ClearbitClient {
     this.client = new Client({ key: api_key });
   }
 
-  enrich(params: any): Promise<void | ClearbitCombined> {
-    this.ctx.client.logger.debug("clearbit.start", {
+  enrich(
+    params: any
+  ): Promise<{ error: any, code: string } | ClearbitCombined> {
+    const { logger } = this.ctx.client;
+    logger.debug("clearbit.start", {
       params,
       action: "enrich"
     });
     this.ctx.metric.increment("ship.service_api.call", 1, [
       "ship_action:clearbit:enrich"
     ]);
-    return this.client.Enrichment.find(params).catch(
-      this.client.Enrichment.QueuedError,
-      this.client.Enrichment.NotFoundError,
-      () => {
-        return {};
-      }
-    );
+    return this.client.Enrichment.find(params)
+      .catch(this.client.Enrichment.QueuedError, error => {
+        const code = "queued";
+        logger.info("clearbit.enrich.info", { error, code });
+        return { error, code };
+      })
+      .catch(this.client.Enrichment.NotFoundError, error => {
+        const code = "not_found";
+        logger.error("clearbit.enrich.error", { error, code });
+        return { error, code };
+      });
   }
 
   reveal(params: any): Promise<void | ClearbitRevealResponse> {

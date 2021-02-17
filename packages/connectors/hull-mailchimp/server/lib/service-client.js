@@ -18,6 +18,7 @@ const {
   superagentInstrumentationPlugin,
   superagentErrorPlugin
 } = require("hull/src/utils");
+const { md5 } = require("./util/utils");
 
 class ServiceClient {
   agent: Object;
@@ -91,6 +92,29 @@ class ServiceClient {
     return this.agent.delete(url);
   }
 
+  async getMemberInfo(email: string) {
+    const subscriberHash = md5(_.toLower(email));
+    const url = `/lists/${this.listId}/members/${subscriberHash}`;
+    const member = await this.get(url);
+    return member.body;
+  }
+
+  async createBatchJob({ operations }) {
+    const batchJob = await this.post("/batches").send({ operations });
+    return batchJob.body;
+  }
+
+  async getBatchJob(batchId: string) {
+    const url = `/batches/${batchId}`;
+    const member = await this.get(url);
+    return member.body;
+  }
+
+  async deleteBatchJob(batchId: string) {
+    const url = `/batches/${batchId}`;
+    return this.delete(url);
+  }
+
   /**
    * Method to handle Mailchimp batch response as a JSON stream
    * @return {Stream}
@@ -102,10 +126,7 @@ class ServiceClient {
 
     extract.on("entry", (header, stream, callback) => {
       if (header.name.match(/\.json/)) {
-        stream.pipe(
-          decoder,
-          { end: false }
-        );
+        stream.pipe(decoder, { end: false });
       }
 
       stream.on("end", () => callback()); // ready for next entry
@@ -117,9 +138,7 @@ class ServiceClient {
     extract.on("finish", () => decoder.end());
     extract.on("error", () => decoder.end());
 
-    superagent(response_body_url)
-      .pipe(zlib.createGunzip())
-      .pipe(extract);
+    superagent(response_body_url).pipe(zlib.createGunzip()).pipe(extract);
 
     /**
      * content of every file is

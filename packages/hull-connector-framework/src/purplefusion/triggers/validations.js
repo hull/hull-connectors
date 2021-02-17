@@ -1,96 +1,162 @@
+// @flow
+import type {
+  HullTrigger,
+  HullEvent,
+  HullSegment,
+  HullTriggerList,
+  HullTriggerDefinitions,
+  HullTriggerDefinition,
+  HullTriggerValidations,
+  HullTriggerValidation,
+  HullTriggerValidationFunction,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage
+} from "hull";
+import { getStandardAttributeName } from "./utils";
+
 const _ = require("lodash");
 
-const validateChanges = (changes, inputData) => {
-  // TODO: generate global whitelist from inputData
-  return !_.isEmpty(_.intersection(inputData, _.keys(changes)));
-};
+const getSegmentIds = (segments: Array<HullSegment>) => [
+  "ALL",
+  "all_segments",
+  ..._.map(segments, "id")
+];
 
-const validateEvents = (events, inputData) => {
-  // TODO: generate global whitelist from inputData
+const getEventNames = (events: Array<HullEvent>) => [
+  "ALL",
+  "all_events",
+  ..._.map(events, "event")
+];
 
-  const eventNames = _.map(events, "event");
-  return !_.isEmpty(_.intersection(eventNames, inputData));
-};
+const getChangedAttributes = (
+  changes: $PropertyType<
+    $PropertyType<HullUserUpdateMessage, "changes">,
+    "user"
+  >
+) => [
+  "ALL",
+  "all_attributes",
+  ..._.reduce(
+    changes,
+    (changeList, value, key) => {
+      const attributeName = getStandardAttributeName(key);
+      changeList.push(attributeName);
+      return changeList;
+    },
+    []
+  )
+];
 
-const validateSegments = (segments, inputData) => {
-  // TODO: generate global whitelist from inputData
+const intersectionWithSegment = (
+  segments: Array<HullSegment>,
+  list: Array<string>
+) => _.intersection(getSegmentIds(segments), list);
 
-  const segmentIds = _.concat('all_segments', _.map(segments, 'id'));
-  return !_.isEmpty(_.intersection(inputData, segmentIds));
-};
+const intersectionWithEvent = (events: Array<HullEvent>, list: Array<string>) =>
+  _.intersection(getEventNames(events), list);
 
-const required = (obj, inputData) => {
-  return !_.isEmpty(obj);
-};
+const intersectionWithChangedAttribute = (
+  changes: $PropertyType<
+    $PropertyType<HullUserUpdateMessage, "changes">,
+    "user"
+  >,
+  list: Array<string>
+) => _.intersection(getChangedAttributes(changes), list);
 
-const isValidSubEntity = (entity: Object, rules: Array<Object>, whitelist: Array<string>): Array<string> => {
-  let valid = true;
+const validateChanges: HullTriggerValidationFunction = (
+  changes: $PropertyType<
+    $PropertyType<HullUserUpdateMessage, "changes">,
+    "user"
+  >,
+  whitelist: Array<string>
+): boolean %checks =>
+  !_.isEmpty(intersectionWithChangedAttribute(changes, whitelist));
 
-  _.forEach(rules, rule => {
+const validateEvents: HullTriggerValidationFunction = (
+  events: Array<HullEvent>,
+  whitelist: Array<string>
+): boolean %checks => !_.isEmpty(intersectionWithEvent(events, whitelist));
 
-    if (_.isFunction(rule) && !rule(entity, whitelist)) {
-      return (valid = false);
+const validateSegments: HullTriggerValidationFunction = (
+  segments: Array<HullSegment>,
+  whitelist: Array<string>
+): boolean %checks => !_.isEmpty(intersectionWithSegment(segments, whitelist));
+
+const excludeSegments: HullTriggerValidationFunction = (
+  segments: Array<HullSegment>,
+  blacklist: Array<string>
+): boolean %checks => _.isEmpty(intersectionWithSegment(segments, blacklist));
+
+const required: HullTriggerValidationFunction = (
+  obj,
+  whitelist: any
+): boolean %checks => !_.isEmpty(obj);
+
+const empty: HullTriggerValidationFunction = (
+  obj,
+  whitelist: any
+): boolean %checks => _.isEmpty(obj);
+
+const isValidSubEntity = (
+  entity: {},
+  rules: Array<HullTriggerValidation>,
+  whitelist: HullTriggerList
+): boolean %checks =>
+  _.every(rules, rule => {
+    if (typeof rule === "function") {
+      return rule(entity, whitelist);
     }
-
-    if (!_.isFunction(rule) && _.isObject(rule)) {
-      const filter = _.filter([entity], rule);
-
-      if (_.isEmpty(filter)) {
-        return (valid = false);
-      }
+    if (typeof rule === "object" && _.isEmpty(_.filter([entity], rule))) {
+      return false;
     }
-
-    if (_.isBoolean(rule) || _.isString(rule)) {
+    if (typeof rule === "boolean" || typeof rule === "string") {
       if (whitelist !== rule) {
-        return (valid = false);
+        return false;
       }
     }
-  });
-  return valid;
-};
-
-const isValidMessage = (message: Object, validations: Object, whitelist: Array<string>) => {
-  let valid = !_.isEmpty(validations);
-
-  _.forEach(_.keys(validations), entityToValidate => {
-    const entity = _.get(message, entityToValidate);
-    const rawRules = _.get(validations, entityToValidate);
-
-    const rules = !_.isArray(rawRules) ? [rawRules] : rawRules;
-
-    if (!isValidSubEntity(entity, rules, whitelist)) {
-      return (valid = false);
-    }
+    return true;
   });
 
-  return valid;
+const isValidMessage = (
+  message: HullUserUpdateMessage | HullAccountUpdateMessage,
+  validations: HullTriggerValidations,
+  whitelist: HullTriggerList
+): boolean %checks => {
+  if (_.isEmpty(validations)) {
+    return false;
+  }
+  return _.every(validations, (rules, key) =>
+    isValidSubEntity(
+      _.get(message, key),
+      _.isArray(rules) ? rules : [rules],
+      whitelist
+    )
+  );
 };
 
-const isValidTrigger = (triggerDefinitions: Object, message: Object, triggerInputData: Object): boolean => {
-  let valid = true;
-  _.forEach(_.keys(triggerInputData), action => {
-
-    const whitelist = _.get(triggerInputData, action);
-    const triggerDefinition = _.get(triggerDefinitions, action, {});
-
-    const { validations } = triggerDefinition;
-
-    if (!isValidMessage(message, validations, whitelist)) {
-      return (valid = false);
-    }
+const isValidTrigger = (
+  triggerDefinitions: HullTriggerDefinitions,
+  message: HullUserUpdateMessage | HullAccountUpdateMessage,
+  inputData: $PropertyType<HullTrigger, "inputData">
+): boolean %checks =>
+  _.every(inputData, (whitelist: HullTriggerList, path: string) => {
+    const triggerDefinition: HullTriggerDefinition = _.get(
+      triggerDefinitions,
+      path,
+      {}
+    );
+    const { validations /* type, filters */ } = triggerDefinition;
+    return isValidMessage(message, validations, whitelist);
   });
-
-  return valid;
-};
-
-
 
 module.exports = {
+  excludeSegments,
   isValidTrigger,
   isValidMessage,
   isValidSubEntity,
   validateChanges,
   validateSegments,
   validateEvents,
-  required
+  required,
+  empty
 };

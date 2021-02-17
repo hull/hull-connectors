@@ -1,33 +1,40 @@
 // @flow
 import { Linter } from "eslint";
 import _ from "lodash";
+import getLibs from "./sandbox/libs";
 
 const LIBS = [
-  "_",
-  "moment",
-  "urijs",
-  "hull",
+  // $FlowFixMe
+  ..._.keys(
+    getLibs(
+      {
+        request: {
+          timeout: () => 0
+        }
+      },
+      {}
+    )
+  ),
   "console",
+  "captureException",
+  "captureMessage",
   "isInSegment",
   "enteredSegment",
   "enteredAccountSegment",
   "leftSegment",
-  "leftAccountSegment",
-  "isGenericEmail",
-  "isGenericDomain",
-  "request",
-  "captureException",
-  "captureMessage"
+  "leftAccountSegment"
 ];
+
 const COMMON_VARS = [
+  "hull",
+  "body",
   "ship",
   "connector",
   "results",
   "errors",
-  "logs",
-  "track",
-  "traits"
+  "logs"
 ];
+
 const linter = new Linter();
 
 const getGlobals = (vars: Array<Array<string>>) =>

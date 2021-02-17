@@ -45,8 +45,28 @@ const VALID = {
   },
   transport(t) {
     return (
-      t.type === "kafka" && _.isString(t.topic) && _.isArray(t.brokersList)
+      t.type === "kafka" &&
+      (_.isString(t.topic) || _.isObject(t.topicsMapping)) &&
+      _.isArray(t.brokersList)
     );
+  },
+  logTransport(t) {
+    return (
+      (t.type === "kafka" && VALID.object(t.object)) ||
+      t.type === "console" ||
+      t.type === "file"
+    );
+  },
+  logsConfig(l) {
+    return (
+      l &&
+      VALID.array(l.transports) &&
+      _.every(l.transports.map(VALID.logTransport)) &&
+      VALID.string(l.level)
+    );
+  },
+  logger(l) {
+    return l && typeof l.log === "function";
   }
 };
 
@@ -75,9 +95,10 @@ const VALID_PROPS = {
   flushAfter: VALID.number,
   connectorName: VALID.string,
   requestId: VALID.string,
-  logs: VALID.array,
+  logsConfig: VALID.logsConfig,
   firehoseEvents: VALID.array,
-  firehoseTransport: VALID.transport
+  firehoseTransport: VALID.transport,
+  logger: VALID.logger
 };
 
 /**
@@ -184,7 +205,7 @@ class Configuration {
   }
 
   getAll(): HullClientInstanceConfig {
-    return JSON.parse(JSON.stringify(this._state));
+    return _.clone(this._state);
   }
 }
 

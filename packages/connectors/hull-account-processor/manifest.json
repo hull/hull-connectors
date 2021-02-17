@@ -1,11 +1,7 @@
 {
   "name": "Account Processor",
   "description": "Recompute custom properties and emit events with Javascript logic whenever an account is updated",
-  "tags": [
-    "batch-accounts",
-    "smart-notifier",
-    "kraken-exports"
-  ],
+  "tags": ["batch-accounts", "smart-notifier", "kraken-exports"],
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
@@ -21,7 +17,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
   "private_settings": [
     {
       "name": "sentry_dsn",
@@ -66,9 +62,7 @@
           "ALL": "All Accounts"
         }
       },
-      "default": [
-        "ALL"
-      ]
+      "default": ["ALL"]
     },
     {
       "name": "language",
@@ -76,10 +70,7 @@
       "description": "Choose which processing language to use. We support Javascript, and JSONata, which is an easy to use declarative mapping language",
       "type": "string",
       "format": "select",
-      "enum": [
-        "javascript",
-        "jsonata"
-      ],
+      "enum": ["javascript", "jsonata"],
       "default": "javascript"
     },
     {
@@ -131,14 +122,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "account:update"
-          ]
+          "only": ["account:update"]
         },
         "segments": {
-          "account:update": [
-            "private_settings.synchronized_account_segments"
-          ]
+          "account:update": ["private_settings.synchronized_account_segments"]
         }
       },
       "channels": [

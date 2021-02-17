@@ -1,7 +1,6 @@
 // @flow
 /* eslint-disable global-require */
 
-// import account_update from "./account-update";
 import type { HullHandlersConfiguration } from "hull";
 import { Strategy } from "passport-mailchimp";
 import select_list from "./select-list";
@@ -11,45 +10,40 @@ import users_segment_update from "./users-segment-update";
 import users_segment_delete from "./users-segment-delete";
 
 import webhook from "../actions/webhook";
-import sync from "../actions/sync";
-import syncIn from "../actions/sync-in";
 import syncOut from "../actions/sync-out";
-import track from "../actions/track";
 import schemaUserFields from "../actions/schema-user-fields";
 import status from "../actions/status";
+import fetchAllUsers from "../actions/fetch-all-users";
+import importBatch from "../actions/batch/import-batch";
+import createEmailBatch from "../actions/batch/create-email-batch";
+import createMemberBatch from "../actions/batch/create-member-batch";
+import importMemberBatch from "../actions/batch/import-member-batch";
+import importEmailBatch from "../actions/batch/import-email-batch";
 
-import handleMailchimpBatch from "../jobs/handle-mailchimp-batch";
 import importUsers from "../jobs/import-users";
-import fetchAllUsers from "../jobs/fetch-all-users";
 import syncOutJob from "../jobs/sync-out";
 import trackUsers from "../jobs/track-users";
-import trackJob from "../jobs/track";
-import trackEmailActivites from "../jobs/track-email-activites";
+import trackEmailActivities from "../jobs/track-email-activites";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 
-// import OAuthFactory from "../lib/oauth-client";
-
 export default function handlers({
   clientID,
-  clientSecret,
-  _hostSecret
+  clientSecret
 }: {
   clientID: string,
-  clientSecret: string,
-  _hostSecret: string
+  clientSecret: string
 }): HullHandlersConfiguration {
   return {
     jobs: {
-      handleMailchimpBatch,
       importUsers,
-      fetchAllUsers,
       syncOut: syncOutJob,
       trackUsers,
-      track: trackJob,
-      trackEmailActivites
+      trackEmailActivities
     },
-    incoming: { webhook },
+    incoming: {
+      webhook
+    },
     subscriptions: {
       user_update,
       ship_update,
@@ -59,22 +53,17 @@ export default function handlers({
     batches: { user_update },
     statuses: { status },
     schedules: {
-      track
-      // @TODO: Check with Michal which handler should go in which section
-      // I moved the Sync handler from `json` to `schedules` because the tests seemed to indicate we were hitting it on a schedule
-      // sync =>
-      // CAN"T FIND THIS TEST - DO WE NEED TO REACTIVATE THIS?
-      // WHAT WERE YOU THINKING DUDE?
+      createEmailBatch,
+      importEmailBatch,
+      importMemberBatch
     },
     json: {
-      sync,
-      syncIn,
+      fetchAllUsers,
       syncOut,
-      // @TODO : this is used both as a schedule and as a JSON call
-      // Check that both work - the Schedules pass things in the body - the JSON don't
-      track
+      createMemberBatch,
+      createEmailBatch,
+      importBatch
     },
-    // @TODO: Check we're still working when using the oauth provider as a classic route
     private_settings: {
       schemaUserFields,
       selectList: select_list,

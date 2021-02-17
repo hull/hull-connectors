@@ -1,10 +1,7 @@
 {
   "name": "Scheduled Calls",
   "description": "Call an API at regular intervals and pass response to Hull",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "source": "scheduled-calls",
   "picture": "picture.png",
   "ui": false,
@@ -20,7 +17,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
   "private_settings": [
     {
       "type": "string",
@@ -61,15 +58,7 @@
       "title": "Call API every:",
       "description": "Interval in minutes at which to call external API",
       "default": 30,
-      "enum": [
-        1,
-        5,
-        10,
-        15,
-        30,
-        60,
-        120
-      ],
+      "enum": [1, 5, 10, 15, 30, 60, 120],
       "required": true
     },
     {
@@ -78,13 +67,7 @@
       "title": "Method",
       "description": "The Method to use",
       "default": "POST",
-      "enum": [
-        "GET",
-        "POST",
-        "PUT",
-        "PATCH",
-        "DELETE"
-      ],
+      "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
       "required": true
     },
     {
@@ -93,11 +76,7 @@
       "title": "Expected Response Format",
       "description": "Selecting something other than Raw, we will parse the payload for you",
       "default": "JSON",
-      "enum": [
-        "JSON",
-        "CSV",
-        "Raw"
-      ],
+      "enum": ["JSON", "CSV", "Raw"],
       "required": true
     },
     {
@@ -138,9 +117,7 @@
       "description": "Cookies to send",
       "type": "array",
       "format": "table",
-      "default": [
-        ""
-      ],
+      "default": [""],
       "items": {
         "type": "string",
         "format": "string",
@@ -189,9 +166,7 @@
     {
       "title": "Configuration",
       "description": "Configure custom variables to pass to the connector",
-      "properties": [
-        "private_settings.variables"
-      ]
+      "properties": ["private_settings.variables"]
     }
   ],
   "json": [

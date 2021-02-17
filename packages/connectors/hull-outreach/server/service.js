@@ -6,7 +6,8 @@ const _ = require("lodash");
 const {
   ConfigurationError,
   TransientError,
-  SkippableError
+  SkippableError,
+  RateLimitError
 } = require("hull/src/errors");
 
 
@@ -176,11 +177,6 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       endpointType: "create"
     },
-    getUsers: {
-      url: "/users/",
-      operation: "get",
-      endpointType: "fetchAll"
-    },
     getStages: {
       url: "/stages/",
       operation: "get",
@@ -196,7 +192,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "sort=id&page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
     },
     getRecentEvents: {
       url: "/events/",
@@ -214,9 +210,41 @@ const service = ({ clientID, clientSecret } : {
       url: "/mailings/${mailingId}/",
       operation: "get"
     },
+    getMailingDetailsBatch: {
+      url: "/mailings",
+      query: {
+        "filter[id]": "${mailingIds}",
+        "page[limit]": 1000
+      },
+      operation: "get"
+    },
     getSequences: {
       url: "/sequences/",
       operation: "get",
+      returnObj: "body.data"
+    },
+    getSequencesPaged: {
+      url: "/sequences/",
+      operation: "get",
+      returnObj: "body.data",
+      query: "page[limit]=1000&page[offset]=${offset}"
+    },
+    getSequenceStepsPaged: {
+      url: "/sequenceSteps/",
+      operation: "get",
+      returnObj: "body.data",
+      query: "page[limit]=1000&page[offset]=${offset}"
+    },
+    getUsers: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getUsersPaged: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll",
+      query: "page[limit]=1000&page[offset]=${offset}",
       returnObj: "body.data"
     }
   },
@@ -226,8 +254,8 @@ const service = ({ clientID, clientSecret } : {
     { method: "set", params: { "Authorization": "Bearer ${connector.private_settings.access_token}"}}
     ],
     headersToMetrics: {
-      "x-rate-limit-limit": "ship.service_api.remaining",
-      "x-rate-limit-remaining": "ship.service_api.limit"
+      "x-ratelimit-limit": "ship.service_api.limit",
+      "x-ratelimit-remaining": "ship.service_api.remaining"
     }
   },
   authentication: {
@@ -267,6 +295,12 @@ const service = ({ clientID, clientSecret } : {
       },
       {
         truthy: { status: 502 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 3
+      },
+      {
+        truthy: { status: 504 },
         errorType: TransientError,
         message: MESSAGES.INTERNAL_SERVICE_ERROR,
         retryAttempts: 3
@@ -319,6 +353,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 400 },
         errorType: SkippableError,
         message: MESSAGES.BAD_RESOURCE_REQUEST_ERROR
+      },
+      {
+        truthy: { status: 429 },
+        errorType: RateLimitError,
+        message: MESSAGES.OPERATION_EXCEEDED_RATE_LIMIT
       }
     ]
 

@@ -4,6 +4,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import moment from "moment";
 const _ = require("lodash");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 import company from "../fixtures/company.json";
 import company_attributes from "../fixtures/company-attributes.js";
 import person_attributes from "../fixtures/person-attributes.js";
@@ -55,9 +56,6 @@ describe("Clearbit Enrich Tests", () => {
     externalApiMock: () => {},
     response: {
       flow_control: {
-        in: 5,
-        in_time: 10,
-        size: 10,
         type: "next"
       }
     },
@@ -161,6 +159,51 @@ describe("Clearbit Enrich Tests", () => {
       ["increment", "ship.incoming.accounts", 1]
     ]
   });
+  const enrichWebhookResponse = (nock, expect, subscribe = true) => ({
+    ...enrichUserResponse(nock, expect, subscribe),
+    firehoseEvents: [
+      [
+        "traits",
+        {
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "user"
+        },
+        {
+          "clearbit/enriched_at": expect.whatever(),
+          source: {
+            operation: "setIfNull",
+            value: "enrich"
+          }
+        }
+      ],
+      [
+        "traits",
+        {
+          asAccount: {
+            anonymous_id: `clearbit:${company.id}`
+          },
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "account"
+        },
+        {
+          "clearbit/enriched_at": expect.whatever(),
+          source: {
+            operation: "setIfNull",
+            value: "enrich"
+          }
+        }
+      ]
+    ],
+  });
+
   const enrichAccountResponse = (nock, expect, subscribe = true) => ({
     ...noOpAccountResponse,
     externalApiMock: () => {
@@ -233,7 +276,7 @@ describe("Clearbit Enrich Tests", () => {
   });
 
   it("should enrich user", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...enrichUserResponse(nock, expect, false),
       handlerType: handlers.notificationHandler,
       connector: {
@@ -252,7 +295,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should enrich account", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...enrichAccountResponse(nock, expect, false),
       handlerType: handlers.notificationHandler,
       connector,
@@ -265,7 +308,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should re-enrich user if enrich_refresh enabled", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...enrichUserResponse(nock, expect),
       handlerType: handlers.notificationHandler,
       connector: {
@@ -290,7 +333,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should enrich user if lookup>1h", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...enrichUserResponse(nock, expect),
       handlerType: handlers.notificationHandler,
       connector: {
@@ -304,7 +347,7 @@ describe("Clearbit Enrich Tests", () => {
         {
           user: {
             ...EMAIL_USER,
-            "traits_clearbit/fetched_at": moment()
+            "traits_clearbit/enriched_at": moment()
               .subtract(2, "hours")
               .toISOString()
           },
@@ -315,7 +358,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should not enrich users if not in segments", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -355,7 +398,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should not enrich users if in Blacklisted segments", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -394,7 +437,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should not enrich users if no email", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -433,7 +476,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should not enrich user enrich refresh disabled", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector: {
@@ -482,8 +525,30 @@ describe("Clearbit Enrich Tests", () => {
       ]
     })));
 
+  it("should handle Webhook responses properly", async () =>
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichUserResponse(nock, expect),
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: true
+        }
+      },
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
   it("should not enrich user if pending lookup", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
@@ -516,7 +581,7 @@ describe("Clearbit Enrich Tests", () => {
         {
           user: {
             ...EMAIL_USER,
-            "traits_clearbit/fetched_at": moment()
+            "traits_clearbit/enriched_at": moment()
               .subtract(30, "minutes")
               .toISOString()
           },
@@ -527,7 +592,7 @@ describe("Clearbit Enrich Tests", () => {
     })));
 
   it("should handle invalid email errors", async () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+    testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpUserResponse,
       externalApiMock: () => {
         const scope = nock("https://person.clearbit.com");

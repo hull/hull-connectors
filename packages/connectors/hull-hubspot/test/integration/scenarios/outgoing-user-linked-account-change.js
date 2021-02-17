@@ -1,6 +1,7 @@
 // @flow
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -18,33 +19,30 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       { hull: "first_name", service: "firstname", overwrite: true },
-      { hull: "last_name", service: "lastname", overwrite: false },
-      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score" },
-      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
-      { hull: "traits_custom_array", service: "custom_hubspot_array" },
-      { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
-      { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
-      { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
-      { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
-      { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
-      { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
-      { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
-
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true },
-      { hull: "account.group/created_at", service: "custom_hubspot_account_group_created_at", overwrite: true },
-
-      { hull: "account.custom_numeric", service: "custom_hubspot_account_numeric", overwrite: true },
-      { hull: "account.custom_array", service: "custom_hubspot_account_array", overwrite: true },
-      { hull: "account.custom_empty_array", service: "custom_hubspot_account_empty_array", overwrite: true },
-      { hull: "account.custom_true", service: "custom_hubspot_account_true", overwrite: true },
-      { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
-      { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
-      { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
-      { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
-      { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
+      { hull: "last_name", service: "lastname", overwrite: true },
+      { hull: "traits_group/custom_calculated_score", service: "hull_custom_hubspot_score" },
+      { hull: "traits_custom_numeric", service: "hull_custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_custom_array", service: "hull_custom_hubspot_array" },
+      { hull: "traits_custom_empty_array", service: "hull_custom_hubspot_empty_array", overwrite: true },
+      { hull: "traits_custom_true", service: "hull_custom_hubspot_true", overwrite: true },
+      { hull: "traits_custom_false", service: "hull_custom_hubspot_false", overwrite: true },
+      { hull: "traits_custom_null", service: "hull_custom_hubspot_null", overwrite: true },
+      { hull: "traits_custom_empty_string", service: "hull_custom_hubspot_empty_string", overwrite: true },
+      { hull: "traits_custom_undefined", service: "hull_custom_hubspot_undefined", overwrite: true },
+      { hull: "traits_custom_date_at", service: "hull_custom_hubspot_date_at", overwrite: true },
+      { hull: "account.id", service: "hull_custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "hull_custom_hubspot_account_domain", overwrite: true },
+      { hull: "account.group/created_at", service: "hull_custom_hubspot_account_group_created_at", overwrite: true },
+      { hull: "account.custom_numeric", service: "hull_custom_hubspot_account_numeric", overwrite: true },
+      { hull: "account.custom_array", service: "hull_custom_hubspot_account_array", overwrite: true },
+      { hull: "account.custom_empty_array", service: "hull_custom_hubspot_account_empty_array", overwrite: true },
+      { hull: "account.custom_true", service: "hull_custom_hubspot_account_true", overwrite: true },
+      { hull: "account.custom_false", service: "hull_custom_hubspot_account_false", overwrite: true },
+      { hull: "account.custom_null", service: "hull_custom_hubspot_account_null", overwrite: true },
+      { hull: "account.custom_empty_string", service: "hull_custom_hubspot_account_empty_string", overwrite: true },
+      { hull: "account.custom_undefined", service: "hull_custom_hubspot_account_undefined", overwrite: true },
+      { hull: "account.custom_date_at", service: "hull_custom_hubspot_account_date_at", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
     link_users_in_service: true,
     mark_deleted_contacts: false,
@@ -52,15 +50,12 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should update hubspot because linked account has changed", () => {
   const email = "email@email.com";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -73,24 +68,28 @@ it("should update hubspot because linked account has changed", () => {
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
           [
-            {"properties":[{"property":"firstname","value":"John"},
-            {"property":"lastname","value":"NewLastName"},
-            {"property":"hull_custom_hubspot_score","value":456},
-            {"property":"hull_custom_hubspot_numeric","value":123},
-            {"property":"hull_custom_hubspot_array","value":"A;B"},
-            {"property":"hull_custom_hubspot_true","value":true},
-            {"property":"hull_custom_hubspot_false","value":false},
-            {"property":"hull_custom_hubspot_date_at","value":1540374459000},
-            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
-            {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
-            {"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},
-            {"property":"hull_custom_hubspot_account_array","value":"A;B"},
-            {"property":"hull_custom_hubspot_account_true","value":true},
-            {"property":"hull_custom_hubspot_account_false","value":false},
-            {"property":"hull_custom_hubspot_account_date_at","value":1540374459000},
-            {"property":"hull_segments","value":"testSegment"},
-            {"property":"associatedcompanyid","value":5678}],"email":"email@email.com"}
-            ]
+            { "properties": [
+                { "property": "firstname", "value": "John" },
+                { "property": "lastname", "value": "NewLastName" },
+                { "property": "hull_custom_hubspot_score", "value": 456 },
+                { "property": "hull_custom_hubspot_numeric", "value": 123 },
+                { "property": "hull_custom_hubspot_array", "value": "A;B" },
+                { "property": "hull_custom_hubspot_true", "value": true },
+                { "property": "hull_custom_hubspot_false", "value": false },
+                { "property": "hull_custom_hubspot_date_at", "value": 1540374459000 },
+                { "property": "hull_custom_hubspot_account_id", "value": "acc123" },
+                { "property": "hull_custom_hubspot_account_domain", "value": "doe.com" },
+                { "property": "hull_custom_hubspot_account_group_created_at", "value": 1477302459000 },
+                { "property": "hull_custom_hubspot_account_array", "value": "A;B" },
+                { "property": "hull_custom_hubspot_account_true", "value": true },
+                { "property": "hull_custom_hubspot_account_false", "value": false },
+                { "property": "hull_custom_hubspot_account_date_at", "value": 1540374459000 },
+                { "property": "hull_segments", "value": "testSegment" },
+                { "property": "associatedcompanyid", "value": 5678 }
+              ],
+              "email": "email@email.com"
+            }
+          ]
         ).reply(202);
         return scope;
       },
@@ -114,7 +113,6 @@ it("should update hubspot because linked account has changed", () => {
             traits_custom_null: null,
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
-            // traits_custom_undefined: "", -> this is not present
             traits_custom_date_at: "2018-10-24T09:47:39Z"
           },
           account: {
@@ -128,11 +126,10 @@ it("should update hubspot because linked account has changed", () => {
             custom_null: null,
             custom_empty_string: "",
             custom_zero: 0,
-            // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
             "hubspot/id": 5678
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             "is_new": false,
             "user": {},
@@ -149,9 +146,6 @@ it("should update hubspot because linked account has changed", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -165,8 +159,9 @@ it("should update hubspot because linked account has changed", () => {
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "properties": [{
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "properties": [{
                 "property": "firstname",
                 "value": "John"
               }, {
@@ -218,6 +213,7 @@ it("should update hubspot because linked account has changed", () => {
                 "property": "associatedcompanyid",
                 "value": 5678
               }]
+            }
           }
         ]
       ],
@@ -231,10 +227,7 @@ it("should update hubspot because linked account has changed", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

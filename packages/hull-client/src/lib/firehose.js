@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const debug = require("debug")("hull:firehose");
 const Configuration = require("./configuration");
 
 const BATCHERS = {};
@@ -6,16 +7,9 @@ const BATCHERS = {};
 global.setImmediate = global.setImmediate || process.nextTick.bind(process);
 
 class FirehoseBatcher {
-  static exit() {
+  static async exit() {
     FirehoseBatcher.exiting = true;
-    const cb = k => (err, ok) => {
-      const msg = `Flushed batcher ${k} -- ok=${ok} -- err=${err}`;
-      return msg;
-    };
-    const flushed = _.map(BATCHERS, (b, k) => {
-      b.flush(cb(k));
-    });
-    return Promise.all(flushed);
+    return Promise.all(_.map(BATCHERS, async b => b.flush()));
   }
 
   static getInstance(config, handler) {
@@ -34,7 +28,7 @@ class FirehoseBatcher {
 
   constructor(config, handler) {
     this.handler = handler;
-    this.flushAt = Math.max(config.flushAt, 1) || 50;
+    this.flushAt = Math.max(config.flushAt || 50, 1);
     this.flushAfter = config.flushAfter || 1000;
     this.config = new Configuration(
       _.omit(config, "userId", "accessToken", "sudo")
@@ -48,7 +42,7 @@ class FirehoseBatcher {
       const callback = (err, res) => {
         return err ? reject(err) : resolve(res);
       };
-
+      debug("Firehose Message Queued", message);
       this.queue.push({ message, callback });
 
       if (FirehoseBatcher.exiting === true) return this.flush();
@@ -61,10 +55,8 @@ class FirehoseBatcher {
     });
   }
 
-  flush(fn) {
-    fn = fn || (() => {});
-    if (!this.queue.length) return Promise.resolve(fn);
-
+  async flush() {
+    if (!this.queue.length) return null;
     const items = this.queue.splice(0, this.flushAt);
     const fns = items.map(i => i.callback);
     const batch = items.map(i => i.message);
@@ -74,13 +66,16 @@ class FirehoseBatcher {
       timestamp: new Date(),
       sentAt: new Date()
     };
-
-    const flushed = this.handler(params, this);
-    flushed.then(
-      ok => fns.forEach(func => func(null, ok)),
-      err => fns.forEach(func => func(err, null))
-    );
-    return flushed.then(fn, fn);
+    try {
+      const flushed = await this.handler(params, this);
+      fns.forEach(func => func(null, flushed));
+      return { flushed, queue: this.queue.length };
+    } catch (err) {
+      fns.forEach(func =>
+        func({ status: err.status, message: err.message }, null)
+      );
+      return Promise.reject(err);
+    }
   }
 }
 

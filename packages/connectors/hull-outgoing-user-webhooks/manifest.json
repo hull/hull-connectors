@@ -1,13 +1,9 @@
 {
   "name": "Outgoing User Webhooks",
   "description": "Send Hull Users updates as Webhooks",
-  "tags": [
-    "batch",
-    "smart-notifier",
-    "kraken-exports"
-  ],
+  "tags": ["batch", "smart-notifier", "kraken-exports"],
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.40-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -62,10 +58,7 @@
       ],
       "items": {
         "type": "object",
-        "required": [
-          "key",
-          "value"
-        ],
+        "required": ["key", "value"],
         "properties": {
           "key": {
             "title": "Header Key",
@@ -88,17 +81,30 @@
       "default": [],
       "options": {
         "standard": {
+          "all_events": "All Events",
           "CREATED": "User Created"
         }
       }
     },
     {
-      "name": "synchronized_segments",
-      "title": "User Filter",
-      "description": "As a precondition to the triggers being evaluated, the user must belong to one of the defined segments.",
+      "name": "synchronized_segments_whitelist",
+      "title": "Emit only when in one of these segments",
       "type": "array",
       "default": [],
-      "format": "segment"
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      }
+    },
+    {
+      "name": "synchronized_segments_blacklist",
+      "title": "Don't emit if in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment",
+      "options": {}
     },
     {
       "name": "synchronized_segments_enter",
@@ -143,6 +149,24 @@
         "private_settings.throttle_per_rate",
         "private_settings.concurrency"
       ]
+    },
+    {
+      "title": "Filters",
+      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Users can be sent. Blacklist takes precedence over Whitelist",
+      "properties": [
+        "private_settings.synchronized_segments_whitelist",
+        "private_settings.synchronized_segments_blacklist"
+      ]
+    },
+    {
+      "title": "Triggers",
+      "description": "This section defines the conditions for emitting a Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
+      "properties": [
+        "private_settings.synchronized_events",
+        "private_settings.synchronized_segments_enter",
+        "private_settings.synchronized_segments_leave",
+        "private_settings.synchronized_attributes"
+      ]
     }
   ],
   "json": [
@@ -180,27 +204,29 @@
         {
           "channel": "user:update",
           "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
         }
       ],
       "conditions": {
         "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments_enter",
-            "private_settings.synchronized_segments_leave"
-          ]
+          "user:update": ["private_settings.synchronized_segments_whitelist"]
         },
         "channels": {
-          "only": [
-            "user:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "ship:update"]
         }
       }
     }
   ],
-  "status": {
-    "url": "/status",
-    "type": "interval",
-    "value": "60"
-  }
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "statusHandler"
+    }
+  ]
 }

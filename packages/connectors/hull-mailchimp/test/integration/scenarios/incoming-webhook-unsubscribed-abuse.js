@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
@@ -12,6 +13,7 @@ it("should handle incoming webhook for unsubscribe event", () => {
   const email = "";
   return testScenario(
     {
+      manifest,
       connectorConfig
     },
     ({ handlers, nock, expect }) => {
@@ -57,6 +59,7 @@ it("should handle incoming webhook for unsubscribe event", () => {
                 "mailchimp/address_country": "MR",
                 "mailchimp/address_state": "",
                 "mailchimp/address_zip": "",
+                "mailchimp/archived": false,
                 "mailchimp/email": "user@abuse.com",
                 "mailchimp/fname": "User",
                 "mailchimp/lname": "Abuse",
@@ -94,6 +97,7 @@ it("should handle incoming webhook for unsubscribe event", () => {
               "mailchimp/address_country": "MR",
               "mailchimp/address_state": "",
               "mailchimp/address_zip": "",
+              "mailchimp/archived": false,
               "mailchimp/email": "user@abuse.com",
               "mailchimp/fname": "User",
               "mailchimp/lname": "Abuse",

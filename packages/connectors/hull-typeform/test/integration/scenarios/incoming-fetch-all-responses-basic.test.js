@@ -1,6 +1,7 @@
 // @flow
 
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
@@ -10,7 +11,7 @@ process.env.CLIENT_SECRET = "abc";
 
 test("incoming fetch all responses basic", () => {
   return testScenario(
-    { connectorConfig },
+    { manifest, connectorConfig },
     ({ handlers, requireFixture, expect, nock }) => {
       return {
         handlerType: handlers.scheduleHandler,

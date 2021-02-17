@@ -11,7 +11,8 @@ const {
   isServiceAttribute,
   not,
   notNull,
-  varUndefinedOrNull
+  varUndefinedOrNull,
+  varEmpty
 } = require("./conditionals");
 
 const {
@@ -25,6 +26,7 @@ const {
 
 const {
   HullUserRaw,
+  HullLeadRaw,
   ServiceUserRaw,
   ServiceAccountRaw,
   ServiceOpportunityRaw,
@@ -46,6 +48,71 @@ const {
  * @type {[type]}
  */
 const transformsShared: ServiceTransforms = [
+  {
+    input: HullOutgoingUser,
+    output: HullLeadRaw,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: "${connector.private_settings.outgoing_lead_attributes}",
+        expand: { valueName: "mapping" },
+        then: [
+          {
+            operateOn: { component: "input", select: "user.${mapping.hull}" },
+            condition: [
+              not(varEmpty("mapping.hull")),
+              not(varEmpty("mapping.service")),
+            ],
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+          {
+            // for account mappints
+            operateOn: { component: "input", select: "${mapping.hull}" },
+            condition: [
+              not(varEmpty("mapping.hull")),
+              not(varEmpty("mapping.service")),
+            ],
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+        ]
+      },
+      // {
+      //   operateOn: { component: "input", select: "${service_name}_lead/id" },
+      //   condition: not(varUndefinedOrNull("${operateOn}")),
+      //   writeTo: {
+      //     appendToArray: true,
+      //     path: "ident",
+      //     format: {
+      //       hull: "${service_name}_lead/id",
+      //       service: "id",
+      //       value: "${operateOn}"
+      //     }
+      //   }
+      // },
+      {
+        operateOn: "${connector.private_settings.lead_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "user.${mapping.hull}"},
+          condition: [
+            not(varEmpty("mapping.service")),
+            not(varUndefinedOrNull("operateOn"))
+          ],
+          writeTo: {
+            appendToArray: true,
+            path: "ident",
+            format: {
+              hull: "${mapping.hull}",
+              service: "${mapping.service}",
+              value: "${operateOn}"
+            }
+          }
+        }
+      },
+    ]
+  },
   {
     input: HullOutgoingUser,
     output: HullUserRaw,
@@ -70,6 +137,7 @@ const transformsShared: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.outgoing_user_associated_account_id",
+        condition: not(varEmpty("hull_field_name")),
         inputPath: "user.${hull_field_name}",
         outputPath: "hull_service_accountId"
       },
@@ -77,16 +145,28 @@ const transformsShared: ServiceTransforms = [
         // this transform is for account attributes mapped to the user level
         // the account attribute will be labeled account.X
         mapping: "connector.private_settings.outgoing_user_attributes",
+        condition: [
+          not(varEmpty("hull_field_name")),
+          not(varEmpty("service_field_name"))
+        ],
         inputPath: "${hull_field_name}",
         outputPath: "${service_field_name}",
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
+        condition: [
+          not(varEmpty("hull_field_name")),
+          not(varEmpty("service_field_name"))
+        ],
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}",
       },
       {
         mapping: "connector.private_settings.user_claims",
+        condition: [
+          not(varEmpty("hull_field_name")),
+          not(varEmpty("service_field_name"))
+        ],
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}"
       }

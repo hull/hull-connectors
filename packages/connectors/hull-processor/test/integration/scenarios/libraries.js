@@ -1,5 +1,6 @@
 // @flow
 import connectorConfig from "../../../server/config";
+import manifest from "../../../manifest.json";
 
 import {
   CONNECTOR,
@@ -16,18 +17,20 @@ const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Basic Attributes manipulation", () => {
-  it("should expose lodash, console, moment, urijs", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...USER,
-          created_at: "2010-01-02T10:00:00Z",
-          url: "http://example.org/foo/bar.html",
-          foo: ["a", "b", "c"]
-        }
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`
+  it("should expose lodash, console, moment, urijs, uuid", () => {
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          user: {
+            ...USER,
+            created_at: "2010-01-02T10:00:00Z",
+            url: "http://example.org/foo/bar.html",
+            foo: ["a", "b", "c"]
+          }
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`
         console.log(_.first(user.foo));
         console.log(urijs(user.url).path());
         console.log(moment(user.created_at).format("MM/YYYY"));
@@ -35,44 +38,109 @@ describe("Basic Attributes manipulation", () => {
         console.error("error");
         console.info("info");
       `),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            logs: [
-              ["a"],
-              ["/foo/bar.html"],
-              ["01/2010"],
-              ["warn"],
-              ["error"],
-              ["info"]
-            ],
-            logsForLogger: [["info"]]
-          })
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            expect.whatever(),
+            expect.objectContaining({
+              logs: [
+                ["a"],
+                ["/foo/bar.html"],
+                ["01/2010"],
+                ["warn"],
+                ["error"],
+                ["info"]
+              ],
+              logsForLogger: [["info"]]
+            })
+          ],
+          [
+            "error",
+            "incoming.user.error",
+            expect.whatever(),
+            expect.objectContaining({
+              errors: [["error"]],
+              hull_summary: 'Error Processing entity: ["error"]'
+            })
+          ],
+          [
+            "info",
+            "compute.console.log",
+            expect.whatever(),
+            expect.objectContaining({
+              log: ["info"]
+            })
+          ]
         ],
-        [
-          "error",
-          "incoming.user.error",
-          expect.whatever(),
-          expect.objectContaining({
-            errors: [["error"]],
-            hull_summary: 'Error Processing user: ["error"]'
-          })
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
+  });
+
+  it("should expose uuid", () => {
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`
+        console.log("uuid", uuid());
+      `),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            expect.whatever(),
+            expect.objectContaining({
+              logs: [
+                [
+                  "uuid",
+                  expect.stringMatching(
+                    /(\w){8}-(\w){4}-(\w){4}-(\w){4}-(\w){12}/
+                  )
+                ]
+              ]
+            })
+          ]
         ],
-        [
-          "info",
-          "compute.console.log",
-          expect.whatever(),
-          expect.objectContaining({
-            log: ["info"]
-          })
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
+  });
+
+  it("should expose uuid with options", () => {
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser(),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`
+        console.log("uuid", uuid());
+      `),
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            expect.whatever(),
+            expect.objectContaining({
+              logs: [
+                [
+                  "uuid",
+                  expect.stringMatching(
+                    /(\w){8}-(\w){4}-(\w){4}-(\w){4}-(\w){12}/
+                  )
+                ]
+              ]
+            })
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
   });
 
   it("should expose segment detection methods", () => {
@@ -104,26 +172,28 @@ describe("Basic Attributes manipulation", () => {
       updated_at: "",
       type: "accounts_segment"
     };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        changes: {
-          is_new: false,
-          account: {},
-          user: {},
-          account_segments: {
-            entered: [accountSegmentBaz],
-            left: [accountSegmentBall]
+    return testScenario(
+      { manifest, connectorConfig },
+      ({ handlers, nock, expect }) => ({
+        ...messageWithUser({
+          changes: {
+            is_new: false,
+            account: {},
+            user: {},
+            account_segments: {
+              entered: [accountSegmentBaz],
+              left: [accountSegmentBall]
+            },
+            segments: {
+              entered: [segmentFoo],
+              left: [segmentBar]
+            }
           },
-          segments: {
-            entered: [segmentFoo],
-            left: [segmentBar]
-          }
-        },
-        segments: [segmentFoo],
-        account_segments: [accountSegmentBaz]
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`
+          segments: [segmentFoo],
+          account_segments: [accountSegmentBaz]
+        }),
+        handlerType: handlers.notificationHandler,
+        connector: connectorWithCode(`
         console.log(isInSegment("foo"));
         console.log(isInSegment("bar"));
 
@@ -142,31 +212,32 @@ describe("Basic Attributes manipulation", () => {
         console.log(leftAccountSegment("ball"));
         console.log(enteredAccountSegment("ball"));
       `),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            logs: [
-              [true],
-              [false],
-              [true],
-              [false],
-              [true],
-              [false],
-              [true],
-              [false],
-              [true],
-              [false],
-              [true],
-              [false]
-            ]
-          })
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
+        firehoseEvents: [],
+        logs: [
+          [
+            "debug",
+            "compute.debug",
+            expect.whatever(),
+            expect.objectContaining({
+              logs: [
+                [true],
+                [false],
+                [true],
+                [false],
+                [true],
+                [false],
+                [true],
+                [false],
+                [true],
+                [false],
+                [true],
+                [false]
+              ]
+            })
+          ]
+        ],
+        metrics: [METRIC_CONNECTOR_REQUEST]
+      })
+    );
   });
 });

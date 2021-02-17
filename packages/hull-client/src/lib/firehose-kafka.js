@@ -2,6 +2,7 @@
 
 import Kafka from "node-rdkafka";
 import _ from "lodash";
+import { promisify } from "util";
 
 import type {
   HullClientInstanceConfig,
@@ -61,6 +62,7 @@ function buildProducer(
     "queue.buffering.max.ms": 100,
     "batch.num.messages": 1000,
     "linger.ms": 10,
+    partitioner: "random",
     dr_cb: true,
     ...kafkaProducerConfig
   };
@@ -70,7 +72,10 @@ function buildProducer(
 
   producer.on("delivery-report", (err, report) => {
     if (err) {
-      console.log("delivery-report", { err, report });
+      console.log(
+        "delivery-report",
+        JSON.stringify({ err: err.message, report })
+      );
     }
   });
 
@@ -84,7 +89,7 @@ function buildProducer(
 
     producer.on("ready", () => {
       clearTimeout(connectTimeout);
-      resolve(producer);
+      resolve(promisify(producer.produce.bind(producer)));
     });
   });
 
@@ -107,17 +112,27 @@ function getInstance(
   logger: HullClientLogger
 ) {
   const kafkaTopic = firehoseTransport.topic;
+  const kafkaTopicsMapping = firehoseTransport.topicsMapping;
 
-  if (!kafkaTopic) {
-    throw new Error("Invalid kafka configuration: missinsg topic");
+  if (!kafkaTopic && !kafkaTopicsMapping) {
+    throw new Error("Invalid kafka configuration: missing topic configuration");
   }
 
   const { organization, additionalClaims = {} } = config;
-  return ({ type, requestId, body, context }: FirehoseCallArguments) => {
+  return async ({ type, requestId, body, context }: FirehoseCallArguments) => {
     if (IS_EXITING)
       throw new Error(
         "Process is shutting down. Not accepting connections anymore"
       );
+
+    const hullDomain = organization.replace(/^[^.]*\./, "");
+    const topic = kafkaTopicsMapping[hullDomain] || kafkaTopic;
+
+    if (!topic) {
+      throw new Error(
+        `Invalid kafka configuration: Topic not found for domain: ${hullDomain}`
+      );
+    }
 
     const message: FirehoseMessage = {
       type,
@@ -154,38 +169,22 @@ function getInstance(
     }
 
     const producerName = config.connectorName || "";
-
-    return getProducer(firehoseTransport, producerName).then(
-      producer => {
-        return new Promise((resolve, reject) => {
-          producer.produce(
-            kafkaTopic,
-            null,
-            Buffer.from(JSON.stringify(message)),
-            null,
-            Date.now(),
-            (err, offset) => {
-              if (err) {
-                logger.error(`incoming.${type}.error`, {
-                  err: err.message,
-                  message,
-                  topic: kafkaTopic
-                });
-                const clientError = new Error();
-                clientError.message = "Backend publication error";
-                return reject(clientError);
-              }
-              return resolve({ ok: true, offset });
-            }
-          );
-        });
-      },
-      () => {
-        const timeoutError = new Error();
-        timeoutError.message = "Backend connection timeout";
-        return Promise.reject(timeoutError);
-      }
-    );
+    try {
+      const produceMessage = await getProducer(firehoseTransport, producerName);
+      const offset = await produceMessage(
+        topic,
+        null,
+        Buffer.from(JSON.stringify(message)),
+        null,
+        Date.now()
+      );
+      return { ok: true, offset };
+    } catch (err) {
+      logger.error("firehose.error", { error: err });
+      const error = new Error("Producer error");
+      error.status = 503;
+      throw error;
+    }
   };
 }
 
@@ -193,9 +192,7 @@ function flushProducer(brokers, { producer, ready }) {
   return ready.then(() => {
     return new Promise(resolve => {
       producer.flush(30000, err => {
-        if (err) {
-          console.warn("Error flushing Kafka producer", err);
-        }
+        if (err) throw err;
         resolve(`Flushed KafkaProducer on ${brokers}`);
       });
     });

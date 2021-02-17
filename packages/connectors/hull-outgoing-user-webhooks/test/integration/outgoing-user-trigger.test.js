@@ -6,20 +6,21 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const { createSimpleTriggerScenario } = require("hull-webhooks/test/trigger-scenario");
 import connectorConfig from "../../server/config";
+import manifest from "../../manifest.json";
 
 describe("Outgoing Users Tests", () => {
 
   it("User Created. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_created" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "is_new_user" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -41,16 +42,16 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Entered Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_entered_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -72,16 +73,16 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Left Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_left_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -103,7 +104,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Whitelisted User Attribute Changed. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_attribute_updated" });
 
@@ -112,7 +113,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -134,16 +135,16 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Whitelisted User Event Occurred. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_event" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -168,7 +169,7 @@ describe("Outgoing Users Tests", () => {
   TODO: UNSUPPORTED SCENARIOS:
 
   it("User Left Single Synchronized Segment. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const private_settings = {
         "synchronized_user_segments_leave": ["segment_left"],
@@ -182,7 +183,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -204,7 +205,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User Account {Attribute|Segment} Changed. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_account_attribute_updated");
 
@@ -213,7 +214,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -238,7 +239,7 @@ describe("Outgoing Users Tests", () => {
   // NEGATIVES
 
   it("User in whitelisted segment with no other trigger defined. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_synchronized_segment", negative: true });
 
@@ -257,9 +258,9 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User entered non synchronized segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_entered_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -276,9 +277,9 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("User leaves non synchronized segment. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_left_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -295,7 +296,7 @@ describe("Outgoing Users Tests", () => {
   });
 
   it("Non Whitelisted User Attribute Changed. Should Not Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_attribute_updated", negative: true });
 
@@ -313,10 +314,60 @@ describe("Outgoing Users Tests", () => {
     });
   });
 
-  it("Not Whitelisted User Event Occurred. Should Send Payload", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  it("Not Whitelisted User Event Occurred. Should Not Send Payload", () => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_event", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events", negative: true });
+
+      return _.assign(triggerScenario.getScenarioDefinition(), {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {},
+        response: triggerScenario.getExpectedResponse(),
+        logs: triggerScenario.getExpectedLogs(),
+        firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
+        metrics: triggerScenario.getExpectedMetrics(),
+        platformApiCalls: triggerScenario.getExpectedPlatformApiCalls()
+      });
+    });
+  });
+
+  it("Should send user with events and 'All Events' whitelist", () => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
+
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all" });
+
+      return _.assign(triggerScenario.getScenarioDefinition(), {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {
+          const scope = nock("http://example.com");
+
+          scope
+            .post("/mock", {
+              email: "bob@bobby.com"
+            })
+            .reply(200, {
+              status: 200
+            });
+
+          return scope;
+        },
+        response: triggerScenario.getExpectedResponse(),
+        logs: triggerScenario.getExpectedLogs(),
+        firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
+        metrics: triggerScenario.getExpectedMetrics(),
+        platformApiCalls: triggerScenario.getExpectedPlatformApiCalls()
+      });
+    });
+  });
+
+  it("Should not send user without events and 'All Events' whitelist", () => {
+    return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
+
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,

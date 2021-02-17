@@ -1,15 +1,27 @@
 // @flow
 
-
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
-
+import manifest from "../../../manifest.json";
+const companyPropertyGroups = [
+  ...require("../fixtures/get-properties-companies-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "displayOrder": 1,
+    "hubspotDefined": false,
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "groupName": "hull",
+        "type": "enumeration",
+        "fieldType": "checkbox",
+        "options": [],
+        "readOnlyValue": false
+      }
+    ]
+  }];
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "1234";
@@ -18,9 +30,12 @@ process.env.CLIENT_SECRET = "1234";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"],
+    synchronized_account_segments: ["account_segment_1"],
     outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
+      { "hull": "name", "service": "name", "overwrite": true },
+      { "hull": "'hubspot/web_technologies'[]", "service": 'web_technologies', "overwrite": true },
+      { "hull": "'hubspot/hs_additional_domains'", "service": "hs_additional_domains", "overwrite": true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -28,14 +43,18 @@ const connector = {
 };
 const accountsSegments = [
   {
-    name: "testSegment",
-    id: "hullSegmentId"
+    name: "Account Segment 1",
+    id: "account_segment_1"
+  },
+  {
+    name: "Account Segment 2",
+    id: "account_segment_2"
   }
 ];
 
 it("should send out a new hull account to hubspot account update", () => {
   const domain = "hull.io";
-  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+  return testScenario({ manifest, connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -45,20 +64,14 @@ it("should send out a new hull account to hubspot account update", () => {
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
           scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
             "properties": [
-              {
-                name: "name",
-                value: "New Name"
-              },
-              {
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }
+              { "name": "name", "value": "New Name" },
+              { "name": "web_technologies","value":"technology 1"},
+              { "name": "hs_additional_domains","value":"domain 1;domain 2;domain 3"},
+              { "name": "hull_segments", "value": "Account Segment 1;Account Segment 2" },
+              { "name": "domain", "value": "hull.io" }
             ],
             objectId: "companyHubspotId123"
           }]).reply(202);
@@ -72,28 +85,25 @@ it("should send out a new hull account to hubspot account update", () => {
           changes: {
             is_new: false,
             user: {},
-            account: {
-              name: [
-                "old",
-                "New Name"
-              ]
-            },
+            account: { name: ["old", "New Name"] },
             segments: {},
             account_segments: {}
           },
           account: {
             domain,
             name: "New Name",
-            "hubspot/id": "companyHubspotId123"
+            "hubspot/id": "companyHubspotId123",
+            "hubspot/web_technologies": "technology 1",
+            "hubspot/hs_additional_domains": ["domain 1", "domain 2", "domain 3"]
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [
+            { name: "Account Segment 1", id: "account_segment_1" },
+            { name: "Account Segment 2", id: "account_segment_2" }
+          ]
         }
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
@@ -109,17 +119,11 @@ it("should send out a new hull account to hubspot account update", () => {
           {
             hubspotWriteCompany: {
               "properties": [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  "name": "hull_segments",
-                  "value": "testSegment"
-                }, {
-                  "name": "domain",
-                  "value": "hull.io"
-                }
+                { "name": "name", "value": "New Name" },
+                { "name":"web_technologies","value":"technology 1"},
+                { "name":"hs_additional_domains","value":"domain 1;domain 2;domain 3"},
+                { "name": "hull_segments", "value": "Account Segment 1;Account Segment 2" },
+                { "name": "domain", "value": "hull.io" }
               ],
               objectId: "companyHubspotId123"
             },
@@ -137,10 +141,7 @@ it("should send out a new hull account to hubspot account update", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

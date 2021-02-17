@@ -86,6 +86,10 @@ class UserMappingAgent {
       attrs.status = member.status;
     }
 
+    if (!_.isNil(member.archived)) {
+      attrs.archived = member.archived;
+    }
+
     MailchimpFields.map(path => {
       const key = _.last(path.split("."));
       const value = _.get(member, path);

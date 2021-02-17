@@ -1,0 +1,15 @@
+{
+  "name": "hull-datanyze",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "description": "Enrich Customer data with Datanyze",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "yarn run test:integration",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "parse-domain": "^3.0.2"
+  },
+  "devDependencies": {}
+}
