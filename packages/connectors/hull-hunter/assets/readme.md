@@ -13,7 +13,7 @@ Then paste it in the connector settings in Credentials section.
 Next decide which Users should be processed by the connector.
 
 **IMPORTANT:** connector will attempt to call hunter.io API and find email address for any User even if the User already have email address. It's filter settings responsibility to correctly segment Users for this connector. On the other hand this allows to rerun the logic again.
-Also, it will process users not matter if `hunter/enriched_at` is set or not, or what value it has. It's also segments filter responsibility to exclude users who were previously enriched by this connector.
+Also, it will process users not matter if `hunter/enriched_at` is set or not, or what value it has. It's also segment's filter responsibility to exclude users who were previously enriched by this connector.
 
 The last required step of configuration is to decide what is the mapping between Hull attributes and hunter.io params.
 
@@ -36,9 +36,10 @@ Depending on the setup connector will send out following params to this endpoint
 - domain (required if company is not mapped)
 - company (required if domain is not mapped)
 
-Once successful response from hunter.io is received the connector will save some attributes in it's group (see the list below).
+Once a successful response from hunter.io is received the connector will save some attributes in its group (see the list below).
 The actual top level email address will be stored only if it's found and the score is at least 90. In other cases the email and score will be stored in the attributes for further inspection.
 
 - hunter/enriched_at - saved every time a correct enrichment call is made to Hunter API not matter what was the result
 - hunter/email - saved every time an email address was found
 - hunter/score - saved every time score was returned by Hunter API
+- hunter/error - saved an error was returned from Hunter API
