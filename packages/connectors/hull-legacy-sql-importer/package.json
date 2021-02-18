@@ -1,8 +1,8 @@
 {
-  "name": "hull-postgres-importer",
+  "name": "hull-legacy-sql-importer",
   "version": "0.1.40-monorepo",
   "license": "MIT",
-  "description": "Import Users, Events and Accounts from PostgreSQL",
+  "description": "Import Users, Events and Accounts from MySQL",
   "scripts": {
     "test": "exit 0",
     "documentation": "exit 0"

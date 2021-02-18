@@ -8,7 +8,6 @@ import sync from "./actions/sync";
 import status from "./actions/status";
 import run from "./actions/run";
 import storedquery from "./actions/storedquery";
-import validateResultColumns from "./actions/validate-result-columns";
 import startImport from "./jobs/start-import";
 import startSync from "./jobs/start-sync";
 
