@@ -70,26 +70,26 @@ class BullAdapter {
 
   setupUiRouter(router) {
     // eslint-disable-next-line global-require
-    const Arena = require("bull-arena");
-    router.use(
-      "/",
-      Arena(
-        {
-          Bull: Queue,
-          queues: [
-            {
-              name: this.options.name,
-              url: this.options.url,
-              hostId: "Queue Server 1"
-            }
-          ]
-        },
-        {
-          basePath: "/",
-          disableListen: true
-        }
-      )
-    );
+    // const Arena = require("bull-arena");
+    // router.use(
+    //   "/",
+    //   Arena(
+    //     {
+    //       Bull: Queue,
+    //       queues: [
+    //         {
+    //           name: this.options.name,
+    //           url: this.options.url,
+    //           hostId: "Queue Server 1"
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       basePath: "/",
+    //       disableListen: true
+    //     }
+    //   )
+    // );
     return router;
   }
 

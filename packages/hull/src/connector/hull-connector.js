@@ -1,7 +1,7 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
-import queueUIRouter from "hull/src/infra/queue/ui-router";
+// import queueUIRouter from "hull/src/infra/queue/ui-router";
 import OS from "os";
 import _ from "lodash";
 import cluster from "cluster";
@@ -530,13 +530,13 @@ export default class HullConnector {
       "/",
       staticRouter({ path: process.cwd(), manifest: this.manifest })
     );
-    app.use(
-      "/__queue",
-      queueUIRouter({
-        hostSecret: this.connectorConfig.hostSecret,
-        queue: this.queue
-      })
-    );
+    // app.use(
+    //   "/__queue",
+    //   queueUIRouter({
+    //     hostSecret: this.connectorConfig.hostSecret,
+    //     queue: this.queue
+    //   })
+    // );
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
