@@ -101,6 +101,11 @@ export default async function handle({ request, client, connector }, message) {
   } catch (error) {
     if (error.response && error.response.body && error.response.body.errors) {
       const errorMessage = _.get(error, "response.body.errors[0].details");
+      const traits = {
+        "hunter/enriched_at": moment().format(),
+        "hunter/error": errorMessage
+      };
+      await client.asUser(userClaims).traits(traits);
       throw new SkippableError(errorMessage);
     }
     throw error;
