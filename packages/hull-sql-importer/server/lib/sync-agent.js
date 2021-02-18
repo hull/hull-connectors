@@ -101,12 +101,12 @@ export default class SyncAgent {
   }
 
   async createClient() {
-    const { db_hostname, ssh_host } = this.ship.private_settings
+    const { db_host, ssh_host } = this.ship.private_settings
     if (this.requiresSshTunnel()) {
       await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
-    await this.ipCheck(db_hostname);
+    await this.ipCheck(db_host);
     return this.openClient();
   }
 
