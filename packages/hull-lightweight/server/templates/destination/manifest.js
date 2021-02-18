@@ -7,7 +7,8 @@ const manifest = () => ({
     {
       name: "synchronized_user_segments",
       title: "User Filter",
-      description: "Pick segments of users that should be processed by this connector.",
+      description:
+        "Pick segments of users that should be processed by this connector.",
       type: "array",
       format: "segment",
       options: {
@@ -21,7 +22,8 @@ const manifest = () => ({
   settings_sections: [
     {
       title: "Outgoing User Filter",
-      description: "Connector only works for users from segments whitelisted below.",
+      description:
+        "Connector only works for users from segments whitelisted below.",
       properties: ["private_settings.synchronized_user_segments"]
     }
   ],
