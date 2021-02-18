@@ -1,11 +1,12 @@
 /**
  * Module dependencies.
  */
-import tedious from "tedious";
 import _ from "lodash";
 import Readable from "readable-stream";
 import SequelizeUtils from "sequelize/lib/utils";
 import { validateResultColumns } from "hull-sql-importer";
+
+const tedious = require("tedious");
 
 /**
  * MS SQL adapter.
@@ -81,12 +82,7 @@ export function openConnection(settings) {
   const config = parseConnectionConfig(settings);
   const connection = new tedious.Connection(config);
   connection.on('connect', (err) => {
-    if (err) {
-      console.log(`Connection Failed: ${JSON.stringify(error)}`);
-      throw err;
-    }
-
-    executeStatement();
+    console.log("MSSQL connected")
   });
   connection.on("debug", message => {
     console.log(`DEBUG: ${message}`);
