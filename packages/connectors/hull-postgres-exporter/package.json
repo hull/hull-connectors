@@ -6,12 +6,6 @@
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
-  "dependencies": {
-    "get-port": "^5.1.1",
-    "pg": "^7.18.2",
-    "sequelize": "^6.5.0",
-    "ssh2": "^0.8.7",
-    "superagent-prefix": "^0.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }
