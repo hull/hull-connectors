@@ -76,7 +76,7 @@ describe("Validate IP Ranges", () => {
             "outgoing.error",
             expect.whatever(),
             {
-              reason: "Forbidden Address",
+              reason: "queryA ENODATA localhost",
               addresses: ["127.0.0.1"],
               hostname: "localhost",
               url: `http://localhost/mock`
