@@ -71,17 +71,7 @@ describe("Validate IP Ranges", () => {
         responseText: undefined,
         responseStatusCode: 500,
         logs: [
-          [
-            "error",
-            "outgoing.error",
-            expect.whatever(),
-            {
-              reason: "Forbidden Address",
-              addresses: ["127.0.0.1"],
-              hostname: "localhost",
-              url: `http://localhost/mock`
-            }
-          ]
+          ["error", "outgoing.error", expect.whatever(), expect.whatever()]
         ],
         firehoseEvents: [],
         metrics: [["increment", "connector.request", 1]],
