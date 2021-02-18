@@ -458,6 +458,15 @@ class EntityScopedHullClient extends HullClient {
     });
   };
 
+  incinerate = (body: Object, context: HullFirehoseEventContext) => {
+    return this.batch({
+      type: "incinerate",
+      requestId: this.requestId,
+      body,
+      context
+    });
+  };
+
   /**
    * Issues ann `unalias` event on entity
    * @todo
