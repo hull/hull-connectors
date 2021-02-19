@@ -144,15 +144,7 @@ export function checkForError(error) {
  * @param {*} replacements The replacement parameters
  */
 export function wrapQuery(sql, replacements) {
-  const replacementDates = _.reduce(
-    replacements,
-    (results, value, key) => {
-      results[key] = new Date(value);
-      return results;
-    },
-    {}
-  );
-  return SequelizeUtils.formatNamedParameters(sql, replacementDates, "mssql");
+  return SequelizeUtils.formatNamedParameters(sql, replacements, "mssql");
 }
 
 /**
