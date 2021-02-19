@@ -364,8 +364,12 @@ export default class SyncAgent {
     };
 
     const wrappedQuery = this.adapter.in.wrapQuery(query, replacements);
-    // Run the method for the specific adapter.
-    // return this.adapter.in.runQuery(this.client, wrappedQuery, options)
+
+    this.hull.logger.info("incoming.job.query", {
+      jobName: "run",
+      query: wrappedQuery,
+      type: this.import_type
+    });
 
     let openClient;
 

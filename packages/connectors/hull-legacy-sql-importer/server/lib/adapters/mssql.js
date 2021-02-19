@@ -40,14 +40,18 @@ export function parseConnectionConfig(settings) {
   let opts = {
     port: conn.port || 1433,
     database: conn.name,
-    requestTimeout: 900000
+    requestTimeout: 900000,
+    encrypt: false
   };
   // All additional options are optional
   if (settings.db_options) {
     try {
       const customOptions = JSON.parse(settings.db_options);
       if (customOptions) {
-        opts = _.merge(opts, customOptions);
+        opts = {
+          ...opts,
+          ...customOptions
+        };
       }
     } catch (parseError) {
       console.error("config.error", parseError);
