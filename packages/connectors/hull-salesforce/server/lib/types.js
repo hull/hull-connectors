@@ -174,11 +174,7 @@ export interface IAttributesMapper {
     segments: Array<Object>,
     accountSegments: Array<Object>
   ): any;
-  mapToHullAttributeObject(
-    resource: TResourceType,
-    sObject: any,
-    resourceSchema: Object
-  ): any;
+  mapToHullAttributeObject(resource: TResourceType, sObject: any): any;
 }
 
 export interface IQueryUtil {
@@ -189,7 +185,11 @@ export interface IQueryUtil {
   ): Object;
   composeFindFields(serviceType: string, mappings: Object): Array<string>;
   extractUniqueValues(messages: Array<any>, path: string): Array<any>;
-  buildQueryOpts(sfType: string, params: Array<Object>): Object;
+  buildQueryOpts({
+    sfType: string,
+    params: Array<Object>,
+    source: string
+  }): Object;
   composeFindQuery(
     messages: Array<THullUserUpdateMessage> | Array<THullAccountUpdateMessage>,
     searchMapping: Object,
@@ -238,17 +238,19 @@ export interface IFilterUtil {
 }
 
 export interface IMatchUtil {
-  matchHullMessageToSalesforceAccount(
+  matchHullMessageToSalesforceAccount({
     message: THullUserUpdateMessage | THullAccountUpdateMessage,
     sfAccounts: Array<Object>,
-    accountClaims: Array<Object>
-  ): Object;
-  matchHullMessageToSalesforceRecord(
+    accountClaims: Array<Object>,
+    source: string
+  }): Object;
+  matchHullMessageToSalesforceRecord({
     resource: TResourceType,
     user: THullObject,
     sfObjects: Array<Object>,
-    identityClaims: Array<Object>
-  ): any;
+    identityClaims: Array<Object>,
+    source: string
+  }): any;
   getIdentityClaimMatches({
     entities: Array<Object>,
     identityClaims: Array<Object>,

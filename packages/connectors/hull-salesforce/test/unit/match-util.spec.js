@@ -36,7 +36,7 @@ const domainTestCases = [
 ];
 
 describe("Extract Matching Domain Tests", () => {
-  domainTestCases.forEach((tc) => {
+  domainTestCases.forEach(tc => {
     it(`should extract the matching domain '${tc.domain}' from website '${tc.website}'`, () => {
       const actual = matchUtil.extractMatchingDomain(tc.website);
 
@@ -46,7 +46,6 @@ describe("Extract Matching Domain Tests", () => {
 });
 
 describe("Should Match Accounts", () => {
-
   let privateSettings = {
     account_claims: [
       {
@@ -59,7 +58,7 @@ describe("Should Match Accounts", () => {
         service: "CustomIdentifierField__c",
         required: true
       }
-    ],
+    ]
   };
   let accountClaims = _.get(privateSettings, "account_claims");
 
@@ -76,38 +75,69 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "https://domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "www.domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-
-    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(accountMatches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          }
-        ]
+        account: {
+          domain: "https://domain1.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "www.domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(accountMatches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
+      ]
+    });
   });
 
   it("2 matches for required domain account claim. 0 matches for required ext id account claim", () => {
@@ -123,43 +153,74 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: false
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "domain1.com", external_id: "non-matching-sf-id", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-
-    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(accountMatches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          },
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-2",
-            "CustomIdentifierField__c": "salesforceAccountId-2"
-          }
-        ]
+        account: {
+          domain: "domain1.com",
+          external_id: "non-matching-sf-id",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(accountMatches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-2",
+          CustomIdentifierField__c: "salesforceAccountId-2"
+        }
+      ]
+    });
   });
 
   it("2 matches for required domain account claim. 1 match for non required ext id account claim", () => {
@@ -174,38 +235,69 @@ describe("Should Match Accounts", () => {
           hull: "external_id",
           service: "CustomIdentifierField__c"
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "https://domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "http://domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "www.domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-
-    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(accountMatches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "http://domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          }
-        ]
+        account: {
+          domain: "https://domain1.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "http://domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "www.domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(accountMatches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "http://domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
+      ]
+    });
   });
 
   it("0 matches for required domain account claim. 1 match for required ext id account claim", () => {
@@ -221,33 +313,66 @@ describe("Should Match Accounts", () => {
           service: "Website",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
+    const message = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "non-matching-domain.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
 
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
 
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
 
-    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
 
     expect(accountMatches).toEqual({
-      "primary": [],
-      "secondary": [
+      primary: [],
+      secondary: [
         {
-          "Website": "domain1.com",
-          "Id": "salesforceAccountId-1",
-          "CustomIdentifierField__c": "salesforceAccountId-1"
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
         }
       ]
     });
@@ -257,7 +382,6 @@ describe("Should Match Accounts", () => {
     // TODO: not a possible case
     expect(true).toBe(true);
   });
-
 
   it("0 matches for non required domain account claim. 1 match for required ext id account claim", () => {
     privateSettings = {
@@ -272,33 +396,66 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
+    const message = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "non-matching-domain.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
 
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
 
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
 
-    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
 
     expect(accountMatches).toEqual({
-      "primary": [],
-      "secondary": [
+      primary: [],
+      secondary: [
         {
-          "Website": "domain1.com",
-          "Id": "salesforceAccountId-1",
-          "CustomIdentifierField__c": "salesforceAccountId-1"
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
         }
       ]
     });
@@ -321,66 +478,125 @@ describe("Should Match Accounts", () => {
           service: "Website",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
     const messages = [];
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
-      account: { domain: "domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
-    const accountMessage1 = EntityMessageFactory.build({
-      account: { domain: "domain2.com", external_id: "salesforceAccountId-4", id: "accountId-2" }
-    }, {});
+    const accountMessage0 = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "domain1.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+    const accountMessage1 = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "domain2.com",
+          external_id: "salesforceAccountId-4",
+          id: "accountId-2"
+        }
+      },
+      {}
+    );
 
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-    const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-4", CustomIdentifierField__c: "salesforceAccountId-4" });
-    const sfAccount4 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
-    const sfAccount5 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-1" });
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+    const sfAccount3 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-4",
+        CustomIdentifierField__c: "salesforceAccountId-4"
+      }
+    );
+    const sfAccount4 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain3.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-5"
+      }
+    );
+    const sfAccount5 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain3.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
 
-    salesForceAccounts.push(sfAccount2);
-    salesForceAccounts.push(sfAccount3);
-    salesForceAccounts.push(sfAccount4);
-    salesForceAccounts.push(sfAccount5);
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount3);
+    sfAccounts.push(sfAccount4);
+    sfAccounts.push(sfAccount5);
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
 
     messages.push(accountMessage0);
     messages.push(accountMessage1);
 
     const matches = [];
     _.forEach(messages, message => {
-      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+        message,
+        sfAccounts,
+        accountClaims,
+        source: "salesforce"
+      });
       matches.push(accountMatches);
-    })
-    expect(matches).toEqual(
-      [
-        {
-          "primary": [],
-          "secondary": [
-            {
-              "Website": "domain1.com",
-              "Id": "salesforceAccountId-1",
-              "CustomIdentifierField__c": "salesforceAccountId-1"
-            }
-          ]
-        },
-        {
-          "primary": [],
-          "secondary": [
-            {
-              "Website": "domain2.com",
-              "Id": "salesforceAccountId-4",
-              "CustomIdentifierField__c": "salesforceAccountId-4"
-            }
-          ]
-        }
-      ]
-    );
+    });
+    expect(matches).toEqual([
+      {
+        primary: [],
+        secondary: [
+          {
+            Website: "domain1.com",
+            Id: "salesforceAccountId-1",
+            CustomIdentifierField__c: "salesforceAccountId-1"
+          }
+        ]
+      },
+      {
+        primary: [],
+        secondary: [
+          {
+            Website: "domain2.com",
+            Id: "salesforceAccountId-4",
+            CustomIdentifierField__c: "salesforceAccountId-4"
+          }
+        ]
+      }
+    ]);
   });
 
   it("2 Messages - first message finds sf account", () => {
@@ -401,68 +617,120 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
     const messages = [];
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
-      account: { domain: "domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
-    const accountMessage1 = EntityMessageFactory.build({
-      account: { domain: "domain2.com", external_id: "randomSF-Id", id: "accountId-2" }
-    }, {});
+    const accountMessage0 = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "domain1.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+    const accountMessage1 = EntityMessageFactory.build(
+      {
+        account: {
+          domain: "domain2.com",
+          external_id: "randomSF-Id",
+          id: "accountId-2"
+        }
+      },
+      {}
+    );
 
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-    const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-4", CustomIdentifierField__c: "salesforceAccountId-4" });
-    const sfAccount4 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+    const sfAccount3 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-4",
+        CustomIdentifierField__c: "salesforceAccountId-4"
+      }
+    );
+    const sfAccount4 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain3.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-5"
+      }
+    );
 
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-    salesForceAccounts.push(sfAccount3);
-    salesForceAccounts.push(sfAccount4);
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount3);
+    sfAccounts.push(sfAccount4);
     messages.push(accountMessage0);
     messages.push(accountMessage1);
 
     const matches = [];
     _.forEach(messages, message => {
-      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount({
+        message,
+        sfAccounts,
+        accountClaims,
+        source: "salesforce"
+      });
       matches.push(accountMatches);
-    })
-    expect(matches).toEqual(
-      [
-        {
-          "primary": [],
-          "secondary": [
-            {
-              "Website": "domain1.com",
-              "Id": "salesforceAccountId-1",
-              "CustomIdentifierField__c": "salesforceAccountId-1"
-            }
-          ]
-        },
-        {
-          "primary": [],
-          "secondary": [
-            {
-              "Website": "domain2.com",
-              "Id": "salesforceAccountId-3",
-              "CustomIdentifierField__c": "salesforceAccountId-3"
-            },
-            {
-              "Website": "domain2.com",
-              "Id": "salesforceAccountId-4",
-              "CustomIdentifierField__c": "salesforceAccountId-4"
-            }
-          ]
-        }
-      ]
-    );
+    });
+    expect(matches).toEqual([
+      {
+        primary: [],
+        secondary: [
+          {
+            Website: "domain1.com",
+            Id: "salesforceAccountId-1",
+            CustomIdentifierField__c: "salesforceAccountId-1"
+          }
+        ]
+      },
+      {
+        primary: [],
+        secondary: [
+          {
+            Website: "domain2.com",
+            Id: "salesforceAccountId-3",
+            CustomIdentifierField__c: "salesforceAccountId-3"
+          },
+          {
+            Website: "domain2.com",
+            Id: "salesforceAccountId-4",
+            CustomIdentifierField__c: "salesforceAccountId-4"
+          }
+        ]
+      }
+    ]);
   });
 
   it("Single match for required claim. No matches for non required claim", () => {
@@ -478,40 +746,78 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-    const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-4", CustomIdentifierField__c: "salesforceAccountId-4" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-    salesForceAccounts.push(sfAccount3);
-
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(matches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          }
-        ]
+        account: {
+          domain: "non-matching-domain.com",
+          external_id: "salesforceAccountId-1",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+    const sfAccount3 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-4",
+        CustomIdentifierField__c: "salesforceAccountId-4"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount3);
+
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(matches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
+      ]
+    });
   });
 
   it("no account claim matches", () => {
@@ -527,36 +833,81 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "non-matching-domain.com", external_id: "non-matching-id", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
-    const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-4", CustomIdentifierField__c: "salesforceAccountId-4" });
-    const sfAccount4 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-    salesForceAccounts.push(sfAccount3);
-    salesForceAccounts.push(sfAccount4);
-
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(matches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": []
+        account: {
+          domain: "non-matching-domain.com",
+          external_id: "non-matching-id",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-3",
+        CustomIdentifierField__c: "salesforceAccountId-3"
+      }
+    );
+    const sfAccount3 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain2.com",
+        Id: "salesforceAccountId-4",
+        CustomIdentifierField__c: "salesforceAccountId-4"
+      }
+    );
+    const sfAccount4 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain3.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-5"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount3);
+    sfAccounts.push(sfAccount4);
+
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(matches).toEqual({
+      primary: [],
+      secondary: []
+    });
   });
 
   it("2 top domain required account claim matches. 0 external_id required account claim matches.", () => {
@@ -572,40 +923,64 @@ describe("Should Match Accounts", () => {
           service: "CustomIdentifierField__c",
           required: true
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "domain1.com", external_id: "salesforceAccountId-5", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(matches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          },
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-2",
-            "CustomIdentifierField__c": "salesforceAccountId-2"
-          }
-        ]
+        account: {
+          domain: "domain1.com",
+          external_id: "salesforceAccountId-5",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-2",
+        CustomIdentifierField__c: "salesforceAccountId-2"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(matches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-2",
+          CustomIdentifierField__c: "salesforceAccountId-2"
+        }
+      ]
+    });
   });
 
   it("2 matches for required domain account claim. 2 matches for non required ext id account claim", () => {
@@ -620,44 +995,82 @@ describe("Should Match Accounts", () => {
           hull: "external_id",
           service: "CustomIdentifierField__c"
         }
-      ],
+      ]
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const salesForceAccounts = [];
+    const sfAccounts = [];
 
-    const message = EntityMessageFactory.build({
-      account: { domain: "domain1.com", external_id: "salesforceAccountId-5", id: "accountId-1" }
-    }, {});
-
-    const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
-    const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
-    const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain4.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
-
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
-    salesForceAccounts.push(sfAccount2);
-    salesForceAccounts.push(sfAccount3);
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
-
-    expect(matches).toEqual(
+    const message = EntityMessageFactory.build(
       {
-        "primary": [],
-        "secondary": [
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          },
-          {
-            "Website": "domain1.com",
-            "Id": "salesforceAccountId-1",
-            "CustomIdentifierField__c": "salesforceAccountId-1"
-          }
-        ]
+        account: {
+          domain: "domain1.com",
+          external_id: "salesforceAccountId-5",
+          id: "accountId-1"
+        }
+      },
+      {}
+    );
+
+    const sfAccount0 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
       }
     );
+    const sfAccount1 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "salesforceAccountId-1",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    );
+    const sfAccount2 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain3.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-5"
+      }
+    );
+    const sfAccount3 = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain4.com",
+        Id: "salesforceAccountId-5",
+        CustomIdentifierField__c: "salesforceAccountId-5"
+      }
+    );
+
+    sfAccounts.push(sfAccount0);
+    sfAccounts.push(sfAccount1);
+    sfAccounts.push(sfAccount2);
+    sfAccounts.push(sfAccount3);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
+
+    expect(matches).toEqual({
+      primary: [],
+      secondary: [
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          Id: "salesforceAccountId-1",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
+      ]
+    });
   });
 
   it("should error out when there are no accounts to match", () => {
@@ -682,11 +1095,16 @@ describe("Should Match Accounts", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
 
     expect(matches).toEqual({
-      "primary": [],
-      "secondary": []
+      primary: [],
+      secondary: []
     });
   });
 
@@ -727,15 +1145,20 @@ describe("Should Match Accounts", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
 
     expect(matches).toEqual({
-      "primary": [],
-      "secondary": [
+      primary: [],
+      secondary: [
         {
-          "Id": "0011GA0000BQjT1QHA",
-          "Website": "http://goldminingco.com",
-          "Name": "Gold Mining Corp."
+          Id: "0011GA0000BQjT1QHA",
+          Website: "http://goldminingco.com",
+          Name: "Gold Mining Corp."
         }
       ]
     });
@@ -774,17 +1197,22 @@ describe("Should Match Accounts", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount({
+      message,
+      sfAccounts,
+      accountClaims,
+      source: "salesforce"
+    });
 
     expect(matches).toEqual({
-      "primary": [
+      primary: [
         {
-          "Id": "0011GA0000BQjT1QHA",
-          "Website": "http://goldminingco.com",
-          "Name": "Gold Mining Corp."
+          Id: "0011GA0000BQjT1QHA",
+          Website: "http://goldminingco.com",
+          Name: "Gold Mining Corp."
         }
       ],
-      "secondary": []
+      secondary: []
     });
   });
 });
@@ -793,7 +1221,17 @@ describe("Match Users Tests", () => {
   it("should throw an error if unsupported resource type is passed", () => {
     const user = {};
     const sfObjects = [];
-    expect(() => { matchUtil.matchHullMessageToSalesforceRecord("Opportunity", user, sfObjects); }).toThrowError("Unsupported resource type. Only Contact and Lead can be matched to an user.");
+    expect(() => {
+      matchUtil.matchHullMessageToSalesforceRecord({
+        resource: "Opportunity",
+        user,
+        sfObjects,
+        identityClaims: [],
+        source: "salesforce"
+      });
+    }).toThrowError(
+      "Unsupported resource type. Only Contact and Lead can be matched to an user."
+    );
   });
 
   it("should not match with a salesforce contact", () => {
@@ -814,9 +1252,15 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const identityClaims = [{ service: "Email", hull: "email" }]
+    const identityClaims = [{ service: "Email", hull: "email" }];
 
-    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts, identityClaims);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord({
+      resource: "Contact",
+      user,
+      sfObjects: sfContacts,
+      identityClaims,
+      source: "salesforce"
+    });
 
     expect(matches).toEqual([]);
   });
@@ -839,14 +1283,22 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const identityClaims = [{ service: "Email", hull: "email" }]
+    const identityClaims = [{ service: "Email", hull: "email" }];
 
-    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts, identityClaims);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord({
+      resource: "Contact",
+      user,
+      sfObjects: sfContacts,
+      identityClaims,
+      source: "salesforce"
+    });
 
-    expect(matches).toEqual([{
-      Id: "0011GA0000BQjT1QHA",
-      Email: "betty.rich@solomonscastle.com"
-    }]);
+    expect(matches).toEqual([
+      {
+        Id: "0011GA0000BQjT1QHA",
+        Email: "betty.rich@solomonscastle.com"
+      }
+    ]);
   });
 
   it("should find a matching contact by Id", () => {
@@ -871,29 +1323,52 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord({
+      resource: "Contact",
+      user,
+      sfObjects: sfContacts,
+      source: "salesforce"
+    });
 
-    expect(matches).toEqual([{
-      Id: "0034600010mr05UAAQ",
-      Email: "betty.rich@solomonscastle.de"
-    }]);
+    expect(matches).toEqual([
+      {
+        Id: "0034600010mr05UAAQ",
+        Email: "betty.rich@solomonscastle.de"
+      }
+    ]);
   });
 });
 
 describe("Filter Identity Claim Matches", () => {
   it("should find a single salesforce account match from identity claims and intersecting by external id", () => {
     const accountClaims = [
-      { "hull": "domain", "service": "Website", "required": true },
-      { "hull": "external_id", "service": "CustomIdentifierField__c", "required": true }
+      { hull: "domain", service: "Website", required: true },
+      {
+        hull: "external_id",
+        service: "CustomIdentifierField__c",
+        required: true
+      }
     ];
     const identityClaimMatches = {
-      "external_id": [
-        { "Website": "domain3.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" }
+      external_id: [
+        {
+          Website: "domain3.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
       ],
-      "domain": [
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-2" }
+      domain: [
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-2"
+        }
       ]
     };
     const matches = matchUtil.filterIdentityClaimMatches({
@@ -901,25 +1376,43 @@ describe("Filter Identity Claim Matches", () => {
       identityClaimMatches,
       intersectBy: { path: "service", resolve: true }
     });
-    expect(matches).toEqual([{
-      "Website": "domain1.com",
-      "CustomIdentifierField__c": "salesforceAccountId-1"
-    }]);
+    expect(matches).toEqual([
+      {
+        Website: "domain1.com",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    ]);
   });
 
   it("should find a single salesforce account match from identity claims and intersecting by domain", () => {
     const accountClaims = [
-      { "hull": "external_id", "service": "CustomIdentifierField__c", "required": true },
-      { "hull": "domain", "service": "Website", "required": true }
+      {
+        hull: "external_id",
+        service: "CustomIdentifierField__c",
+        required: true
+      },
+      { hull: "domain", service: "Website", required: true }
     ];
     const identityClaimMatches = {
-      "external_id": [
-        { "Website": "domain3.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" }
+      external_id: [
+        {
+          Website: "domain3.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        }
       ],
-      "domain": [
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
-        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-2" }
+      domain: [
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-1"
+        },
+        {
+          Website: "domain1.com",
+          CustomIdentifierField__c: "salesforceAccountId-2"
+        }
       ]
     };
     const matches = matchUtil.filterIdentityClaimMatches({
@@ -927,9 +1420,11 @@ describe("Filter Identity Claim Matches", () => {
       identityClaimMatches,
       intersectBy: { path: "service", resolve: true }
     });
-    expect(matches).toEqual([{
-      "Website": "domain1.com",
-      "CustomIdentifierField__c": "salesforceAccountId-1"
-    }]);
+    expect(matches).toEqual([
+      {
+        Website: "domain1.com",
+        CustomIdentifierField__c: "salesforceAccountId-1"
+      }
+    ]);
   });
 });

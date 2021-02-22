@@ -284,6 +284,7 @@ describe("Fetch Accounts Tests", () => {
           connector: {
             private_settings: {
               ...private_settings,
+              source: "salesforce_main",
               lead_synchronized_segments: ["5a0c1f07b4d8644425002c65"],
               lead_attributes_outbound: [
                 {
@@ -448,7 +449,7 @@ describe("Fetch Accounts Tests", () => {
                 subject_type: "account",
                 account_external_id: "0011I000007Cy18QAC",
                 account_domain: "krakowtraders.pl",
-                account_anonymous_id: "salesforce:0011I000007Cy18QAC"
+                account_anonymous_id: "salesforce_main:0011I000007Cy18QAC"
               },
               {
                 data: {
@@ -483,16 +484,16 @@ describe("Fetch Accounts Tests", () => {
                 asAccount: {
                   external_id: "0011I000007Cy18QAC",
                   domain: "krakowtraders.pl",
-                  anonymous_id: "salesforce:0011I000007Cy18QAC"
+                  anonymous_id: "salesforce_main:0011I000007Cy18QAC"
                 },
                 subjectType: "account"
               },
               {
-                "salesforce/website": {
+                "salesforce_main/website": {
                   value: "krakowtraders.pl",
                   operation: "set"
                 },
-                "salesforce/id": {
+                "salesforce_main/id": {
                   value: "0011I000007Cy18QAC",
                   operation: "set"
                 }

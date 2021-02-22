@@ -223,7 +223,10 @@ describe("Fetch Tasks Tests", () => {
           handlerType: handlers.scheduleHandler,
           handlerUrl: "fetch-recent-tasks",
           connector: {
-            private_settings
+            private_settings: {
+              ...private_settings,
+              source: "salesforce_main"
+            }
           },
           usersSegments: [],
           accountsSegments: [],
@@ -304,7 +307,7 @@ describe("Fetch Tasks Tests", () => {
               "track",
               {
                 asUser: {
-                  anonymous_id: "salesforce-contact:034PvQAH"
+                  anonymous_id: "salesforce_main-contact:034PvQAH"
                 },
                 subjectType: "user"
               },
@@ -312,7 +315,7 @@ describe("Fetch Tasks Tests", () => {
                 ip: null,
                 url: null,
                 referer: null,
-                source: "salesforce",
+                source: "salesforce_main",
                 created_at: "2019-07-01T13:16:20.000+0000",
                 event_id: "salesforce-task:00TP0000",
                 properties: {
