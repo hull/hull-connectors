@@ -165,7 +165,8 @@ export default class SyncAgent {
             db_port: portForward,
             db_user: dbConfig.user,
             db_password: dbConfig.password,
-            db_name: dbConfig.database
+            db_name: dbConfig.database,
+            db_type: dbConfig.type
           })
         );
       });
