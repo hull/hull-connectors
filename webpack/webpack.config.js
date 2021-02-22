@@ -84,9 +84,9 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [
-          {
-            loader: "esbuild-loader"
-          },
+          // {
+          //   loader: "esbuild-loader"
+          // },
           {
             loader: "babel-loader?cacheDirectory",
             options: {
