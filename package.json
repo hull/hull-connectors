@@ -64,6 +64,7 @@
     "documentation": "^13.1.1",
     "dotenv": "^8.2.0",
     "dotenv-cli": "^4.0.0",
+    "esbuild-loader": "^2.9.2",
     "flow-bin": "^0.145.0",
     "flow-typed": "^3.2.1",
     "husky": "^5.0.9",
