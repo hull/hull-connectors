@@ -16,6 +16,20 @@ import incomingHandler from "./incoming-handler";
 import configData from "./config-data";
 import credentialsHandler from "./credentials-handler";
 
+const INCOMING_HANDLER_DEFINITIONS = {
+  ip: true,
+  url: true,
+  method: true,
+  protocol: true,
+  hostname: true,
+  path: true,
+  params: true,
+  query: true,
+  headers: true,
+  cookies: true,
+  body: true
+};
+
 const handler = ({ EntryModel }: { EntryModel: any }) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
@@ -26,7 +40,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     schedules: {
       removeOldEntriesHandler: removeOldEntriesHandler(EntryModel)
     },
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler(INCOMING_HANDLER_DEFINITIONS) },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {
       getRecent: recentHandler(EntryModel),

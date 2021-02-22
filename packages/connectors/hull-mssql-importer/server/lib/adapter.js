@@ -5,7 +5,7 @@ import tedious from "tedious";
 import _ from "lodash";
 import Readable from "readable-stream";
 import SequelizeUtils from "sequelize/lib/utils";
-import validateResultColumns from "./validate-result-columns";
+import { validateResultColumns } from "hull-sql-importer";
 
 /**
  * MS SQL adapter.

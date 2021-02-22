@@ -20,7 +20,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -51,7 +51,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -82,7 +82,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -113,7 +113,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -144,7 +144,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -183,7 +183,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -214,7 +214,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {
@@ -343,7 +343,7 @@ describe("Outgoing Users Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {
-          const scope = nock("http://fake-url.io");
+          const scope = nock("http://example.com");
 
           scope
             .post("/mock", {

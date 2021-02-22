@@ -7,9 +7,9 @@ export function getSshTunnelConfig({ ssh_port, ssh_username, ssh_private_key, ss
   };
 }
 
-export function getDatabaseConfig({ db_hostname, db_port, db_name, db_user, db_password }) {
+export function getDatabaseConfig({ db_host, db_hostname, db_port, db_name, db_user, db_password }) {
   return {
-    host: db_hostname,
+    host: db_host || db_hostname,
     port: db_port,
     user: db_user,
     password: db_password,

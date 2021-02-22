@@ -399,15 +399,19 @@ class TestScenarioRunner extends EventEmitter {
             }
             break;
           case handlers.notificationHandler:
-            response = await this.minihull.notifyConnector(
-              this.connectorData,
-              `http://localhost:${connectorPort}/${handlerUrl}`,
-              channel,
-              this.scenarioDefinition.messages,
-              this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments,
-              this.scenarioDefinition.is_export
-            );
+            try {
+              response = await this.minihull.notifyConnector(
+                this.connectorData,
+                `http://localhost:${connectorPort}/${handlerUrl}`,
+                channel,
+                this.scenarioDefinition.messages,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments,
+                this.scenarioDefinition.is_export
+              );
+            } catch (err){
+              response = err.response;
+            }
             break;
           case undefined:
             throw new Error("Wrong handlerType");
@@ -416,8 +420,13 @@ class TestScenarioRunner extends EventEmitter {
               `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`
             );
         }
-        debug("response", response.body, response.statusCode);
-        expect(response.body).toEqual(this.scenarioDefinition.response);
+        debug("response", response.text, response.body, response.statusCode);
+        if (this.scenarioDefinition.response !== undefined) {
+          expect(response.body).toEqual(this.scenarioDefinition.response);
+        }
+        if (this.scenarioDefinition.responseText !== undefined) {
+          expect(response.text).toEqual(this.scenarioDefinition.responseText);
+        }
         expect(response.statusCode).toEqual(
           this.scenarioDefinition.responseStatusCode || 200
         );
