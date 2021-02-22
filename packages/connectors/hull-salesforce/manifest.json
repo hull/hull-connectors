@@ -35,6 +35,11 @@
       }
     },
     {
+      "name": "source",
+      "type": "string",
+      "default": "salesforce"
+    },
+    {
       "name": "refresh_token",
       "type": "string",
       "format": "hidden"

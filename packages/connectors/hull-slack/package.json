@@ -4,7 +4,6 @@
   "version": "0.1.40-monorepo",
   "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
-  "license": "MIT",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'"
   },
@@ -22,7 +21,7 @@
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.3",
     "botkit": "^4.0.2",
-    "liquidjs": "^9.22.1",
+    "liquidjs": "^9.23.0",
     "passport-slack": "0.0.7"
   }
 }

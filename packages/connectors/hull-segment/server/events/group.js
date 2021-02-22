@@ -1,32 +1,40 @@
 // @flow
-
-import type { HullContext, HullAccountClaims } from "hull";
-import type { SegmentIncomingGroup } from "../types";
+import _ from "lodash";
+import type { HullContext } from "hull";
 
 export default async function handleGroup(
-  { client, connector }: HullContext,
-  message: SegmentIncomingGroup
+  { metric, client }: HullContext,
+  payload = {}
 ) {
-  const { private_settings } = connector;
-  const { link_users_in_hull } = private_settings;
-  const { groupId, userId, anonymousId, traits } = message;
-  const { domain } = traits;
-  if (!message || !groupId) return null;
+  const { groupId, userId, traits } = payload;
+  if (groupId) {
+    const accountIdentity = { external_id: groupId };
 
-  const accountClaims: HullAccountClaims = {
-    external_id: groupId
-  };
-  if (domain) {
-    accountClaims.domain = domain;
+    const domain = _.get(payload, "traits.domain");
+
+    if (!_.isEmpty(domain)) {
+      accountIdentity.domain = domain;
+    }
+
+    const asAccount = userId
+      ? client.asUser({ external_id: userId }).account(accountIdentity)
+      : client.asAccount(accountIdentity);
+
+    try {
+      asAccount.logger.debug("incoming.account.success", { payload });
+    } catch (error) {
+      metric.increment("request.track.error");
+      asAccount.logger.error("incoming.group.error", {
+        payload,
+        errors: error
+      });
+      throw error;
+
+      // console.log("LOGGER ERROR");
+      // console.log(e);
+    }
+
+    return asAccount.traits(traits);
   }
-
-  const scopedClient = link_users_in_hull
-    ? client
-        .asUser(
-          userId ? { external_id: userId } : { anonymous_id: anonymousId }
-        )
-        .account({ external_id: groupId })
-    : client.asAccount(accountClaims);
-  await scopedClient.traits(traits);
-  return undefined;
+  return true;
 }

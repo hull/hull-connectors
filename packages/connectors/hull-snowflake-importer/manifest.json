@@ -8,6 +8,12 @@
   "tags": ["incoming", "oneColumn", "sql-accounts"],
   "private_settings": [
     {
+      "name": "db_type",
+      "type": "string",
+      "title": "Type",
+      "default": "snowflake"
+    },
+    {
       "type": "string",
       "format": "title",
       "name": "connector_info",
@@ -53,7 +59,7 @@
       "type": "string",
       "title": "Snowflake Account Name",
       "required": true,
-      "description": "Do not include the region.  This is the public account name for connecting.  It is the FIRST part of your connection string.  Example: ab12334"
+      "description": "The account name is in your instance url before '.snowflakecomputing.com'. For example, if your instance is at https://ab1234.us-east-2.aws.snowflakecomputing.com', the account name is ab1234.us-east-2.aws"
     },
     {
       "name": "db_region",

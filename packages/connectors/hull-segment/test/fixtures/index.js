@@ -1,22 +1,12 @@
-/* eslint-disable global-require */
-
-const fixtures = {
-  aliasPayload: require("./alias.json"),
-
-  groupPayload: require("./group.json"),
-  groupOutput: require("./group-output.json"),
-
-  identifyPayload: require("./identify.json"),
-  identifyOutput: require("./identify-output.json"),
-
-  pagePayload: require("./page.json"),
-  pageOutput: require("./page-output.json"),
-
-  screenPayload: require("./screen.json"),
-  screenOutput: require("./screen-output.json"),
-
-  trackPayload: require("./track.json"),
-  trackOutput: require("./track-output.json")
+module.exports = {
+  alias: require('./alias.json'),
+  group: require('./group.json'),
+  identify: require('./identify.json'),
+  page: require('./page.json'),
+  screen: require('./screen.json'),
+  track: require('./track.json'),
+  userUpdateEventPayload: require('./user-update-event-payload.json'),
+  userBatchUpdateMockMessage: require('./user-batchupdate-mock-message.json'),
+  userBatchUpdateRaw: require('./user-batchupdate-raw.json'),
+  userBatchUpdatePayload: require('./user-batchupdate-payload.json')
 };
-
-module.exports = fixtures;

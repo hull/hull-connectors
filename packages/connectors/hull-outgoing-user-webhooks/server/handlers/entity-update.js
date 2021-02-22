@@ -28,7 +28,8 @@ const entityUpdate = (entity: HullEntityName) => (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
   ): HullNotificationResponse => {
-    const { client, connector, request, clientCredentials } = ctx;
+    const { client, connector, request, helpers, clientCredentials } = ctx;
+    const { ipCheck } = helpers;
     const { id } = clientCredentials;
     const {
       private_settings = {}
@@ -41,6 +42,8 @@ const entityUpdate = (entity: HullEntityName) => (
       headers,
       url
     } = private_settings;
+
+    await ipCheck(url);
 
     const throttle = getThrottle({
       id,
