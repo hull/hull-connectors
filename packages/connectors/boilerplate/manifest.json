@@ -1,0 +1,87 @@
+{
+  "name": "Boilerplate",
+  "description": "Boilerplate",
+  "source": "boilerplate",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "tags": [],
+  "private_settings": [
+    {
+      "name": "title_field",
+      "title": "Title",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "regular_field",
+      "title": "Generic field",
+      "type": "string",
+      "description": "A sample field to write into"
+    },
+    {
+      "name": "password_field",
+      "title": "Password field",
+      "type": "string",
+      "format": "password",
+      "description": "A password field that hides its content"
+    },
+    {
+      "name": "synchronized_segments_field",
+      "title": "Segment Filter Field",
+      "description": "Generic filter field to select segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "boolean_field",
+      "title": "On / Off trigger",
+      "description": "A boolean field represented via a ON / OFF toggle",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "events_filter_field",
+      "title": "Events Filter Field",
+      "description": "Events Filter field to select events to send",
+      "type": "array",
+      "format": "event"
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "subscriptions": [],
+  "batches": [],
+  "incoming": [],
+  "json": [],
+  "settings_sections": [
+    {
+      "title": "Boilerplate fields",
+      "description": "Here are some sample fields to demonstrate the possible fields the dashboard can display",
+      "properties": [
+        "private_settings.title_field",
+        "private_settings.regular_field",
+        "private_settings.password_field",
+        "private_settings.synchronized_segments_field",
+        "private_settings.boolean_field",
+        "private_settings.events_filter_field"
+      ]
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusCheck"
+    }
+  ],
+  "status": {
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusCheck"
+  }
+}
