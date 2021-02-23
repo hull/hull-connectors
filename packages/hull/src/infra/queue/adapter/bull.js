@@ -8,7 +8,7 @@ class BullAdapter {
     this.options = options;
     const { name, url, settings } = options;
     this.queue = new Queue(name, url, {
-      settings
+      ...settings
     });
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);

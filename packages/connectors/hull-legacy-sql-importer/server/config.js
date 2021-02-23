@@ -25,6 +25,9 @@ export default function connectorConfig(): HullConnectorConfig {
     preview_timeout: RUN_TIMEOUT_MS || 60000,
     cacheConfig: {
       tls: { ca: REDIS_TLS_CA }
+    },
+    queueConfig: {
+      settings: { redis: { tls: { ca: REDIS_TLS_CA } } }
     }
   };
 }
