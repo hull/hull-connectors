@@ -1,11 +1,12 @@
 /**
  * Module dependencies.
  */
-import tedious from "tedious";
 import _ from "lodash";
 import Readable from "readable-stream";
 import SequelizeUtils from "sequelize/lib/utils";
 import { validateResultColumns } from "hull-sql-importer";
+
+const tedious = require("tedious");
 
 /**
  * MS SQL adapter.
@@ -39,14 +40,18 @@ export function parseConnectionConfig(settings) {
   let opts = {
     port: conn.port || 1433,
     database: conn.name,
-    requestTimeout: 900000
+    requestTimeout: 900000,
+    encrypt: false
   };
   // All additional options are optional
   if (settings.db_options) {
     try {
       const customOptions = JSON.parse(settings.db_options);
       if (customOptions) {
-        opts = _.merge(opts, customOptions);
+        opts = {
+          ...opts,
+          ...customOptions
+        };
       }
     } catch (parseError) {
       console.error("config.error", parseError);
@@ -81,12 +86,7 @@ export function openConnection(settings) {
   const config = parseConnectionConfig(settings);
   const connection = new tedious.Connection(config);
   connection.on('connect', (err) => {
-    if (err) {
-      console.log(`Connection Failed: ${JSON.stringify(error)}`);
-      throw err;
-    }
-
-    executeStatement();
+    console.log("MSSQL connected")
   });
   connection.on("debug", message => {
     console.log(`DEBUG: ${message}`);
@@ -144,15 +144,7 @@ export function checkForError(error) {
  * @param {*} replacements The replacement parameters
  */
 export function wrapQuery(sql, replacements) {
-  const replacementDates = _.reduce(
-    replacements,
-    (results, value, key) => {
-      results[key] = new Date(value);
-      return results;
-    },
-    {}
-  );
-  return SequelizeUtils.formatNamedParameters(sql, replacementDates, "mssql");
+  return SequelizeUtils.formatNamedParameters(sql, replacements, "mssql");
 }
 
 /**

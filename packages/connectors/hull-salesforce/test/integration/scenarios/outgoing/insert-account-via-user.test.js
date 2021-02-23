@@ -558,22 +558,6 @@ describe("Insert Accounts Via User Update Tests", () => {
                 subjectType: "account"
               },
               {
-                "salesforce/website": {
-                  value: "krakowtraders.pl",
-                  operation: "set"
-                },
-                name: {
-                  value: "Krakow Traders",
-                  operation: "setIfNull"
-                },
-                "salesforce/name": {
-                  value: "Krakow Traders",
-                  operation: "set"
-                },
-                "salesforce/mrr": {
-                  value: 950,
-                  operation: "set"
-                },
                 "salesforce/id": {
                   value: "0011I000007Cy18QAC",
                   operation: "setIfNull"
@@ -591,26 +575,6 @@ describe("Insert Accounts Via User Update Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_contact/email": {
-                  value: "adam.pietrzyk@krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_contact/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"
@@ -628,26 +592,6 @@ describe("Insert Accounts Via User Update Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Rafa",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/first_name": {
-                  value: "Rafa",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Kasczka",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/last_name": {
-                  value: "Kasczka",
-                  operation: "set"
-                },
-                "salesforce_contact/email": {
-                  value: "rafa.kasczka@krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_contact/id": {
                   value: "0031I000004SLT3QAO",
                   operation: "setIfNull"

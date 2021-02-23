@@ -1,5 +1,5 @@
 /* @flow */
-
+const _ = require("lodash");
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 import {
   isEqual,
@@ -20,6 +20,35 @@ import {
   HullIncomingUser,
   HullIncomingAccount
 } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+
+const DEFAULT_SERVICE_NAME = "salesforce";
+
+function userPathFormatter(path, ctx) {
+  const serviceName = ctx.get("service_name");
+  const updateSource =
+    !_.isNil(serviceName) &&
+    serviceName !== DEFAULT_SERVICE_NAME &&
+    // to guarantee that the manifest and/or private settings have not been manually manipulated
+    (_.startsWith(path, "salesforce_lead/") ||
+      _.startsWith(path, "salesforce_contact/"));
+  if (updateSource) {
+    path = _.replace(path, DEFAULT_SERVICE_NAME, serviceName);
+  }
+  return `attributes.${path}`;
+}
+
+function accountPathFormatter(path, ctx) {
+  const serviceName = ctx.get("service_name");
+  const updateSource =
+    !_.isNil(serviceName) &&
+    serviceName !== DEFAULT_SERVICE_NAME &&
+    // to guarantee that the manifest and/or private settings have not been manually manipulated
+    (_.startsWith(path, "salesforce/") || _.startsWith(path, "salesforce/"));
+  if (updateSource) {
+    path = _.replace(path, DEFAULT_SERVICE_NAME, serviceName);
+  }
+  return `attributes.${path}`;
+}
 
 function serviceUserTransformation({ entityType }) {
   return [
@@ -68,15 +97,19 @@ function serviceUserTransformation({ entityType }) {
           {
             condition: varEqual("mapping.overwrite", false),
             writeTo: {
-              path: "attributes.${mapping.hull}",
-              format: { operation: "setIfNull", value: "${operateOn}" }
+              path: "${mapping.hull}",
+              format: { operation: "setIfNull", value: "${operateOn}" },
+              pathFormatter: path => {
+                return `attributes.${path}`;
+              }
             }
           },
           {
             condition: varEqual("mapping.overwrite", true),
             writeTo: {
-              path: "attributes.${mapping.hull}",
-              format: { operation: "set", value: "${operateOn}" }
+              path: "${mapping.hull}",
+              format: { operation: "set", value: "${operateOn}" },
+              pathFormatter: userPathFormatter
             }
           }
         ]
@@ -93,7 +126,7 @@ function serviceUserTransformation({ entityType }) {
         },
         {
           writeTo: {
-            path: `attributes.salesforce_${entityType}/id`,
+            path: `attributes.\${service_name}_${entityType}/id`,
             format: {
               value: "${operateOn}",
               operation: "set"
@@ -117,7 +150,7 @@ function serviceUserTransformation({ entityType }) {
         },
         {
           operateOn: { component: "input", select: "AccountId" },
-          writeTo: { path: "accountAttributes.salesforce/id" }
+          writeTo: { path: "accountAttributes.${service_name}/id" }
         }
       ]
     }
@@ -163,15 +196,17 @@ const transformsToService: ServiceTransforms = [
               {
                 condition: isEqual("mapping.overwrite", false),
                 writeTo: {
-                  path: "attributes.${mapping.hull}",
-                  format: { operation: "setIfNull", value: "${operateOn}" }
+                  path: "${mapping.hull}",
+                  format: { operation: "setIfNull", value: "${operateOn}" },
+                  pathFormatter: accountPathFormatter
                 }
               },
               {
                 condition: isEqual("mapping.overwrite", true),
                 writeTo: {
-                  path: "attributes.${mapping.hull}",
-                  format: { operation: "set", value: "${operateOn}" }
+                  path: "${mapping.hull}",
+                  format: { operation: "set", value: "${operateOn}" },
+                  pathFormatter: accountPathFormatter
                 }
               }
             ]
@@ -222,7 +257,7 @@ const transformsToService: ServiceTransforms = [
     target: { component: "new" },
     then: [
       { writeTo: { path: "eventName", value: "${eventName}" } },
-      { writeTo: { path: "context.source", value: "salesforce" } },
+      { writeTo: { path: "context.source", value: "${service_name}" } },
       {
         operateOn: { component: "input", select: "CreatedDate" },
         writeTo: {
@@ -235,6 +270,7 @@ const transformsToService: ServiceTransforms = [
         writeTo: {
           path: "context.event_id",
           formatter: event => {
+            // TODO add source
             return `salesforce-task:${event.Id}`;
           }
         }

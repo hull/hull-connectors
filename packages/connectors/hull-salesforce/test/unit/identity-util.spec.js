@@ -13,10 +13,27 @@ describe("Identity Utils Test", () => {
     ctxMock.ship = connector;
 
     const resource = "Account";
-    const sfAccount = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "0011I000007Cy18QAC", CustomIdentifierField__c: "0011I000007Cy18QAC" });
-    const account = { domain: "krakowtraders.pl", id: "accountId1", external_id: "0011I000007Cy18QAC" };
+    const sfAccount = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "0011I000007Cy18QAC",
+        CustomIdentifierField__c: "0011I000007Cy18QAC"
+      }
+    );
+    const account = {
+      domain: "krakowtraders.pl",
+      id: "accountId1",
+      external_id: "0011I000007Cy18QAC"
+    };
 
-    const accountIdentity = IdentityUtil.getEntityIdentity(account, sfAccount, resource, ctxMock.client);
+    const accountIdentity = IdentityUtil.getEntityIdentity({
+      hullEntity: account,
+      sfEntity: sfAccount,
+      resource,
+      hullClient: ctxMock.client,
+      source: "salesforce"
+    });
 
     expect(accountIdentity).toEqual({
       id: "accountId1",
@@ -32,28 +49,36 @@ describe("Identity Utils Test", () => {
     ctxMock.ship = connector;
 
     const resource = "Account";
-    const sfAccount = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "0011I000007Cy18QAC", CustomIdentifierField__c: "0011I000007Cy18QAC" });
+    const sfAccount = SalesforceAccountFactory.build(
+      {},
+      {
+        Website: "domain1.com",
+        Id: "0011I000007Cy18QAC",
+        CustomIdentifierField__c: "0011I000007Cy18QAC"
+      }
+    );
 
     const account = {
       domain: "krakowtraders.pl",
       id: "accountId1",
       external_id: "0011I000007Cy18QAC",
-      anonymous_ids: [
-        "salesforce:RANDOM_ID1",
-        "salesforce:RANDOM_ID2"
-      ]
+      anonymous_ids: ["salesforce:RANDOM_ID1", "salesforce:RANDOM_ID2"]
     };
 
-    const accountIdentity = IdentityUtil.getEntityIdentity(account, sfAccount, resource, ctxMock.client);
+    const accountIdentity = IdentityUtil.getEntityIdentity({
+      hullEntity: account,
+      sfEntity: sfAccount,
+      resource,
+      hullClient: ctxMock.client,
+      source: "salesforce"
+    });
     expect(accountIdentity).toEqual({
       anonymous_id: "salesforce:0011I000007Cy18QAC",
-      anonymous_ids: [
-        "salesforce:RANDOM_ID1",
-        "salesforce:RANDOM_ID2"
-      ],
+      anonymous_ids: ["salesforce:RANDOM_ID1", "salesforce:RANDOM_ID2"],
       domain: "krakowtraders.pl",
       external_id: "0011I000007Cy18QAC",
-      id: "accountId1" });
+      id: "accountId1"
+    });
   });
 
   it("Should return correct user identity and logg extra anon ids", () => {
@@ -62,18 +87,19 @@ describe("Identity Utils Test", () => {
     ctxMock.ship = connector;
 
     const resource = "Contact";
-    const sfAccount = SalesforceAccountFactory.build({}, {
-      FirstName: "Adam",
-      LastName: "Pietrzyk",
-      Email: "adam.pietrzyk@krakowtraders.pl",
-      AccountId: "0011I000007Cy18QAC",
-      Id: "00Q1I000004WO7uUAG"
-    });
+    const sfAccount = SalesforceAccountFactory.build(
+      {},
+      {
+        FirstName: "Adam",
+        LastName: "Pietrzyk",
+        Email: "adam.pietrzyk@krakowtraders.pl",
+        AccountId: "0011I000007Cy18QAC",
+        Id: "00Q1I000004WO7uUAG"
+      }
+    );
 
     const user = {
-      anonymous_ids: [
-        "salesforce-contact:RANDOM_ID1"
-      ],
+      anonymous_ids: ["salesforce-contact:RANDOM_ID1"],
       domain: "krakowtraders.pl",
       email: "adam.pietrzyk@krakowtraders.pl",
       first_name: "Adam",
@@ -83,13 +109,17 @@ describe("Identity Utils Test", () => {
       "traits_salesforce_contact/account_id": "0011I000007Cy18QAC"
     };
 
-    const accountIdentity = IdentityUtil.getEntityIdentity(user, sfAccount, resource, ctxMock.client);
+    const accountIdentity = IdentityUtil.getEntityIdentity({
+      hullEntity: user,
+      sfEntity: sfAccount,
+      resource,
+      hullClient: ctxMock.client,
+      source: "salesforce"
+    });
 
     expect(accountIdentity).toEqual({
       anonymous_id: "salesforce-contact:00Q1I000004WO7uUAG",
-      anonymous_ids: [
-        "salesforce-contact:RANDOM_ID1"
-      ],
+      anonymous_ids: ["salesforce-contact:RANDOM_ID1"],
       email: "adam.pietrzyk@krakowtraders.pl",
       id: "5a43ce781f6d9f471d005d44"
     });
@@ -101,13 +131,16 @@ describe("Identity Utils Test", () => {
     ctxMock.ship = connector;
 
     const resource = "Contact";
-    const sfAccount = SalesforceAccountFactory.build({}, {
-      FirstName: "Adam",
-      LastName: "Pietrzyk",
-      Email: "adam.pietrzyk@krakowtraders.pl",
-      AccountId: "0011I000007Cy18QAC",
-      Id: "00Q1I000004WO7uUAG"
-    });
+    const sfAccount = SalesforceAccountFactory.build(
+      {},
+      {
+        FirstName: "Adam",
+        LastName: "Pietrzyk",
+        Email: "adam.pietrzyk@krakowtraders.pl",
+        AccountId: "0011I000007Cy18QAC",
+        Id: "00Q1I000004WO7uUAG"
+      }
+    );
 
     const user = {
       anonymous_ids: [],
@@ -120,7 +153,13 @@ describe("Identity Utils Test", () => {
       "traits_salesforce_contact/account_id": "0011I000007Cy18QAC"
     };
 
-    const accountIdentity = IdentityUtil.getEntityIdentity(user, sfAccount, resource, ctxMock.client);
+    const accountIdentity = IdentityUtil.getEntityIdentity({
+      hullEntity: user,
+      sfEntity: sfAccount,
+      resource,
+      hullClient: ctxMock.client,
+      source: "salesforce"
+    });
 
     expect(accountIdentity).toEqual({
       anonymous_id: "salesforce-contact:00Q1I000004WO7uUAG",

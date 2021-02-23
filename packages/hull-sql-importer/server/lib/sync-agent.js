@@ -101,12 +101,12 @@ export default class SyncAgent {
   }
 
   async createClient() {
-    const { db_hostname, ssh_host } = this.ship.private_settings
+    const { db_host, ssh_host } = this.ship.private_settings
     if (this.requiresSshTunnel()) {
       await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
-    await this.ipCheck(db_hostname);
+    await this.ipCheck(db_host);
     return this.openClient();
   }
 
@@ -165,7 +165,8 @@ export default class SyncAgent {
             db_port: portForward,
             db_user: dbConfig.user,
             db_password: dbConfig.password,
-            db_name: dbConfig.database
+            db_name: dbConfig.database,
+            db_type: dbConfig.type
           })
         );
       });
@@ -364,8 +365,12 @@ export default class SyncAgent {
     };
 
     const wrappedQuery = this.adapter.in.wrapQuery(query, replacements);
-    // Run the method for the specific adapter.
-    // return this.adapter.in.runQuery(this.client, wrappedQuery, options)
+
+    this.hull.logger.info("incoming.job.query", {
+      jobName: "run",
+      query: wrappedQuery,
+      type: this.import_type
+    });
 
     let openClient;
 
