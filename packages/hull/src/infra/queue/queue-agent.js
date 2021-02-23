@@ -6,7 +6,6 @@ import type { HullContext, HullQueueConfig } from "../../types";
 const debug = require("debug")("hull:queue-agent");
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
-// const KueAdapter = require("./adapter/kue");
 const BullAdapter = require("./adapter/bull");
 
 /**
@@ -43,7 +42,7 @@ const BullAdapter = require("./adapter/bull");
  * @example
  * ```javascript
  * const { Queue } = require("hull/lib/infra");
- * const BullAdapter = require("hull/lib/infra/queue/adapter/bull"); // or KueAdapter
+ * const BullAdapter = require("hull/lib/infra/queue/adapter/bull");
  *
  * const queueAdapter = new BullAdapter(options);
  * const queue = new Queue(queueAdapter);
