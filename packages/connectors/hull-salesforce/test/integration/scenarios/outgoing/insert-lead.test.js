@@ -256,26 +256,6 @@ describe("Insert Leads Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_lead/email": {
-                  value: "adam.pietrzyk@krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_lead/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"
@@ -558,26 +538,6 @@ describe("Insert Leads Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_lead/email": {
-                  value: "adam.pietrzyk@krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_lead/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"
@@ -822,26 +782,6 @@ describe("Insert Leads Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_lead/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
-                "salesforce_lead/email": {
-                  value: "adam.pietrzyk@krakowtraders.pl",
-                  operation: "set"
-                },
                 "salesforce_lead/id": {
                   value: "00Q1I000004WO7uUAG",
                   operation: "setIfNull"

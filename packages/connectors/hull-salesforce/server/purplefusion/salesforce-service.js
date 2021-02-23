@@ -40,7 +40,7 @@ class SalesforceSDK {
   }
 
   async userUpdate({ messages }) {
-    return this.syncAgent.sendUserMessages(messages);
+    return this.syncAgent.sendContactMessages(messages);
   }
 
   async leadUpdate({ messages }) {

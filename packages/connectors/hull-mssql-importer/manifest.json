@@ -13,6 +13,12 @@
   ],
   "private_settings": [
     {
+      "name": "db_type",
+      "type": "string",
+      "title": "Type",
+      "default": "mssql"
+    },
+    {
       "name": "import_type",
       "title": "Import type",
       "description": "What do you want to import to Hull ?",

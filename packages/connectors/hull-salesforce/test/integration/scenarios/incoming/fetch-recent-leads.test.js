@@ -45,6 +45,7 @@ describe("Fetch Leads Tests", () => {
           connector: {
             private_settings: {
               ...private_settings,
+              source: "salesforce_main",
               fetch_resource_schema: true,
               lead_claims: [{ hull: "email", service: "EmailCustom__c" }],
               contact_claims: [{ hull: "email", service: "SomeField" }],
@@ -218,7 +219,7 @@ describe("Fetch Leads Tests", () => {
               "incoming.user.success",
               {
                 subject_type: "user",
-                user_anonymous_id: "salesforce-lead:00Q1I000004WHbtUAG",
+                user_anonymous_id: "salesforce_main-lead:00Q1I000004WHbtUAG",
                 user_email: "becci.blankenshield@adventure-works.com"
               },
               {
@@ -255,7 +256,7 @@ describe("Fetch Leads Tests", () => {
               {
                 asUser: {
                   email: "becci.blankenshield@adventure-works.com",
-                  anonymous_id: "salesforce-lead:00Q1I000004WHbtUAG"
+                  anonymous_id: "salesforce_main-lead:00Q1I000004WHbtUAG"
                 },
                 subjectType: "user"
               },
@@ -264,7 +265,7 @@ describe("Fetch Leads Tests", () => {
                   value: "Becci",
                   operation: "setIfNull"
                 },
-                "salesforce_lead/first_name": {
+                "salesforce_main_lead/first_name": {
                   value: "Becci",
                   operation: "set"
                 },
@@ -272,27 +273,27 @@ describe("Fetch Leads Tests", () => {
                   value: "Blankenshield",
                   operation: "setIfNull"
                 },
-                "salesforce_lead/custom_last_name_field": {
+                "salesforce_main_lead/custom_last_name_field": {
                   value: "Blankenshield",
                   operation: "set"
                 },
-                "salesforce_lead/email": {
+                "salesforce_main_lead/email": {
                   value: "becci.blankenshield@adventure-works.com",
                   operation: "set"
                 },
-                "salesforce_lead/company": {
+                "salesforce_main_lead/company": {
                   value: "Adventure Works",
                   operation: "set"
                 },
-                "salesforce_lead/website": {
+                "salesforce_main_lead/website": {
                   value: "adventure-works.com",
                   operation: "set"
                 },
-                "salesforce_lead/user_segments": {
+                "salesforce_main_lead/user_segments": {
                   value: "segment3;segment1;Segment2;12;1;21",
                   operation: "set"
                 },
-                "salesforce_lead/id": {
+                "salesforce_main_lead/id": {
                   value: "00Q1I000004WHbtUAG",
                   operation: "set"
                 }

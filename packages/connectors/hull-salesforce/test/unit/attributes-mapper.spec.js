@@ -317,59 +317,6 @@ describe("AttributesMapper", () => {
     expect(sObject).toEqual(expectedSfObject);
   });
 
-  it("should map a Salesforce lead object to a Hull user", async () => {
-    const sObject = {
-      Id: "0012F000007ydmWQAQ",
-      FirstName: "Sven3",
-      LastName: "SFDC",
-      Company: "Hull Test SFDC GmbH & Co KG",
-      Status: "Sales Qualified Lead"
-    };
-
-    const expectedHullObject = {
-      first_name: { value: sObject.FirstName, operation: "setIfNull" },
-      "salesforce_lead/first_name": {
-        operation: "set",
-        value: sObject.FirstName
-      },
-      "salesforce_lead/company": { operation: "set", value: sObject.Company },
-      "salesforce_lead/status": { operation: "set", value: sObject.Status },
-      "salesforce_lead/id": { value: sObject.Id, operation: "setIfNull" }
-    };
-
-    const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
-
-    const hObject = mapper.mapToHullAttributeObject("Lead", sObject);
-
-    expect(hObject).toEqual(expectedHullObject);
-  });
-
-  it("should map a Salesforce account object to a Hull account", async () => {
-    const sObject = {
-      Id: "0012F000007ydmWQAQ",
-      Name: "Hull SFDC Company",
-      Website: "hullsfdc.com",
-      CustomerPriority__c: "High"
-    };
-
-    const expectedHullObject = {
-      name: { value: sObject.Name, operation: "setIfNull" },
-      "salesforce/id": { value: sObject.Id, operation: "setIfNull" },
-      "salesforce/name": { operation: "set", value: sObject.Name },
-      "salesforce/website": { operation: "set", value: sObject.Website },
-      "salesforce/customer_priority": {
-        operation: "set",
-        value: sObject.CustomerPriority__c
-      }
-    };
-
-    const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
-
-    const hObject = mapper.mapToHullAttributeObject("Account", sObject);
-
-    expect(hObject).toEqual(expectedHullObject);
-  });
-
   it("should map a Salesforce lead to its ident object", () => {
     const sObject = {
       Id: "0012F000007ydmWQAQ",
@@ -382,10 +329,14 @@ describe("AttributesMapper", () => {
 
     const expectedHullObject = {
       email: sObject.Email,
-      anonymous_id: `salesforce-lead:${sObject.Id}`
+      anonymous_id: `salesforce_main-lead:${sObject.Id}`
     };
 
-    const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
+    const private_settings = {
+      ...CONNECTOR_SETTINGS,
+      source: "salesforce_main"
+    }
+    const mapper = new AttributesMapper(private_settings);
     const hObject = mapper.mapToHullIdentityObject(
       "Lead",
       sObject,
