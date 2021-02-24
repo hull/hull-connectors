@@ -43,7 +43,8 @@ it("should filter out accounts based on segments", () => {
       messages: [
         {
           account: {
-            domain
+            domain,
+            id: "1"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
