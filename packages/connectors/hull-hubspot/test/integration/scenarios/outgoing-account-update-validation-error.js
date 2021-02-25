@@ -218,7 +218,9 @@ it("should send out a new hull account to hubspot update validation error", () =
           changes: {
             is_new: false,
             user: {},
-            account: { "hubspot/name": ["old", "New Name"]
+            account: {
+              id: "1",
+              "hubspot/name": ["old", "New Name"]
             },
             segments: {},
             account_segments: {}
