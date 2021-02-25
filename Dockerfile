@@ -46,6 +46,7 @@ COPY packages/connectors/hull-hubspot/package.json /app/packages/connectors/hull
 COPY packages/connectors/hull-hubspot-deals/package.json /app/packages/connectors/hull-hubspot-deals/package.json
 COPY packages/connectors/hull-incoming-webhooks/package.json /app/packages/connectors/hull-incoming-webhooks/package.json
 COPY packages/connectors/hull-mailchimp/package.json /app/packages/connectors/hull-mailchimp/package.json
+COPY packages/connectors/hull-freshsuccess/package.json /app/packages/connectors/hull-freshsuccess/package.json
 COPY packages/connectors/hull-marketo/package.json /app/packages/connectors/hull-marketo/package.json
 COPY packages/connectors/hull-outgoing-account-webhooks/package.json /app/packages/connectors/hull-outgoing-account-webhooks/package.json
 COPY packages/connectors/hull-outgoing-user-webhooks/package.json /app/packages/connectors/hull-outgoing-user-webhooks/package.json

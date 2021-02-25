@@ -1,0 +1,266 @@
+[
+  {
+    "label": "Account Id",
+    "name": "account_id",
+    "full_name": "account_id",
+    "api_writable": true
+  },
+  {
+    "label": "Name",
+    "name": "name",
+    "full_name": "name",
+    "api_writable": true
+  },
+  {
+    "label": "Join Date",
+    "name": "join_date",
+    "full_name": "join_date",
+    "api_writable": true
+  },
+  {
+    "label": "Renewal Date",
+    "name": "renewal_date",
+    "full_name": "renewal_date",
+    "api_writable": true
+  },
+  {
+    "label": "Billing Account Id",
+    "name": "billing_account_id",
+    "full_name": "billing_account_id",
+    "api_writable": true
+  },
+  {
+    "label": "Support Account Id",
+    "name": "support_account_id",
+    "full_name": "support_account_id",
+    "api_writable": true
+  },
+  {
+    "label": "Crm Account Id",
+    "name": "crm_account_id",
+    "full_name": "crm_account_id",
+    "api_writable": true
+  },
+  {
+    "label": "Billing Street",
+    "name": "billing_street",
+    "full_name": "billing_street",
+    "api_writable": true
+  },
+  {
+    "label": "Billing City",
+    "name": "billing_city",
+    "full_name": "billing_city",
+    "api_writable": true
+  },
+  {
+    "label": "Billing Postal Code",
+    "name": "billing_postal_code",
+    "full_name": "billing_postal_code",
+    "api_writable": true
+  },
+  {
+    "label": "Billing State",
+    "name": "billing_state",
+    "full_name": "billing_state",
+    "api_writable": true
+  },
+  {
+    "label": "Billing Country",
+    "name": "billing_country",
+    "full_name": "billing_country",
+    "api_writable": true
+  },
+  {
+    "label": "Phone",
+    "name": "phone",
+    "full_name": "phone",
+    "api_writable": true
+  },
+  {
+    "label": "Employees",
+    "name": "employees",
+    "full_name": "employees",
+    "api_writable": true
+  },
+  {
+    "label": "Industry",
+    "name": "industry",
+    "full_name": "industry",
+    "api_writable": true
+  },
+  {
+    "label": "Tier",
+    "name": "tier",
+    "full_name": "tier",
+    "api_writable": true
+  },
+  {
+    "label": "CSM Score",
+    "name": "csm_score",
+    "full_name": "csm_score",
+    "api_writable": true
+  },
+  {
+    "label": "Current NPS Score",
+    "name": "current_nps_score",
+    "full_name": "current_nps_score",
+    "api_writable": true
+  },
+  {
+    "label": "Current MRR",
+    "name": "current_mrr",
+    "full_name": "current_mrr",
+    "api_writable": true
+  },
+  {
+    "label": "Sales Rep Name",
+    "name": "sales_rep_name",
+    "full_name": "sales_rep_name",
+    "api_writable": true
+  },
+  {
+    "label": "Sales Rep Email",
+    "name": "sales_rep_email",
+    "full_name": "sales_rep_email",
+    "api_writable": true
+  },
+  {
+    "label": "Source",
+    "name": "source",
+    "full_name": "source",
+    "api_writable": true
+  },
+  {
+    "label": "Current Stage",
+    "name": "current_stage",
+    "full_name": "current_stage",
+    "api_writable": true
+  },
+  {
+    "label": "Website",
+    "name": "website",
+    "full_name": "website",
+    "api_writable": true
+  },
+  {
+    "label": "Description",
+    "name": "description",
+    "full_name": "description",
+    "api_writable": true
+  },
+  {
+    "label": "Is Deleted",
+    "name": "is_deleted",
+    "full_name": "is_deleted",
+    "api_writable": true
+  },
+  {
+    "label": "Is Churned",
+    "name": "is_churned",
+    "full_name": "is_churned",
+    "api_writable": true
+  },
+  {
+    "label": "Inactive Time",
+    "name": "inactive_time",
+    "full_name": "inactive_time",
+    "api_writable": true
+  },
+  {
+    "label": "Inactive Reason",
+    "name": "inactive_reason",
+    "full_name": "inactive_reason",
+    "api_writable": true
+  },
+  {
+    "label": "State",
+    "name": "state",
+    "full_name": "state",
+    "api_writable": true
+  },
+  {
+    "label": "Parent Account Id",
+    "name": "parent_account_id",
+    "full_name": "parent_account_id",
+    "api_writable": true
+  },
+  {
+    "label": "Hierarchy Label",
+    "name": "hierarchy_label",
+    "full_name": "hierarchy_label",
+    "api_writable": true
+  },
+  {
+    "label": "Latest Status Title",
+    "name": "latest_status_title",
+    "full_name": "latest_status_title",
+    "api_writable": true
+  },
+  {
+    "label": "Latest Status Details",
+    "name": "latest_status_details",
+    "full_name": "latest_status_details",
+    "api_writable": true
+  },
+  {
+    "label": "Latest Status Date",
+    "name": "latest_status_date",
+    "full_name": "latest_status_date",
+    "api_writable": true
+  },
+  {
+    "label": "Assigned CSMs",
+    "name": "assigned_csms",
+    "full_name": "assigned_csms",
+    "api_writable": true
+  },
+  {
+    "label": "Is Active",
+    "name": "is_active",
+    "full_name": "is_active",
+    "api_writable": false
+  },
+  {
+    "label": "Current Health Score",
+    "name": "current_health_score",
+    "full_name": "current_health_score",
+    "api_writable": false
+  },
+  {
+    "label": "Custom Label Dimensions",
+    "name": "custom_label_dimensions",
+    "full_name": "custom_label_dimensions",
+    "api_writable": false
+  },
+  {
+    "label": "Custom Value Dimensions",
+    "name": "custom_value_dimensions",
+    "full_name": "custom_value_dimensions",
+    "api_writable": false
+  },
+  {
+    "label": "Custom Event Dimensions",
+    "name": "custom_event_dimensions",
+    "full_name": "custom_event_dimensions",
+    "api_writable": false
+  },
+  {
+    "label": "Documents",
+    "name": "documents",
+    "full_name": "documents",
+    "api_writable": false
+  },
+  {
+    "label": "Stage History",
+    "name": "stage_history",
+    "full_name": "stage_history",
+    "api_writable": false
+  },
+  {
+    "label": "NPS History",
+    "name": "nps_history",
+    "full_name": "nps_history",
+    "api_writable": false
+  }
+]

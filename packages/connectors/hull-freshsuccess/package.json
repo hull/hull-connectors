@@ -1,0 +1,11 @@
+{
+  "name": "hull-freshsucess",
+  "version": "0.1.40-monorepo",
+  "license": "MIT",
+  "description": "Hull Freshsuccess integration",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

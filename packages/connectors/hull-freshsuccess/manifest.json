@@ -1,0 +1,764 @@
+{
+  "name": "Freshsuccess",
+  "description": "",
+  "source": "freshsucess",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.40-monorepo",
+  "tags": [
+    "outgoing",
+    "incoming",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install",
+    "kraken-exports"
+  ],
+  "private_settings": [
+    {
+      "name": "api_host",
+      "title": "API Host",
+      "type": "string"
+    },
+    {
+      "name": "api_key",
+      "title": "API Key",
+      "type": "string"
+    },
+    {
+      "name": "ignore_deleted_users",
+      "title": "Ignore deleted users",
+      "description": "Contacts tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked accounts?",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "user_claims",
+      "title": "Contact Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["external_id"]
+          },
+          "service": {
+            "title": "Freshsuccess Identifier",
+            "enum": ["user_id"]
+          },
+          "required": {
+            "type": "boolean",
+            "format": "select",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "user_id",
+          "required": true
+        }
+      ],
+      "options": {
+        "itemsPerRow": 3
+      }
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send Hull Users as Freshsuccess Contacts when they belong to one of these segments to Freshsuccess",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Contact Outgoing Fields",
+      "type": "array",
+      "format": "traitMapping",
+      "description": "Required Fields: account_id, user_id",
+      "default": [
+        {
+          "hull": "account.external_id",
+          "service": "account_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "hull": "external_id",
+          "service": "user_id",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Freshsuccess Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_fields_writable"
+      }
+    },
+    {
+      "name": "fetch_contacts",
+      "title": "Contact Fetch",
+      "description": "Enable Fetching Freshsuccess Companies",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "incoming_user_attributes",
+      "title": "Contact Incoming Fields",
+      "description": "List of Contact fields to fetch from Freshsuccess",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": true,
+        "placeholder": "Freshsuccess Contact Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_fields",
+        "source": "freshsuccess_contact"
+      },
+      "default": [
+        {
+          "service": "user_id",
+          "hull": "freshsuccess_contact/user_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "account_id",
+          "hull": "freshsuccess_contact/account_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "first_name",
+          "hull": "freshsuccess_contact/first_name",
+          "overwrite": true
+        },
+        {
+          "service": "last_name",
+          "hull": "freshsuccess_contact/last_name",
+          "overwrite": true
+        },
+        {
+          "service": "is_primary",
+          "hull": "freshsuccess_contact/is_primary",
+          "overwrite": true
+        },
+        {
+          "service": "phone",
+          "hull": "freshsuccess_contact/phone",
+          "overwrite": true
+        },
+        {
+          "service": "email",
+          "hull": "freshsuccess_contact/email",
+          "overwrite": true
+        },
+        {
+          "service": "salutation",
+          "hull": "freshsuccess_contact/salutation",
+          "overwrite": true
+        },
+        {
+          "service": "title",
+          "hull": "freshsuccess_contact/title",
+          "overwrite": true
+        },
+        {
+          "service": "role",
+          "hull": "freshsuccess_contact/role",
+          "overwrite": true
+        },
+        {
+          "service": "department",
+          "hull": "freshsuccess_contact/department",
+          "overwrite": true
+        },
+        {
+          "service": "lead_source",
+          "hull": "freshsuccess_contact/lead_source",
+          "overwrite": true
+        },
+        {
+          "service": "mailing_street",
+          "hull": "freshsuccess_contact/mailing_street",
+          "overwrite": true
+        },
+        {
+          "service": "mailing_city",
+          "hull": "freshsuccess_contact/mailing_city",
+          "overwrite": true
+        },
+        {
+          "service": "mailing_state",
+          "hull": "freshsuccess_contact/mailing_state",
+          "overwrite": true
+        },
+        {
+          "service": "mailing_postal_code",
+          "hull": "freshsuccess_contact/mailing_postal_code",
+          "overwrite": true
+        },
+        {
+          "service": "mailing_country",
+          "hull": "freshsuccess_contact/mailing_country",
+          "overwrite": true
+        },
+        {
+          "service": "source",
+          "hull": "freshsuccess_contact/source",
+          "overwrite": true
+        },
+        {
+          "service": "is_active",
+          "hull": "freshsuccess_contact/is_active",
+          "overwrite": true
+        },
+        {
+          "service": "email_opt_out",
+          "hull": "freshsuccess_contact/email_opt_out",
+          "overwrite": true
+        },
+        {
+          "service": "custom_label_dimensions",
+          "hull": "freshsuccess_contact/custom_label_dimensions",
+          "overwrite": true
+        },
+        {
+          "service": "custom_value_dimensions",
+          "hull": "freshsuccess_contact/custom_value_dimensions",
+          "overwrite": true
+        },
+        {
+          "service": "custom_event_dimensions",
+          "hull": "freshsuccess_contact/custom_event_dimensions",
+          "overwrite": true
+        }
+      ]
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore deleted accounts",
+      "description": "Accounts tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked accounts?",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "account_claims",
+      "title": "Company Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["external_id"]
+          },
+          "service": {
+            "title": "Freshsuccess Identifier",
+            "enum": ["account_id"]
+          },
+          "required": {
+            "type": "boolean",
+            "format": "select",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "account_id",
+          "required": true
+        }
+      ],
+      "options": {
+        "itemsPerRow": 3
+      }
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Send Hull accounts as Freshsuccess Accounts when they belong to one of these segments to Freshsuccess",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Account Outgoing Fields",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "description": "Required Fields: account_id, name, join_date",
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "account_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "hull": "name",
+          "service": "name",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Freshsuccess Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/account_fields_writable"
+      }
+    },
+    {
+      "name": "fetch_accounts",
+      "title": "Account Fetch",
+      "description": "Enable Fetching Freshsuccess Companies",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Account Incoming Fields",
+      "description": "List of Account fields to fetch from Freshsuccess",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": true,
+        "placeholder": "Freshsuccess Account Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/account_fields",
+        "source": "freshsuccess"
+      },
+      "default": [
+        {
+          "service": "account_id",
+          "hull": "freshsuccess/account_id",
+          "readOnly": true,
+          "overwrite": true
+        },
+        {
+          "service": "name",
+          "hull": "freshsuccess/name",
+          "overwrite": true
+        },
+        {
+          "service": "join_date",
+          "hull": "freshsuccess/join_date",
+          "overwrite": true
+        },
+        {
+          "service": "renewal_date",
+          "hull": "freshsuccess/renewal_date",
+          "overwrite": true
+        },
+        {
+          "service": "billing_account_id",
+          "hull": "freshsuccess/billing_account_id",
+          "overwrite": true
+        },
+        {
+          "service": "support_account_id",
+          "hull": "freshsuccess/support_account_id",
+          "overwrite": true
+        },
+        {
+          "service": "crm_account_id",
+          "hull": "freshsuccess/crm_account_id",
+          "overwrite": true
+        },
+        {
+          "service": "billing_street",
+          "hull": "freshsuccess/billing_street",
+          "overwrite": true
+        },
+        {
+          "service": "billing_city",
+          "hull": "freshsuccess/billing_city",
+          "overwrite": true
+        },
+        {
+          "service": "billing_postal_code",
+          "hull": "freshsuccess/billing_postal_code",
+          "overwrite": true
+        },
+        {
+          "service": "billing_state",
+          "hull": "freshsuccess/billing_state",
+          "overwrite": true
+        },
+        {
+          "service": "billing_country",
+          "hull": "freshsuccess/billing_country",
+          "overwrite": true
+        },
+        {
+          "service": "phone",
+          "hull": "freshsuccess/phone",
+          "overwrite": true
+        },
+        {
+          "service": "employees",
+          "hull": "freshsuccess/employees",
+          "overwrite": true
+        },
+        {
+          "service": "industry",
+          "hull": "freshsuccess/industry",
+          "overwrite": true
+        },
+        {
+          "service": "tier",
+          "hull": "freshsuccess/tier",
+          "overwrite": true
+        },
+        {
+          "service": "csm_score",
+          "hull": "freshsuccess/csm_score",
+          "overwrite": true
+        },
+        {
+          "service": "current_nps_score",
+          "hull": "freshsuccess/current_nps_score",
+          "overwrite": true
+        },
+        {
+          "service": "current_mrr",
+          "hull": "freshsuccess/current_mrr",
+          "overwrite": true
+        },
+        {
+          "service": "sales_rep_name",
+          "hull": "freshsuccess/sales_rep_name",
+          "overwrite": true
+        },
+        {
+          "service": "sales_rep_email",
+          "hull": "freshsuccess/sales_rep_email",
+          "overwrite": true
+        },
+        {
+          "service": "source",
+          "hull": "freshsuccess/source",
+          "overwrite": true
+        },
+        {
+          "service": "current_stage",
+          "hull": "freshsuccess/current_stage",
+          "overwrite": true
+        },
+        {
+          "service": "website",
+          "hull": "freshsuccess/website",
+          "overwrite": true
+        },
+        {
+          "service": "description",
+          "hull": "freshsuccess/description",
+          "overwrite": true
+        },
+        {
+          "service": "is_deleted",
+          "hull": "freshsuccess/is_deleted",
+          "overwrite": true
+        },
+        {
+          "service": "is_churned",
+          "hull": "freshsuccess/is_churned",
+          "overwrite": true
+        },
+        {
+          "service": "inactive_time",
+          "hull": "freshsuccess/inactive_time",
+          "overwrite": true
+        },
+        {
+          "service": "inactive_reason",
+          "hull": "freshsuccess/inactive_reason",
+          "overwrite": true
+        },
+        {
+          "service": "state",
+          "hull": "freshsuccess/state",
+          "overwrite": true
+        },
+        {
+          "service": "parent_account_id",
+          "hull": "freshsuccess/parent_account_id",
+          "overwrite": true
+        },
+        {
+          "service": "hierarchy_label",
+          "hull": "freshsuccess/hierarchy_label",
+          "overwrite": true
+        },
+        {
+          "service": "latest_status_title",
+          "hull": "freshsuccess/latest_status_title",
+          "overwrite": true
+        },
+        {
+          "service": "latest_status_details",
+          "hull": "freshsuccess/latest_status_details",
+          "overwrite": true
+        },
+        {
+          "service": "latest_status_date",
+          "hull": "freshsuccess/latest_status_date",
+          "overwrite": true
+        },
+        {
+          "service": "assigned_csms",
+          "hull": "freshsuccess/assigned_csms",
+          "overwrite": true
+        },
+        {
+          "service": "is_active",
+          "hull": "freshsuccess/is_active",
+          "overwrite": true
+        },
+        {
+          "service": "current_health_score",
+          "hull": "freshsuccess/current_health_score",
+          "overwrite": true
+        },
+        {
+          "service": "custom_label_dimensions",
+          "hull": "freshsuccess/custom_label_dimensions",
+          "overwrite": true
+        },
+        {
+          "service": "custom_value_dimensions",
+          "hull": "freshsuccess/custom_value_dimensions",
+          "overwrite": true
+        },
+        {
+          "service": "custom_event_dimensions",
+          "hull": "freshsuccess/custom_event_dimensions",
+          "overwrite": true
+        },
+        {
+          "service": "documents",
+          "hull": "freshsuccess/documents",
+          "overwrite": true
+        },
+        {
+          "service": "stage_history",
+          "hull": "freshsuccess/stage_history",
+          "overwrite": true
+        },
+        {
+          "service": "nps_history",
+          "hull": "freshsuccess/nps_history",
+          "overwrite": true
+        }
+      ]
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "incoming": [],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetch/accounts/all",
+      "handler": "fetchAllAccounts",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_accounts",
+      "title": "Fetch All Accounts",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all accounts from Freshsuccess into Hull. Be careful when clicking this multiple times as it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Fetch Companies",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetch/contacts/all",
+      "handler": "fetchAllContacts",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_contacts",
+      "title": "Fetch All Contacts",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all contacts from Freshsuccess into Hull. Be careful when clicking this multiple times as it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Fetch Contacts",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/schema/account_fields_writable",
+      "handler": "accountFieldsOutbound"
+    },
+    {
+      "url": "/schema/account_fields",
+      "handler": "accountFieldsInbound"
+    },
+    {
+      "url": "/schema/contact_fields_writable",
+      "handler": "contactFieldsOutbound"
+    },
+    {
+      "url": "/schema/contact_fields",
+      "handler": "contactFieldsInbound"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/fetch/accounts/incremental",
+      "type": "interval",
+      "value": "30",
+      "handler": "fetchRecentAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch/contacts/incremental",
+      "type": "interval",
+      "value": "30",
+      "handler": "fetchRecentContacts",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ],
+      "conditions": {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        },
+        "channels": {
+          "only": ["ship:update", "account:update", "user:update"]
+        }
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Freshsuccess",
+      "description": "Please begin by providing your Freshsuccess API key",
+      "properties": [
+        "private_settings.api_host",
+        "private_settings.api_key"
+      ]
+    },
+    {
+      "title": "Contact Identity",
+      "description": "",
+      "properties": ["private_settings.user_claims"]
+    },
+    {
+      "title": "Fetch Contacts from Freshsuccess",
+      "step": "incoming",
+      "description": "Fetch Contacts From Freshsuccess",
+      "properties": [
+        "private_settings.fetch_contacts",
+        "private_settings.incoming_user_attributes",
+        "json.fetch_all_contacts"
+      ]
+    },
+    {
+      "title": "Send Contacts to Freshsuccess",
+      "description": "",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
+      ]
+    },
+    {
+      "title": "Account Identity",
+      "description": "",
+      "properties": ["private_settings.account_claims"]
+    },
+    {
+      "title": "Fetch Accounts from Freshsuccess",
+      "step": "incoming",
+      "description": "Fetch Accounts From Freshsuccess",
+      "properties": [
+        "private_settings.fetch_accounts",
+        "private_settings.incoming_account_attributes",
+        "json.fetch_all_accounts"
+      ]
+    },
+    {
+      "title": "Send Accounts to Freshsuccess",
+      "description": "",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attributes"
+      ]
+    }
+  ]
+}
