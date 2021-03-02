@@ -4,6 +4,8 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ProgressBarPlugin = require("progress-bar-webpack-plugin");
+const { ESBuildPlugin, ESBuildMinifyPlugin } = require("esbuild-loader");
+
 const chalk = require("chalk");
 const _ = require("lodash");
 
@@ -26,21 +28,23 @@ const getEntry = files =>
 const getPlugins = ({ mode, destination }) =>
   mode === "production"
     ? [
+        new ESBuildPlugin(),
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new ProgressBarPlugin({ clear: false }),
+
         new MiniCssExtractPlugin({
           filename: "[name].css",
           chunkFilename: "[id].css"
         })
       ]
     : [
+        new ESBuildPlugin(),
         new ProgressBarPlugin({ clear: false }),
         new MiniCssExtractPlugin({
           filename: "[name].css",
           chunkFilename: "[id].css"
         })
       ];
-
 
 const buildConfig = ({ files, destination, mode = "production" }) => ({
   mode,
@@ -55,7 +59,7 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
   optimization: {
     minimize: true,
     minimizer: [
-      "...",
+      new ESBuildMinifyPlugin({ target: "es2015" }),
       new CssMinimizerPlugin()
     ]
   },
@@ -80,6 +84,9 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [
+          // {
+          //   loader: "esbuild-loader"
+          // },
           {
             loader: "babel-loader?cacheDirectory",
             options: {
@@ -100,13 +107,14 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
                     }
                   }
                 ],
-                ["@babel/preset-react", { "runtime": "automatic" }]
+                ["@babel/preset-react", { runtime: "automatic" }]
               ],
               plugins: ["lodash", "react-hot-loader/babel"]
             }
           }
         ]
       },
+
       // svg
       { test: /.svg$/, loader: "svg-inline-loader" }
       // // images & other files
