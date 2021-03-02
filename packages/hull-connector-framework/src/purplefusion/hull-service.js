@@ -180,6 +180,28 @@ class HullSdk {
     });
   }
 
+  outgoingError(error) {
+    const { entity, reason } = error;
+    if (entity.user) {
+      this.client.asUser(entity.user).logger.info("outgoing.user.error", { reason });
+    } else if (entity.account) {
+      this.client
+        .asAccount(entity.account)
+        .logger.info("outgoing.account.error", { reason });
+    }
+  }
+
+  outgoingSuccess(message) {
+    const { entity, data } = message;
+    if (entity.user) {
+      this.client.asUser(entity.user).logger.info("outgoing.user.success", { data });
+    } else if (entity.account) {
+      this.client
+        .asAccount(entity.account)
+        .logger.info("outgoing.account.success", { data });
+    }
+  }
+
   upsertHullAccount(account: HullIncomingAccount) {
     return this.client.asAccount(account.ident).traits(account.attributes);
   }
@@ -342,6 +364,14 @@ const hullService: CustomApi = {
       endpointType: "byId",
       input: HullIncomingUser,
       suppressLog: true
+    },
+    outgoingSuccess: {
+      method: "outgoingSuccess",
+      endpointType: "byId"
+    },
+    outgoingError: {
+      method: "outgoingError",
+      endpointType: "byId"
     }
   }
 };

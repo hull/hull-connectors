@@ -11,6 +11,11 @@ import {
   FreshsuccessContactWrites
 } from "./service-objects";
 
+const {
+  HullOutgoingAccount,
+  HullOutgoingUser
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
 const _ = require("lodash");
 const MESSAGES = require("./messages");
 const {
@@ -61,6 +66,7 @@ const service = (): RawRestApi => ({
     bulkUpsertAccounts: {
       url: "/accounts",
       operation: "post",
+      batch: true,
       endpointType: "update",
       returnObj: "body",
       input: FreshsuccessAccountWrites,
@@ -69,6 +75,7 @@ const service = (): RawRestApi => ({
     bulkUpsertContacts: {
       url: "/account_contacts",
       operation: "post",
+      batch: true,
       endpointType: "update",
       returnObj: "body",
       input: FreshsuccessContactWrites,
