@@ -106,14 +106,14 @@ const getDimensionAttributeMapping = ({ hull_type, custom_attribute_group }) => 
 
 const logOutgoingSuccess = ({ hull_type }) => {
   return hull("outgoingSuccess", {
-    entity: { "${service_type}": { external_id: `\${successful_upsert.${hull_type}_id}` } },
+    entity: { [hull_type]: { external_id: `\${successful_upsert.${hull_type}_id}` } },
     data: "${successful_upsert}"
   })
 }
 
 const logOutgoingError = ({ hull_type }) => {
   return hull("outgoingError", {
-    entity: { "${service_type}": { external_id: `\${failed_upsert.${hull_type}_id}` } },
+    entity: { [hull_type]: { external_id: `\${failed_upsert.${hull_type}_id}` } },
     reason: "${failed_upsert.message}"
   })
 }

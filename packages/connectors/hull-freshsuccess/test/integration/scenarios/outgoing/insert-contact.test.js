@@ -203,6 +203,10 @@ describe("Upsert Contact Tests", () => {
                 {
                   "account_id": "account_ex_id_3",
                   "user_id": "user_ex_id_3"
+                },
+                {
+                  "account_id": "account_ex_id_4",
+                  "user_id": "user_ex_id_4"
                 }
               ]
             })
@@ -269,6 +273,10 @@ describe("Upsert Contact Tests", () => {
                 {
                   "account_id": "account_ex_id_2",
                   "user_id": "user_ex_id_2"
+                },
+                {
+                  "account_id": "account_ex_id_4",
+                  "user_id": "user_ex_id_4"
                 }
               ]
             })
@@ -383,10 +391,181 @@ describe("Upsert Contact Tests", () => {
               }
             },
             events: []
+          },
+          {
+            account: {
+              "external_id": "account_ex_id_4"
+            },
+            user: {
+              external_id: "user_ex_id_4"
+            },
+            segments: [
+              { id: "segment_1", name: "Segment 1" }
+            ],
+            changes: {
+              segments: {
+                entered: [
+                  { id: "segment_1", name: "Segment 1" }
+                ]
+              }
+            },
+            events: []
           }
         ],
         response: { "flow_control": { "type": "next", } },
-        logs: [],
+        logs: [
+          [
+            "info",
+            "outgoing.job.start",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "jobName": "Outgoing Data",
+              "type": "user"
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/account_contacts",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.error",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_external_id": "user_ex_id_1"
+            },
+            {
+              "reason": "Account not found"
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.error",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_external_id": "user_ex_id_3"
+            },
+            {
+              "reason": "Account not found"
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/account_contacts",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.success",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_external_id": "user_ex_id_0"
+            },
+            {
+              "data": {
+                "custom_label_dimensions": [
+                  {
+                    "key": "cld_1",
+                    "value": "cld_1_value"
+                  },
+                  {
+                    "key": "cld_2",
+                    "value": "cld_2_value"
+                  }
+                ],
+                "custom_value_dimensions": [
+                  {
+                    "key": "cvd_1",
+                    "value": 1.1
+                  },
+                  {
+                    "key": "cvd_2",
+                    "value": 2.1
+                  }
+                ],
+                "custom_event_dimensions": [
+                  {
+                    "key": "ced_1",
+                    "value": 1614367426004
+                  },
+                  {
+                    "key": "ced_2",
+                    "value": 1614367426005
+                  }
+                ],
+                "account_id": "account_ex_id_0",
+                "user_id": "user_ex_id_0",
+                "first_name": "Bob",
+                "last_name": "Dole",
+                "phone": "+1 111 111 1111",
+                "email": "bob@rei.com",
+                "salutation": "mr"
+              }
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.success",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_external_id": "user_ex_id_4"
+            },
+            {
+              "data": {
+                "account_id": "account_ex_id_4",
+                "user_id": "user_ex_id_4"
+              }
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.error",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_external_id": "user_ex_id_2"
+            },
+            {
+              "reason": "Missing/invalid required field(s)'"
+            }
+          ],
+          [
+            "info",
+            "outgoing.job.success",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "jobName": "Outgoing Data",
+              "type": "user"
+            }
+          ]
+        ],
         firehoseEvents: [],
         metrics: [
           ["increment","connector.request",1],
