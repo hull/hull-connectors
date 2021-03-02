@@ -115,7 +115,23 @@ const service = (): RawRestApi => ({
       }
     },
     templates: [
-      // TODO error handling (bulk upserts)
+      {
+        truthy: { status: 401 },
+        condition: isNull("connector.private_settings.api_key"),
+        errorType: ConfigurationError,
+        message: MESSAGES.STATUS_NO_API_KEY_FOUND
+      },
+      {
+        truthy: { status: 401 },
+        condition: notNull("connector.private_settings.api_key"),
+        errorType: ConfigurationError,
+        message: MESSAGES.INVALID_API_KEY
+      },
+      {
+        truthy: { status: 403 },
+        errorType: ConfigurationError,
+        message: MESSAGES.FORBIDDEN
+      }
     ]
   }
 });
