@@ -39,6 +39,14 @@ const service = (): RawRestApi => ({
   prefix: "https://${api_host}/api/v2",
   defaultReturnObj: "body",
   endpoints: {
+    verifyAccess: {
+      url: "/accounts",
+      operation: "get",
+      output: FreshsuccessAccountReads,
+      query: {
+        api_key: "${api_key}"
+      }
+    },
     getAllContacts: {
       url: "/account_contacts",
       operation: "get",
@@ -46,7 +54,8 @@ const service = (): RawRestApi => ({
       query: {
         "include_inactive": false, // TODO make configurable
         "page": "${offset_page}",
-        "include_dimensions": true
+        "include_dimensions": true,
+        "api_key": "${api_key}"
       }
     },
     getAllAccounts: {
@@ -54,6 +63,7 @@ const service = (): RawRestApi => ({
       operation: "get",
       output: FreshsuccessAccountReads,
       query: {
+        "api_key": "${api_key}",
         "include_inactive": false, // TODO make configurable
         "direction": "desc",
         "order_by": "join_date",
@@ -70,7 +80,10 @@ const service = (): RawRestApi => ({
       endpointType: "update",
       returnObj: "body",
       input: FreshsuccessAccountWrites,
-      output: FreshsuccessAccountReads
+      output: FreshsuccessAccountReads,
+      query: {
+        "api_key": "${api_key}"
+      }
     },
     bulkUpsertContacts: {
       url: "/account_contacts",
@@ -79,13 +92,16 @@ const service = (): RawRestApi => ({
       endpointType: "update",
       returnObj: "body",
       input: FreshsuccessContactWrites,
-      output: FreshsuccessContactReads
+      output: FreshsuccessContactReads,
+      query: {
+        "api_key": "${api_key}"
+      }
     },
   },
   superagent: {
     settings: [
       { method: "set", params: { "Accept": "application/json" }},
-      { method: "set", params: { "Content-Type": "application/json" }},
+      { method: "set", params: { "Content-Type": "application/json" }}
     ]
   },
   error: {

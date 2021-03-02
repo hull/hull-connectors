@@ -22,6 +22,9 @@ import {
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 const _ = require("lodash");
+const moment = require("moment");
+const { toUnixTimestamp } = require("hull-connector-framework/src/purplefusion/transform-utils");
+
 
 function dimensionTransformation({ hullType, attributeGroup }) {
   return [
@@ -64,7 +67,20 @@ const rawArrayAttributes = [
   "nps_history"
 ];
 
-function outgoingTransformation({ hullType }) {
+const attributeConversionMap = {
+  "long_milliseconds": (value) => {
+    try {
+      const ts = (new Date(value)).getTime();
+
+      // let the service reject invalid
+      return _.isNaN(ts) ? value : ts;
+    } catch (e) {
+      return value;
+    }
+  }
+}
+
+function outgoingTransformation({ hullType, serviceType }) {
   return [
     {
       operateOn: `\${connector.private_settings.outgoing_${hullType}_attributes}`,
@@ -79,20 +95,14 @@ function outgoingTransformation({ hullType }) {
               operateOn: { component: "input", select: `${hullType}.\${mapping.hull}` },
               writeTo: {
                 appendToArray: "unique",
-                path: "${mapping.service}",
-                formatter: (value) => {
-                  return value;
-                }
+                path: "${mapping.service}"
               }
             },
             {
               operateOn: { component: "input", select: "${mapping.hull}" },
               writeTo: {
                 appendToArray: "unique",
-                path: "${mapping.service}",
-                formatter: (value) => {
-                  return value;
-                }
+                path: "${mapping.service}"
               }
             }
           ]
@@ -106,11 +116,29 @@ function outgoingTransformation({ hullType }) {
           then: [
             {
               operateOn: { component: "input", select:`${hullType}.\${mapping.hull}` },
-              writeTo: { path: "${mapping.service}" }
+              writeTo: {
+                path: "${mapping.service}",
+                formatter: {
+                  component: "static",
+                  object: attributeConversionMap,
+                  select: [
+                    { component: "glue", route: `${serviceType}ServiceSchema`, select: "${mapping.service}.type" }
+                  ]
+                }
+              }
             },
             {
               operateOn: { component: "input", select: "${mapping.hull}" },
-              writeTo: { path: "${mapping.service}" }
+              writeTo: {
+                path: "${mapping.service}",
+                formatter: {
+                  component: "static",
+                  object: attributeConversionMap,
+                  select: [
+                    { component: "glue", route: `${serviceType}ServiceSchema`, select: "${mapping.service}.type" }
+                  ]
+                }
+              }
             }
           ]
         },
@@ -163,7 +191,7 @@ const transformsToService: ServiceTransforms = [
       dimensionTransformation({ hullType: "user", attributeGroup: "custom_label_dimensions" }),
       dimensionTransformation({ hullType: "user", attributeGroup: "custom_value_dimensions" }),
       dimensionTransformation({ hullType: "user", attributeGroup: "custom_event_dimensions" }),
-      outgoingTransformation({ hullType: "user" })
+      outgoingTransformation({ hullType: "user", serviceType: "contact" })
     )
   },
   {
@@ -176,7 +204,7 @@ const transformsToService: ServiceTransforms = [
       dimensionTransformation({ hullType: "account", attributeGroup: "custom_label_dimensions" }),
       dimensionTransformation({ hullType: "account", attributeGroup: "custom_value_dimensions" }),
       dimensionTransformation({ hullType: "account", attributeGroup: "custom_event_dimensions" }),
-      outgoingTransformation({ hullType: "account" })
+      outgoingTransformation({ hullType: "account", serviceType: "account" })
     )
   }
 ];

@@ -79,6 +79,20 @@ const dimensionAttributes = [
 
 // const reservedAttributes = _.concat(dimensionAttributes, complexObjectAttributes);
 
+const accountServiceSchema = {
+  join_date: {
+    type: "long_milliseconds"
+  },
+  renewal_date: {
+    type: "long_milliseconds"
+  },
+  latest_status_date: {
+    type: "long_milliseconds"
+  }
+};
+
+const contactServiceSchema = {};
+
 const getDimensionAttributeMapping = ({ hull_type, custom_attribute_group }) => {
   const attributeRegex = new RegExp(`^${custom_attribute_group}(_|\.)`, "g");
   return ifL(cond("notEmpty", settings(`outgoing_${hull_type}_attributes`)),[
@@ -98,7 +112,6 @@ const getDimensionAttributeMapping = ({ hull_type, custom_attribute_group }) => 
             }),
           ],
         )
-
       ]
     )
   ])
@@ -156,6 +169,7 @@ const entityUpdate = ({ hull_type, service_type, source_data_type, destination_d
 }
 
 const glue = {
+  verifyAccess: freshsuccess("verifyAccess"),
   ensure: [
     set("api_host", settings("api_host")),
     set("api_key", settings("api_key"))
@@ -174,6 +188,8 @@ const glue = {
       message: "allgood"
     }
   }),
+  accountServiceSchema: accountServiceSchema,
+  contactServiceSchema: contactServiceSchema,
   accountFieldsOutbound: returnValue([
       set("accountOutboundFields", ld("concat", defaultAccountFields, [] /*freshsuccess("getAccountDataAttributes")*/))
     ],

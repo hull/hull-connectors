@@ -247,7 +247,7 @@ describe("Upsert Account Tests", () => {
                 {
                   "account_id": "rei_1",
                   "name": "REI",
-                  "join_date": 1614367426000,
+                  "join_date": 1598907978483,
                   "renewal_date": 1614367426001,
                   "billing_account_id": "bai",
                   "support_account_id": "sai",
@@ -358,7 +358,7 @@ describe("Upsert Account Tests", () => {
               {
                 "account_id": "rei_1",
                 "name": "REI",
-                "join_date": 1614367426000,
+                "join_date": 1598907978483,
                 "renewal_date": 1614367426001,
                 "billing_account_id": "bai",
                 "support_account_id": "sai",
@@ -456,7 +456,7 @@ describe("Upsert Account Tests", () => {
             account: {
               "external_id": "rei_1",
               "name": "REI",
-              "source_join_date": 1614367426000,
+              "source_join_date": "2020-08-31T21:06:18.483Z",
               "source_renewal_date": 1614367426001,
               "source_billing_account_id": "bai",
               "source_support_account_id": "sai",
@@ -698,7 +698,7 @@ describe("Upsert Account Tests", () => {
                 ],
                 "account_id": "rei_1",
                 "name": "REI",
-                "join_date": 1614367426000,
+                "join_date": 1598907978483,
                 "renewal_date": 1614367426001,
                 "billing_account_id": "bai",
                 "support_account_id": "sai",

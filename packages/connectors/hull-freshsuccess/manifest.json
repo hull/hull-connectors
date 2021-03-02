@@ -20,7 +20,8 @@
     {
       "name": "api_host",
       "title": "API Host",
-      "type": "string"
+      "type": "string",
+      "description": "Either 'api-us.freshsuccess.com' or 'api-eu.freshsuccess.com'"
     },
     {
       "name": "api_key",
@@ -49,23 +50,17 @@
           "service": {
             "title": "Freshsuccess Identifier",
             "enum": ["user_id"]
-          },
-          "required": {
-            "type": "boolean",
-            "format": "select",
-            "title": "required?"
           }
         }
       },
       "default": [
         {
           "hull": "external_id",
-          "service": "user_id",
-          "required": true
+          "service": "user_id"
         }
       ],
       "options": {
-        "itemsPerRow": 3
+        "itemsPerRow": 2
       }
     },
     {
@@ -81,7 +76,7 @@
       "title": "Contact Outgoing Fields",
       "type": "array",
       "format": "traitMapping",
-      "description": "Required Fields: account_id, user_id",
+      "description": "Required Fields: Account ID, User ID.\n\nPlease refer to the Documentation for how to manage custom attributes.",
       "default": [
         {
           "hull": "account.external_id",
@@ -267,23 +262,17 @@
           "service": {
             "title": "Freshsuccess Identifier",
             "enum": ["account_id"]
-          },
-          "required": {
-            "type": "boolean",
-            "format": "select",
-            "title": "required?"
           }
         }
       },
       "default": [
         {
           "hull": "external_id",
-          "service": "account_id",
-          "required": true
+          "service": "account_id"
         }
       ],
       "options": {
-        "itemsPerRow": 3
+        "itemsPerRow": 2
       }
     },
     {
@@ -299,7 +288,7 @@
       "title": "Account Outgoing Fields",
       "type": "array",
       "format": "accountTraitMapping",
-      "description": "Required Fields: account_id, name, join_date",
+      "description": "Required Fields: Account ID, Name, Join Date.\n\nPlease refer to the Documentation for how to manage custom attributes.",
       "default": [
         {
           "hull": "external_id",
@@ -655,28 +644,13 @@
     {
       "url": "/schema/contact_fields",
       "handler": "contactFieldsInbound"
-    }
-  ],
-  "schedules": [
-    {
-      "url": "/fetch/accounts/incremental",
-      "type": "interval",
-      "value": "30",
-      "handler": "fetchRecentAccounts",
-      "options": {
-        "fireAndForget": true
-      }
     },
     {
-      "url": "/fetch/contacts/incremental",
-      "type": "interval",
-      "value": "30",
-      "handler": "fetchRecentContacts",
-      "options": {
-        "fireAndForget": true
-      }
+      "url": "/verify",
+      "handler": "verifyAccess"
     }
   ],
+  "schedules": [],
   "subscriptions": [
     {
       "url": "/smart-notifier",
@@ -708,7 +682,7 @@
   "settings_sections": [
     {
       "title": "Connect with Freshsuccess",
-      "description": "Please begin by providing your Freshsuccess API key",
+      "description": "Please begin by providing your Freshsuccess API Key and Host",
       "properties": [
         "private_settings.api_host",
         "private_settings.api_key"
@@ -718,16 +692,6 @@
       "title": "Contact Identity",
       "description": "",
       "properties": ["private_settings.user_claims"]
-    },
-    {
-      "title": "Fetch Contacts from Freshsuccess",
-      "step": "incoming",
-      "description": "Fetch Contacts From Freshsuccess",
-      "properties": [
-        "private_settings.fetch_contacts",
-        "private_settings.incoming_user_attributes",
-        "json.fetch_all_contacts"
-      ]
     },
     {
       "title": "Send Contacts to Freshsuccess",
@@ -741,16 +705,6 @@
       "title": "Account Identity",
       "description": "",
       "properties": ["private_settings.account_claims"]
-    },
-    {
-      "title": "Fetch Accounts from Freshsuccess",
-      "step": "incoming",
-      "description": "Fetch Accounts From Freshsuccess",
-      "properties": [
-        "private_settings.fetch_accounts",
-        "private_settings.incoming_account_attributes",
-        "json.fetch_all_accounts"
-      ]
     },
     {
       "title": "Send Accounts to Freshsuccess",
