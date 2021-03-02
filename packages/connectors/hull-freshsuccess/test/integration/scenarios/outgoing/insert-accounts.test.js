@@ -243,7 +243,7 @@ describe("Upsert Account Tests", () => {
           const scope = nock("https://api-us.freshsuccess.com/api/v2");
 
           scope
-            .post("/accounts", { records: [
+            .post("/accounts?api_key=abc", { records: [
                 {
                   "account_id": "rei_1",
                   "name": "REI",
@@ -354,7 +354,7 @@ describe("Upsert Account Tests", () => {
             });
 
           scope
-            .post("/accounts", { records: [
+            .post("/accounts?api_key=abc", { records: [
               {
                 "account_id": "rei_1",
                 "name": "REI",

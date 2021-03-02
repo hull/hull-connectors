@@ -151,7 +151,7 @@ describe("Upsert Contact Tests", () => {
           const scope = nock("https://api-us.freshsuccess.com/api/v2");
 
           scope
-            .post("/account_contacts", {
+            .post("/account_contacts?api_key=abc", {
               "records": [
                 {
                   "custom_label_dimensions": [
@@ -229,7 +229,7 @@ describe("Upsert Contact Tests", () => {
             });
 
           scope
-            .post("/account_contacts", {
+            .post("/account_contacts?api_key=abc", {
               "records": [
                 {
                   "custom_label_dimensions": [

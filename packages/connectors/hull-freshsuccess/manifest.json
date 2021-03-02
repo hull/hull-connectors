@@ -66,7 +66,7 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send Hull Users as Freshsuccess Contacts when they belong to one of these segments to Freshsuccess",
+      "description": "Send Hull Users as Freshsuccess Contacts when they belong to one of these segments.",
       "type": "array",
       "default": [],
       "format": "segment"
@@ -278,7 +278,7 @@
     {
       "name": "synchronized_account_segments",
       "title": "Account Filter",
-      "description": "Send Hull accounts as Freshsuccess Accounts when they belong to one of these segments to Freshsuccess",
+      "description": "Send Hull Accounts as Freshsuccess Accounts when they belong to one of these segments.",
       "type": "array",
       "default": [],
       "format": "accountSegment"
