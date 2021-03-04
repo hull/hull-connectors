@@ -97,6 +97,10 @@ class FrameworkUtils {
   jwtEncode(context: Object, params: any) {
     return jwt.encode(params.payload, params.secret, params.algorithm);
   }
+
+  anyFn(context: Object, params: any) {
+    return params.fn(_.omit(params, "fn"));
+  }
 }
 module.exports = {
   FrameworkUtils

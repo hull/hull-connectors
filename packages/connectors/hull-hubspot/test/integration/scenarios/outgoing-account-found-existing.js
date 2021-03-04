@@ -76,7 +76,8 @@ it("should send out a new hull account to hubspot found existing", () => {
           },
           account: {
             domain,
-            name: "New Name"
+            name: "New Name",
+            id: "1"
           },
           account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }

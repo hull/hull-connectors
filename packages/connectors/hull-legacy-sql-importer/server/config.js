@@ -10,7 +10,8 @@ export default function connectorConfig(): HullConnectorConfig {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     CONNECTOR_TIMEOUT,
-    RUN_TIMEOUT_MS
+    RUN_TIMEOUT_MS,
+    REDIS_TLS_CA
   } = process.env;
 
   Aws.config.update({
@@ -21,6 +22,12 @@ export default function connectorConfig(): HullConnectorConfig {
   return {
     handlers: handler(adapters),
     timeout: CONNECTOR_TIMEOUT,
-    preview_timeout: RUN_TIMEOUT_MS || 60000
+    preview_timeout: RUN_TIMEOUT_MS || 60000,
+    cacheConfig: {
+      tls: { ca: REDIS_TLS_CA }
+    },
+    queueConfig: {
+      settings: { redis: { tls: { ca: REDIS_TLS_CA } } }
+    }
   };
 }

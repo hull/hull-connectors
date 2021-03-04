@@ -26,6 +26,7 @@ packages/connectors/hull-pipedrive
 packages/connectors/hull-coppercrm
 packages/connectors/hull-slack
 packages/connectors/hull-intercom
+packages/connectors/hull-freshsuccess
 packages/connectors/hull-intercom-legacy
 packages/connectors/hull-bigquery
 
