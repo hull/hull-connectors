@@ -75,6 +75,7 @@ COPY packages/connectors/hull-calendly/package.json /app/packages/connectors/hul
 COPY packages/connectors/hull-legacy-sql-importer/package.json /app/packages/connectors/hull-legacy-sql-importer/package.json
 COPY packages/connectors/hull-postgres-importer/package.json /app/packages/connectors/hull-postgres-importer/package.json
 COPY packages/connectors/hull-mysql-importer/package.json /app/packages/connectors/hull-mysql-importer/package.json
+COPY packages/connectors/hull-soql-importer/package.json /app/packages/connectors/hull-soql-importer/package.json
 COPY packages/connectors/hull-mssql-importer/package.json /app/packages/connectors/hull-mssql-importer/package.json
 COPY packages/connectors/hull-snowflake-importer/package.json /app/packages/connectors/hull-snowflake-importer/package.json
 COPY packages/connectors/hull-postgres-exporter/package.json /app/packages/connectors/hull-postgres-exporter/package.json

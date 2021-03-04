@@ -282,6 +282,10 @@ export default class SyncAgent {
   areConnectionParametersConfigured() {
     const settings = this.ship.private_settings;
 
+    if (this.adapter.in.areConnectionParametersConfigured) {
+      return this.adapter.in.areConnectionParametersConfigured(settings);
+    }
+
     let validationParameters = [
       "type",
       "host",
@@ -382,15 +386,21 @@ export default class SyncAgent {
       .then(result => {
         this.closeClient(openClient);
 
+        const records = !this.adapter.in.transformRecord ?
+          result.rows :
+          _.map(result.rows, record => {
+            return this.adapter.in.transformRecord(record)
+          });
+
         const { errors } = this.adapter.in.validateResult(
-          result,
+          records,
           this.import_type
         );
         if (errors && errors.length > 0) {
           return { entries: result.rows, errors };
         }
 
-        return { entries: result.rows };
+        return { entries: records};
       })
       .catch(err => {
         this.closeClient(openClient);
