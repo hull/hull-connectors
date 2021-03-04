@@ -1,6 +1,6 @@
 {
   "name": "hull-connector-framework",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "scripts": {
     "test": "exit 0; echo 'No Tests here'",
     "documentation": "exit 0"

@@ -2,7 +2,7 @@
   "name": "MS SQL Importer",
   "description": "Import data from your MS SQL databases",
   "picture": "picture.png",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "source": "mssql",
   "tags": [
     "incoming",

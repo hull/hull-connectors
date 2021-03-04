@@ -3,7 +3,7 @@
   "description": "Complete control over your customer data with Hull and Segment",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "tags": [
     "incoming",

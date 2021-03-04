@@ -1,6 +1,6 @@
 {
   "name": "hull-sql-exporter",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "description": "Export to Database",
   "main": "server/index.js",
   "scripts": {

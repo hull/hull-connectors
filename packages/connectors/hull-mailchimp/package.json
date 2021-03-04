@@ -1,6 +1,6 @@
 {
   "name": "hull-mailchimp",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "Hull Mailchimp integration",
   "scripts": {
