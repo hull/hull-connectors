@@ -1,7 +1,7 @@
 {
   "name": "hull-sql-importer",
   "description": "Hull Sql Base",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
@@ -9,19 +9,19 @@
     "test": "exit 0; echo 'No Tests here'"
   },
   "dependencies": {
-    "promise-streams": "^1.0.1",
     "body-parser": "^1.19.0",
     "bootstrap-sweetalert": "^1.0.1",
     "bootstrap-table": "^1.18.2",
-    "codemirror": "^5.59.2",
+    "codemirror": "^5.59.3",
+    "hull-mariadb": "1.0.0",
     "json-loader": "^0.5.7",
-    "s3-upload-stream": "^1.0.7",
-    "sequelize": "^6.5.0",
-    "sweetalert2": "^10.14.1",
-    "tedious": "^11.0.3",
     "pg": "7.18.2",
     "pg-query-stream": "^4.0.0",
-    "hull-mariadb": "1.0.0"
+    "promise-streams": "^1.0.1",
+    "s3-upload-stream": "^1.0.7",
+    "sequelize": "^6.5.0",
+    "sweetalert2": "^10.15.5",
+    "tedious": "^11.0.4"
   },
   "devDependencies": {}
 }

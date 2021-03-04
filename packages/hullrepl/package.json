@@ -1,6 +1,6 @@
 {
   "name": "hullrepl",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "",
   "main": "src/index.js",
@@ -12,10 +12,9 @@
     "hullrepl": "src/index.js"
   },
   "author": "",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "csv-parse": "^4.15.1",
+    "csv-parse": "^4.15.3",
     "inquirer": "^7.0.0",
     "lowdb": "^1.0.0",
     "node-mocks-http": "^1.10.1",

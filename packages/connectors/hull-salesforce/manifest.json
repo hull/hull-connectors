@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "tags": [
     "incoming",
     "outgoing",

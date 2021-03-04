@@ -1,6 +1,6 @@
 {
   "name": "hull-segment",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "description": "Install Segment in your site",
   "main": "dist/ship.js",
   "homepage": "https://github.com/hull/hull-connectors",
@@ -10,7 +10,7 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "analytics-node": "^3.5.0",
+    "analytics-node": "^4.0.0",
     "body-parser": "^1.15.2",
     "camelize": "^1.0.0",
     "raw-body": "^2.1.7"

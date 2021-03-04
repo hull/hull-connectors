@@ -1,6 +1,6 @@
 {
   "name": "hull-canary",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "Canary Connector for E2E tests",
   "scripts": {

@@ -95,7 +95,8 @@ it("should send out a new hull account to hubspot", () => {
       messages: [
         {
           account: {
-            domain
+            domain,
+            id: "1"
           },
           account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
@@ -118,6 +119,7 @@ it("should send out a new hull account to hubspot", () => {
             account_domain: domain
           }),
           {
+            batch: expect.whatever(),
             hubspotWriteCompany: {
               properties: [
                 { name: "domain", value: "hull.io" },
