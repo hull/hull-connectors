@@ -1,5 +1,5 @@
 module.exports = function mocks(nock) {
-  nock = nock("https://graph.facebook.com/v7.0");
+  nock = nock("https://graph.facebook.com/v9.0");
   return {
     getNock: () => nock,
     setUpGetAudiencesNock: (fulfilled) => {
