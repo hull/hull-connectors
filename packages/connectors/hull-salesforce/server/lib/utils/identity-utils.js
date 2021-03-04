@@ -2,12 +2,19 @@
 
 const _ = require("lodash");
 
-function getEntityIdentity(
+function getEntityIdentity({
+  hullEntity,
+  sfEntity,
+  resource,
+  hullClient,
+  source
+}: {
   hullEntity: Object,
   sfEntity: Object,
   resource: string,
-  hullClient: Object
-) {
+  hullClient: Object,
+  source: string
+}) {
   const userIdentityFields = ["id", "email", "external_id", "anonymous_ids"];
   const accountIdentityFields = [
     "id",
@@ -17,12 +24,12 @@ function getEntityIdentity(
   ];
 
   let identity = {};
-  let anonymous_id_prefix = "salesforce";
+  let anonymous_id_prefix = source;
   if (resource === "Account") {
     identity = _.pick(hullEntity, accountIdentityFields);
   } else if (resource === "Lead" || resource === "Contact") {
     identity = _.pick(hullEntity, userIdentityFields);
-    anonymous_id_prefix = `salesforce-${_.toLower(resource)}`;
+    anonymous_id_prefix = `${source}-${_.toLower(resource)}`;
   }
 
   const anonymous_ids = _.get(identity, "anonymous_ids", []);

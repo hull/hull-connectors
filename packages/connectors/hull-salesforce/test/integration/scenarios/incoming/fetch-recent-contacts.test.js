@@ -47,6 +47,7 @@ describe("Fetch Contacts Tests", () => {
           connector: {
             private_settings: {
               ...private_settings,
+              source: "salesforce_main",
               handle_merges: true,
               lead_synchronized_segments: ["5a0c1f07b4d8644425002c65"],
               lead_attributes_outbound: [
@@ -299,17 +300,17 @@ describe("Fetch Contacts Tests", () => {
               "incoming.user.success",
               {
                 subject_type: "user",
-                user_anonymous_id: "salesforce-contact:0032F000008DdqkQAC"
+                user_anonymous_id: "salesforce_main-contact:0032F000008DdqkQAC"
               },
               {
                 data: {
                   attributes: {
-                    "salesforce_contact/deleted_at":
+                    "salesforce_main_contact/deleted_at":
                       "2018-09-10T16:38:43.000+0000",
-                    "salesforce_contact/id": null
+                    "salesforce_main_contact/id": null
                   },
                   ident: {
-                    anonymous_id: "salesforce-contact:0032F000008DdqkQAC"
+                    anonymous_id: "salesforce_main-contact:0032F000008DdqkQAC"
                   }
                 },
                 type: "User"
@@ -320,16 +321,16 @@ describe("Fetch Contacts Tests", () => {
               "incoming.user.success",
               {
                 subject_type: "user",
-                user_anonymous_id: "salesforce-contact:master_record_id_2"
+                user_anonymous_id: "salesforce_main-contact:master_record_id_2"
               },
               {
                 data: {
                   attributes: {
-                    "salesforce_contact/deleted_at": null,
-                    "salesforce_contact/id": "master_record_id_2"
+                    "salesforce_main_contact/deleted_at": null,
+                    "salesforce_main_contact/id": "master_record_id_2"
                   },
                   ident: {
-                    anonymous_id: "salesforce-contact:master_record_id_2"
+                    anonymous_id: "salesforce_main-contact:master_record_id_2"
                   }
                 },
                 type: "User"
@@ -350,26 +351,27 @@ describe("Fetch Contacts Tests", () => {
               "traits",
               {
                 asUser: {
-                  anonymous_id: "salesforce-contact:0032F000008DdqkQAC"
+                  anonymous_id: "salesforce_main-contact:0032F000008DdqkQAC"
                 },
                 subjectType: "user"
               },
               {
-                "salesforce_contact/deleted_at": "2018-09-10T16:38:43.000+0000",
-                "salesforce_contact/id": null
+                "salesforce_main_contact/deleted_at":
+                  "2018-09-10T16:38:43.000+0000",
+                "salesforce_main_contact/id": null
               }
             ],
             [
               "traits",
               {
                 asUser: {
-                  anonymous_id: "salesforce-contact:master_record_id_2"
+                  anonymous_id: "salesforce_main-contact:master_record_id_2"
                 },
                 subjectType: "user"
               },
               {
-                "salesforce_contact/deleted_at": null,
-                "salesforce_contact/id": "master_record_id_2"
+                "salesforce_main_contact/deleted_at": null,
+                "salesforce_main_contact/id": "master_record_id_2"
               }
             ]
           ],
@@ -1126,6 +1128,7 @@ describe("Fetch Contacts Tests", () => {
           connector: {
             private_settings: {
               ...private_settings,
+              source: "salesforce_main",
               contact_attributes_inbound: [
                 {
                   service: "Email",
@@ -1219,7 +1222,7 @@ describe("Fetch Contacts Tests", () => {
               {
                 subject_type: "user",
                 user_email: "adam@apple.com",
-                user_anonymous_id: "salesforce-contact:00Q1I000004WHchUAG"
+                user_anonymous_id: "salesforce_main-contact:00Q1I000004WHchUAG"
               },
               {
                 data: {
@@ -1259,20 +1262,20 @@ describe("Fetch Contacts Tests", () => {
               {
                 asUser: {
                   email: "adam@apple.com",
-                  anonymous_id: "salesforce-contact:00Q1I000004WHchUAG"
+                  anonymous_id: "salesforce_main-contact:00Q1I000004WHchUAG"
                 },
                 subjectType: "user"
               },
               {
-                "salesforce_contact/email": {
+                "salesforce_main_contact/email": {
                   value: "adam@apple.com",
                   operation: "set"
                 },
-                "salesforce_contact/owner_email": {
+                "salesforce_main_contact/owner_email": {
                   value: "owner@hull.com",
                   operation: "set"
                 },
-                "salesforce_contact/id": {
+                "salesforce_main_contact/id": {
                   value: "00Q1I000004WHchUAG",
                   operation: "set"
                 }

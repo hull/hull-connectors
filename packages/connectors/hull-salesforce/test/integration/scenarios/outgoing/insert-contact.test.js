@@ -236,6 +236,7 @@ describe("Insert Contacts Tests", () => {
           { hull: "domain", service: "Website", required: true }
         ],
         account_synchronized_segments: ["account_segment_1"],
+        source: "salesforce_main",
         ...private_settings
       }
     };
@@ -305,7 +306,7 @@ describe("Insert Contacts Tests", () => {
                 domain: "apple.com",
                 id: "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
                 name: "Apple",
-                "salesforce/description": "description from account"
+                "salesforce_main/description": "description from account"
               },
               account_segments: [{ id: "account_segment_2" }],
               events: [],
@@ -344,7 +345,7 @@ describe("Insert Contacts Tests", () => {
                 request_id: expect.whatever(),
                 account_id: "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
                 account_domain: "apple.com",
-                account_anonymous_id: "salesforce:00Q1I000004WHchUAA"
+                account_anonymous_id: "salesforce_main:00Q1I000004WHchUAA"
               },
               {
                 record: {
@@ -363,7 +364,7 @@ describe("Insert Contacts Tests", () => {
                 request_id: expect.whatever(),
                 user_id: "5a43ce781f6d9f471d005d44",
                 user_email: "adam@apple.com",
-                user_anonymous_id: "salesforce-contact:00Q1I000004WHchUAG"
+                user_anonymous_id: "salesforce_main-contact:00Q1I000004WHchUAG"
               },
               {
                 record: {
@@ -389,12 +390,12 @@ describe("Insert Contacts Tests", () => {
                 asAccount: {
                   id: "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
                   domain: "apple.com",
-                  anonymous_id: "salesforce:00Q1I000004WHchUAA"
+                  anonymous_id: "salesforce_main:00Q1I000004WHchUAA"
                 },
                 subjectType: "account"
               },
               {
-                "salesforce/id": {
+                "salesforce_main/id": {
                   value: "00Q1I000004WHchUAA",
                   operation: "setIfNull"
                 }
@@ -406,12 +407,12 @@ describe("Insert Contacts Tests", () => {
                 asUser: {
                   id: "5a43ce781f6d9f471d005d44",
                   email: "adam@apple.com",
-                  anonymous_id: "salesforce-contact:00Q1I000004WHchUAG"
+                  anonymous_id: "salesforce_main-contact:00Q1I000004WHchUAG"
                 },
                 subjectType: "user"
               },
               {
-                "salesforce_contact/id": {
+                "salesforce_main_contact/id": {
                   value: "00Q1I000004WHchUAG",
                   operation: "setIfNull"
                 }
@@ -815,10 +816,6 @@ describe("Insert Contacts Tests", () => {
                 subjectType: "account"
               },
               {
-                "salesforce/mrr": {
-                  value: 950,
-                  operation: "set"
-                },
                 "salesforce/id": {
                   value: "ahfidugi123",
                   operation: "setIfNull"
@@ -836,22 +833,6 @@ describe("Insert Contacts Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Adam",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/first_name": {
-                  value: "Adam",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "Pietrzyk",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/last_name": {
-                  value: "Pietrzyk",
-                  operation: "set"
-                },
                 "salesforce_contact/id": {
                   value: "aOuvlns903760",
                   operation: "setIfNull"
@@ -869,22 +850,6 @@ describe("Insert Contacts Tests", () => {
                 subjectType: "user"
               },
               {
-                first_name: {
-                  value: "Rafa",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/first_name": {
-                  value: "Rafa",
-                  operation: "set"
-                },
-                last_name: {
-                  value: "kasczka",
-                  operation: "setIfNull"
-                },
-                "salesforce_contact/last_name": {
-                  value: "kasczka",
-                  operation: "set"
-                },
                 "salesforce_contact/id": {
                   value: "aOuvlns903761",
                   operation: "setIfNull"

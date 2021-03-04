@@ -8,6 +8,7 @@ import type {
   HullAccountUpdateMessage
 } from "hull";
 
+import { v4 as uuidV4 } from "uuid";
 import type {
   HubspotAccountUpdateMessageEnvelope,
   HubspotUserUpdateMessageEnvelope,
@@ -24,6 +25,7 @@ const { pipeStreamToPromise } = require("hull/src/utils");
 const {
   toSendMessage
 } = require("hull-connector-framework/src/purplefusion/utils");
+const { deduplicateEnvelopes } = require("./utils/dedupe-envelopes");
 const defaultIncomingGroupMapping = require("./sync-agent/mapping/default-incoming-group");
 const defaultOutgoingGroupMapping = require("./sync-agent/mapping/default-outgoing-group");
 
@@ -576,6 +578,7 @@ class SyncAgent {
   async sendAccountUpdateMessages(
     messages: Array<HullAccountUpdateMessage>
   ): Promise<*> {
+    const batch = uuidV4();
     if (!this.isConfigured()) {
       this.hullClient.logger.error("connector.configuration.error", {
         errors: "connector is not configured"
@@ -670,9 +673,10 @@ class SyncAgent {
         retry: 1
       });
 
+      const dedupedToInsert = deduplicateEnvelopes(accountsToInsert, "account");
       // insert companies
       await this.hubspotClient
-        .postCompaniesInsertEnvelopes({ envelopes: accountsToInsert })
+        .postCompaniesInsertEnvelopes({ envelopes: dedupedToInsert })
         .then(resultEnvelopes => {
           resultEnvelopes.forEach(envelope => {
             if (envelope.error === undefined && envelope.hubspotReadCompany) {
@@ -696,7 +700,8 @@ class SyncAgent {
                     .asAccount(envelope.message.account)
                     .logger.info("outgoing.account.success", {
                       hubspotWriteCompany: envelope.hubspotWriteCompany,
-                      operation: "insert"
+                      operation: "insert",
+                      batch
                     });
                 });
             }
