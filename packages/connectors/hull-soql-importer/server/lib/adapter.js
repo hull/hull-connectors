@@ -21,8 +21,8 @@ import { validateResultColumns } from "hull-sql-importer";
 export function openConnection(settings) {
   const params = {
     oauth2: {
-      clientId: process.env.SALESFORCE_CLIENT_ID,
-      clientSecret: process.env.SALESFORCE_CLIENT_SECRET
+      clientId: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET
     },
     instanceUrl: settings.instance_url,
     accessToken: settings.access_token,
