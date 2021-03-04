@@ -86,6 +86,8 @@ class SyncAgent {
 
   asEntity: any;
 
+  source: string;
+
   ctx: HullContext;
 
   constructor(ctx: HullContext) {
@@ -95,6 +97,7 @@ class SyncAgent {
 
     this.ctx = ctx;
     this.cache = cache;
+    this.source = _.toLower(private_settings.source || "salesforce");
     this.fetchAccounts = private_settings.fetch_accounts;
     this.linkAccounts = private_settings.link_accounts || false;
     this.fetchResourceSchema = private_settings.fetch_resource_schema || false;
@@ -122,7 +125,10 @@ class SyncAgent {
     };
     this.sf = new SalesforceClient(clntOpts);
     this.patchUtil = new PatchUtil(private_settings, this.isBatch);
-    this.attributesMapper = new AttributesMapper(private_settings);
+    this.attributesMapper = new AttributesMapper({
+      ...private_settings,
+      source: this.source
+    });
     this.filterUtil = new FilterUtil(private_settings);
     this.queryUtil = new QueryUtil();
     this.matchUtil = new MatchUtil();
@@ -196,7 +202,9 @@ class SyncAgent {
     });
   }
 
-  async sendUserMessages(messages: Array<THullUserUpdateMessage>): Promise<*> {
+  async sendContactMessages(
+    messages: Array<THullUserUpdateMessage>
+  ): Promise<*> {
     this.asEntity = this.hullClient.asUser;
     this.enrichMessages("user", messages);
 
@@ -453,15 +461,19 @@ class SyncAgent {
           _.forEach(matchedMessages, message => {
             const { user, account } = message;
             if (!_.isEmpty(user)) {
-              _.set(user, "salesforce_contact/account_id", sfEntity.record.Id);
+              _.set(
+                user,
+                `${this.source}_contact/account_id`,
+                sfEntity.record.Id
+              );
             }
-            _.set(account, "salesforce/id", sfEntity.record.Id);
+            _.set(account, `${this.source}/id`, sfEntity.record.Id);
           });
         } else if (!_.isEmpty(matchedMessages)) {
           const { user } = matchedMessages[0];
           _.set(
             user,
-            `salesforce_${_.toLower(resourceType)}/id`,
+            `${this.source}_${_.toLower(resourceType)}/id`,
             sfEntity.record.Id
           );
         }
@@ -481,10 +493,10 @@ class SyncAgent {
 
     const findBy =
       hullType === "account"
-        ? _.set({}, "account.salesforce/id", sfEntity.record.Id)
+        ? _.set({}, `account.${this.source}/id`, sfEntity.record.Id)
         : _.set(
             {},
-            `user.salesforce_${_.toLower(resourceType)}/id`,
+            `user.${this.source}_${_.toLower(resourceType)}/id`,
             sfEntity.record.Id
           );
 
@@ -512,10 +524,11 @@ class SyncAgent {
     identityClaims: Array<Object>
   ): Object {
     const hullType = _.toLower(resourceType) === "account" ? "account" : "user";
-    const queryOpts = this.queryUtil.buildQueryOpts(
-      resourceType,
-      identityClaims
-    );
+    const queryOpts = this.queryUtil.buildQueryOpts({
+      sfType: resourceType,
+      params: identityClaims,
+      source: this.source
+    });
     return this.queryUtil.composeFindQuery(messages, queryOpts, hullType);
   }
 
@@ -584,9 +597,12 @@ class SyncAgent {
         const { user, account } = message;
         if (!_.isEmpty(sfAccounts)) {
           const accountMatches = this.matchUtil.matchHullMessageToSalesforceAccount(
-            message,
-            sfAccounts,
-            this.accountClaims
+            {
+              message,
+              sfAccounts,
+              accountClaims: this.accountClaims,
+              source: this.source
+            }
           );
           const { primary, secondary } = accountMatches;
 
@@ -598,21 +614,23 @@ class SyncAgent {
         }
 
         if (!_.isEmpty(sfContacts)) {
-          matches.contact = this.matchUtil.matchHullMessageToSalesforceRecord(
-            "Contact",
+          matches.contact = this.matchUtil.matchHullMessageToSalesforceRecord({
+            resource: "Contact",
             user,
-            sfContacts,
-            this.contactClaims
-          );
+            sfObjects: sfContacts,
+            identityClaims: this.contactClaims,
+            source: this.source
+          });
         }
 
         if (!_.isEmpty(sfLeads)) {
-          matches.lead = this.matchUtil.matchHullMessageToSalesforceRecord(
-            "Lead",
+          matches.lead = this.matchUtil.matchHullMessageToSalesforceRecord({
+            resource: "Lead",
             user,
-            sfLeads,
-            this.leadClaims
-          );
+            sfObjects: sfLeads,
+            identityClaims: this.leadClaims,
+            source: this.source
+          });
         }
 
         _.map(matches, (sfObjects, resource) => {
@@ -620,11 +638,11 @@ class SyncAgent {
             const sfObject = _.isEmpty(sfObjects) ? {} : sfObjects[0];
             if (resource === "lead" || resource === "contact") {
               if (_.isEmpty(sfObject)) {
-                _.unset(user, `salesforce_${_.toLower(resource)}/id`);
+                _.unset(user, `${this.source}_${_.toLower(resource)}/id`);
               } else {
                 _.set(
                   user,
-                  `salesforce_${_.toLower(resource)}/id`,
+                  `${this.source}_${_.toLower(resource)}/id`,
                   sfObject.Id
                 );
               }
@@ -632,22 +650,26 @@ class SyncAgent {
 
             if (resource === "account") {
               if (_.isEmpty(sfObject)) {
-                _.unset(account, "salesforce/id");
-                _.unset(user, "salesforce_contact/account_id");
+                _.unset(account, `${this.source}/id`);
+                _.unset(user, `${this.source}_contact/account_id`);
               } else {
                 const sfAccountId = _.get(sfObject, "Id", "");
 
                 if (!_.isEmpty(user)) {
                   const linkedAccountId = _.get(
                     user,
-                    "salesforce_contact/account_id",
+                    `${this.source}_contact/account_id`,
                     null
                   );
                   if (_.isNil(linkedAccountId)) {
-                    _.set(user, "salesforce_contact/account_id", sfAccountId);
+                    _.set(
+                      user,
+                      `${this.source}_contact/account_id`,
+                      sfAccountId
+                    );
                   }
                 }
-                _.set(account, "salesforce/id", sfAccountId);
+                _.set(account, `${this.source}/id`, sfAccountId);
               }
             }
           }
@@ -663,12 +685,12 @@ class SyncAgent {
 
   async linkIncomingAccount(asEntity: any, sfObject): Promise<*> {
     const accountIdentity = {
-      anonymous_id: `salesforce:${sfObject.AccountId}`
+      anonymous_id: `${this.source}:${sfObject.AccountId}`
     };
     return asEntity
       .account(accountIdentity)
       .traits({
-        "salesforce/id": sfObject.AccountId
+        [`${this.source}/id`]: sfObject.AccountId
       })
       .then(() => {
         asEntity.logger.info("incoming.account.link.success");
@@ -736,7 +758,6 @@ class SyncAgent {
     const { hullType, sfType, source, method, error, success } = params;
 
     const identityClaims = this.getIdentityClaims({ sfType });
-    const resourceSchema = await this.getResourceSchema(sfType);
 
     const identity = _.isNil(message)
       ? this.attributesMapper.mapToHullIdentityObject(
@@ -744,12 +765,13 @@ class SyncAgent {
           sfObject,
           identityClaims
         )
-      : IdentityUtil.getEntityIdentity(
-          _.get(message, hullType),
-          sfObject,
-          sfType,
-          this.hullClient
-        );
+      : IdentityUtil.getEntityIdentity({
+          hullEntity: _.get(message, hullType),
+          sfEntity: sfObject,
+          resource: sfType,
+          hullClient: this.hullClient,
+          source: this.source
+        });
 
     const asEntity = this.hullClient[`as${_.upperFirst(hullType)}`](identity);
 
@@ -760,8 +782,7 @@ class SyncAgent {
 
     const traits = this.attributesMapper.mapToHullAttributeObject(
       sfType,
-      sfObject,
-      resourceSchema
+      sfObject
     );
 
     if (source === "hull") {

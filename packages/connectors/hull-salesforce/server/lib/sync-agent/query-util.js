@@ -9,13 +9,21 @@ class QueryUtil implements IQueryUtil {
     return _.uniq(_.compact(_.map(messages, path)));
   }
 
-  buildQueryOpts(sfType: string, params: Array<Object>): Object {
+  buildQueryOpts({
+    sfType,
+    params,
+    source
+  }: {
+    sfType: string,
+    params: Array<Object>,
+    source: string
+  }): Object {
     const queryOpts = {};
     if (_.includes(["lead", "contact"], sfType)) {
-      _.set(queryOpts, "Id", `salesforce_${sfType}/id`);
+      _.set(queryOpts, "Id", `${source}_${sfType}/id`);
     }
     if (sfType === "account") {
-      _.set(queryOpts, "Id", "salesforce/id");
+      _.set(queryOpts, "Id", `${source}/id`);
     }
     _.forEach(params, param => {
       _.set(queryOpts, param.service, param.hull);

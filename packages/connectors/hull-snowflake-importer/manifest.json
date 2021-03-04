@@ -8,6 +8,12 @@
   "tags": ["incoming", "oneColumn", "sql-accounts"],
   "private_settings": [
     {
+      "name": "db_type",
+      "type": "string",
+      "title": "Type",
+      "default": "snowflake"
+    },
+    {
       "type": "string",
       "format": "title",
       "name": "connector_info",
