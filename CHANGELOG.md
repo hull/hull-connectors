@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## v0.1.41-monorepo (2020-03-04)
+
+- [hull-calendly] Add Freshsuccess connector
+
 ## v0.1.40-monorepo (2020-01-12)
 
-- [hull-calendly] Add calendly connector
+- [hull-calendly] Add Calendly connector
 
 ## v0.1.39-monorepo (2020-11-23)
 
