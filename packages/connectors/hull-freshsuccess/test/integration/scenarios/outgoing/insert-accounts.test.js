@@ -182,6 +182,10 @@ describe("Upsert Account Tests", () => {
                 "hull": "source_cld_3",
                 "service": "custom_label_dimensions"
               },
+              {
+                "hull": "source_cld_4",
+                "service": "custom_label_dimensions_(c * ompl &5ex^ att(! ribute []"
+              },
 
               {
                 "hull": "source_cvd_1",
@@ -289,7 +293,8 @@ describe("Upsert Account Tests", () => {
                   // Custom Label Dimensions
                   "custom_label_dimensions": [
                     { key: "cld_1", value: "cld_1_value" },
-                    { key: "cld_2", value: "cld_2_value" }
+                    { key: "cld_2", value: "cld_2_value" },
+                    { key: "(c * ompl &5ex^ att(! ribute []", value: "cld_4_value" }
                   ],
 
                   // Custom Value Dimensions
@@ -400,7 +405,8 @@ describe("Upsert Account Tests", () => {
                 // Custom Label Dimensions
                 "custom_label_dimensions": [
                   { key: "cld_1", value: "cld_1_value" },
-                  { key: "cld_2", value: "cld_2_value" }
+                  { key: "cld_2", value: "cld_2_value" },
+                  { key: "(c * ompl &5ex^ att(! ribute []", value: "cld_4_value" }
                 ],
 
                 // Custom Value Dimensions
@@ -497,6 +503,7 @@ describe("Upsert Account Tests", () => {
               "source_cld_1": "cld_1_value",
               "source_cld_2": "cld_2_value",
               "source_cld_3": "cld_3_value",
+              "source_cld_4": "cld_4_value",
 
               // Custom Value Dimensions
               "source_cvd_1": 1.1,
@@ -674,6 +681,10 @@ describe("Upsert Account Tests", () => {
                   {
                     "key": "cld_2",
                     "value": "cld_2_value"
+                  },
+                  {
+                    "key": "(c * ompl &5ex^ att(! ribute []",
+                    "value": "cld_4_value"
                   }
                 ],
                 "custom_value_dimensions": [
