@@ -1,6 +1,6 @@
 {
   "name": "hull-pipedrive",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "Sync persons and organizations with Hull",
   "scripts": {

@@ -90,6 +90,7 @@ it("should send out a new hull account to hubspot account update", () => {
             account_segments: {}
           },
           account: {
+            id: "1",
             domain,
             name: "New Name",
             "hubspot/id": "companyHubspotId123",

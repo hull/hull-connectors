@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.1.40-monorepo",
+  "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [

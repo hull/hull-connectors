@@ -1,0 +1,140 @@
+[
+  {
+    "label": "User Id",
+    "name": "user_id",
+    "full_name": "user_id",
+    "api_writable": true
+  },
+  {
+    "label": "Account Id",
+    "name": "account_id",
+    "full_name": "account_id",
+    "api_writable": true
+  },
+  {
+    "label": "First Name",
+    "name": "first_name",
+    "full_name": "first_name",
+    "api_writable": true
+  },
+  {
+    "label": "Last Name",
+    "name": "last_name",
+    "full_name": "last_name",
+    "api_writable": true
+  },
+  {
+    "label": "Is Primary",
+    "name": "is_primary",
+    "full_name": "is_primary",
+    "api_writable": true
+  },
+  {
+    "label": "Phone",
+    "name": "phone",
+    "full_name": "phone",
+    "api_writable": true
+  },
+  {
+    "label": "Email",
+    "name": "email",
+    "full_name": "email",
+    "api_writable": true
+  },
+  {
+    "label": "Salutation",
+    "name": "salutation",
+    "full_name": "salutation",
+    "api_writable": true
+  },
+  {
+    "label": "Title",
+    "name": "title",
+    "full_name": "title",
+    "api_writable": true
+  },
+  {
+    "label": "Role",
+    "name": "role",
+    "full_name": "role",
+    "api_writable": true
+  },
+  {
+    "label": "Department",
+    "name": "department",
+    "full_name": "department",
+    "api_writable": true
+  },
+  {
+    "label": "Lead Source",
+    "name": "lead_source",
+    "full_name": "lead_source",
+    "api_writable": true
+  },
+  {
+    "label": "Mailing Street",
+    "name": "mailing_street",
+    "full_name": "mailing_street",
+    "api_writable": true
+  },
+  {
+    "label": "Mailing City",
+    "name": "mailing_city",
+    "full_name": "mailing_city",
+    "api_writable": true
+  },
+  {
+    "label": "Mailing State",
+    "name": "mailing_state",
+    "full_name": "mailing_state",
+    "api_writable": true
+  },
+  {
+    "label": "Mailing Postal Code",
+    "name": "mailing_postal_code",
+    "full_name": "mailing_postal_code",
+    "api_writable": true
+  },
+  {
+    "label": "Mailing Country",
+    "name": "mailing_country",
+    "full_name": "mailing_country",
+    "api_writable": true
+  },
+  {
+    "label": "Source",
+    "name": "source",
+    "full_name": "source",
+    "api_writable": true
+  },
+  {
+    "label": "Is Active",
+    "name": "is_active",
+    "full_name": "is_active",
+    "api_writable": true
+  },
+  {
+    "label": "Email Opt Out",
+    "name": "email_opt_out",
+    "full_name": "email_opt_out",
+    "api_writable": true
+  },
+  {
+    "label": "Custom Label Dimensions",
+    "name": "custom_label_dimensions",
+    "full_name": "custom_label_dimensions",
+    "api_writable": false
+  },
+  {
+    "label": "Custom Value Dimensions",
+    "name": "custom_value_dimensions",
+    "full_name": "custom_value_dimensions",
+    "api_writable": false
+  },
+  {
+    "label": "Custom Event Dimensions",
+    "name": "custom_event_dimensions",
+    "full_name": "custom_event_dimensions",
+    "api_writable": false
+  }
+]
