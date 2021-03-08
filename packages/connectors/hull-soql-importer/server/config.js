@@ -2,8 +2,6 @@
 import type { HullConnectorConfig } from "hull";
 import Aws from "aws-sdk";
 import { handler } from "hull-sql-importer";
-
-// TODO: Implement the DB Adapter in lib/adapter
 import onStatus from "./actions/on-status";
 import onAuthorize from "./actions/on-authorize";
 import onLogin from "./actions/on-login";

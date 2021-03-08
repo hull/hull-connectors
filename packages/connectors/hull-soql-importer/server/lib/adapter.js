@@ -28,10 +28,7 @@ export function openConnection(settings) {
     refreshToken: settings.refresh_token
   };
 
-  // TODO: Add suport for refreshing tokens
-  const conn = new jsforce.Connection(params);
-
-  return conn;
+  return new jsforce.Connection(params);
 }
 
 export function getRequiredParameters() {
