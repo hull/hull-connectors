@@ -205,6 +205,12 @@ describe("Fetch Leads Tests", () => {
               }
             ],
             [
+              "info",
+              "incoming.job.progress",
+              {},
+              expect.whatever()
+            ],
+            [
               "debug",
               "ship.service_api.request",
               {},

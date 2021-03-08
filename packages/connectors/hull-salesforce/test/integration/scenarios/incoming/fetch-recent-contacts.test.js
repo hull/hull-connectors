@@ -497,6 +497,12 @@ describe("Fetch Contacts Tests", () => {
               }
             ],
             [
+              "info",
+              "incoming.job.progress",
+              {},
+              expect.whatever()
+            ],
+            [
               "debug",
               "ship.service_api.request",
               {},
@@ -806,6 +812,12 @@ describe("Fetch Contacts Tests", () => {
               }
             ],
             [
+              "info",
+              "incoming.job.progress",
+              {},
+              expect.whatever()
+            ],
+            [
               "debug",
               "ship.service_api.request",
               {},
@@ -1020,6 +1032,12 @@ describe("Fetch Contacts Tests", () => {
               }
             ],
             [
+              "info",
+              "incoming.job.progress",
+              {},
+              expect.whatever()
+            ],
+            [
               "debug",
               "ship.service_api.request",
               {},
@@ -1205,6 +1223,12 @@ describe("Fetch Contacts Tests", () => {
                 jobName: "Incoming Data",
                 type: "webpayload"
               }
+            ],
+            [
+              "info",
+              "incoming.job.progress",
+              {},
+              expect.whatever()
             ],
             [
               "debug",

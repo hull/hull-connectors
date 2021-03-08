@@ -130,6 +130,7 @@ const glue = {
   ],
   fetchRecentAccounts: ifL(cond("isEqual", settings("fetch_accounts"), true), [
     cacheLock("fetch-recent-accounts", [
+      set("job", "fetch-recent-accounts"),
       set("service_type", "account"),
       set("transform_to", SalesforceAccountRead),
       route("prepareFetchRecent"),
@@ -151,6 +152,7 @@ const glue = {
   ],
   fetchRecentLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
     cacheLock("fetch-recent-leads", [
+      set("job", "fetch-recent-leads"),
       set("service_type", "lead"),
       set("transform_to", SalesforceLeadRead),
       route("prepareFetchRecent"),
@@ -172,6 +174,7 @@ const glue = {
   ],
   fetchRecentContacts: ifL(cond("isEqual", settings("fetch_contacts"), true), [
     cacheLock("fetch-recent-contacts", [
+      set("job", "fetch-recent-contacts"),
       set("service_type", "contact"),
       set("transform_to", SalesforceContactRead),
       route("prepareFetchRecent"),
@@ -232,16 +235,14 @@ const glue = {
       eldo: set("incoming_action", "asUser")
     }),
     loopL([
-      ifL(cond("notEmpty", "${job}"), [
-        ifL(cond("isEmpty", "${nextPage}"), {
-          do: set("currentPage", "0"),
-          eldo: set("currentPage", "${nextPage}")
-        }),
-        utils("logInfo", {
-          message: "incoming.job.progress",
-          data: { job: "${job}", page: "${currentPage}" }
-        })
-      ]),
+      ifL(cond("isEmpty", "${nextPage}"), {
+        do: set("currentPage", "0"),
+        eldo: set("currentPage", "${nextPage}")
+      }),
+      utils("logInfo", {
+        message: "incoming.job.progress",
+        data: { job: "${job}", page: "${currentPage}" }
+      }),
       set(
         "page",
         salesforceSyncAgent("executeSoqlQuery", {
@@ -253,8 +254,6 @@ const glue = {
       set("nextPage", "${page.nextRecordsUrl}"),
       set("done", "${page.done}"),
 
-      set("recordSize", ld("size", "${records}")),
-      utils("print", "page size: ${recordSize}"),
       iterateL(
         ld("chunk", "${records}", CHUNK_SIZE),
         { key: "recordChunk", async: false },
