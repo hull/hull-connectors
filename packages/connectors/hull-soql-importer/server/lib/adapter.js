@@ -82,6 +82,9 @@ export function validateResult(result, import_type = "users") {
 export function checkForError(error) {
   return false;
 }
+function replaceNamedParameters(sql, values) {
+  return sql.replace(/:+(?!\d)(\w+)/g, (value, key) => values[key]);
+}
 
 /**
  * Wrap the user query inside a SQL query.
@@ -90,7 +93,7 @@ export function checkForError(error) {
  * @param {*} replacements The replacement parameters
  */
 export function wrapQuery(sql, replacements) {
-  return SequelizeUtils.formatNamedParameters(sql, replacements, "mysql");
+  return replaceNamedParameters(sql, replacements);
 }
 
 /**

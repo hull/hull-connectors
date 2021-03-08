@@ -13,10 +13,18 @@ function compareStatus(status1: string, status2: string) {
   return 1;
 }
 
+const getTestQuery = (db_type) => {
+  if (db_type === "salesforce") {
+    return "select lastmodifieddate from contact";
+  }
+  return "SELECT 1 as test";
+}
+
 const statusCheckAction = adapter => {
   return async (ctx: HullContext): HullStatusResponse => {
     const { client = {}, connector = {} } = ctx;
     const { private_settings = {} } = connector;
+    const { db_type } = private_settings;
     const agent = new SyncAgent(ctx, adapter);
 
     const status = "ok";
@@ -40,8 +48,9 @@ const statusCheckAction = adapter => {
         "Connection parameters are not fully configured"
       );
     } else {
+      const testQuery = getTestQuery(db_type);
       promises.push(
-        agent.runQuery("SELECT 1 as test", { timeout: 3000 }).catch(err => {
+        agent.runQuery(testQuery, { timeout: 3000 }).catch(err => {
           pushMessage(
             "error",
             `Error when trying to connect with database. ${_.get(
