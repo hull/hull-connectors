@@ -4,7 +4,6 @@
 import jsforce from "jsforce";
 import csv from "csv-stream";
 import Promise from "bluebird";
-import SequelizeUtils from "sequelize/lib/utils";
 import _ from "lodash";
 import { validateResultColumns } from "hull-sql-importer";
 
