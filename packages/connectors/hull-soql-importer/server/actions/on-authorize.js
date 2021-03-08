@@ -25,7 +25,7 @@ const onAuthorize = async (
   return {
     private_settings: {
       refresh_token: refreshToken,
-      token: access_token,
+      db_host: instance_url,
       access_token,
       instance_url,
       salesforce_login
