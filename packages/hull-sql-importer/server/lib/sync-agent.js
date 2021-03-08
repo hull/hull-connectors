@@ -676,7 +676,6 @@ export default class SyncAgent {
                   jobName: "sync",
                   stepName: "import",
                   progress: partNumber,
-                  job,
                   type: this.import_type
                 });
                 return { job };
