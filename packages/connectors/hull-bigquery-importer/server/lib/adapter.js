@@ -202,7 +202,7 @@ export function streamQuery(client, query) {
  */
 export function transformRecord(record, settings) {
   const transformedRecord = {};
-  const skipFields = ["email", "external_id", "domain", "account_id"];
+  const skipFields = ["email", "external_id", "domain", "account_id", "anonymous_id"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");
   _.forEach(record, (value, key) => {
     let transformedKey;
