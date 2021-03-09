@@ -11,12 +11,12 @@ export default function validate(columnNames, import_type = "users") {
   switch (import_type) {
     case "users":
       if (["email", "external_id", "anonymous_id"].every(isNotIn(columnNames))) {
-        errors.push("Column names should include email and/or external_id");
+        errors.push("Column names should include either email, external_id or anonymous_id");
       }
       break;
     case "accounts":
       if (["domain", "external_id", "anonymous_id"].every(isNotIn(columnNames))) {
-        errors.push("Column names should include domain and/or external_id");
+        errors.push("Column names should include either email, external_id or anonymous_id");
       }
       break;
     case "events":
