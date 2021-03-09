@@ -106,7 +106,9 @@ export default class SyncAgent {
       await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
-    await this.ipCheck(db_host);
+    if (db_host) {
+      await this.ipCheck(db_host);
+    }
     return this.openClient();
   }
 
@@ -389,7 +391,10 @@ export default class SyncAgent {
         const records = !this.adapter.in.transformRecord ?
           result.rows :
           _.map(result.rows, record => {
-            return this.adapter.in.transformRecord(record)
+            return this.adapter.in.transformRecord(
+              record,
+              this.ship.private_settings
+            );
           });
 
         const { errors } = this.adapter.in.validateResult(

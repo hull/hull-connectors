@@ -202,12 +202,13 @@ export function streamQuery(client, query) {
  */
 export function transformRecord(record, settings) {
   const transformedRecord = {};
-  const skipFields = ["email", "external_id", "domain"];
+  const skipFields = ["email", "external_id", "domain", "account_id", "anonymous_id"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");
+  const importType = _.get(settings, "import_type", "users");
   _.forEach(record, (value, key) => {
     let transformedKey;
     const transformedValue = transformDateTypes(value);
-    if (settings.import_type === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
+    if (importType === "events" || skipFields.indexOf(_.toLower(key)) > -1) {
       transformedKey = _.toLower(key);
     } else {
       transformedKey = `${prefix}/${_.toLower(key)}`;
