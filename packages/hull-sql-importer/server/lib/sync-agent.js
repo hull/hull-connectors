@@ -106,7 +106,9 @@ export default class SyncAgent {
       await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
-    await this.ipCheck(db_host);
+    if (db_host) {
+      await this.ipCheck(db_host);
+    }
     return this.openClient();
   }
 
