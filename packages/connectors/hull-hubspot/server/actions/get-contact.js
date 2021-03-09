@@ -5,6 +5,8 @@ import type {
   HullIncomingHandlerMessage
 } from "hull";
 
+const _ = require("lodash");
+
 const SyncAgent = require("../lib/sync-agent");
 
 const getContact = async (
@@ -12,7 +14,7 @@ const getContact = async (
   _incomingMessage: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { body } = _incomingMessage;
-  const { email, contact_id, utk } = body;
+  const { email, contact_id, utk, save_contact = false } = body;
 
   if (!email && !contact_id && !utk) {
     return {
@@ -23,10 +25,25 @@ const getContact = async (
     };
   }
   const syncAgent = new SyncAgent(ctx);
-  const contact =
-    contact_id || email
-      ? await syncAgent.getContact({ id: contact_id, email })
-      : await syncAgent.getVisitor({ utk });
+
+  let contact;
+  try {
+    contact =
+      contact_id || email
+        ? await syncAgent.getContact({ id: contact_id, email })
+        : await syncAgent.getVisitor({ utk });
+
+    if (save_contact && !_.isNil(contact)) {
+      await syncAgent.initialize();
+      await syncAgent.saveContact(contact);
+    }
+  } catch (error) {
+    return {
+      status: 500,
+      error: error.message
+    };
+  }
+
   return {
     status: 200,
     data: contact

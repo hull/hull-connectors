@@ -364,73 +364,75 @@ class SyncAgent {
     this.metric.increment("ship.incoming.users", contacts.length);
     return Promise.all(
       contacts.map(async contact => {
-        const traits = this.mappingUtil.mapToHullEntity(contact, "user");
-        const ident = this.helpers.incomingClaims("user", contact, {
-          anonymous_id_prefix: "hubspot",
-          anonymous_id_service: "vid"
-        });
-        if (ident.error) {
-          return this.logger.info("incoming.user.error", {
-            contact,
-            reason: ident.error
-          });
-        }
-        this.logger.debug("incoming.user", { claims: ident.claims, traits });
-        let asUser;
-        try {
-          asUser = this.hullClient.asUser(ident.claims);
-        } catch (error) {
-          return this.logger.info("incoming.user.error", {
-            contact,
-            error
-          });
-        }
-
-        const mergedVids = _.get(contact, "merged-vids", []);
-        _.forEach(mergedVids, vid => {
-          asUser.alias({ anonymous_id: `hubspot:${vid}` });
-        });
-
-        if (this.connector.private_settings.link_users_in_hull === true) {
-          if (contact.properties.associatedcompanyid) {
-            const linkingClient = this.hullClient.asUser(ident.claims).account({
-              anonymous_id: `hubspot:${contact.properties.associatedcompanyid.value}`
-            });
-            await linkingClient
-              .traits({})
-              .then(() => {
-                return linkingClient.logger.info(
-                  "incoming.account.link.success"
-                );
-              })
-              .catch(error => {
-                return linkingClient.logger.error(
-                  "incoming.account.link.error",
-                  error
-                );
-              });
-          }
-        } else {
-          asUser.logger.debug("incoming.account.link.skip", {
-            reason:
-              "incoming linking is disabled, you can enabled it in the settings"
-          });
-        }
-
-        return asUser.traits(traits).then(
-          () => asUser.logger.debug("incoming.user.success", { traits }),
-          error =>
-            asUser.logger.error("incoming.user.error", {
-              hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
-                error,
-                "message",
-                ""
-              )}`,
-              traits,
-              errors: error
-            })
-        );
+        return this.saveContact(contact);
       })
+    );
+  }
+
+  async saveContact(contact) {
+    const traits = this.mappingUtil.mapToHullEntity(contact, "user");
+    const ident = this.helpers.incomingClaims("user", contact, {
+      anonymous_id_prefix: "hubspot",
+      anonymous_id_service: "vid"
+    });
+    if (ident.error) {
+      return this.logger.info("incoming.user.error", {
+        contact,
+        reason: ident.error
+      });
+    }
+    this.logger.debug("incoming.user", { claims: ident.claims, traits });
+    let asUser;
+    try {
+      asUser = this.hullClient.asUser(ident.claims);
+    } catch (error) {
+      return this.logger.info("incoming.user.error", {
+        contact,
+        error
+      });
+    }
+
+    const mergedVids = _.get(contact, "merged-vids", []);
+    _.forEach(mergedVids, vid => {
+      asUser.alias({ anonymous_id: `hubspot:${vid}` });
+    });
+
+    if (this.connector.private_settings.link_users_in_hull === true) {
+      if (contact.properties.associatedcompanyid) {
+        const linkingClient = this.hullClient.asUser(ident.claims).account({
+          anonymous_id: `hubspot:${contact.properties.associatedcompanyid.value}`
+        });
+        await linkingClient
+          .traits({})
+          .then(() => {
+            return linkingClient.logger.info("incoming.account.link.success");
+          })
+          .catch(error => {
+            return linkingClient.logger.error(
+              "incoming.account.link.error",
+              error
+            );
+          });
+      }
+    } else {
+      asUser.logger.debug("incoming.account.link.skip", {
+        reason:
+          "incoming linking is disabled, you can enabled it in the settings"
+      });
+    }
+
+    return asUser.traits(traits).then(
+      () => asUser.logger.debug("incoming.user.success", { traits }),
+      error =>
+        asUser.logger.error("incoming.user.error", {
+          hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
+            error,
+            "message",
+            ""
+          )}`,
+          traits,
+          errors: error
+        })
     );
   }
 
