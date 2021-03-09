@@ -127,7 +127,7 @@
       "name" : "dedupe_lines_from_previous_import",
       "title" : "Dedupe lines from previous import",
       "type" : "boolean",
-      "default" : false
+      "default" : true
     }
   ],
   "resources": [],
