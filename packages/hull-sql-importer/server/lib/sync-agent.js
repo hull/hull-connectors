@@ -391,7 +391,10 @@ export default class SyncAgent {
         const records = !this.adapter.in.transformRecord ?
           result.rows :
           _.map(result.rows, record => {
-            return this.adapter.in.transformRecord(record)
+            return this.adapter.in.transformRecord(
+              record,
+              this.ship.private_settings
+            );
           });
 
         const { errors } = this.adapter.in.validateResult(
