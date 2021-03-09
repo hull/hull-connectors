@@ -455,7 +455,7 @@ class FacebookAudience {
 
   fb(path, params = {}, method = "get") {
     this.metric.increment("ship.service_api.call", 1);
-    fbgraph.setVersion("7.0");
+    fbgraph.setVersion("9.0");
     const { accessToken, accountId } = this.getCredentials();
     if (!accessToken) {
       return Promise.reject(new ConfigurationError("MissingCredentials"));
