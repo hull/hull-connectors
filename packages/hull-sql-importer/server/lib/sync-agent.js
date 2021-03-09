@@ -106,7 +106,9 @@ export default class SyncAgent {
       await this.ipCheck(ssh_host);
       return this.openClientWithTunnel();
     }
-    await this.ipCheck(db_host);
+    if (db_host) {
+      await this.ipCheck(db_host);
+    }
     return this.openClient();
   }
 
@@ -282,6 +284,10 @@ export default class SyncAgent {
   areConnectionParametersConfigured() {
     const settings = this.ship.private_settings;
 
+    if (this.adapter.in.areConnectionParametersConfigured) {
+      return this.adapter.in.areConnectionParametersConfigured(settings);
+    }
+
     let validationParameters = [
       "type",
       "host",
@@ -382,15 +388,24 @@ export default class SyncAgent {
       .then(result => {
         this.closeClient(openClient);
 
+        const records = !this.adapter.in.transformRecord ?
+          result.rows :
+          _.map(result.rows, record => {
+            return this.adapter.in.transformRecord(
+              record,
+              this.ship.private_settings
+            );
+          });
+
         const { errors } = this.adapter.in.validateResult(
-          result,
+          records,
           this.import_type
         );
         if (errors && errors.length > 0) {
           return { entries: result.rows, errors };
         }
 
-        return { entries: result.rows };
+        return { entries: records};
       })
       .catch(err => {
         this.closeClient(openClient);
@@ -676,7 +691,6 @@ export default class SyncAgent {
                   jobName: "sync",
                   stepName: "import",
                   progress: partNumber,
-                  job,
                   type: this.import_type
                 });
                 return { job };
