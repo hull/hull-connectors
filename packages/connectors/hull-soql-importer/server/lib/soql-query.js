@@ -53,8 +53,8 @@ class SoqlQuery {
     const hullFieldName = alias || field;
     const serviceFieldName = rawValue || field;
     return {
-      hull: _.toLower(hullFieldName.replace(/\./, "/")),
-      service: _.toLower(serviceFieldName.replace(/\./, "_"))
+      hull: _.toLower(hullFieldName.replace(/\./g, "/")),
+      service: _.toLower(serviceFieldName.replace(/\./g, "_"))
     };
   }
 

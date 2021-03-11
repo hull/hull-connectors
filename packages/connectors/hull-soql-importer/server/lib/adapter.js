@@ -8,8 +8,6 @@ import _ from "lodash";
 import { validateResultColumns } from "hull-sql-importer";
 import { SoqlQuery } from "./soql-query";
 
-const flatten = require("flat");
-
 /**
  * Salesforce adapter.
  */
@@ -141,42 +139,21 @@ export function streamQuery(client, query) {
   });
 }
 
-const cleanRecord = record => {
+export function transformRecord({ record, mapping }) {
   return _.reduce(
     record,
-    (m, v, k) => {
-      if (k === "attributes") return m;
-      m[k.toLowerCase()] = v;
-      if (_.isObject(v)) {
-        m[k.toLowerCase()] = cleanRecord(v);
-      }
-      return m;
-    },
-    {}
-  );
-};
-
-const flattenRecord = record => {
-  const cleanedRecord = cleanRecord(record);
-  return flatten(cleanedRecord, { delimiter: "_", safe: true });
-};
-
-export function transformRecord({ record, mapping }) {
-  const flattened = flattenRecord(record);
-
-  return _.reduce(
-    flattened,
-    (a, v, k) => {
+    (transformedRecord, attributeValue, attributeKey) => {
+      const attributeName = attributeKey.toLowerCase().replace(/\./g, "_");
       const attributeMapping = _.find(mapping, entry => {
-        return entry.service === k;
+        return entry.service === attributeName;
       });
 
       if (attributeMapping) {
-        a[attributeMapping.hull] = v;
+        transformedRecord[attributeMapping.hull] = attributeValue;
       } else {
-        a[k] = v;
+        transformedRecord[attributeName] = attributeValue;
       }
-      return a;
+      return transformedRecord;
     },
     {}
   );
