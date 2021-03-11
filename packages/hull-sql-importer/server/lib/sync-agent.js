@@ -598,7 +598,8 @@ export default class SyncAgent {
         data.timestamp = record.timestamp;
         data.event = record.event;
         data.eventId = record.event_id;
-        omitTraits.push("timestamp", "event", "event_id");
+        data.anonymousId = record.anonymous_id;
+        omitTraits.push("timestamp", "event", "event_id", "anonymous_id");
       }
 
       // Register everything else inside the "traits" object.
