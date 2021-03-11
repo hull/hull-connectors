@@ -6,6 +6,9 @@ import csv from "csv-stream";
 import Promise from "bluebird";
 import _ from "lodash";
 import { validateResultColumns } from "hull-sql-importer";
+import { SoqlQuery } from "./soql-query";
+
+const flatten = require("flat");
 
 /**
  * Salesforce adapter.
@@ -78,9 +81,6 @@ export function validateResult(result, import_type = "users") {
 export function checkForError(error) {
   return false;
 }
-function replaceNamedParameters(sql, values) {
-  return sql.replace(/:+(?!\d)(\w+)/g, (value, key) => values[key]);
-}
 
 /**
  * Wrap the user query inside a SQL query.
@@ -89,7 +89,14 @@ function replaceNamedParameters(sql, values) {
  * @param {*} replacements The replacement parameters
  */
 export function wrapQuery(sql, replacements) {
-  return replaceNamedParameters(sql, replacements);
+  const query = new SoqlQuery(sql);
+  const executableQuery = query.getExecutableQuery();
+  return query.replaceNamedParameters(executableQuery, replacements);
+}
+
+export function getAttributeMapping(sql) {
+  const query = new SoqlQuery(sql);
+  return query.getAttributeMappings();
 }
 
 /**
@@ -102,7 +109,7 @@ export function wrapQuery(sql, replacements) {
  */
 export function runQuery(client, query, options = {}) {
   return new Promise((resolve, reject) => {
-    const soqlText = `${query} LIMIT ${options.limit}`;
+    const soqlText = `${query} LIMIT ${options.limit || 100}`;
     client.query(soqlText, (err, result) => {
       if (err) return reject(err);
       return resolve({ rows: result.records });
@@ -134,13 +141,42 @@ export function streamQuery(client, query) {
   });
 }
 
-export function transformRecord(record) {
+const cleanRecord = record => {
   return _.reduce(
     record,
     (m, v, k) => {
       if (k === "attributes") return m;
       m[k.toLowerCase()] = v;
+      if (_.isObject(v)) {
+        m[k.toLowerCase()] = cleanRecord(v);
+      }
       return m;
+    },
+    {}
+  );
+};
+
+const flattenRecord = record => {
+  const cleanedRecord = cleanRecord(record);
+  return flatten(cleanedRecord, { delimiter: "_", safe: true });
+};
+
+export function transformRecord({ record, mapping }) {
+  const flattened = flattenRecord(record);
+
+  return _.reduce(
+    flattened,
+    (a, v, k) => {
+      const attributeMapping = _.find(mapping, entry => {
+        return entry.service === k;
+      });
+
+      if (attributeMapping) {
+        a[attributeMapping.hull] = v;
+      } else {
+        a[k] = v;
+      }
+      return a;
     },
     {}
   );

@@ -169,7 +169,7 @@ export function streamQuery(client, query) {
   });
 }
 
-export function transformRecord(record) {
+export function transformRecord({ record }) {
   const transformedRecord = {};
   _.forEach(record, (value, key) => {
     transformedRecord[_.toLower(key)] = record[key];

@@ -200,7 +200,7 @@ export function streamQuery(client, query) {
  * @param settings private_settings containing the prefix
  * @returns transformRecord containing the newly formatted attributes
  */
-export function transformRecord(record, settings) {
+export function transformRecord({ record, settings }) {
   const transformedRecord = {};
   const skipFields = ["email", "external_id", "domain", "account_id", "anonymous_id"];
   const prefix = _.get(settings, "attributes_group_name", "bigquery");

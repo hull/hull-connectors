@@ -388,13 +388,18 @@ export default class SyncAgent {
       .then(result => {
         this.closeClient(openClient);
 
+        const mapping = this.adapter.in.getAttributeMapping
+          ? this.adapter.in.getAttributeMapping(query)
+          : {};
+
         const records = !this.adapter.in.transformRecord ?
           result.rows :
           _.map(result.rows, record => {
-            return this.adapter.in.transformRecord(
-              record,
-              this.ship.private_settings
-            );
+            return this.adapter.in.transformRecord({
+                record,
+                settings: this.ship.private_settings,
+                mapping
+            });
           });
 
         const { errors } = this.adapter.in.validateResult(
@@ -530,6 +535,10 @@ export default class SyncAgent {
     const jobId = _.get(this, "job.id", uuid()); // ID of the job chunk
     const importId = uuid(); // ID of the whole job
 
+    const mapping = this.adapter.in.getAttributeMapping
+      ? this.adapter.in.getAttributeMapping(this.getQuery())
+      : {};
+
     const transform = map({ objectMode: true }, rawRecord => {
       const data = {}; // data formated to be sent to hull
       processed += 1;
@@ -573,7 +582,11 @@ export default class SyncAgent {
       }
 
       const record = this.adapter.in.transformRecord
-        ? this.adapter.in.transformRecord(rawRecord, this.ship.private_settings)
+        ? this.adapter.in.transformRecord({
+          record: rawRecord,
+          settings: this.ship.private_settings,
+          mapping
+        })
         : rawRecord;
 
       // Add the external_id if exists.
