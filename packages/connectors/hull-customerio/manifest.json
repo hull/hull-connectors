@@ -114,9 +114,6 @@
       "conditions": {
         "channels": {
           "only": ["user:update"]
-        },
-        "segments": {
-          "user:update": ["private_settings.synchronized_segments"]
         }
       },
       "channels": [
