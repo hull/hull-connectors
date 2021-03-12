@@ -13,6 +13,7 @@ import getLeadAssignmentRules from "../actions/get-lead-assignment-rules";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
+import insertSObject from "../actions/insert-sobject";
 
 import accountUpdate from "./account-update";
 import userUpdate from "./user-update";
@@ -79,7 +80,8 @@ const handler = ({
       fieldsSalesforceTaskUnique: getTaskProperties({ fieldType: "unique" }),
       fieldsSalesforceTaskReference: getTaskProperties({
         fieldType: "reference"
-      })
+      }),
+      insertSObject: insertSObject()
     }
   };
 };

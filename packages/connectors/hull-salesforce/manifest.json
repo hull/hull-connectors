@@ -772,6 +772,10 @@
     {
       "url": "/assignmentrules/lead",
       "handler": "leadAssignmentRules"
+    },
+    {
+      "url": "/insert",
+      "handler": "insertSObject"
     }
   ],
   "schedules": [
