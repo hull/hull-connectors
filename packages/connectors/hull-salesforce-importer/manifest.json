@@ -1,6 +1,6 @@
 {
-  "name": "SOQL Importer",
-  "description": "Import data from your SOQL databases",
+  "name": "Salesforce Importer",
+  "description": "Import data from your Salesforce instance",
   "picture": "picture.png",
   "version": "0.1.41-monorepo",
   "source": "soql",

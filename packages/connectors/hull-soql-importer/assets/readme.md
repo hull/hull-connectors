@@ -1,1 +1,0 @@
-# Hull SOQL Importer Connector

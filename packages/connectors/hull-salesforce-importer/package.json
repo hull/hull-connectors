@@ -1,5 +1,5 @@
 {
-  "name": "hull-soql-importer",
+  "name": "hull-salesforce-importer",
   "version": "0.1.41-monorepo",
   "license": "MIT",
   "description": "Import Users, Events and Accounts from Salesforce",
