@@ -8,6 +8,8 @@ import _ from "lodash";
 import { validateResultColumns } from "hull-sql-importer";
 import { SoqlQuery } from "./soql-query";
 
+const flatten = require("flat");
+
 /**
  * Salesforce adapter.
  */
@@ -139,7 +141,28 @@ export function streamQuery(client, query) {
   });
 }
 
-export function transformRecord({ record, mapping }) {
+const cleanRecord = record => {
+  return _.reduce(
+    record,
+    (m, v, k) => {
+      if (k === "attributes") return m;
+      m[k.toLowerCase()] = v;
+      if (_.isObject(v)) {
+        m[k.toLowerCase()] = cleanRecord(v);
+      }
+      return m;
+    },
+    {}
+  );
+};
+
+const flattenRecord = record => {
+  const cleanedRecord = cleanRecord(record);
+  return flatten(cleanedRecord, { delimiter: "_", safe: true });
+};
+
+export function transformRecord({ record: rawRecord, mapping }) {
+  const record = flattenRecord(rawRecord);
   return _.reduce(
     record,
     (transformedRecord, attributeValue, attributeKey) => {
