@@ -64,10 +64,10 @@ export function closeConnection(client) {
  */
 
 export function validateResult(result, import_type = "users") {
-  if (!result.rows || result.rows.length === 0) {
+  if (!result || result.length === 0) {
     return "Try to select a preview query which will return some results to validate";
   }
-  return validateResultColumns(Object.keys(result.rows[0]), import_type);
+  return validateResultColumns(Object.keys(result[0]), import_type);
 }
 
 /**
